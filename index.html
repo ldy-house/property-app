@@ -23,7 +23,7 @@
 
   let props = [];
   let editId = null;
-  let currentImgData = null;
+  let currentImgUrl = null;
 
   onSnapshot(collection(db, "properties"), (snapshot) => {
     props = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -54,7 +54,7 @@
       status: document.getElementById('f-st').value,
       baitai: document.getElementById('f-baitai-form').value,
       note: document.getElementById('f-note').value.trim(),
-      img: currentImgData || null,
+      img: currentImgUrl || null,
     };
     try {
       if (editId) {
@@ -79,8 +79,8 @@
   window._firebaseDelete = deleteProperty;
   window._setEditId = (id) => { editId = id; };
   window._getProps = () => props;
-  window._setImgData = (data) => { currentImgData = data; };
-  window._clearImg = () => { currentImgData = null; };
+  window._setImgUrl = (url) => { currentImgUrl = url; };
+  window._clearImg = () => { currentImgUrl = null; };
 </script>
 
 <style>
@@ -126,6 +126,7 @@
   .btn-xs:hover { background: #f0f0f0; }
   .btn-del { color: #a00; border-color: #f7c1c1; }
   .btn-del:hover { background: #fff0f0; }
+
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
   .modal-bg.open { display: flex; }
   .modal { background: var(--white); border-radius: 8px; width: 500px; max-width: 96%; max-height: 90vh; overflow-y: auto; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
@@ -139,8 +140,26 @@
   .form-row textarea { resize: vertical; height: 64px; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
-  .img-preview-el { width: 100%; max-height: 130px; object-fit: cover; border-radius: 4px; margin-top: 6px; }
-  .img-hint { font-size: 10px; color: #999; margin-top: 4px; }
+
+  /* ── 画像アップロードエリア ── */
+  .img-drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    color: #999;
+    font-size: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .img-drop-area:hover, .img-drop-area.dragover { border-color: var(--red); background: #fff8f8; color: var(--red); }
+  .img-drop-area .drop-icon { font-size: 28px; margin-bottom: 6px; }
+  .img-preview-wrap { margin-top: 8px; position: relative; display: inline-block; width: 100%; }
+  .img-preview-el { width: 100%; max-height: 140px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+  .img-clear-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .img-uploading { font-size: 12px; color: var(--red); margin-top: 6px; display: none; }
+
   .print-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
   .print-modal-bg.open { display: flex; }
   .print-modal-inner { background: var(--white); border-radius: 8px; width: 100%; max-width: 960px; padding: 1rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
@@ -246,14 +265,22 @@
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
 
+    <!-- 画像アップロード（Cloudinary） -->
     <div class="form-row">
-      <label>外観写真（画像URLを入力）</label>
-      <div style="display:flex;gap:6px;">
-        <input type="text" id="f-img-url" placeholder="例：https://i.imgur.com/xxxxx.jpg" oninput="handleUrlInput()" />
-        <button class="btn" style="font-size:11px;padding:4px 10px;white-space:nowrap;" onclick="clearImage()">クリア</button>
+      <label>外観写真（クリック・ドラッグ＆ドロップでアップロード）</label>
+      <div class="img-drop-area" id="img-drop-area" onclick="document.getElementById('img-file-input').click()">
+        <div id="img-drop-content">
+          <div class="drop-icon">🏠</div>
+          <div>クリックまたはドラッグ＆ドロップ</div>
+          <div style="font-size:10px;margin-top:4px;">JPG・PNG・WEBP対応</div>
+        </div>
+        <div class="img-preview-wrap" id="img-preview-wrap" style="display:none;">
+          <img id="img-preview-el" class="img-preview-el" />
+          <button class="img-clear-btn" onclick="event.stopPropagation();clearImage()">✕</button>
+        </div>
       </div>
-      <img id="img-preview-el" class="img-preview-el" style="display:none;" />
-      <p class="img-hint">💡 Imgur（imgur.com）に写真をアップしてURLを貼ってください（無料）</p>
+      <div class="img-uploading" id="img-uploading">⏳ アップロード中...</div>
+      <input type="file" id="img-file-input" accept="image/*" style="display:none;" onchange="handleFileSelect(event)" />
     </div>
 
     <div class="form-row"><label>物件名 *</label><input id="f-name" placeholder="例：浅草橋3丁目ビル" /></div>
@@ -321,9 +348,76 @@
 <div id="printable"></div>
 
 <script>
+  // Cloudinary設定
+  var CLOUDINARY_CLOUD = 'dujllruro';
+  var CLOUDINARY_PRESET = 'ldy-property';
+
   function showLoading(v) {
     document.getElementById('loading').className = 'loading-overlay' + (v ? ' show' : '');
   }
+
+  // ── 画像アップロード（Cloudinary） ──
+  async function uploadToCloudinary(file) {
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    var res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', {
+      method: 'POST',
+      body: formData
+    });
+    var data = await res.json();
+    if (data.secure_url) return data.secure_url;
+    throw new Error(data.error ? data.error.message : 'アップロード失敗');
+  }
+
+  window.handleFileSelect = async function(e) {
+    var file = e.target.files[0];
+    if (file) await processImageFile(file);
+  };
+
+  async function processImageFile(file) {
+    document.getElementById('img-uploading').style.display = 'block';
+    try {
+      var url = await uploadToCloudinary(file);
+      setPreviewImage(url);
+      window._setImgUrl(url);
+    } catch(e) {
+      alert('画像アップロードに失敗しました: ' + e.message);
+    }
+    document.getElementById('img-uploading').style.display = 'none';
+  }
+
+  function setPreviewImage(url) {
+    document.getElementById('img-preview-el').src = url;
+    document.getElementById('img-drop-content').style.display = 'none';
+    document.getElementById('img-preview-wrap').style.display = 'block';
+  }
+
+  window.clearImage = function() {
+    window._clearImg();
+    document.getElementById('img-preview-el').src = '';
+    document.getElementById('img-drop-content').style.display = 'block';
+    document.getElementById('img-preview-wrap').style.display = 'none';
+    document.getElementById('img-file-input').value = '';
+  };
+
+  // ドラッグ＆ドロップ
+  var dropArea = document.getElementById('img-drop-area');
+  dropArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dropArea.classList.add('dragover');
+  });
+  dropArea.addEventListener('dragleave', function() {
+    dropArea.classList.remove('dragover');
+  });
+  dropArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropArea.classList.remove('dragover');
+    var file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) processImageFile(file);
+  });
+
+  // ── テーブル描画 ──
   function statusClass(s) {
     if (!s) return 's-other';
     if (s === '販売済') return 's-done';
@@ -339,61 +433,63 @@
       .replace('区分マンション','区分').replace('一戸建て','戸建');
   }
   function getFiltered() {
-    const props = window._getProps ? window._getProps() : [];
-    const kw = document.getElementById('f-keyword').value.trim().toLowerCase();
-    const type = document.getElementById('f-type').value;
-    const status = document.getElementById('f-status').value;
-    const baitai = document.getElementById('f-baitai').value;
-    return props.filter(p => {
-      if (kw && !p.name?.toLowerCase().includes(kw) && !p.loc?.toLowerCase().includes(kw) && !(p.sta||'').toLowerCase().includes(kw)) return false;
+    var props = window._getProps ? window._getProps() : [];
+    var kw = document.getElementById('f-keyword').value.trim().toLowerCase();
+    var type = document.getElementById('f-type').value;
+    var status = document.getElementById('f-status').value;
+    var baitai = document.getElementById('f-baitai').value;
+    return props.filter(function(p) {
+      if (kw && !(p.name||'').toLowerCase().includes(kw) && !(p.loc||'').toLowerCase().includes(kw) && !(p.sta||'').toLowerCase().includes(kw)) return false;
       if (type && p.kind !== type) return false;
       if (status && p.status !== status) return false;
       if (baitai && p.baitai !== baitai) return false;
       return true;
     });
   }
+
   window.renderTable = function() {
-    const props = window._getProps ? window._getProps() : [];
-    const filtered = getFiltered();
+    var props = window._getProps ? window._getProps() : [];
+    var filtered = getFiltered();
     document.getElementById('count-info').textContent = filtered.length + '件表示中 / 全' + props.length + '件';
     document.getElementById('s-total').textContent = props.length;
-    document.getElementById('s-rent').textContent = props.filter(p => p.status?.includes('賃貸')).length;
-    document.getElementById('s-empty').textContent = props.filter(p => p.status?.includes('空室')).length;
-    document.getElementById('s-build').textContent = props.filter(p => p.status?.includes('建築')).length;
-    document.getElementById('s-done2').textContent = props.filter(p => p.status === '販売済').length;
-    document.getElementById('s-applied').textContent = props.filter(p => p.status === '申込あり').length;
+    document.getElementById('s-rent').textContent = props.filter(function(p){ return p.status && p.status.includes('賃貸'); }).length;
+    document.getElementById('s-empty').textContent = props.filter(function(p){ return p.status && p.status.includes('空室'); }).length;
+    document.getElementById('s-build').textContent = props.filter(function(p){ return p.status && p.status.includes('建築'); }).length;
+    document.getElementById('s-done2').textContent = props.filter(function(p){ return p.status === '販売済'; }).length;
+    document.getElementById('s-applied').textContent = props.filter(function(p){ return p.status === '申込あり'; }).length;
     document.getElementById('sync-status').textContent = '✅ リアルタイム同期中';
-    const tbody = document.getElementById('tbody');
+    var tbody = document.getElementById('tbody');
     if (!filtered.length) {
       tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:2rem;color:#999;">該当する物件がありません</td></tr>';
       return;
     }
-    tbody.innerHTML = filtered.map(p =>
-      '<tr ondblclick="openModal(\'' + p.id + '\')" title="ダブルクリックで編集">' +
+    tbody.innerHTML = filtered.map(function(p) {
+      return '<tr ondblclick="openModal(\'' + p.id + '\')" title="ダブルクリックで編集">' +
         '<td>' + (p.img ? '<img class="prop-thumb" src="' + p.img + '" alt="" />' : '<div class="no-img">写真なし</div>') + '</td>' +
         '<td title="' + (p.name||'') + '">' + (p.name||'') + '</td>' +
         '<td><span class="type-tag">' + kindShort(p.kind) + '</span></td>' +
         '<td title="' + (p.loc||'') + '">' + (p.loc||'').replace('東京都','') + '</td>' +
         '<td title="' + (p.sta||'') + '" style="font-size:11px;">' + (p.sta||'—') + '</td>' +
-        '<td>' + (p.land ? p.land + '㎡' : '—') + '</td>' +
-        '<td>' + (p.floor ? p.floor + '㎡' : '—') + '</td>' +
-        '<td>' + (p.price ? p.price.toLocaleString() + '万' : '—') + '</td>' +
+        '<td>' + (p.land ? p.land+'㎡' : '—') + '</td>' +
+        '<td>' + (p.floor ? p.floor+'㎡' : '—') + '</td>' +
+        '<td>' + (p.price ? p.price.toLocaleString()+'万' : '—') + '</td>' +
         '<td><span class="status-tag ' + statusClass(p.status) + '">' + (p.status||'—') + '</span></td>' +
         '<td>' + (p.baitai||'—') + '</td>' +
         '<td><div class="btn-row">' +
           '<button class="btn-xs" onclick="openModal(\'' + p.id + '\')">編集</button>' +
           '<button class="btn-xs btn-del" onclick="window._firebaseDelete(\'' + p.id + '\')">削除</button>' +
         '</div></td>' +
-      '</tr>'
-    ).join('');
+      '</tr>';
+    }).join('');
   };
+
   window.openModal = function(id) {
     id = id || null;
     window._setEditId(id);
     document.getElementById('modal-title').textContent = id ? '物件を編集' : '物件を追加';
-    clearImage();
+    window.clearImage();
     if (id) {
-      const p = (window._getProps ? window._getProps() : []).find(x => x.id === id);
+      var p = (window._getProps ? window._getProps() : []).find(function(x){ return x.id === id; });
       if (!p) return;
       document.getElementById('f-name').value = p.name||'';
       document.getElementById('f-kind').value = p.kind||'マンション・アパート';
@@ -414,10 +510,8 @@
       document.getElementById('f-baitai-form').value = p.baitai||'売主';
       document.getElementById('f-note').value = p.note||'';
       if (p.img) {
-        window._setImgData(p.img);
-        document.getElementById('f-img-url').value = p.img;
-        document.getElementById('img-preview-el').src = p.img;
-        document.getElementById('img-preview-el').style.display = 'block';
+        window._setImgUrl(p.img);
+        setPreviewImage(p.img);
       }
     } else {
       ['f-name','f-loc','f-sta','f-land','f-floor','f-layout','f-price-val',
@@ -429,21 +523,9 @@
     }
     document.getElementById('modal').classList.add('open');
   };
+
   window.closeModal = function() { document.getElementById('modal').classList.remove('open'); };
-  window.handleUrlInput = function() {
-    var url = document.getElementById('f-img-url').value.trim();
-    if (url) {
-      window._setImgData(url);
-      document.getElementById('img-preview-el').src = url;
-      document.getElementById('img-preview-el').style.display = 'block';
-    }
-  };
-  window.clearImage = function() {
-    window._clearImg && window._clearImg();
-    document.getElementById('f-img-url').value = '';
-    document.getElementById('img-preview-el').src = '';
-    document.getElementById('img-preview-el').style.display = 'none';
-  };
+
   function buildCards(list) {
     return list.map(function(p) {
       var isDone = p.status === '販売済';
@@ -451,12 +533,12 @@
       var stamp = isDone ? '<div class="stamp stamp-done">済</div>' : isApplied ? '<div class="stamp stamp-applied">申込</div>' : '';
       var notes = (p.note||'').split('\n').filter(Boolean);
       var rows = [
-        ['所在地', p.loc||'—'], ['最寄り駅', p.sta||'—'], ['用途', p.uso||'—'],
-        ['土地面積', p.land ? p.land+'㎡' : '—'], ['延床面積', p.floor ? p.floor+'㎡' : '—'],
-        ['間取り', p.layout||'—'], ['築年月', p.built||'—'], ['構造', p.struct||'—'],
-        ['接道', p.road||'—'], ['建蔽率・容積率', p.far||'—'], ['用途地域', p.zone||'—'],
-        ['回利り', p.yld ? p.yld+'%' : '—'], ['現状', p.status||'—'],
-        ['引渡可能日', '相談'], ['取引業態', p.baitai||'—'],
+        ['所在地',p.loc||'—'],['最寄り駅',p.sta||'—'],['用途',p.uso||'—'],
+        ['土地面積',p.land?p.land+'㎡':'—'],['延床面積',p.floor?p.floor+'㎡':'—'],
+        ['間取り',p.layout||'—'],['築年月',p.built||'—'],['構造',p.struct||'—'],
+        ['接道',p.road||'—'],['建蔽率・容積率',p.far||'—'],['用途地域',p.zone||'—'],
+        ['回利り',p.yld?p.yld+'%':'—'],['現状',p.status||'—'],
+        ['引渡可能日','相談'],['取引業態',p.baitai||'—'],
       ];
       return '<div class="prop-card">' +
         '<div class="card-name">' + (p.name||'') + '</div>' +
@@ -465,11 +547,12 @@
           (p.img ? '<img src="' + p.img + '" alt="' + (p.name||'') + '" />' : '<div class="card-img-placeholder">写真なし</div>') +
           stamp +
         '</div>' +
-        '<table class="card-table">' + rows.map(function(r){ return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>' +
-        (notes.length ? '<div class="card-notes"><ol>' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ol></div>' : '') +
+        '<table class="card-table">' + rows.map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>'; }).join('') + '</table>' +
+        (notes.length ? '<div class="card-notes"><ol>' + notes.map(function(n){ return '<li>'+n+'</li>'; }).join('') + '</ol></div>' : '') +
       '</div>';
     }).join('');
   }
+
   window.showPrintPreview = function() {
     var filtered = getFiltered();
     var pages = [];
@@ -488,6 +571,7 @@
     document.getElementById('printable').innerHTML = html;
     document.getElementById('print-modal').classList.add('open');
   };
+
   window.closePrintModal = function() { document.getElementById('print-modal').classList.remove('open'); };
   window.doPrint = function() { window.print(); };
 </script>
