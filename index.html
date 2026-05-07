@@ -283,7 +283,14 @@ function renderCards(list) {
         '</div>' +
         (notes.length ? '<div class="card-notes"><ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul></div>' : '') +
         '<div class="card-contact">' +
-          '<a href="tel:0362606811" class="btn-contact">この物件について問い合わせる</a>' +
+          '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+  <a href="tel:0362606811" class="btn-contact" style="display:inline-flex;align-items:center;gap:6px;">
+    <span>&#128222;</span> 電話で問い合わせる
+  </a>
+  <a href="mailto:info@ldy-house.com?subject=物件についてのお問い合わせ（PROP_NAME）&body=物件名：PROP_NAME%0A%0Aお名前：%0Aご連絡先：%0A%0Aお問い合わせ内容：" class="btn-contact" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#1B2A6B,#111C4E);color:#fff;">
+    <span>&#9993;</span> メールで問い合わせる
+  </a>
+</div>' +
         '</div>' +
       '</div>' +
     '</div>';
