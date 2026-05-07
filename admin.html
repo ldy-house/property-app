@@ -7,8 +7,7 @@
 <style>
 :root{
   --navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;
-  --white:#fff;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#666;
-  --red:#C62828;--green:#2E7D32;
+  --white:#fff;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#666;--red:#C62828;--green:#2E7D32;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
@@ -24,7 +23,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .login-field label{display:block;font-size:11px;font-weight:700;color:var(--sub);margin-bottom:5px;letter-spacing:0.5px;}
 .login-field input{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:5px;font-size:14px;outline:none;transition:border-color 0.15s;}
 .login-field input:focus{border-color:var(--navy);}
-.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:1px;transition:opacity 0.15s;}
+.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:1px;}
 .login-btn:hover{opacity:0.9;}
 .login-err{color:var(--red);font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
 
@@ -57,28 +56,25 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 /* TOOLBAR */
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#fff;border-bottom:2px solid var(--gold);align-items:center;}
-.toolbar input,.toolbar select{font-size:12px;padding:7px 12px;border:1px solid #ccc;border-radius:4px;background:#fff;outline:none;transition:border-color 0.15s;}
-.toolbar input:focus,.toolbar select:focus{border-color:var(--navy);}
+.toolbar input,.toolbar select{font-size:12px;padding:7px 12px;border:1px solid #ccc;border-radius:4px;background:#fff;outline:none;}
 .toolbar input{min-width:220px;}
 .toolbar-right{margin-left:auto;display:flex;gap:8px;}
 
 /* CARD GRID */
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;padding:16px 20px;}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding:16px 20px;}
 .prop-card{background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(27,42,107,0.08);overflow:hidden;transition:box-shadow 0.2s;border:1px solid var(--border);}
 .prop-card:hover{box-shadow:0 6px 24px rgba(27,42,107,0.16);}
-.card-photos{position:relative;height:200px;background:#eee;overflow:hidden;cursor:pointer;}
-.card-photos img{width:100%;height:100%;object-fit:cover;transition:opacity 0.3s;}
+
+/* 写真エリア：縦長・contain */
+.card-photos{position:relative;height:260px;background:#f4f4f4;overflow:hidden;cursor:pointer;}
+.card-photos img{width:100%;height:100%;object-fit:contain;background:#f4f4f4;}
 .card-no-photo{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;font-size:13px;gap:8px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);}
 .photo-nav{position:absolute;bottom:8px;right:8px;display:flex;gap:4px;}
-.photo-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.5);cursor:pointer;transition:background 0.2s;}
-.photo-dot.active{background:#fff;}
 .photo-count{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;}
 .photo-prev,.photo-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.45);color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;}
 .card-photos:hover .photo-prev,.card-photos:hover .photo-next{opacity:1;}
 .photo-prev{left:8px;}
 .photo-next{right:8px;}
-
-/* SALE STATUS BADGE */
 .sale-badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:0.5px;}
 .badge-sale{background:var(--navy);color:#fff;}
 .badge-applied{background:#E65100;color:#fff;}
@@ -88,7 +84,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .card-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;line-height:1.3;}
 .card-price{font-size:18px;font-weight:900;color:var(--red);margin-bottom:8px;}
 .card-price span{font-size:11px;font-weight:400;color:var(--sub);margin-left:4px;}
-.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
 .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:2px;font-weight:600;white-space:nowrap;}
 .tag-kind{background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;}
 .tag-prop-empty{background:#FFF9C4;color:#7B6000;}
@@ -96,13 +92,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .tag-prop-full{background:#E8F5E9;color:#2E7D32;}
 .tag-prop-build{background:#EDE7F6;color:#4527A0;}
 .tag-prop-other{background:#F5F5F5;color:#555;}
-.card-info{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:11px;margin-bottom:10px;}
+.card-sta{font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.5;}
+.card-info{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:11px;margin-bottom:8px;}
 .info-row{display:flex;gap:4px;}
 .info-label{color:var(--sub);white-space:nowrap;min-width:52px;}
 .info-val{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.card-sta{font-size:11px;color:var(--sub);margin-bottom:10px;display:flex;gap:4px;align-items:flex-start;}
-.card-sta-icon{flex-shrink:0;margin-top:1px;}
-.card-notes{font-size:11px;color:var(--sub);border-top:1px solid #eee;padding-top:8px;margin-top:4px;max-height:60px;overflow:hidden;}
+.card-notes{font-size:11px;color:var(--sub);border-top:1px solid #eee;padding-top:6px;margin-top:4px;}
 .card-actions{display:flex;gap:6px;padding:10px 16px;border-top:1px solid #eee;background:#fafafa;}
 .count-info{font-size:11px;color:var(--sub);padding:6px 20px 0;}
 
@@ -121,7 +116,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .form-row label{display:block;font-size:11px;color:var(--sub);margin-bottom:4px;font-weight:700;letter-spacing:0.3px;}
 .form-row input,.form-row select,.form-row textarea{width:100%;font-size:13px;padding:9px 11px;border:1.5px solid #ddd;border-radius:5px;outline:none;transition:border-color 0.15s;font-family:inherit;}
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--navy);}
-.form-row textarea{resize:vertical;height:110px;line-height:1.7;}
+.form-row textarea{resize:vertical;height:120px;line-height:1.7;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .form-grid3{display:grid;grid-template-columns:1fr 1fr 80px;gap:8px;}
 .modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 10px 10px;flex-shrink:0;}
@@ -129,21 +124,18 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 /* IMG UPLOAD */
 .img-drop{border:2px dashed #ccc;border-radius:6px;padding:18px;text-align:center;cursor:pointer;color:#999;font-size:12px;transition:all 0.2s;background:#fafafa;min-height:90px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
 .img-drop:hover,.img-drop.dragover{border-color:var(--gold);background:#fffbf0;color:var(--gold);}
-.img-drop-icon{font-size:28px;}
 .img-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:10px;}
 .img-item{position:relative;border-radius:5px;overflow:hidden;aspect-ratio:4/3;background:#eee;}
-.img-item img{width:100%;height:100%;object-fit:cover;}
-.img-item-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;display:flex;flex-direction:column;justify-content:space-between;padding:5px;}
-.img-item:hover .img-item-overlay{background:rgba(0,0,0,0.35);}
-.img-del-btn{position:absolute;top:4px;right:4px;background:rgba(200,0,0,0.8);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;}
+.img-item img{width:100%;height:100%;object-fit:contain;background:#f4f4f4;}
 .img-item:hover .img-del-btn{display:flex;}
-.img-caption{width:100%;font-size:10px;padding:3px 5px;border:none;border-top:1px solid rgba(255,255,255,0.5);background:rgba(0,0,0,0.5);color:#fff;border-radius:0 0 4px 4px;outline:none;}
+.img-del-btn{position:absolute;top:4px;right:4px;background:rgba(200,0,0,0.8);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;}
+.img-caption{width:100%;font-size:10px;padding:3px 5px;border:none;border-top:1px solid rgba(0,0,0,0.1);background:rgba(0,0,0,0.5);color:#fff;outline:none;position:absolute;bottom:0;left:0;}
 .img-uploading{font-size:12px;color:var(--navy);margin-top:6px;display:none;font-weight:600;}
 
 /* LIGHTBOX */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.open{display:flex;}
-.lightbox-img{max-width:90vw;max-height:75vh;object-fit:contain;border-radius:4px;}
+.lightbox-img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:4px;display:block;background:#111;}
 .lightbox-caption{color:rgba(255,255,255,0.75);font-size:13px;margin-top:12px;text-align:center;max-width:600px;}
 .lightbox-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:0.7;}
 .lightbox-close:hover{opacity:1;}
@@ -155,44 +147,125 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .lightbox-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.35);cursor:pointer;}
 .lightbox-dot.active{background:#fff;}
 
-/* PRINT */
+/* PRINT MODAL */
 .print-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;}
 .print-modal-bg.open{display:flex;}
-.print-modal-inner{background:#fff;border-radius:10px;width:100%;max-width:980px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.print-modal-inner{background:#fff;border-radius:10px;width:100%;max-width:1000px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
 .print-modal-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:10px 10px 0 0;}
 .print-modal-head span{font-size:14px;font-weight:700;color:#fff;letter-spacing:1px;}
-.print-modal-body{padding:16px;max-height:80vh;overflow-y:auto;background:#e8e8e8;}
+.print-modal-body{padding:16px;max-height:80vh;overflow-y:auto;background:#ccc;}
 
-/* PRINT PAGE - A4横向き 左に項目名固定・右に6列 */
+/* ===== 印刷ページ =====
+   A4横向き (297mm × 210mm)
+   1ページ = 1物件 × 6列（足りない列は空白）
+   左端に項目名（固定幅）、右に6列（均等幅）
+*/
 .print-page{
-  width:277mm;background:#fff;margin:0 auto 12px;
-  padding:6mm 6mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  width:277mm;
+  height:190mm;
+  background:#fff;
+  margin:0 auto 12px;
+  padding:5mm 5mm;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
   font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
-.print-hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--navy);padding-bottom:4px;margin-bottom:3px;}
-.print-hdr-logo{display:flex;align-items:center;gap:8px;}
-.print-hdr-lmark{font-size:16px;font-weight:900;background:linear-gradient(135deg,#E8D08A,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
-.print-hdr-co{font-size:9px;font-weight:700;color:var(--navy);}
-.print-hdr-ttl{font-size:18px;font-weight:900;letter-spacing:5px;color:var(--navy);}
-.print-hdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.6;}
-.print-gold-bar{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));margin-bottom:4px;}
+.print-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:3px solid var(--navy);padding-bottom:3px;margin-bottom:2px;
+  flex-shrink:0;
+}
+.print-hdr-logo{display:flex;align-items:center;gap:6px;}
+.print-hdr-lmark{font-size:14px;font-weight:900;background:linear-gradient(135deg,#E8D08A,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.print-hdr-co{font-size:8px;font-weight:700;color:var(--navy);}
+.print-hdr-ttl{font-size:16px;font-weight:900;letter-spacing:4px;color:var(--navy);}
+.print-hdr-addr{font-size:6.5px;color:#555;text-align:right;line-height:1.6;}
+.print-gold-bar{height:1.5px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));margin-bottom:3px;flex-shrink:0;}
 
-/* テーブル形式：左に項目名、右に6列 */
-.print-table{width:100%;border-collapse:collapse;font-size:7.5px;table-layout:fixed;}
-.print-table th,.print-table td{border:0.5px solid #ccc;padding:2px 3px;vertical-align:middle;line-height:1.4;}
-.print-table th{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-dark) 100%);color:#fff;font-weight:700;text-align:center;width:16.666%;}
-.print-table .row-label{background:#f0f2f8;color:var(--navy);font-weight:700;text-align:left;width:60px;white-space:nowrap;font-size:7px;}
-.print-table .prop-name-row th{background:linear-gradient(135deg,var(--navy-dark),var(--navy));font-size:9px;padding:4px 3px;}
-.print-table .price-row td{font-size:11px;font-weight:900;color:var(--red);text-align:center;}
-.print-table .img-row td{padding:2px;text-align:center;position:relative;}
-.print-table .img-row td img{width:100%;height:55px;object-fit:cover;display:block;}
-.print-table .img-row td .no-img-cell{width:100%;height:55px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:7px;color:#aaa;}
-.print-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:16px;font-weight:900;border:2.5px solid;border-radius:3px;padding:1px 4px;opacity:0.85;white-space:nowrap;z-index:10;}
-.stamp-done{color:#C00;border-color:#C00;}
-.stamp-applied{color:#c07000;border-color:#c07000;}
-.print-table .note-row td{font-size:6.5px;color:#444;text-align:left;line-height:1.4;}
-.print-table td{text-align:center;}
-.print-table .val-cell{font-size:7.5px;color:#222;}
+/* テーブル：左に項目名固定列・右に6物件列 */
+.print-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:7px;
+  flex:1;
+  table-layout:fixed;
+}
+.print-table th,
+.print-table td{
+  border:0.5px solid #bbb;
+  padding:1.5px 3px;
+  vertical-align:middle;
+  line-height:1.4;
+  overflow:hidden;
+}
+/* 項目名列 */
+.print-table .lbl{
+  background:#EEF2FF;
+  color:var(--navy);
+  font-weight:700;
+  text-align:left;
+  width:52px;
+  font-size:6.5px;
+  white-space:nowrap;
+}
+/* 物件名行ヘッダー */
+.print-table .name-cell{
+  background:linear-gradient(135deg,var(--navy-dark),var(--navy));
+  color:#fff;
+  font-weight:700;
+  font-size:8px;
+  text-align:center;
+  padding:3px;
+}
+/* 空白セル */
+.print-table .empty-cell{
+  background:#f9f9f9;
+}
+/* 価格セル */
+.print-table .price-cell{
+  font-size:9px;
+  font-weight:900;
+  color:var(--red);
+  text-align:center;
+}
+/* 写真セル */
+.print-table .img-cell{
+  padding:2px;
+  text-align:center;
+  position:relative;
+}
+.print-table .img-cell img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#f4f4f4;
+  display:block;
+}
+.print-table .img-cell .no-img-ph{
+  width:100%;height:100%;
+  background:#f0f0f0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:6px;color:#aaa;
+}
+.print-stamp{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-20deg);
+  font-size:14px;font-weight:900;border:2px solid;border-radius:3px;
+  padding:1px 4px;opacity:0.85;white-space:nowrap;z-index:10;
+}
+.st-done{color:#C00;border-color:#C00;}
+.st-applied{color:#c07000;border-color:#c07000;}
+/* 通常値セル */
+.print-table .val{
+  font-size:7px;color:#222;text-align:center;
+}
+/* 備考セル */
+.print-table .note-val{
+  font-size:6px;color:#333;text-align:left;vertical-align:top;
+  padding:2px 3px;
+}
 
 /* LOADING */
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
@@ -204,8 +277,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 @media print{
   body>*:not(#printable){display:none!important;}
   #printable{display:block!important;}
-  .print-page{margin:0;box-shadow:none;page-break-after:always;}
-  @page{size:A4 landscape;margin:6mm;}
+  .print-page{margin:0;box-shadow:none;page-break-after:always;break-after:page;}
+  @page{size:A4 landscape;margin:5mm;}
 }
 #printable{display:none;}
 </style>
@@ -231,9 +304,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   </div>
 </div>
 
-<!-- MAIN APP (hidden until login) -->
+<!-- MAIN APP -->
 <div id="main-app" style="display:none;">
-
   <div class="header">
     <div class="header-left">
       <span class="logo-mark">LDY</span>
@@ -255,7 +327,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   </div>
 
   <div class="toolbar">
-    <input type="text" id="f-keyword" placeholder="🔍　物件名・所在地・駅で検索..." oninput="renderCards()" />
+    <input type="text" id="f-keyword" placeholder="物件名・所在地・駅で検索..." oninput="renderCards()" />
     <select id="f-sale" onchange="renderCards()">
       <option value="">販売状況：すべて</option>
       <option>販売中</option><option>申込あり</option><option>販売済</option>
@@ -269,7 +341,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <option>マンション・アパート</option><option>一戸建て</option><option>土地</option><option>商業物件・オフィス</option><option>区分マンション</option>
     </select>
     <div class="toolbar-right">
-      <button class="btn btn-navy" onclick="showPrint()">📄 印刷プレビュー</button>
+      <button class="btn btn-navy" onclick="showPrint()">印刷プレビュー</button>
       <button class="btn btn-gold" onclick="openModal()">＋ 物件を追加</button>
     </div>
   </div>
@@ -279,12 +351,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <button class="lightbox-prev" onclick="lightboxMove(-1)">&#8249;</button>
+  <button class="lightbox-close" onclick="closeLB()">✕</button>
+  <button class="lightbox-prev" onclick="lbMove(-1)">&#8249;</button>
   <img class="lightbox-img" id="lb-img" src="" alt="" />
+  <button class="lightbox-next" onclick="lbMove(1)">&#8250;</button>
   <div class="lightbox-caption" id="lb-cap"></div>
   <div class="lightbox-dots" id="lb-dots"></div>
-  <button class="lightbox-next" onclick="lightboxMove(1)">&#8250;</button>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -295,15 +367,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-
       <div class="form-section">
         <div class="form-section-title">外観写真（複数枚・ドラッグ＆ドロップ可）</div>
         <div class="img-drop" id="img-drop" onclick="document.getElementById('img-file-input').click()">
-          <div class="img-drop-icon">📷</div>
+          <div style="font-size:28px;color:#bbb;">&#128247;</div>
           <div style="font-weight:600;color:#555;">クリックまたはドラッグ＆ドロップ</div>
           <div style="font-size:10px;color:#aaa;">複数ファイル同時選択可・JPG/PNG/WEBP</div>
         </div>
-        <div class="img-uploading" id="img-uploading">⏳ アップロード中...</div>
+        <div class="img-uploading" id="img-uploading">アップロード中...</div>
         <div class="img-list" id="img-list"></div>
         <input type="file" id="img-file-input" accept="image/*" multiple style="display:none;" onchange="handleFiles(event)" />
       </div>
@@ -387,7 +458,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div class="form-section">
         <div class="form-section-title">備考</div>
         <div class="form-row">
-          <textarea id="f-note" style="height:160px;" placeholder="1行1項目で入力&#10;例：駅まで徒歩5分&#10;管理状態良好&#10;検査済証有"></textarea>
+          <textarea id="f-note" style="height:160px;" placeholder="1行1項目で入力&#10;例：駅まで徒歩5分&#10;管理状態良好"></textarea>
         </div>
       </div>
     </div>
@@ -402,9 +473,9 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 <div class="print-modal-bg" id="print-modal">
   <div class="print-modal-inner">
     <div class="print-modal-head">
-      <span>印刷プレビュー（A4横向き）</span>
+      <span>印刷プレビュー（A4横向き・1ページ6件）</span>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-gold" onclick="window.print()">🖨️ 印刷 / PDF</button>
+        <button class="btn btn-gold" onclick="window.print()">印刷 / PDF保存</button>
         <button class="btn" style="color:#fff;border-color:rgba(255,255,255,0.3);background:transparent;" onclick="document.getElementById('print-modal').classList.remove('open')">閉じる</button>
       </div>
     </div>
@@ -424,16 +495,14 @@ const firebaseConfig = {
   projectId: "ldy-house",
   storageBucket: "ldy-house.firebasestorage.app",
   messagingSenderId: "1000570179268",
-  appId: "1:1000570179268:web:47ebb6b077088f39f88391"
+  appId: "1:1000557019268:web:47ebb6b077088f39f88391"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-
 let props = [], editId = null, currentPhotos = [];
 
-// Auth
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById('login-screen').style.display = 'none';
@@ -450,20 +519,11 @@ window.doLogin = async function() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   document.getElementById('login-err').textContent = '';
-  try {
-    showLoading(true);
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch(e) {
-    document.getElementById('login-err').textContent = 'メールアドレスまたはパスワードが違います';
-  }
+  try { showLoading(true); await signInWithEmailAndPassword(auth, email, pass); }
+  catch(e) { document.getElementById('login-err').textContent = 'メールアドレスまたはパスワードが違います'; }
   showLoading(false);
 };
-
-window.doLogout = async function() {
-  await signOut(auth);
-};
-
-// Enter key login
+window.doLogout = async function() { await signOut(auth); };
 document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
 
 function startSync() {
@@ -474,7 +534,6 @@ function startSync() {
   });
 }
 
-// Save
 window.doSave = async function() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('物件名は必須です'); return; }
@@ -522,108 +581,89 @@ window._firebaseDelete = async function(id) {
   await deleteDoc(doc(db,'properties',id));
 };
 
-// Photos - Cloudinary
+// Cloudinary
 const CLD_CLOUD = 'dujllruro', CLD_PRESET = 'ldy-property';
-
 async function uploadOne(file) {
   const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLD_PRESET);
+  fd.append('file', file); fd.append('upload_preset', CLD_PRESET);
   const r = await fetch('https://api.cloudinary.com/v1_1/'+CLD_CLOUD+'/image/upload',{method:'POST',body:fd});
   const d = await r.json();
   if (d.secure_url) return { url: d.secure_url, caption: '' };
   throw new Error(d.error?.message||'失敗');
 }
-
 window.handleFiles = async function(e) {
   const files = Array.from(e.target.files);
   if (!files.length) return;
   document.getElementById('img-uploading').style.display = 'block';
   for (const file of files) {
-    try {
-      const photo = await uploadOne(file);
-      currentPhotos.push(photo);
-      renderImgList();
-    } catch(err) { alert('アップロード失敗: ' + err.message); }
+    try { const p = await uploadOne(file); currentPhotos.push(p); renderImgList(); }
+    catch(err) { alert('アップロード失敗: ' + err.message); }
   }
   document.getElementById('img-uploading').style.display = 'none';
   document.getElementById('img-file-input').value = '';
 };
-
 function renderImgList() {
-  const list = document.getElementById('img-list');
-  list.innerHTML = currentPhotos.map((p,i) =>
+  document.getElementById('img-list').innerHTML = currentPhotos.map((p,i) =>
     '<div class="img-item">' +
-      '<img src="' + p.url + '" alt="" />' +
-      '<div class="img-item-overlay">' +
-        '<button class="img-del-btn" onclick="removePhoto(' + i + ')">✕</button>' +
-      '</div>' +
-      '<input class="img-caption" value="' + (p.caption||'') + '" placeholder="キャプション..." oninput="updateCaption(' + i + ',this.value)" />' +
+      '<img src="'+p.url+'" alt="" />' +
+      '<button class="img-del-btn" onclick="removePhoto('+i+')">✕</button>' +
+      '<input class="img-caption" value="'+(p.caption||'')+'" placeholder="キャプション..." oninput="updateCaption('+i+',this.value)" />' +
     '</div>'
   ).join('');
 }
-
 window.removePhoto = function(i) { currentPhotos.splice(i,1); renderImgList(); };
-window.updateCaption = function(i, v) { if(currentPhotos[i]) currentPhotos[i].caption = v; };
-
-// Drag drop for images
+window.updateCaption = function(i,v) { if(currentPhotos[i]) currentPhotos[i].caption=v; };
 const dropEl = document.getElementById('img-drop');
 dropEl.addEventListener('dragover', e => { e.preventDefault(); dropEl.classList.add('dragover'); });
 dropEl.addEventListener('dragleave', () => dropEl.classList.remove('dragover'));
 dropEl.addEventListener('drop', async e => {
   e.preventDefault(); dropEl.classList.remove('dragover');
-  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-  if (!files.length) return;
-  document.getElementById('img-uploading').style.display = 'block';
+  const files = Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  document.getElementById('img-uploading').style.display='block';
   for (const file of files) {
-    try { const p = await uploadOne(file); currentPhotos.push(p); renderImgList(); }
+    try { const p=await uploadOne(file); currentPhotos.push(p); renderImgList(); }
     catch(err) { alert('失敗: '+err.message); }
   }
-  document.getElementById('img-uploading').style.display = 'none';
+  document.getElementById('img-uploading').style.display='none';
 });
 
 // Lightbox
-let lbPhotos = [], lbIdx = 0;
-window.openLightbox = function(photos, idx) {
-  lbPhotos = photos; lbIdx = idx;
-  updateLightbox();
-  document.getElementById('lightbox').classList.add('open');
-};
-window.closeLightbox = function() { document.getElementById('lightbox').classList.remove('open'); };
-window.lightboxMove = function(dir) {
-  lbIdx = (lbIdx + dir + lbPhotos.length) % lbPhotos.length;
-  updateLightbox();
-};
-function updateLightbox() {
-  const p = lbPhotos[lbIdx];
-  document.getElementById('lb-img').src = p.url||p;
-  document.getElementById('lb-cap').textContent = p.caption||'';
-  const dots = document.getElementById('lb-dots');
-  dots.innerHTML = lbPhotos.map((_, i) => '<div class="lightbox-dot' + (i===lbIdx?' active':'') + '" onclick="lightboxMove(' + (i-lbIdx) + ')"></div>').join('');
+let lbPhotos=[], lbIdx=0;
+window.openLB = function(photos,idx){ lbPhotos=photos; lbIdx=idx; updateLB(); document.getElementById('lightbox').classList.add('open'); };
+window.closeLB = function(){ document.getElementById('lightbox').classList.remove('open'); };
+window.lbMove = function(dir){ lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length; updateLB(); };
+function updateLB(){
+  const p=lbPhotos[lbIdx];
+  document.getElementById('lb-img').src=p.url||p;
+  document.getElementById('lb-cap').textContent=p.caption||'';
+  document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>'<div class="lightbox-dot'+(i===lbIdx?' active':'')+'" onclick="lbMove('+(i-lbIdx)+')"></div>').join('');
 }
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('lightbox').classList.contains('open')) return;
+  if(e.key==='ArrowLeft') lbMove(-1);
+  if(e.key==='ArrowRight') lbMove(1);
+  if(e.key==='Escape') closeLB();
+});
 
 // Stations
-const LINES = {"JR山手線":["品川","大崎","五反田","目黒","恵比寿","渋谷","原宿","代々木","新宿","新大久保","高田馬場","目白","池袋","大塚","巣鴨","駒込","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ"],"JR中央線快速":["東京","神田","御茶ノ水","四ツ谷","新宿","中野","高円寺","阿佐ヶ谷","荻窪","西荻窪","吉祥寺","三鷹","武蔵境","東小金井","武蔵小金井","国分寺","西国分寺","国立","立川","日野","豊田","八王子","西八王子","高尾"],"JR中央・総武線各停":["三鷹","吉祥寺","西荻窪","荻窪","阿佐ヶ谷","高円寺","中野","東中野","大久保","新宿","代々木","千駄ヶ谷","信濃町","四ツ谷","市ヶ谷","飯田橋","水道橋","御茶ノ水","秋葉原","浅草橋","両国","錦糸町","亀戸","平井","新小岩","小岩"],"JR京浜東北線":["赤羽","東十条","王子","上中里","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ","品川","西大井","大井町","大森","蒲田"],"JR埼京線":["赤羽","板橋","十条","池袋","新宿","渋谷","恵比寿","大崎"],"JR常磐線":["上野","日暮里","三河島","南千住","北千住"],"JR京葉線":["東京","八丁堀","越中島","潮見","新木場","葛西臨海公園","舞浜"],"東京メトロ銀座線":["渋谷","表参道","外苑前","青山一丁目","赤坂見附","溜池山王","虎ノ門","新橋","銀座","京橋","日本橋","三越前","神田","末広町","上野広小路","上野","稲荷町","田原町","浅草"],"東京メトロ丸ノ内線":["荻窪","南阿佐ヶ谷","新高円寺","東高円寺","新中野","中野坂上","西新宿","新宿","新宿三丁目","新宿御苑前","四谷三丁目","四ツ谷","赤坂見附","国会議事堂前","霞ケ関","銀座","東京","大手町","淡路町","御茶ノ水","本郷三丁目","後楽園","茗荷谷","新大塚","池袋","中野富士見町","中野新橋","方南町"],"東京メトロ日比谷線":["北千住","南千住","三ノ輪","入谷","上野","仲御徒町","秋葉原","小伝馬町","人形町","茅場町","八丁堀","築地","東銀座","銀座","日比谷","霞ケ関","国会議事堂前","六本木","広尾","恵比寿","中目黒","神谷町","虎ノ門ヒルズ"],"東京メトロ東西線":["中野","落合","高田馬場","早稲田","神楽坂","飯田橋","九段下","竹橋","大手町","日本橋","茅場町","門前仲町","木場","東陽町","南砂町","葛西","西葛西","船堀","一之江","瑞江","篠崎","本八幡"],"東京メトロ千代田線":["代々木上原","代々木公園","明治神宮前","表参道","乃木坂","赤坂","国会議事堂前","霞ケ関","日比谷","二重橋前","大手町","新御茶ノ水","湯島","根津","千駄木","西日暮里","町屋","北千住","綾瀬","北綾瀬"],"東京メトロ有楽町線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","東池袋","護国寺","江戸川橋","飯田橋","市ケ谷","麹町","永田町","桜田門","有楽町","銀座一丁目","新富町","月島","豊洲","辰巳","新木場"],"東京メトロ半蔵門線":["渋谷","表参道","青山一丁目","永田町","半蔵門","九段下","神保町","大手町","三越前","水天宮前","清澄白河","住吉","錦糸町","押上"],"東京メトロ南北線":["目黒","白金台","白金高輪","麻布十番","六本木一丁目","溜池山王","永田町","四ツ谷","市ケ谷","飯田橋","後楽園","東大前","本駒込","駒込","西ヶ原","王子","王子神谷","志茂","赤羽岩淵"],"東京メトロ副都心線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","雑司が谷","西早稲田","東新宿","新宿三丁目","北参道","明治神宮前","渋谷"],"都営浅草線":["西馬込","馬込","中延","戸越","五反田","高輪台","泉岳寺","三田","大門","新橋","東銀座","宝町","日本橋","人形町","東日本橋","浅草橋","蔵前","浅草","本所吾妻橋","押上"],"都営三田線":["目黒","白金台","白金高輪","三田","芝公園","御成門","内幸町","日比谷","大手町","神保町","水道橋","春日","白山","千石","巣鴨","西巣鴨","新板橋","板橋区役所前","板橋本町","本蓮沼","志村坂上","志村三丁目","蓮根","西台","高島平","新高島平","西高島平"],"都営新宿線":["新宿","新宿三丁目","曙橋","市ケ谷","九段下","神保町","小川町","岩本町","馬喰横山","浜町","森下","菊川","住吉","西大島","大島","東大島","船堀","一之江","瑞江","篠崎","本八幡"],"都営大江戸線":["都庁前","新宿","西新宿五丁目","中野坂上","東中野","落合南長崎","新江古田","練馬","豊島園","練馬春日町","光が丘","国立競技場","青山一丁目","六本木","麻布十番","赤羽橋","大門","汐留","築地市場","勝どき","月島","門前仲町","清澄白河","森下","蔵前","両国","春日","本郷三丁目","上野御徒町","新御徒町"],"東急東横線":["渋谷","代官山","中目黒","祐天寺","学芸大学","都立大学","自由が丘","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉","綱島","大倉山","菊名","妙蓮寺","白楽","東白楽","反町","横浜"],"東急目黒線":["目黒","不動前","武蔵小山","西小山","洗足","大岡山","奥沢","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉"],"東急田園都市線":["渋谷","池尻大橋","三軒茶屋","駒沢大学","桜新町","用賀","二子玉川","二子新地","高津","溝の口","梶が谷","宮崎台","宮前平","鷺沼","たまプラーザ","あざみ野"],"東急大井町線":["大井町","下神明","戸越公園","中延","荏原町","旗の台","北千束","大岡山","緑が丘","自由が丘","九品仏","尾山台","等々力","上野毛","二子玉川"],"京王線":["新宿","初台","幡ヶ谷","笹塚","代田橋","明大前","下高井戸","桜上水","上北沢","八幡山","芦花公園","千歳烏山","仙川","つつじヶ丘","柴崎","国領","布田","調布","西調布","飛田給","武蔵野台","多磨霊園","東府中","府中","分倍河原","聖蹟桜ヶ丘","高幡不動","北野","八王子"],"京王井の頭線":["渋谷","神泉","駒場東大前","池ノ上","下北沢","新代田","東松原","明大前","永福町","西永福","浜田山","高井戸","富士見ヶ丘","久我山","三鷹台","井の頭公園","吉祥寺"],"小田急小田原線":["新宿","南新宿","参宮橋","代々木八幡","代々木上原","東北沢","下北沢","世田谷代田","梅ヶ丘","豪徳寺","経堂","千歳船橋","祖師ヶ谷大蔵","成城学園前","喜多見","狛江","和泉多摩川","登戸","向ヶ丘遊園","生田","読売ランド前","百合ヶ丘","新百合ヶ丘"],"西武池袋線":["池袋","椎名町","東長崎","江古田","桜台","練馬","中村橋","富士見台","練馬高野台","石神井公園","大泉学園","保谷","ひばりヶ丘","東久留米","清瀬","秋津","所沢"],"西武新宿線":["西武新宿","高田馬場","下落合","中井","新井薬師前","沼袋","野方","都立家政","鷺ノ宮","下井草","井荻","上井草","上石神井","武蔵関","東伏見","西武柳沢","田無","花小金井","小平","久米川","東村山","所沢"],"東武東上線":["池袋","北池袋","下板橋","大山","中板橋","ときわ台","上板橋","東武練馬","下赤塚","成増","和光市"],"東武スカイツリーライン":["浅草","とうきょうスカイツリー","押上","曳舟","東向島","鐘ヶ淵","堀切","牛田","北千住","小菅","五反野","梅島","西新井","竹ノ塚"],"京成本線":["上野","日暮里","新三河島","町屋","千住大橋","京成関屋","堀切菖蒲園","お花茶屋","青砥","京成高砂"],"つくばエクスプレス":["秋葉原","新御徒町","浅草","南千住","北千住","青井","六町","八潮","三郷中央","南流山","柏の葉キャンパス","守谷","つくば"],"ゆりかもめ":["新橋","汐留","竹芝","日の出","芝浦ふ頭","お台場海浜公園","台場","船の科学館","テレコムセンター","青海","東京ビッグサイト","有明","豊洲"],"都電荒川線":["三ノ輪橋","荒川区役所前","荒川二丁目","荒川七丁目","小台","宮ノ前","熊野前","東尾久三丁目","大根橋","高野","落合南長崎","一本榎","西ヶ原四丁目","滝野川一丁目","西巣鴨","新庚申塚","庚申塚","巣鴨新田","大塚駅前","向原","東池袋四丁目","都電雑司ヶ谷","鬼子母神前","学習院下","面影橋","早稲田"],"日暮里・舎人ライナー":["日暮里","西日暮里","赤土小学校前","熊野前","足立小台","扇大橋","高野","江北","西新井大師西","谷在家","舎人公園","舎人","見沼代親水公園"]};
+const LINES={"JR山手線":["品川","大崎","五反田","目黒","恵比寿","渋谷","原宿","代々木","新宿","新大久保","高田馬場","目白","池袋","大塚","巣鴨","駒込","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ"],"JR中央線快速":["東京","神田","御茶ノ水","四ツ谷","新宿","中野","高円寺","阿佐ヶ谷","荻窪","西荻窪","吉祥寺","三鷹","武蔵境","東小金井","武蔵小金井","国分寺","西国分寺","国立","立川","日野","豊田","八王子","西八王子","高尾"],"JR中央・総武線各停":["三鷹","吉祥寺","西荻窪","荻窪","阿佐ヶ谷","高円寺","中野","東中野","大久保","新宿","代々木","千駄ヶ谷","信濃町","四ツ谷","市ヶ谷","飯田橋","水道橋","御茶ノ水","秋葉原","浅草橋","両国","錦糸町","亀戸","平井","新小岩","小岩"],"JR京浜東北線":["赤羽","東十条","王子","上中里","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ","品川","西大井","大井町","大森","蒲田"],"JR埼京線":["赤羽","板橋","十条","池袋","新宿","渋谷","恵比寿","大崎"],"JR常磐線":["上野","日暮里","三河島","南千住","北千住"],"JR京葉線":["東京","八丁堀","越中島","潮見","新木場","葛西臨海公園","舞浜"],"東京メトロ銀座線":["渋谷","表参道","外苑前","青山一丁目","赤坂見附","溜池山王","虎ノ門","新橋","銀座","京橋","日本橋","三越前","神田","末広町","上野広小路","上野","稲荷町","田原町","浅草"],"東京メトロ丸ノ内線":["荻窪","南阿佐ヶ谷","新高円寺","東高円寺","新中野","中野坂上","西新宿","新宿","新宿三丁目","新宿御苑前","四谷三丁目","四ツ谷","赤坂見附","国会議事堂前","霞ケ関","銀座","東京","大手町","淡路町","御茶ノ水","本郷三丁目","後楽園","茗荷谷","新大塚","池袋","中野富士見町","中野新橋","方南町"],"東京メトロ日比谷線":["北千住","南千住","三ノ輪","入谷","上野","仲御徒町","秋葉原","小伝馬町","人形町","茅場町","八丁堀","築地","東銀座","銀座","日比谷","霞ケ関","国会議事堂前","六本木","広尾","恵比寿","中目黒","神谷町","虎ノ門ヒルズ"],"東京メトロ東西線":["中野","落合","高田馬場","早稲田","神楽坂","飯田橋","九段下","竹橋","大手町","日本橋","茅場町","門前仲町","木場","東陽町","南砂町","葛西","西葛西","船堀","一之江","瑞江","篠崎","本八幡"],"東京メトロ千代田線":["代々木上原","代々木公園","明治神宮前","表参道","乃木坂","赤坂","国会議事堂前","霞ケ関","日比谷","二重橋前","大手町","新御茶ノ水","湯島","根津","千駄木","西日暮里","町屋","北千住","綾瀬","北綾瀬"],"東京メトロ有楽町線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","東池袋","護国寺","江戸川橋","飯田橋","市ケ谷","麹町","永田町","桜田門","有楽町","銀座一丁目","新富町","月島","豊洲","辰巳","新木場"],"東京メトロ半蔵門線":["渋谷","表参道","青山一丁目","永田町","半蔵門","九段下","神保町","大手町","三越前","水天宮前","清澄白河","住吉","錦糸町","押上"],"東京メトロ南北線":["目黒","白金台","白金高輪","麻布十番","六本木一丁目","溜池山王","永田町","四ツ谷","市ケ谷","飯田橋","後楽園","東大前","本駒込","駒込","西ヶ原","王子","王子神谷","志茂","赤羽岩淵"],"東京メトロ副都心線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","雑司が谷","西早稲田","東新宿","新宿三丁目","北参道","明治神宮前","渋谷"],"都営浅草線":["西馬込","馬込","中延","戸越","五反田","高輪台","泉岳寺","三田","大門","新橋","東銀座","宝町","日本橋","人形町","東日本橋","浅草橋","蔵前","浅草","本所吾妻橋","押上"],"都営三田線":["目黒","白金台","白金高輪","三田","芝公園","御成門","内幸町","日比谷","大手町","神保町","水道橋","春日","白山","千石","巣鴨","西巣鴨","新板橋","板橋区役所前","板橋本町","本蓮沼","志村坂上","志村三丁目","蓮根","西台","高島平","新高島平","西高島平"],"都営新宿線":["新宿","新宿三丁目","曙橋","市ケ谷","九段下","神保町","小川町","岩本町","馬喰横山","浜町","森下","菊川","住吉","西大島","大島","東大島","船堀","一之江","瑞江","篠崎","本八幡"],"都営大江戸線":["都庁前","新宿","西新宿五丁目","中野坂上","東中野","落合南長崎","新江古田","練馬","豊島園","練馬春日町","光が丘","国立競技場","青山一丁目","六本木","麻布十番","赤羽橋","大門","汐留","築地市場","勝どき","月島","門前仲町","清澄白河","森下","蔵前","両国","春日","本郷三丁目","上野御徒町","新御徒町"],"東急東横線":["渋谷","代官山","中目黒","祐天寺","学芸大学","都立大学","自由が丘","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉","綱島","大倉山","菊名","妙蓮寺","白楽","東白楽","反町","横浜"],"東急目黒線":["目黒","不動前","武蔵小山","西小山","洗足","大岡山","奥沢","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉"],"東急田園都市線":["渋谷","池尻大橋","三軒茶屋","駒沢大学","桜新町","用賀","二子玉川","二子新地","高津","溝の口","梶が谷","宮崎台","宮前平","鷺沼","たまプラーザ","あざみ野"],"東急大井町線":["大井町","下神明","戸越公園","中延","荏原町","旗の台","北千束","大岡山","緑が丘","自由が丘","九品仏","尾山台","等々力","上野毛","二子玉川"],"京王線":["新宿","初台","幡ヶ谷","笹塚","代田橋","明大前","下高井戸","桜上水","上北沢","八幡山","芦花公園","千歳烏山","仙川","つつじヶ丘","柴崎","国領","布田","調布","西調布","飛田給","武蔵野台","多磨霊園","東府中","府中","分倍河原","聖蹟桜ヶ丘","高幡不動","北野","八王子"],"京王井の頭線":["渋谷","神泉","駒場東大前","池ノ上","下北沢","新代田","東松原","明大前","永福町","西永福","浜田山","高井戸","富士見ヶ丘","久我山","三鷹台","井の頭公園","吉祥寺"],"小田急小田原線":["新宿","南新宿","参宮橋","代々木八幡","代々木上原","東北沢","下北沢","世田谷代田","梅ヶ丘","豪徳寺","経堂","千歳船橋","祖師ヶ谷大蔵","成城学園前","喜多見","狛江","和泉多摩川","登戸","向ヶ丘遊園","生田","読売ランド前","百合ヶ丘","新百合ヶ丘"],"西武池袋線":["池袋","椎名町","東長崎","江古田","桜台","練馬","中村橋","富士見台","練馬高野台","石神井公園","大泉学園","保谷","ひばりヶ丘","東久留米","清瀬","秋津","所沢"],"西武新宿線":["西武新宿","高田馬場","下落合","中井","新井薬師前","沼袋","野方","都立家政","鷺ノ宮","下井草","井荻","上井草","上石神井","武蔵関","東伏見","西武柳沢","田無","花小金井","小平","久米川","東村山","所沢"],"東武東上線":["池袋","北池袋","下板橋","大山","中板橋","ときわ台","上板橋","東武練馬","下赤塚","成増","和光市"],"東武スカイツリーライン":["浅草","とうきょうスカイツリー","押上","曳舟","東向島","鐘ヶ淵","堀切","牛田","北千住","小菅","五反野","梅島","西新井","竹ノ塚"],"京成本線":["上野","日暮里","新三河島","町屋","千住大橋","京成関屋","堀切菖蒲園","お花茶屋","青砥","京成高砂"],"つくばエクスプレス":["秋葉原","新御徒町","浅草","南千住","北千住","青井","六町","八潮","三郷中央","南流山","柏の葉キャンパス","守谷","つくば"],"ゆりかもめ":["新橋","汐留","竹芝","日の出","芝浦ふ頭","お台場海浜公園","台場","船の科学館","テレコムセンター","青海","東京ビッグサイト","有明","豊洲"],"都電荒川線":["三ノ輪橋","荒川区役所前","荒川二丁目","荒川七丁目","小台","宮ノ前","熊野前","東尾久三丁目","大根橋","高野","落合南長崎","一本榎","西ヶ原四丁目","滝野川一丁目","西巣鴨","新庚申塚","庚申塚","巣鴨新田","大塚駅前","向原","東池袋四丁目","都電雑司ヶ谷","鬼子母神前","学習院下","面影橋","早稲田"],"日暮里・舎人ライナー":["日暮里","西日暮里","赤土小学校前","熊野前","足立小台","扇大橋","高野","江北","西新井大師西","谷在家","舎人公園","舎人","見沼代親水公園"]};
 
-const lineEl = document.getElementById('f-line');
-const stEl = document.getElementById('f-station');
-Object.keys(LINES).forEach(l => {
-  const o = document.createElement('option'); o.value=l; o.textContent=l; lineEl.appendChild(o);
-});
-window.updateStations = function() {
-  const line = lineEl.value;
-  stEl.innerHTML = '<option value="">駅を選択</option>';
-  if (line && LINES[line]) LINES[line].forEach(s => { const o=document.createElement('option');o.value=s;o.textContent=s;stEl.appendChild(o); });
+const lineEl=document.getElementById('f-line');
+const stEl=document.getElementById('f-station');
+Object.keys(LINES).forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;lineEl.appendChild(o);});
+window.updateStations=function(){
+  const line=lineEl.value; stEl.innerHTML='<option value="">駅を選択</option>';
+  if(line&&LINES[line]) LINES[line].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;stEl.appendChild(o);});
 };
 
 // Modal
-window.openModal = function(id=null) {
-  editId = id; currentPhotos = [];
-  document.getElementById('modal-title').textContent = id ? '物件を編集' : '物件を追加';
-  document.getElementById('img-list').innerHTML = '';
+window.openModal=function(id=null){
+  editId=id; currentPhotos=[];
+  document.getElementById('modal-title').textContent=id?'物件を編集':'物件を追加';
+  document.getElementById('img-list').innerHTML='';
   lineEl.value=''; stEl.innerHTML='<option value="">駅を選択</option>';
-  if (id) {
-    const p = props.find(x=>x.id===id); if(!p) return;
+  if(id){
+    const p=props.find(x=>x.id===id); if(!p) return;
     document.getElementById('f-name').value=p.name||'';
     document.getElementById('f-kind-form').value=p.kind||'マンション・アパート';
     document.getElementById('f-loc').value=p.loc||'';
@@ -646,7 +686,7 @@ window.openModal = function(id=null) {
     document.getElementById('f-baitai-form').value=p.baitai||'売主';
     document.getElementById('f-delivery').value=p.delivery||'';
     document.getElementById('f-note').value=p.note||'';
-    currentPhotos = p.photos ? JSON.parse(JSON.stringify(p.photos)) : (p.img ? [{url:p.img,caption:''}] : []);
+    currentPhotos=p.photos?JSON.parse(JSON.stringify(p.photos)):(p.img?[{url:p.img,caption:''}]:[]);
     renderImgList();
   } else {
     ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-yield','f-uso','f-struct','f-road','f-kenpei','f-yoseki','f-delivery','f-note'].forEach(x=>document.getElementById(x).value='');
@@ -658,22 +698,23 @@ window.openModal = function(id=null) {
   }
   document.getElementById('modal').classList.add('open');
 };
-window.closeModal = function() { document.getElementById('modal').classList.remove('open'); };
+window.closeModal=function(){document.getElementById('modal').classList.remove('open');};
 
 // Render cards
-window.renderCards = function() {
-  const kw = document.getElementById('f-keyword').value.trim().toLowerCase();
-  const sale = document.getElementById('f-sale').value;
-  const prop = document.getElementById('f-prop').value;
-  const kind = document.getElementById('f-kind').value;
-  const filtered = props.filter(p => {
-    if (kw && !(p.name||'').toLowerCase().includes(kw) && !(p.loc||'').toLowerCase().includes(kw) && !(p.sta||'').toLowerCase().includes(kw)) return false;
-    if (sale && p.saleStatus!==sale) return false;
-    if (prop && p.propStatus!==prop) return false;
-    if (kind && p.kind!==kind) return false;
+let cardPhotoIdx={};
+window.renderCards=function(){
+  const kw=document.getElementById('f-keyword').value.trim().toLowerCase();
+  const sale=document.getElementById('f-sale').value;
+  const prop=document.getElementById('f-prop').value;
+  const kind=document.getElementById('f-kind').value;
+  const filtered=props.filter(p=>{
+    if(kw&&!(p.name||'').toLowerCase().includes(kw)&&!(p.loc||'').toLowerCase().includes(kw)&&!(p.sta||'').toLowerCase().includes(kw)) return false;
+    if(sale&&p.saleStatus!==sale) return false;
+    if(prop&&p.propStatus!==prop) return false;
+    if(kind&&p.kind!==kind) return false;
     return true;
   });
-  document.getElementById('count-info').textContent = filtered.length+'件表示中 / 全'+props.length+'件';
+  document.getElementById('count-info').textContent=filtered.length+'件表示中 / 全'+props.length+'件';
   document.getElementById('s-total').textContent=props.length;
   document.getElementById('s-sale').textContent=props.filter(p=>p.saleStatus==='販売中').length;
   document.getElementById('s-applied').textContent=props.filter(p=>p.saleStatus==='申込あり').length;
@@ -681,148 +722,157 @@ window.renderCards = function() {
   document.getElementById('s-empty').textContent=props.filter(p=>p.propStatus&&p.propStatus.includes('空室')).length;
   document.getElementById('s-build').textContent=props.filter(p=>p.propStatus&&p.propStatus.includes('建築')).length;
 
-  const grid = document.getElementById('card-grid');
-  if (!filtered.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;font-size:14px;">該当する物件がありません</div>'; return; }
-  grid.innerHTML = filtered.map(p => {
-    const photos = p.photos && p.photos.length ? p.photos : (p.img ? [{url:p.img,caption:''}] : []);
-    const photoHtml = photos.length
-      ? '<img src="'+photos[0].url+'" alt="" id="ph-'+p.id+'" style="width:100%;height:100%;object-fit:cover;" />' +
-        (photos.length>1 ? '<span class="photo-count">1 / '+photos.length+'</span>' : '') +
-        '<button class="photo-prev" onclick="cardPhotoNav(event,\''+p.id+'\','+JSON.stringify(photos).replace(/"/g,'&quot;')+',-1)">&#8249;</button>' +
-        '<button class="photo-next" onclick="cardPhotoNav(event,\''+p.id+'\','+JSON.stringify(photos).replace(/"/g,'&quot;')+',1)">&#8250;</button>'
-      : '<div class="card-no-photo"><span style="font-size:36px">🏠</span><span>写真なし</span></div>';
-    const badgeCls = p.saleStatus==='販売済'?'badge-done':p.saleStatus==='申込あり'?'badge-applied':'badge-sale';
-    const propTagCls = p.propStatus&&p.propStatus.includes('空室')?'tag-prop-empty':p.propStatus&&p.propStatus.includes('満室')?'tag-prop-full':p.propStatus&&p.propStatus.includes('賃貸')?'tag-prop-rent':p.propStatus&&p.propStatus.includes('建築')?'tag-prop-build':'tag-prop-other';
-    const notes = (p.note||'').split('\n').filter(Boolean);
-    const photosJson = JSON.stringify(photos).replace(/"/g,'&quot;');
-    return '<div class="prop-card">' +
-      '<div class="card-photos" onclick="openLightbox('+photosJson+',0)">' +
-        photoHtml +
-        '<span class="sale-badge '+badgeCls+'">'+(p.saleStatus||'販売中')+'</span>' +
-      '</div>' +
-      '<div class="card-body">' +
-        '<div class="card-name">'+(p.name||'')+'</div>' +
-        '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'<span>'+(p.yld?'利回り'+p.yld+'%':'')+'</span></div>' +
-        '<div class="card-tags">' +
-          '<span class="tag tag-kind">'+(p.kind||'')+'</span>' +
-          '<span class="tag '+propTagCls+'">'+(p.propStatus||'')+'</span>' +
-          '<span class="tag" style="background:#eef;color:#335;border:1px solid #ccf;">'+(p.baitai||'')+'</span>' +
-        '</div>' +
-        '<div class="card-sta"><span class="card-sta-icon">🚃</span><span>'+(p.sta||'—')+'</span></div>' +
-        '<div class="card-info">' +
-          '<div class="info-row"><span class="info-label">所在地</span><span class="info-val">'+(p.loc||'—')+'</span></div>' +
-          '<div class="info-row"><span class="info-label">土地面積</span><span class="info-val">'+(p.land?p.land+'㎡':'—')+'</span></div>' +
-          '<div class="info-row"><span class="info-label">延床面積</span><span class="info-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>' +
-          '<div class="info-row"><span class="info-label">間取り</span><span class="info-val">'+(p.layout||'—')+'</span></div>' +
-          '<div class="info-row"><span class="info-label">築年月</span><span class="info-val">'+(p.built||'—')+'</span></div>' +
-          '<div class="info-row"><span class="info-label">用途地域</span><span class="info-val">'+(p.zone||'—')+'</span></div>' +
-        '</div>' +
-        (notes.length?'<div class="card-notes"><ol style="padding-left:14px;">'+notes.slice(0,4).map(n=>'<li>'+n+'</li>').join('')+'</ol></div>':'') +
-      '</div>' +
-      '<div class="card-actions">' +
-        '<button class="btn btn-navy" style="font-size:11px;padding:5px 12px;" onclick="openModal(\''+p.id+'\')">編集</button>' +
-        '<button class="btn btn-red" style="font-size:11px;padding:5px 12px;" onclick="window._firebaseDelete(\''+p.id+'\')">削除</button>' +
-      '</div>' +
+  const grid=document.getElementById('card-grid');
+  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;">該当する物件がありません</div>';return;}
+
+  grid.innerHTML=filtered.map(p=>{
+    const photos=p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img,caption:''}]:[]);
+    const photosJson=JSON.stringify(photos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+    const photoArea=photos.length
+      ?'<img src="'+photos[0].url+'" alt="" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f4f4f4;" />'+
+        (photos.length>1?'<button class="photo-prev" onclick="cardNav(event,\''+p.id+'\','+photosJson+',-1)">&#8249;</button><button class="photo-next" onclick="cardNav(event,\''+p.id+'\','+photosJson+',1)">&#8250;</button><span class="photo-count" id="cnt-'+p.id+'">1 / '+photos.length+'</span>':'')
+      :'<div class="card-no-photo">写真なし</div>';
+    const badgeCls=p.saleStatus==='販売済'?'badge-done':p.saleStatus==='申込あり'?'badge-applied':'badge-sale';
+    const propTagCls=p.propStatus&&p.propStatus.includes('空室')?'tag-prop-empty':p.propStatus&&p.propStatus.includes('満室')?'tag-prop-full':p.propStatus&&p.propStatus.includes('賃貸')?'tag-prop-rent':p.propStatus&&p.propStatus.includes('建築')?'tag-prop-build':'tag-prop-other';
+    const notes=(p.note||'').split('\n').filter(Boolean);
+    return '<div class="prop-card">'+
+      '<div class="card-photos" onclick="openLB('+photosJson+',0)">'+photoArea+'<span class="sale-badge '+badgeCls+'">'+(p.saleStatus||'販売中')+'</span></div>'+
+      '<div class="card-body">'+
+        '<div class="card-name">'+(p.name||'')+'</div>'+
+        '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'<span>'+(p.yld?'利回り'+p.yld+'%':'')+'</span></div>'+
+        '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagCls+'">'+(p.propStatus||'')+'</span></div>'+
+        '<div class="card-sta">'+(p.sta||'—')+'</div>'+
+        '<div class="card-info">'+
+          '<div class="info-row"><span class="info-label">所在地</span><span class="info-val">'+(p.loc||'—')+'</span></div>'+
+          '<div class="info-row"><span class="info-label">土地面積</span><span class="info-val">'+(p.land?p.land+'㎡':'—')+'</span></div>'+
+          '<div class="info-row"><span class="info-label">延床面積</span><span class="info-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>'+
+          '<div class="info-row"><span class="info-label">間取り</span><span class="info-val">'+(p.layout||'—')+'</span></div>'+
+          '<div class="info-row"><span class="info-label">築年月</span><span class="info-val">'+(p.built||'—')+'</span></div>'+
+          '<div class="info-row"><span class="info-label">用途地域</span><span class="info-val">'+(p.zone||'—')+'</span></div>'+
+        '</div>'+
+        (notes.length?'<div class="card-notes"><ul style="padding-left:14px;line-height:1.8;">'+notes.slice(0,3).map(n=>'<li>'+n+'</li>').join('')+'</ul></div>':'')+
+      '</div>'+
+      '<div class="card-actions">'+
+        '<button class="btn btn-navy" style="font-size:11px;padding:5px 12px;" onclick="openModal(\''+p.id+'\')">編集</button>'+
+        '<button class="btn btn-red" style="font-size:11px;padding:5px 12px;" onclick="window._firebaseDelete(\''+p.id+'\')">削除</button>'+
+      '</div>'+
     '</div>';
   }).join('');
 };
 
-// Card photo navigation (without opening lightbox)
-let cardPhotoIndexes = {};
-window.cardPhotoNav = function(e, id, photos, dir) {
+window.cardNav=function(e,id,photos,dir){
   e.stopPropagation();
-  if (!cardPhotoIndexes[id]) cardPhotoIndexes[id] = 0;
-  cardPhotoIndexes[id] = (cardPhotoIndexes[id] + dir + photos.length) % photos.length;
-  const img = document.getElementById('ph-'+id);
-  if (img) img.src = photos[cardPhotoIndexes[id]].url;
-  const countEl = img && img.parentElement.querySelector('.photo-count');
-  if (countEl) countEl.textContent = (cardPhotoIndexes[id]+1) + ' / ' + photos.length;
+  if(!cardPhotoIdx[id]) cardPhotoIdx[id]=0;
+  cardPhotoIdx[id]=(cardPhotoIdx[id]+dir+photos.length)%photos.length;
+  const img=document.getElementById('cimg-'+id);
+  if(img) img.src=photos[cardPhotoIdx[id]].url;
+  const cnt=document.getElementById('cnt-'+id);
+  if(cnt) cnt.textContent=(cardPhotoIdx[id]+1)+' / '+photos.length;
 };
 
-// Print
-window.showPrint = function() {
-  const kw = document.getElementById('f-keyword').value.trim().toLowerCase();
-  const sale = document.getElementById('f-sale').value;
-  const prop = document.getElementById('f-prop').value;
-  const kind = document.getElementById('f-kind').value;
-  const filtered = props.filter(p => {
-    if (kw && !(p.name||'').toLowerCase().includes(kw) && !(p.loc||'').toLowerCase().includes(kw)) return false;
-    if (sale && p.saleStatus!==sale) return false;
-    if (prop && p.propStatus!==prop) return false;
-    if (kind && p.kind!==kind) return false;
+// ===== 印刷 =====
+// A4横向き・1ページ6件・左に項目名固定・右に6列（足りない列は空白）
+window.showPrint=function(){
+  const kw=document.getElementById('f-keyword').value.trim().toLowerCase();
+  const sale=document.getElementById('f-sale').value;
+  const prop=document.getElementById('f-prop').value;
+  const kind=document.getElementById('f-kind').value;
+  const filtered=props.filter(p=>{
+    if(kw&&!(p.name||'').toLowerCase().includes(kw)&&!(p.loc||'').toLowerCase().includes(kw)) return false;
+    if(sale&&p.saleStatus!==sale) return false;
+    if(prop&&p.propStatus!==prop) return false;
+    if(kind&&p.kind!==kind) return false;
     return true;
   });
-  const pages = [];
-  for (let i=0;i<filtered.length;i+=6) pages.push(filtered.slice(i,i+6));
 
-  const ROWS = [
-    {key:'price', label:'価格', fmt:p=>p.price?p.price.toLocaleString()+'万円':'—'},
-    {key:'img', label:'外観', fmt:null},
-    {key:'loc', label:'所在地', fmt:p=>p.loc||'—'},
-    {key:'sta', label:'最寄り駅', fmt:p=>p.sta||'—'},
-    {key:'uso', label:'用途', fmt:p=>p.uso||'—'},
-    {key:'land', label:'土地面積', fmt:p=>p.land?p.land+'㎡':'—'},
-    {key:'floor', label:'延床面積', fmt:p=>p.floor?p.floor+'㎡':'—'},
-    {key:'layout', label:'間取り', fmt:p=>p.layout||'—'},
-    {key:'built', label:'築年月', fmt:p=>p.built||'—'},
-    {key:'struct', label:'構造', fmt:p=>p.struct||'—'},
-    {key:'road', label:'接道', fmt:p=>p.road||'—'},
-    {key:'kenpei_yoseki', label:'建蔽率/容積率', fmt:p=>(p.kenpei?p.kenpei+'%':'—')+'/'+(p.yoseki?p.yoseki+'%':'—')},
-    {key:'zone', label:'用途地域', fmt:p=>p.zone||'—'},
-    {key:'yld', label:'回利り', fmt:p=>p.yld?p.yld+'%':'—'},
-    {key:'propStatus', label:'物件現状', fmt:p=>p.propStatus||'—'},
-    {key:'saleStatus', label:'販売状況', fmt:p=>p.saleStatus||'—'},
-    {key:'delivery', label:'引渡可能日', fmt:p=>p.delivery||'相談'},
-    {key:'baitai', label:'取引業態', fmt:p=>p.baitai||'—'},
-    {key:'note', label:'備考', fmt:null},
+  // 6件ずつページ分割
+  const pages=[];
+  for(let i=0;i<filtered.length;i+=6) pages.push(filtered.slice(i,i+6));
+  if(!pages.length) pages.push([]);
+
+  // 行定義
+  const ROWS=[
+    {label:'価格',      type:'price'},
+    {label:'外観',      type:'img'},
+    {label:'所在地',    key:'loc'},
+    {label:'最寄り駅',  key:'sta'},
+    {label:'用途',      key:'uso'},
+    {label:'土地面積',  fmt:p=>p.land?p.land+'㎡':'—'},
+    {label:'延床面積',  fmt:p=>p.floor?p.floor+'㎡':'—'},
+    {label:'間取り',    key:'layout'},
+    {label:'築年月',    key:'built'},
+    {label:'構造',      key:'struct'},
+    {label:'接道',      key:'road'},
+    {label:'建蔽率',    fmt:p=>p.kenpei?p.kenpei+'%':'—'},
+    {label:'容積率',    fmt:p=>p.yoseki?p.yoseki+'%':'—'},
+    {label:'用途地域',  key:'zone'},
+    {label:'回利り',    fmt:p=>p.yld?p.yld+'%':'—'},
+    {label:'物件現状',  key:'propStatus'},
+    {label:'販売状況',  key:'saleStatus'},
+    {label:'引渡可能日',key:'delivery'},
+    {label:'取引業態',  key:'baitai'},
+    {label:'備考',      type:'note'},
   ];
 
-  const html = pages.map(page => {
-    const colW = Math.floor(220/page.length);
-    const tableRows = ROWS.map(row => {
-      if (row.key === 'img') {
-        const cells = page.map(p => {
-          const photos = p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img}]:[]);
-          const imgHtml = photos.length ? '<img src="'+photos[0].url+'" style="width:100%;height:55px;object-fit:cover;display:block;" />' : '<div style="height:55px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:7px;color:#aaa;">写真なし</div>';
-          const stamp = p.saleStatus==='販売済'?'<div class="print-stamp stamp-done">済</div>':p.saleStatus==='申込あり'?'<div class="print-stamp stamp-applied">申込</div>':'';
-          return '<td style="padding:2px;position:relative;">'+imgHtml+stamp+'</td>';
-        }).join('');
-        return '<tr><td class="row-label">外観</td>'+cells+'</tr>';
+  const html=pages.map(page=>{
+    // 6列固定（足りない分は空白）
+    const cols=6;
+    const colW=Math.floor(225/cols); // mm
+
+    // 物件名行
+    let nameRow='<tr><td class="lbl">物件名</td>';
+    for(let c=0;c<cols;c++){
+      const p=page[c];
+      nameRow+=p?'<td class="name-cell">'+p.name+'</td>':'<td class="name-cell empty-cell"></td>';
+    }
+    nameRow+='</tr>';
+
+    // データ行
+    const dataRows=ROWS.map(row=>{
+      let tr='<tr><td class="lbl">'+row.label+'</td>';
+      for(let c=0;c<cols;c++){
+        const p=page[c];
+        if(!p){ tr+='<td class="empty-cell"></td>'; continue; }
+
+        if(row.type==='price'){
+          tr+='<td class="price-cell">'+(p.price?p.price.toLocaleString()+'万円':'—')+'</td>';
+        } else if(row.type==='img'){
+          const photos=p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img}]:[]);
+          const imgHtml=photos.length?'<img src="'+photos[0].url+'" style="width:100%;height:100%;object-fit:contain;background:#f4f4f4;display:block;" />':'<div class="no-img-ph">写真なし</div>';
+          const stamp=p.saleStatus==='販売済'?'<div class="print-stamp st-done">済</div>':p.saleStatus==='申込あり'?'<div class="print-stamp st-applied">申込</div>':'';
+          tr+='<td class="img-cell">'+imgHtml+stamp+'</td>';
+        } else if(row.type==='note'){
+          const notes=(p.note||'').split('\n').filter(Boolean);
+          tr+='<td class="note-val"><ol style="padding-left:8px;line-height:1.5;">'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ol></td>';
+        } else {
+          const val=row.fmt?row.fmt(p):(p[row.key]||'—');
+          tr+='<td class="val">'+val+'</td>';
+        }
       }
-      if (row.key === 'note') {
-        const cells = page.map(p => {
-          const notes = (p.note||'').split('\n').filter(Boolean);
-          return '<td style="text-align:left;font-size:6.5px;padding:2px 3px;vertical-align:top;"><ol style="padding-left:8px;line-height:1.5;">'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ol></td>';
-        }).join('');
-        return '<tr><td class="row-label">備考</td>'+cells+'</tr>';
-      }
-      if (row.key === 'price') {
-        const cells = page.map(p => '<td style="font-size:10px;font-weight:900;color:#C00;text-align:center;">'+row.fmt(p)+'</td>').join('');
-        return '<tr><td class="row-label">'+row.label+'</td>'+cells+'</tr>';
-      }
-      const cells = page.map(p => '<td class="val-cell">'+row.fmt(p)+'</td>').join('');
-      return '<tr><td class="row-label">'+row.label+'</td>'+cells+'</tr>';
+      tr+='</tr>';
+      return tr;
     }).join('');
 
-    const nameRow = '<tr class="prop-name-row"><th style="background:#f0f2f8;color:var(--navy);font-size:8px;text-align:left;">項目</th>'+page.map(p=>'<th>'+p.name+'</th>').join('')+'</tr>';
-
-    return '<div class="print-page">' +
-      '<div class="print-hdr">' +
-        '<div class="print-hdr-logo"><span class="print-hdr-lmark">LDY</span><span class="print-hdr-co">株式会社LDY</span></div>' +
-        '<div class="print-hdr-ttl">物　件　一　覧　表</div>' +
-        '<div class="print-hdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812</div>' +
-      '</div>' +
-      '<div class="print-gold-bar"></div>' +
-      '<table class="print-table"><colgroup><col style="width:60px;">'+page.map(()=>'<col style="width:'+colW+'mm;">').join('')+'</colgroup><tbody>'+nameRow+tableRows+'</tbody></table>' +
+    return '<div class="print-page">'+
+      '<div class="print-hdr">'+
+        '<div class="print-hdr-logo"><span class="print-hdr-lmark">LDY</span><span class="print-hdr-co">株式会社LDY</span></div>'+
+        '<div class="print-hdr-ttl">物　件　一　覧　表</div>'+
+        '<div class="print-hdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812</div>'+
+      '</div>'+
+      '<div class="print-gold-bar"></div>'+
+      '<table class="print-table">'+
+        '<colgroup><col style="width:52px;">'+Array(cols).fill('<col style="width:'+colW+'mm;">').join('')+'</colgroup>'+
+        '<tbody>'+nameRow+dataRows+'</tbody>'+
+      '</table>'+
     '</div>';
   }).join('');
 
-  document.getElementById('print-body').innerHTML = html || '<p style="text-align:center;padding:2rem;color:#999;">表示する物件がありません</p>';
-  document.getElementById('printable').innerHTML = html;
+  document.getElementById('print-body').innerHTML=html||'<p style="text-align:center;padding:2rem;color:#999;">表示する物件がありません</p>';
+  document.getElementById('printable').innerHTML=html;
   document.getElementById('print-modal').classList.add('open');
 };
 
-function showLoading(v) { document.getElementById('loading').className='loading-overlay'+(v?' show':''); }
+function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
 </script>
 </body>
 </html>
