@@ -258,7 +258,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     <div class="stat-item"><div class="stat-num" id="s-sale">0</div><div class="stat-label">販売中</div></div>
     <div class="stat-item"><div class="stat-num" id="s-applied">0</div><div class="stat-label">申込あり</div></div>
     <div class="stat-item"><div class="stat-num" id="s-done">0</div><div class="stat-label">販売済</div></div>
-    <div class="stat-item"><div class="stat-num" id="s-empty">0</div><div class="stat-label">全室空室</div></div>
+    <div class="stat-item"><div class="stat-num" id="s-empty">0</div><div class="stat-label">空室</div></div>
     <div class="stat-item"><div class="stat-num" id="s-build">0</div><div class="stat-label">建築中</div></div>
   </div>
 
@@ -270,7 +270,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     </select>
     <select id="f-prop" onchange="renderCards()">
       <option value="">物件現状：すべて</option>
-      <option>全室空室</option><option>一部賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option>
+      <option>空室</option><option>一部賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option>
     </select>
     <select id="f-kind" onchange="renderCards()">
       <option value="">種別：すべて</option>
@@ -384,7 +384,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             <select id="f-sale-status"><option>販売中</option><option>申込あり</option><option>販売済</option></select>
           </div>
           <div class="fr"><label>物件の現状</label>
-            <select id="f-prop-status"><option>全室空室</option><option>一部賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option></select>
+            <select id="f-prop-status"><option>空室</option><option>一部賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option></select>
           </div>
         </div>
         <div class="fg">
@@ -748,7 +748,7 @@ window.openModal = function(id=null) {
     setV('f-right',p.right); setV('f-kenpei',p.kenpei); setV('f-yoseki',p.yoseki);
     setV('f-zone',p.zone||''); setV('f-bouka',p.bouka); setV('f-toshi',p.toshi);
     setV('f-sale-status',p.saleStatus||'販売中');
-    setV('f-prop-status',p.propStatus||'全室空室');
+    setV('f-prop-status',p.propStatus||'空室');
     setV('f-baitai-form',p.baitai||'売主');
     setV('f-delivery',p.delivery); setV('f-note',p.note);
     currentPhotos = p.photos ? JSON.parse(JSON.stringify(p.photos)) : (p.img?[{url:p.img,caption:''}]:[]);
@@ -756,7 +756,7 @@ window.openModal = function(id=null) {
   } else {
     ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-yield','f-uso','f-struct','f-road','f-right','f-kenpei','f-yoseki','f-bouka','f-toshi','f-delivery','f-note'].forEach(x=>setV(x,''));
     setV('f-kind-form','一棟もの'); setV('f-zone','');
-    setV('f-sale-status','販売中'); setV('f-prop-status','全室空室'); setV('f-baitai-form','売主');
+    setV('f-sale-status','販売中'); setV('f-prop-status','空室'); setV('f-baitai-form','売主');
   }
   // 社内専用
   setV('f-buy-price', intData.buyPrice); setV('f-buy-from', intData.buyFrom);
@@ -776,7 +776,7 @@ function propTagClass(s) {
   if (!s) return 'tag-other';
   if (s.includes('満室')) return 'tag-full';
   if (s.includes('賃貸')) return 'tag-rent';
-  if (s.includes('全室空室')) return 'tag-empty';
+  if (s.includes('空室')) return 'tag-empty';
   if (s.includes('建築')) return 'tag-build';
   return 'tag-other';
 }
@@ -797,7 +797,7 @@ window.renderCards = function() {
   document.getElementById('s-sale').textContent = props.filter(p=>p.saleStatus==='販売中').length;
   document.getElementById('s-applied').textContent = props.filter(p=>p.saleStatus==='申込あり').length;
   document.getElementById('s-done').textContent = props.filter(p=>p.saleStatus==='販売済').length;
-  document.getElementById('s-empty').textContent = props.filter(p=>p.propStatus&&p.propStatus.includes('全室空室')).length;
+  document.getElementById('s-empty').textContent = props.filter(p=>p.propStatus&&p.propStatus.includes('空室')).length;
   document.getElementById('s-build').textContent = props.filter(p=>p.propStatus&&p.propStatus.includes('建築')).length;
 
   const grid = document.getElementById('card-grid');
