@@ -106,8 +106,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     </select>
     <select id="f-prop" onchange="filterCards()">
       <option value="">現状：すべて</option>
-      <option>空室</option>
-      <option>賃貸中</option>
+      <option>全室空室</option>
+      <option>一部賃貸中</option>
       <option>満室賃貸中</option>
       <option>建築中</option>
       <option>古屋有</option>
@@ -115,7 +115,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     </select>
     <select id="f-price" onchange="filterCards()">
       <option value="">価格：すべて</option>
-      <option value="5000-10000">5,000万〜1億円</option>
+      <option value="0-10000">〜1億円</option>
       <option value="10000-20000">1億〜2億円</option>
       <option value="20000-30000">2億〜3億円</option>
       <option value="30000-50000">3億〜5億円</option>
@@ -195,7 +195,7 @@ function propTagClass(s) {
   if (!s) return 'tag-other';
   if (s.includes('満室')) return 'tag-full';
   if (s.includes('賃貸')) return 'tag-rent';
-  if (s.includes('空室')) return 'tag-empty';
+  if (s.includes('全室空室')) return 'tag-empty';
   if (s.includes('建築')) return 'tag-build';
   return 'tag-other';
 }
