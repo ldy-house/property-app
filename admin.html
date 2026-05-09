@@ -8,12 +8,11 @@
 :root{
   --navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;
   --white:#fff;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;
-  --red:#C62828;--green:#2E7D32;--orange:#E65100;
+  --red:#C62828;--orange:#E65100;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
 
-/* ── LOGIN ── */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy-dark),var(--navy),#2a3f8f);}
 .login-box{background:#fff;border-radius:12px;padding:40px 36px;width:380px;max-width:95%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
 .login-logo{text-align:center;margin-bottom:28px;}
@@ -28,7 +27,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .login-btn:hover{opacity:0.9;}
 .login-err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
 
-/* ── HEADER ── */
 .header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.25);}
 .hdr-left{display:flex;align-items:center;gap:10px;}
 .hdr-lmark{font-size:19px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
@@ -38,21 +36,18 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .btn-logout{font-size:11px;padding:4px 10px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);border-radius:3px;cursor:pointer;}
 .btn-logout:hover{background:rgba(255,255,255,0.1);}
 
-/* ── STATS ── */
 .stats-bar{display:flex;background:#fff;border-bottom:1px solid var(--border);}
 .stat-item{flex:1;text-align:center;padding:10px 6px;border-right:1px solid var(--border);}
 .stat-item:last-child{border-right:none;}
 .stat-num{font-size:20px;font-weight:700;color:var(--navy);}
 .stat-label{font-size:10px;color:var(--sub);margin-top:1px;}
 
-/* ── TOOLBAR ── */
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:2px solid var(--gold);align-items:center;}
 .toolbar input,.toolbar select{font-size:12px;padding:7px 10px;border:1px solid #ccc;border-radius:4px;background:#fff;outline:none;}
 .toolbar input{min-width:200px;}
 .toolbar-right{margin-left:auto;display:flex;gap:6px;}
 .count-info{font-size:11px;color:var(--sub);padding:4px 20px 0;}
 
-/* ── BUTTONS ── */
 .btn{font-size:12px;padding:6px 14px;border-radius:4px;border:1px solid #ccc;background:#fff;color:var(--text);cursor:pointer;white-space:nowrap;font-weight:500;}
 .btn:hover{background:#f0f0f0;}
 .btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);border:none;font-weight:700;}
@@ -63,26 +58,22 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .btn-red:hover{background:#fff0f0;}
 .btn-sm{font-size:11px;padding:4px 10px;}
 
-/* ── CARD GRID ── */
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;padding:14px 20px;}
 .prop-card{background:#fff;border-radius:6px;box-shadow:0 2px 8px rgba(27,42,107,0.08);overflow:hidden;border:1px solid var(--border);}
 .prop-card:hover{box-shadow:0 4px 18px rgba(27,42,107,0.14);}
 
-/* 写真 */
 .card-photos{position:relative;height:220px;background:#f2f2f4;overflow:hidden;cursor:pointer;}
 .card-photos img{width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;}
 .card-no-photo{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:13px;background:#f2f2f4;}
 .photo-count{position:absolute;top:7px;right:7px;background:rgba(0,0,0,0.5);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;}
 .photo-prev,.photo-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.4);color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;}
 .card-photos:hover .photo-prev,.card-photos:hover .photo-next{opacity:1;}
-.photo-prev{left:7px;}
-.photo-next{right:7px;}
+.photo-prev{left:7px;}.photo-next{right:7px;}
 .sale-badge{position:absolute;top:9px;left:9px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:2px;}
 .badge-sale{background:var(--navy);color:#fff;}
 .badge-applied{background:var(--orange);color:#fff;}
 .badge-done{background:#555;color:#fff;}
 
-/* カード本文 */
 .card-body{padding:12px 14px;}
 .card-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;line-height:1.3;}
 .card-price{font-size:17px;font-weight:700;color:var(--red);margin-bottom:6px;}
@@ -100,9 +91,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .spec-lbl{color:var(--sub);min-width:50px;flex-shrink:0;}
 .spec-val{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* 社内専用フィールド（ピンクの背景） */
 .internal-section{background:#FFF5F5;border:1px solid #FFD0D0;border-radius:5px;padding:10px 12px;margin-top:8px;}
-.internal-title{font-size:10px;font-weight:700;color:var(--red);letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.internal-title{font-size:10px;font-weight:700;color:var(--red);letter-spacing:1px;margin-bottom:8px;}
 .internal-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:11px;}
 .internal-row{display:flex;gap:4px;}
 .internal-lbl{color:#a00;min-width:68px;flex-shrink:0;font-size:10px;}
@@ -111,7 +101,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 .card-actions{display:flex;gap:5px;padding:8px 14px;border-top:1px solid #eee;background:#fafafa;}
 
-/* ── MODAL ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(10,15,40,0.6);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
 .modal-bg.open{display:flex;}
 .modal{background:#fff;border-radius:8px;width:620px;max-width:96%;max-height:93vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);display:flex;flex-direction:column;}
@@ -122,21 +111,20 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .modal-body{padding:18px;overflow-y:auto;flex:1;}
 .fs{margin-bottom:18px;}
 .fs-title{font-size:10px;font-weight:700;color:var(--navy);letter-spacing:1.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--gold);}
-.fs-title-internal{font-size:10px;font-weight:700;color:var(--red);letter-spacing:1.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #FFB3B3;}
+.fs-title-int{font-size:10px;font-weight:700;color:var(--red);letter-spacing:1.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #FFB3B3;}
 .fr{margin-bottom:10px;}
 .fr label{display:block;font-size:11px;color:var(--sub);margin-bottom:3px;font-weight:700;}
 .fr input,.fr select,.fr textarea{width:100%;font-size:13px;padding:8px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;font-family:inherit;}
 .fr input:focus,.fr select:focus,.fr textarea:focus{border-color:var(--navy);}
 .fr textarea{resize:vertical;height:110px;line-height:1.7;}
-.fr-internal input,.fr-internal select{border-color:#FFD0D0;background:#FFF9F9;}
-.fr-internal input:focus,.fr-internal select:focus{border-color:var(--red);}
+.fr-int input,.fr-int select{border-color:#FFD0D0;background:#FFF9F9;}
+.fr-int input:focus,.fr-int select:focus{border-color:var(--red);}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .fg3{display:grid;grid-template-columns:1fr 1fr 80px;gap:8px;}
 .modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;flex-shrink:0;}
 .days-auto{font-size:11px;color:var(--sub);margin-top:4px;}
 .days-auto span{font-weight:700;color:var(--navy);}
 
-/* 写真アップロード */
 .img-drop{border:2px dashed #ccc;border-radius:5px;padding:16px;text-align:center;cursor:pointer;color:#999;font-size:12px;transition:all 0.2s;background:#fafafa;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;min-height:80px;}
 .img-drop:hover,.img-drop.dragover{border-color:var(--gold);background:#fffbf0;color:var(--gold);}
 .img-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-top:8px;}
@@ -147,8 +135,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .img-cap{width:100%;font-size:9px;padding:2px 4px;border:none;border-top:0.5px solid rgba(0,0,0,0.15);background:rgba(0,0,0,0.5);color:#fff;outline:none;position:absolute;bottom:0;left:0;}
 .img-uploading{font-size:12px;color:var(--navy);margin-top:5px;display:none;font-weight:600;}
 
-/* ── LIGHTBOX ── */
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:500;align-items:center;justify-content:center;flex-direction:column;}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.open{display:flex;}
 .lb-img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:3px;display:block;background:#111;}
 .lb-cap{color:rgba(255,255,255,0.7);font-size:12px;margin-top:10px;text-align:center;max-width:560px;}
@@ -162,16 +149,13 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .lb-dot.active{background:#fff;}
 .lb-counter{position:absolute;top:14px;left:18px;color:rgba(255,255,255,0.55);font-size:11px;}
 
-/* ── 印刷設定モーダル ── */
+/* 印刷設定 */
 .print-config-bg{display:none;position:fixed;inset:0;background:rgba(10,15,40,0.65);z-index:300;align-items:center;justify-content:center;}
 .print-config-bg.open{display:flex;}
 .print-config{background:#fff;border-radius:8px;width:680px;max-width:96%;max-height:93vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
 .pc-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;}
 .pc-head span{font-size:14px;font-weight:700;color:#fff;letter-spacing:1px;}
 .pc-body{padding:18px;}
-.pc-tabs{display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:4px;overflow:hidden;}
-.pc-tab{flex:1;padding:9px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;background:#f5f5f5;color:var(--sub);transition:all 0.15s;}
-.pc-tab.active{background:var(--navy);color:#fff;}
 .pc-section{margin-bottom:14px;}
 .pc-section-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;letter-spacing:0.5px;}
 .pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
@@ -180,7 +164,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-check input{cursor:pointer;width:14px;height:14px;}
 .pc-opts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
 .pc-opt{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;}
-.pc-opt input{cursor:pointer;}
 .pc-prop-list{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:4px;padding:6px;}
 .pc-prop-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 6px;border-radius:3px;cursor:pointer;}
 .pc-prop-item:hover{background:#f0f0f0;}
@@ -188,7 +171,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-select-all{font-size:11px;color:var(--navy);cursor:pointer;text-decoration:underline;margin-bottom:6px;display:inline-block;}
 .pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;}
 
-/* ── 印刷プレビューモーダル ── */
+/* 印刷プレビュー */
 .print-prev-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:flex-start;justify-content:center;padding:14px;overflow-y:auto;}
 .print-prev-bg.open{display:flex;}
 .print-prev-inner{background:#fff;border-radius:8px;width:100%;max-width:1020px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
@@ -196,14 +179,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pp-head span{font-size:13px;font-weight:700;color:#fff;letter-spacing:1px;}
 .pp-body{padding:14px;max-height:80vh;overflow-y:auto;background:#ccc;}
 
-/* ── 印刷ページ本体 A4横向き ── */
-.ppage{
-  width:277mm;height:190mm;background:#fff;
-  margin:0 auto 10px;padding:5mm 5mm;
-  box-shadow:0 2px 8px rgba(0,0,0,0.15);
-  font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;
-  overflow:hidden;display:flex;flex-direction:column;
-}
+/* 印刷ページ */
+.ppage{width:277mm;height:190mm;background:#fff;margin:0 auto 10px;padding:5mm 5mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;overflow:hidden;display:flex;flex-direction:column;}
 .phdr{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--navy);padding-bottom:3px;margin-bottom:2px;flex-shrink:0;}
 .phdr-logo{display:flex;align-items:center;gap:6px;}
 .phdr-lmark{font-size:13px;font-weight:900;background:linear-gradient(135deg,#E8D08A,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
@@ -218,7 +195,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ptable .name-cell{background:linear-gradient(135deg,var(--navy-dark),var(--navy));color:#fff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
 .ptable .empty-cell{background:#f9f9f9;}
 .ptable .price-cell{font-size:9px;font-weight:900;color:var(--red);text-align:center;}
-.ptable .mask-cell{font-size:9px;font-weight:700;color:var(--red);text-align:center;letter-spacing:2px;}
 .ptable .img-cell{padding:2px;text-align:center;position:relative;}
 .ptable .img-cell img{width:100%;height:100%;object-fit:contain;background:#f4f4f4;display:block;}
 .ptable .no-img-ph{width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:6px;color:#aaa;}
@@ -229,7 +205,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ptable .val-int{font-size:7px;color:#800;text-align:center;font-weight:600;}
 .ptable .note-val{font-size:6px;color:#333;text-align:left;vertical-align:top;padding:2px 3px;}
 
-/* LOADING */
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
 .loading-overlay.show{display:flex;}
 .spinner{width:38px;height:38px;border:3px solid #eee;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
@@ -265,7 +240,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- MAIN -->
 <div id="main-app" style="display:none;">
   <div class="header">
     <div class="hdr-left">
@@ -295,11 +270,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     </select>
     <select id="f-prop" onchange="renderCards()">
       <option value="">物件現状：すべて</option>
-      <option>空室</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>新築未入居</option><option>古屋有</option><option>更地</option>
+      <option>空室</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option>
     </select>
     <select id="f-kind" onchange="renderCards()">
       <option value="">種別：すべて</option>
-      <option>マンション・アパート</option><option>一戸建て</option><option>土地</option><option>商業物件・オフィス</option><option>区分マンション</option>
+      <option>一棟もの</option><option>一戸建て</option><option>土地</option><option>区分マンション</option>
     </select>
     <div class="toolbar-right">
       <button class="btn btn-navy btn-sm" onclick="openPrintConfig('broker')">仲介向け印刷</button>
@@ -330,36 +305,30 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-
-      <!-- 写真 -->
       <div class="fs">
         <div class="fs-title">外観写真（複数枚・ドラッグ＆ドロップ可）</div>
         <div class="img-drop" id="img-drop" onclick="document.getElementById('img-file-input').click()">
           <div style="font-size:24px;color:#bbb;">&#128247;</div>
           <div style="font-weight:600;color:#555;">クリックまたはドラッグ＆ドロップ</div>
-          <div style="font-size:10px;color:#aaa;">複数ファイル同時選択可・JPG/PNG/WEBP</div>
+          <div style="font-size:10px;color:#aaa;">複数ファイル同時選択可</div>
         </div>
         <div class="img-uploading" id="img-uploading">アップロード中...</div>
         <div class="img-list" id="img-list"></div>
         <input type="file" id="img-file-input" accept="image/*" multiple style="display:none;" onchange="handleFiles(event)"/>
       </div>
-
-      <!-- 基本情報 -->
       <div class="fs">
         <div class="fs-title">基本情報</div>
         <div class="fr"><label>物件名 *</label><input id="f-name" placeholder="例：浅草橋3丁目ビル"/></div>
         <div class="fg">
           <div class="fr"><label>種別</label>
             <select id="f-kind-form">
-              <option>マンション・アパート</option><option>一戸建て</option><option>土地</option><option>商業物件・オフィス</option><option>区分マンション</option>
+              <option>一棟もの</option><option>一戸建て</option><option>土地</option><option>区分マンション</option>
             </select>
           </div>
           <div class="fr"><label>用途</label><input id="f-uso" placeholder="例：共同住宅"/></div>
         </div>
         <div class="fr"><label>所在地</label><input id="f-loc" placeholder="例：東京都台東区浅草橋3丁目"/></div>
       </div>
-
-      <!-- 最寄り駅 -->
       <div class="fs">
         <div class="fs-title">最寄り駅</div>
         <div class="fg3">
@@ -369,8 +338,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         </div>
         <div class="fr"><label>複数路線・補足</label><input id="f-sta-free" placeholder="例：山手線【渋谷】徒歩5分、東急【渋谷】徒歩5分"/></div>
       </div>
-
-      <!-- 面積・価格 -->
       <div class="fs">
         <div class="fs-title">面積・価格</div>
         <div class="fg">
@@ -386,8 +353,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>築年月</label><input id="f-built" placeholder="例：1990年12月"/></div>
         </div>
       </div>
-
-      <!-- 建物情報 -->
       <div class="fs">
         <div class="fs-title">建物情報</div>
         <div class="fr"><label>構造</label><input id="f-struct"/></div>
@@ -412,8 +377,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         </div>
         <div class="fr"><label>都市計画</label><input id="f-toshi" placeholder="例：市街化区域"/></div>
       </div>
-
-      <!-- 販売状況 -->
       <div class="fs">
         <div class="fs-title">販売・物件状況</div>
         <div class="fg">
@@ -421,7 +384,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             <select id="f-sale-status"><option>販売中</option><option>申込あり</option><option>販売済</option></select>
           </div>
           <div class="fr"><label>物件の現状</label>
-            <select id="f-prop-status"><option>空室</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>新築未入居</option><option>古屋有</option><option>更地</option></select>
+            <select id="f-prop-status"><option>空室</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option></select>
           </div>
         </div>
         <div class="fg">
@@ -429,56 +392,49 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>引渡可能日</label><input id="f-delivery" placeholder="例：相談、即時"/></div>
         </div>
       </div>
-
-      <!-- 備考 -->
       <div class="fs">
         <div class="fs-title">備考</div>
         <div class="fr"><textarea id="f-note" placeholder="1行1項目で入力&#10;例：駅まで徒歩5分&#10;管理状態良好"></textarea></div>
       </div>
 
-      <!-- ===== 社内専用フィールド ===== -->
+      <!-- 社内専用 -->
       <div class="fs" style="background:#FFF5F5;border:1px solid #FFD0D0;border-radius:6px;padding:14px;">
-        <div class="fs-title-internal">社内専用（お客様・仲介には非表示）</div>
-
-        <div style="margin-bottom:10px;">
+        <div class="fs-title-int">社内専用（お客様・仲介には非表示・別途暗号化保存）</div>
+        <div style="margin-bottom:12px;">
           <div class="fs-title" style="color:#900;border-color:#FFB3B3;font-size:10px;">仕入れ情報</div>
           <div class="fg">
-            <div class="fr fr-internal"><label>仕入れ金額（万円）</label><input id="f-buy-price" type="number" placeholder="例：10000"/></div>
-            <div class="fr fr-internal"><label>仕入れ先</label><input id="f-buy-from" placeholder="例：○○不動産"/></div>
+            <div class="fr fr-int"><label>仕入れ金額（万円）</label><input id="f-buy-price" type="number"/></div>
+            <div class="fr fr-int"><label>仕入れ先</label><input id="f-buy-from" placeholder="例：○○不動産"/></div>
           </div>
           <div class="fg">
-            <div class="fr fr-internal"><label>仕入れ契約日</label><input id="f-buy-contract" type="date"/></div>
-            <div class="fr fr-internal"><label>仕入れ決済日</label><input id="f-buy-settle" type="date"/></div>
+            <div class="fr fr-int"><label>仕入れ契約日</label><input id="f-buy-contract" type="date"/></div>
+            <div class="fr fr-int"><label>仕入れ決済日</label><input id="f-buy-settle" type="date"/></div>
           </div>
         </div>
-
-        <div style="margin-bottom:10px;">
+        <div style="margin-bottom:12px;">
           <div class="fs-title" style="color:#900;border-color:#FFB3B3;font-size:10px;">融資情報</div>
           <div class="fg">
-            <div class="fr fr-internal"><label>融資金額（万円）</label><input id="f-loan-amt" type="number" placeholder="例：8000"/></div>
-            <div class="fr fr-internal"><label>融資先（銀行名）</label><input id="f-loan-bank" placeholder="例：○○銀行"/></div>
+            <div class="fr fr-int"><label>融資金額（万円）</label><input id="f-loan-amt" type="number"/></div>
+            <div class="fr fr-int"><label>融資先（銀行名）</label><input id="f-loan-bank" placeholder="例：○○銀行"/></div>
           </div>
         </div>
-
-        <div style="margin-bottom:10px;">
+        <div style="margin-bottom:12px;">
           <div class="fs-title" style="color:#900;border-color:#FFB3B3;font-size:10px;">再販情報</div>
           <div class="fg">
-            <div class="fr fr-internal"><label>再販価格（万円）</label><input id="f-sell-price" type="number" placeholder="例：15000"/></div>
-            <div class="fr fr-internal"><label>販売先</label><input id="f-sell-to" placeholder="例：○○様"/></div>
+            <div class="fr fr-int"><label>再販価格（万円）</label><input id="f-sell-price" type="number"/></div>
+            <div class="fr fr-int"><label>販売先</label><input id="f-sell-to" placeholder="例：○○様"/></div>
           </div>
           <div class="fg">
-            <div class="fr fr-internal"><label>再販契約日</label><input id="f-sell-contract" type="date"/></div>
-            <div class="fr fr-internal"><label>再販決済日</label><input id="f-sell-settle" type="date"/></div>
+            <div class="fr fr-int"><label>再販契約日</label><input id="f-sell-contract" type="date"/></div>
+            <div class="fr fr-int"><label>再販決済日</label><input id="f-sell-settle" type="date"/></div>
           </div>
           <div class="days-auto" id="days-auto-display"></div>
         </div>
-
         <div>
           <div class="fs-title" style="color:#900;border-color:#FFB3B3;font-size:10px;">社内メモ</div>
-          <div class="fr fr-internal"><textarea id="f-internal-memo" style="height:70px;border-color:#FFD0D0;background:#FFF9F9;" placeholder="社内専用メモ（外部非公開）"></textarea></div>
+          <div class="fr fr-int"><textarea id="f-internal-memo" style="height:70px;border-color:#FFD0D0;background:#FFF9F9;" placeholder="社内専用メモ（外部非公開）"></textarea></div>
         </div>
       </div>
-
     </div>
     <div class="modal-foot">
       <button class="btn" onclick="closeModal()">キャンセル</button>
@@ -487,7 +443,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   </div>
 </div>
 
-<!-- 印刷設定モーダル -->
+<!-- 印刷設定 -->
 <div class="print-config-bg" id="print-config">
   <div class="print-config">
     <div class="pc-head">
@@ -495,19 +451,13 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <button class="modal-close" onclick="closePrintConfig()">✕</button>
     </div>
     <div class="pc-body">
-
-      <!-- タイプ表示 -->
       <div style="background:#EEF2FF;border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--navy);font-weight:600;" id="pc-type-label"></div>
-
-      <!-- 物件選択 -->
       <div class="pc-section">
         <div class="pc-section-title">出力する物件を選択</div>
         <span class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</span>　
         <span class="pc-select-all" onclick="toggleAllProps(false)">すべて解除</span>
         <div class="pc-prop-list" id="pc-prop-list"></div>
       </div>
-
-      <!-- 価格表示オプション -->
       <div class="pc-section">
         <div class="pc-section-title">販売済物件の価格表示</div>
         <div class="pc-opts">
@@ -515,19 +465,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <label class="pc-opt"><input type="radio" name="price-mask" value="mask"/> ＊＊＊＊万円 に隠す</label>
         </div>
       </div>
-
-      <!-- 表示項目（仲介向けのみ） -->
       <div class="pc-section" id="pc-broker-rows">
         <div class="pc-section-title">表示する項目（仲介向け）</div>
         <div class="pc-grid" id="pc-row-checks"></div>
       </div>
-
-      <!-- 表示項目（銀行向けのみ） -->
       <div class="pc-section" id="pc-bank-rows" style="display:none;">
-        <div class="pc-section-title">表示する項目（銀行向け）</div>
+        <div class="pc-section-title">表示する項目（銀行向け・<span style="color:#a00;">★社内専用含む</span>）</div>
         <div class="pc-grid" id="pc-bank-row-checks"></div>
       </div>
-
     </div>
     <div class="pc-foot">
       <button class="btn" onclick="closePrintConfig()">キャンセル</button>
@@ -536,11 +481,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   </div>
 </div>
 
-<!-- 印刷プレビューモーダル -->
+<!-- 印刷プレビュー -->
 <div class="print-prev-bg" id="print-prev">
   <div class="print-prev-inner">
     <div class="pp-head">
-      <span id="pp-title">印刷プレビュー（A4横向き）</span>
+      <span id="pp-title">印刷プレビュー</span>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-gold" onclick="window.print()">印刷 / PDF保存</button>
         <button class="btn" style="color:#fff;border-color:rgba(255,255,255,0.3);background:transparent;" onclick="document.getElementById('print-prev').classList.remove('open')">閉じる</button>
@@ -553,7 +498,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -568,321 +513,339 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-let props=[], editId=null, currentPhotos=[];
 
-onAuthStateChanged(auth, user=>{
-  if(user){
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('main-app').style.display='block';
-    document.getElementById('user-email').textContent=user.email;
+// ★ 2つのコレクション
+// "properties"          → 公開情報（お客様も見える）
+// "properties_internal" → 社内専用（ログイン必須）
+
+let props = [], internalMap = {}, editId = null, currentPhotos = [];
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    document.getElementById('user-email').textContent = user.email;
     startSync();
   } else {
-    document.getElementById('login-screen').style.display='flex';
-    document.getElementById('main-app').style.display='none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
   }
 });
 
-window.doLogin=async function(){
-  const email=document.getElementById('login-email').value.trim();
-  const pass=document.getElementById('login-pass').value;
-  document.getElementById('login-err').textContent='';
-  try{ showLoading(true); await signInWithEmailAndPassword(auth,email,pass); }
-  catch(e){ document.getElementById('login-err').textContent='メールアドレスまたはパスワードが違います'; }
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  document.getElementById('login-err').textContent = '';
+  try { showLoading(true); await signInWithEmailAndPassword(auth, email, pass); }
+  catch(e) { document.getElementById('login-err').textContent = 'メールアドレスまたはパスワードが違います'; }
   showLoading(false);
 };
-window.doLogout=async function(){ await signOut(auth); };
-document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') window.doLogin(); });
+window.doLogout = async function() { await signOut(auth); };
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
 
-function startSync(){
-  onSnapshot(collection(db,'properties'),snap=>{
-    props=snap.docs.map(d=>({id:d.id,...d.data()}));
-    props.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+function startSync() {
+  // 公開情報
+  onSnapshot(collection(db, 'properties'), snap => {
+    props = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    props.sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    renderCards();
+  });
+  // 社内専用情報（ログイン済みのみ読める）
+  onSnapshot(collection(db, 'properties_internal'), snap => {
+    internalMap = {};
+    snap.docs.forEach(d => { internalMap[d.id] = d.data(); });
     renderCards();
   });
 }
 
-// ── 日数自動計算 ──
-function calcDays(d1,d2){
-  if(!d1||!d2) return null;
-  const diff=new Date(d2)-new Date(d1);
-  return diff>=0?Math.round(diff/86400000):null;
+function calcDays(d1, d2) {
+  if (!d1 || !d2) return null;
+  const diff = new Date(d2) - new Date(d1);
+  return diff >= 0 ? Math.round(diff / 86400000) : null;
 }
-function updateDaysDisplay(){
-  const bs=document.getElementById('f-buy-settle').value;
-  const ss=document.getElementById('f-sell-settle').value;
-  const d=calcDays(bs,ss);
-  const el=document.getElementById('days-auto-display');
-  el.innerHTML=d!==null?'仕入れ決済→再販決済：<span>'+d+'日</span>':'';
+function updateDaysDisplay() {
+  const bs = document.getElementById('f-buy-settle').value;
+  const ss = document.getElementById('f-sell-settle').value;
+  const d = calcDays(bs, ss);
+  document.getElementById('days-auto-display').innerHTML = d !== null ? '仕入れ決済→再販決済：<span>' + d + '日</span>' : '';
 }
-['f-buy-settle','f-sell-settle'].forEach(id=>{
-  document.getElementById(id).addEventListener('change',updateDaysDisplay);
+['f-buy-settle','f-sell-settle'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updateDaysDisplay);
 });
 
-// ── 保存 ──
-window.doSave=async function(){
-  const name=document.getElementById('f-name').value.trim();
-  if(!name){ alert('物件名は必須です'); return; }
+window.doSave = async function() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('物件名は必須です'); return; }
   showLoading(true);
-  const line=document.getElementById('f-line').value;
-  const station=document.getElementById('f-station').value;
-  const walk=document.getElementById('f-walk').value;
-  const staFree=document.getElementById('f-sta-free').value.trim();
-  let sta='';
-  if(line&&station) sta=line+'【'+station+'】'+(walk?'徒歩'+walk+'分':'');
-  if(staFree) sta=sta?sta+'　'+staFree:staFree;
-  const bs=document.getElementById('f-buy-settle').value;
-  const ss=document.getElementById('f-sell-settle').value;
-  const days=calcDays(bs,ss);
-  const obj={
-    name,sta,
-    kind:document.getElementById('f-kind-form').value,
-    loc:document.getElementById('f-loc').value.trim(),
-    land:parseFloat(document.getElementById('f-land').value)||null,
-    floor:parseFloat(document.getElementById('f-floor').value)||null,
-    layout:document.getElementById('f-layout').value.trim(),
-    price:parseInt(document.getElementById('f-price-val').value)||null,
-    built:document.getElementById('f-built').value.trim(),
-    yld:parseFloat(document.getElementById('f-yield').value)||null,
-    uso:document.getElementById('f-uso').value.trim(),
-    struct:document.getElementById('f-struct').value.trim(),
-    road:document.getElementById('f-road').value.trim(),
-    right:document.getElementById('f-right').value.trim(),
-    kenpei:document.getElementById('f-kenpei').value.trim(),
-    yoseki:document.getElementById('f-yoseki').value.trim(),
-    zone:document.getElementById('f-zone').value,
-    bouka:document.getElementById('f-bouka').value.trim(),
-    toshi:document.getElementById('f-toshi').value.trim(),
-    saleStatus:document.getElementById('f-sale-status').value,
-    propStatus:document.getElementById('f-prop-status').value,
-    baitai:document.getElementById('f-baitai-form').value,
-    delivery:document.getElementById('f-delivery').value.trim(),
-    note:document.getElementById('f-note').value.trim(),
-    photos:currentPhotos,
-    // 社内専用
-    buyPrice:parseInt(document.getElementById('f-buy-price').value)||null,
-    buyFrom:document.getElementById('f-buy-from').value.trim(),
-    buyContract:document.getElementById('f-buy-contract').value,
-    buySettle:document.getElementById('f-buy-settle').value,
-    loanAmt:parseInt(document.getElementById('f-loan-amt').value)||null,
-    loanBank:document.getElementById('f-loan-bank').value.trim(),
-    sellPrice:parseInt(document.getElementById('f-sell-price').value)||null,
-    sellTo:document.getElementById('f-sell-to').value.trim(),
-    sellContract:document.getElementById('f-sell-contract').value,
-    sellSettle:document.getElementById('f-sell-settle').value,
-    daysHeld:days,
-    internalMemo:document.getElementById('f-internal-memo').value.trim(),
+
+  const line = document.getElementById('f-line').value;
+  const station = document.getElementById('f-station').value;
+  const walk = document.getElementById('f-walk').value;
+  const staFree = document.getElementById('f-sta-free').value.trim();
+  let sta = '';
+  if (line && station) sta = line + '【' + station + '】' + (walk ? '徒歩' + walk + '分' : '');
+  if (staFree) sta = sta ? sta + '　' + staFree : staFree;
+
+  // ★ 公開情報のみ（社内情報は含まない）
+  const pubObj = {
+    name, sta,
+    kind: document.getElementById('f-kind-form').value,
+    loc: document.getElementById('f-loc').value.trim(),
+    land: parseFloat(document.getElementById('f-land').value)||null,
+    floor: parseFloat(document.getElementById('f-floor').value)||null,
+    layout: document.getElementById('f-layout').value.trim(),
+    price: parseInt(document.getElementById('f-price-val').value)||null,
+    built: document.getElementById('f-built').value.trim(),
+    yld: parseFloat(document.getElementById('f-yield').value)||null,
+    uso: document.getElementById('f-uso').value.trim(),
+    struct: document.getElementById('f-struct').value.trim(),
+    road: document.getElementById('f-road').value.trim(),
+    right: document.getElementById('f-right').value.trim(),
+    kenpei: document.getElementById('f-kenpei').value.trim(),
+    yoseki: document.getElementById('f-yoseki').value.trim(),
+    zone: document.getElementById('f-zone').value,
+    bouka: document.getElementById('f-bouka').value.trim(),
+    toshi: document.getElementById('f-toshi').value.trim(),
+    saleStatus: document.getElementById('f-sale-status').value,
+    propStatus: document.getElementById('f-prop-status').value,
+    baitai: document.getElementById('f-baitai-form').value,
+    delivery: document.getElementById('f-delivery').value.trim(),
+    note: document.getElementById('f-note').value.trim(),
+    photos: currentPhotos,
   };
-  try{
-    if(editId){ await updateDoc(doc(db,'properties',editId),obj); }
-    else{ obj.createdAt=serverTimestamp(); await addDoc(collection(db,'properties'),obj); }
+
+  const bs = document.getElementById('f-buy-settle').value;
+  const ss = document.getElementById('f-sell-settle').value;
+
+  // ★ 社内専用情報（別コレクションに保存）
+  const intObj = {
+    buyPrice: parseInt(document.getElementById('f-buy-price').value)||null,
+    buyFrom: document.getElementById('f-buy-from').value.trim(),
+    buyContract: document.getElementById('f-buy-contract').value,
+    buySettle: bs,
+    loanAmt: parseInt(document.getElementById('f-loan-amt').value)||null,
+    loanBank: document.getElementById('f-loan-bank').value.trim(),
+    sellPrice: parseInt(document.getElementById('f-sell-price').value)||null,
+    sellTo: document.getElementById('f-sell-to').value.trim(),
+    sellContract: document.getElementById('f-sell-contract').value,
+    sellSettle: ss,
+    daysHeld: calcDays(bs, ss),
+    internalMemo: document.getElementById('f-internal-memo').value.trim(),
+    updatedAt: serverTimestamp(),
+  };
+
+  try {
+    if (editId) {
+      await updateDoc(doc(db, 'properties', editId), pubObj);
+      await setDoc(doc(db, 'properties_internal', editId), intObj, { merge: true });
+    } else {
+      pubObj.createdAt = serverTimestamp();
+      const ref = await addDoc(collection(db, 'properties'), pubObj);
+      // 同じIDで社内コレクションにも保存
+      await setDoc(doc(db, 'properties_internal', ref.id), intObj);
+    }
     closeModal();
-  }catch(e){ alert('保存失敗: '+e.message); }
+  } catch(e) { alert('保存失敗: ' + e.message); }
   showLoading(false);
 };
 
-window._firebaseDelete=async function(id){
-  if(!confirm('この物件を削除しますか？')) return;
-  await deleteDoc(doc(db,'properties',id));
+window._firebaseDelete = async function(id) {
+  if (!confirm('この物件を削除しますか？')) return;
+  await deleteDoc(doc(db, 'properties', id));
+  await deleteDoc(doc(db, 'properties_internal', id));
 };
 
-// ── Cloudinary ──
-const CLD='dujllruro',CLD_PRESET='ldy-property';
-async function uploadOne(file){
-  const fd=new FormData(); fd.append('file',file); fd.append('upload_preset',CLD_PRESET);
-  const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});
-  const d=await r.json();
-  if(d.secure_url) return {url:d.secure_url,caption:''};
-  throw new Error(d.error?.message||'失敗');
+// Cloudinary
+const CLD = 'dujllruro', CLD_PRESET = 'ldy-property';
+async function uploadOne(file) {
+  const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', CLD_PRESET);
+  const r = await fetch('https://api.cloudinary.com/v1_1/' + CLD + '/image/upload', { method:'POST', body:fd });
+  const d = await r.json();
+  if (d.secure_url) return { url: d.secure_url, caption: '' };
+  throw new Error(d.error?.message || '失敗');
 }
-window.handleFiles=async function(e){
-  const files=Array.from(e.target.files); if(!files.length) return;
-  document.getElementById('img-uploading').style.display='block';
-  for(const f of files){
-    try{ const p=await uploadOne(f); currentPhotos.push(p); renderImgList(); }
-    catch(err){ alert('失敗: '+err.message); }
+window.handleFiles = async function(e) {
+  const files = Array.from(e.target.files); if (!files.length) return;
+  document.getElementById('img-uploading').style.display = 'block';
+  for (const f of files) {
+    try { const p = await uploadOne(f); currentPhotos.push(p); renderImgList(); }
+    catch(err) { alert('失敗: ' + err.message); }
   }
-  document.getElementById('img-uploading').style.display='none';
-  document.getElementById('img-file-input').value='';
+  document.getElementById('img-uploading').style.display = 'none';
+  document.getElementById('img-file-input').value = '';
 };
-function renderImgList(){
-  document.getElementById('img-list').innerHTML=currentPhotos.map((p,i)=>
-    '<div class="img-item">'+
-      '<img src="'+p.url+'" alt=""/>'+
-      '<button class="img-del" onclick="removePhoto('+i+')">✕</button>'+
-      '<input class="img-cap" value="'+(p.caption||'')+'" placeholder="キャプション..." oninput="updateCaption('+i+',this.value)"/>'+
-    '</div>'
+function renderImgList() {
+  document.getElementById('img-list').innerHTML = currentPhotos.map((p,i) =>
+    '<div class="img-item"><img src="' + p.url + '" alt=""/>' +
+    '<button class="img-del" onclick="removePhoto(' + i + ')">✕</button>' +
+    '<input class="img-cap" value="' + (p.caption||'') + '" placeholder="キャプション..." oninput="updateCaption(' + i + ',this.value)"/></div>'
   ).join('');
 }
-window.removePhoto=function(i){ currentPhotos.splice(i,1); renderImgList(); };
-window.updateCaption=function(i,v){ if(currentPhotos[i]) currentPhotos[i].caption=v; };
-const dropEl=document.getElementById('img-drop');
-dropEl.addEventListener('dragover',e=>{e.preventDefault();dropEl.classList.add('dragover');});
-dropEl.addEventListener('dragleave',()=>dropEl.classList.remove('dragover'));
-dropEl.addEventListener('drop',async e=>{
+window.removePhoto = function(i) { currentPhotos.splice(i,1); renderImgList(); };
+window.updateCaption = function(i,v) { if(currentPhotos[i]) currentPhotos[i].caption = v; };
+const dropEl = document.getElementById('img-drop');
+dropEl.addEventListener('dragover', e => { e.preventDefault(); dropEl.classList.add('dragover'); });
+dropEl.addEventListener('dragleave', () => dropEl.classList.remove('dragover'));
+dropEl.addEventListener('drop', async e => {
   e.preventDefault(); dropEl.classList.remove('dragover');
-  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
-  document.getElementById('img-uploading').style.display='block';
-  for(const f of files){
-    try{ const p=await uploadOne(f); currentPhotos.push(p); renderImgList(); }
-    catch(err){ alert('失敗: '+err.message); }
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  document.getElementById('img-uploading').style.display = 'block';
+  for (const f of files) {
+    try { const p = await uploadOne(f); currentPhotos.push(p); renderImgList(); }
+    catch(err) { alert('失敗: ' + err.message); }
   }
-  document.getElementById('img-uploading').style.display='none';
+  document.getElementById('img-uploading').style.display = 'none';
 });
 
-// ── Lightbox ──
-let lbPhotos=[],lbIdx=0;
-window.openLB=function(photos,idx){ lbPhotos=photos; lbIdx=idx; updateLB(); document.getElementById('lightbox').classList.add('open'); };
-window.closeLB=function(){ document.getElementById('lightbox').classList.remove('open'); };
-window.lbMove=function(dir){ lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length; updateLB(); };
-function updateLB(){
-  const p=lbPhotos[lbIdx];
-  document.getElementById('lb-img').src=p.url||p;
-  document.getElementById('lb-cap').textContent=p.caption||'';
-  document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;
-  document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>'<div class="lb-dot'+(i===lbIdx?' active':'')+'" onclick="lbMove('+(i-lbIdx)+')"></div>').join('');
+// Lightbox
+let lbPhotos=[], lbIdx=0;
+window.openLB = function(photos,idx) { lbPhotos=photos; lbIdx=idx; updateLB(); document.getElementById('lightbox').classList.add('open'); };
+window.closeLB = function() { document.getElementById('lightbox').classList.remove('open'); };
+window.lbMove = function(dir) { lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length; updateLB(); };
+function updateLB() {
+  const p = lbPhotos[lbIdx];
+  document.getElementById('lb-img').src = p.url||p;
+  document.getElementById('lb-cap').textContent = p.caption||'';
+  document.getElementById('lb-counter').textContent = (lbIdx+1) + ' / ' + lbPhotos.length;
+  document.getElementById('lb-dots').innerHTML = lbPhotos.map((_,i) =>
+    '<div class="lb-dot' + (i===lbIdx?' active':'') + '" onclick="lbMove(' + (i-lbIdx) + ')"></div>'
+  ).join('');
 }
-document.addEventListener('keydown',e=>{
-  if(!document.getElementById('lightbox').classList.contains('open')) return;
-  if(e.key==='ArrowLeft') lbMove(-1);
-  if(e.key==='ArrowRight') lbMove(1);
-  if(e.key==='Escape') closeLB();
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key==='ArrowLeft') lbMove(-1);
+  if (e.key==='ArrowRight') lbMove(1);
+  if (e.key==='Escape') closeLB();
 });
 
-// ── 路線・駅 ──
-const LINES={"JR山手線":["品川","大崎","五反田","目黒","恵比寿","渋谷","原宿","代々木","新宿","新大久保","高田馬場","目白","池袋","大塚","巣鴨","駒込","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ"],"JR中央線快速":["東京","神田","御茶ノ水","四ツ谷","新宿","中野","高円寺","阿佐ヶ谷","荻窪","西荻窪","吉祥寺","三鷹","武蔵境","東小金井","武蔵小金井","国分寺","西国分寺","国立","立川","日野","豊田","八王子","西八王子","高尾"],"JR中央・総武線各停":["三鷹","吉祥寺","西荻窪","荻窪","阿佐ヶ谷","高円寺","中野","東中野","大久保","新宿","代々木","千駄ヶ谷","信濃町","四ツ谷","市ヶ谷","飯田橋","水道橋","御茶ノ水","秋葉原","浅草橋","両国","錦糸町","亀戸","平井","新小岩","小岩"],"JR京浜東北線":["赤羽","東十条","王子","上中里","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ","品川","西大井","大井町","大森","蒲田"],"JR埼京線":["赤羽","板橋","十条","池袋","新宿","渋谷","恵比寿","大崎"],"JR常磐線":["上野","日暮里","三河島","南千住","北千住"],"JR京葉線":["東京","八丁堀","越中島","潮見","新木場","葛西臨海公園","舞浜"],"東京メトロ銀座線":["渋谷","表参道","外苑前","青山一丁目","赤坂見附","溜池山王","虎ノ門","新橋","銀座","京橋","日本橋","三越前","神田","末広町","上野広小路","上野","稲荷町","田原町","浅草"],"東京メトロ丸ノ内線":["荻窪","南阿佐ヶ谷","新高円寺","東高円寺","新中野","中野坂上","西新宿","新宿","新宿三丁目","新宿御苑前","四谷三丁目","四ツ谷","赤坂見附","国会議事堂前","霞ケ関","銀座","東京","大手町","淡路町","御茶ノ水","本郷三丁目","後楽園","茗荷谷","新大塚","池袋","中野富士見町","中野新橋","方南町"],"東京メトロ日比谷線":["北千住","南千住","三ノ輪","入谷","上野","仲御徒町","秋葉原","小伝馬町","人形町","茅場町","八丁堀","築地","東銀座","銀座","日比谷","霞ケ関","国会議事堂前","六本木","広尾","恵比寿","中目黒","神谷町","虎ノ門ヒルズ"],"東京メトロ東西線":["中野","落合","高田馬場","早稲田","神楽坂","飯田橋","九段下","竹橋","大手町","日本橋","茅場町","門前仲町","木場","東陽町","南砂町","葛西","西葛西","船堀","一之江","瑞江","篠崎","本八幡"],"東京メトロ千代田線":["代々木上原","代々木公園","明治神宮前","表参道","乃木坂","赤坂","国会議事堂前","霞ケ関","日比谷","二重橋前","大手町","新御茶ノ水","湯島","根津","千駄木","西日暮里","町屋","北千住","綾瀬","北綾瀬"],"東京メトロ有楽町線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","東池袋","護国寺","江戸川橋","飯田橋","市ケ谷","麹町","永田町","桜田門","有楽町","銀座一丁目","新富町","月島","豊洲","辰巳","新木場"],"東京メトロ半蔵門線":["渋谷","表参道","青山一丁目","永田町","半蔵門","九段下","神保町","大手町","三越前","水天宮前","清澄白河","住吉","錦糸町","押上"],"東京メトロ南北線":["目黒","白金台","白金高輪","麻布十番","六本木一丁目","溜池山王","永田町","四ツ谷","市ケ谷","飯田橋","後楽園","東大前","本駒込","駒込","西ヶ原","王子","王子神谷","志茂","赤羽岩淵"],"東京メトロ副都心線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","雑司が谷","西早稲田","東新宿","新宿三丁目","北参道","明治神宮前","渋谷"],"都営浅草線":["西馬込","馬込","中延","戸越","五反田","高輪台","泉岳寺","三田","大門","新橋","東銀座","宝町","日本橋","人形町","東日本橋","浅草橋","蔵前","浅草","本所吾妻橋","押上"],"都営三田線":["目黒","白金台","白金高輪","三田","芝公園","御成門","内幸町","日比谷","大手町","神保町","水道橋","春日","白山","千石","巣鴨","西巣鴨","新板橋","板橋区役所前","板橋本町","本蓮沼","志村坂上","志村三丁目","蓮根","西台","高島平","新高島平","西高島平"],"都営新宿線":["新宿","新宿三丁目","曙橋","市ケ谷","九段下","神保町","小川町","岩本町","馬喰横山","浜町","森下","菊川","住吉","西大島","大島","東大島","船堀","一之江","瑞江","篠崎","本八幡"],"都営大江戸線":["都庁前","新宿","西新宿五丁目","中野坂上","東中野","落合南長崎","新江古田","練馬","豊島園","練馬春日町","光が丘","国立競技場","青山一丁目","六本木","麻布十番","赤羽橋","大門","汐留","築地市場","勝どき","月島","門前仲町","清澄白河","森下","蔵前","両国","春日","本郷三丁目","上野御徒町","新御徒町"],"東急東横線":["渋谷","代官山","中目黒","祐天寺","学芸大学","都立大学","自由が丘","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉","綱島","大倉山","菊名","妙蓮寺","白楽","東白楽","反町","横浜"],"東急目黒線":["目黒","不動前","武蔵小山","西小山","洗足","大岡山","奥沢","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉"],"東急田園都市線":["渋谷","池尻大橋","三軒茶屋","駒沢大学","桜新町","用賀","二子玉川","二子新地","高津","溝の口","梶が谷","宮崎台","宮前平","鷺沼","たまプラーザ","あざみ野"],"東急大井町線":["大井町","下神明","戸越公園","中延","荏原町","旗の台","北千束","大岡山","緑が丘","自由が丘","九品仏","尾山台","等々力","上野毛","二子玉川"],"京王線":["新宿","初台","幡ヶ谷","笹塚","代田橋","明大前","下高井戸","桜上水","上北沢","八幡山","芦花公園","千歳烏山","仙川","つつじヶ丘","柴崎","国領","布田","調布","西調布","飛田給","武蔵野台","多磨霊園","東府中","府中","分倍河原","聖蹟桜ヶ丘","高幡不動","北野","八王子"],"京王井の頭線":["渋谷","神泉","駒場東大前","池ノ上","下北沢","新代田","東松原","明大前","永福町","西永福","浜田山","高井戸","富士見ヶ丘","久我山","三鷹台","井の頭公園","吉祥寺"],"小田急小田原線":["新宿","南新宿","参宮橋","代々木八幡","代々木上原","東北沢","下北沢","世田谷代田","梅ヶ丘","豪徳寺","経堂","千歳船橋","祖師ヶ谷大蔵","成城学園前","喜多見","狛江","和泉多摩川","登戸","向ヶ丘遊園","生田","読売ランド前","百合ヶ丘","新百合ヶ丘"],"西武池袋線":["池袋","椎名町","東長崎","江古田","桜台","練馬","中村橋","富士見台","練馬高野台","石神井公園","大泉学園","保谷","ひばりヶ丘","東久留米","清瀬","秋津","所沢"],"西武新宿線":["西武新宿","高田馬場","下落合","中井","新井薬師前","沼袋","野方","都立家政","鷺ノ宮","下井草","井荻","上井草","上石神井","武蔵関","東伏見","西武柳沢","田無","花小金井","小平","久米川","東村山","所沢"],"東武東上線":["池袋","北池袋","下板橋","大山","中板橋","ときわ台","上板橋","東武練馬","下赤塚","成増","和光市"],"東武スカイツリーライン":["浅草","とうきょうスカイツリー","押上","曳舟","東向島","鐘ヶ淵","堀切","牛田","北千住","小菅","五反野","梅島","西新井","竹ノ塚"],"京成本線":["上野","日暮里","新三河島","町屋","千住大橋","京成関屋","堀切菖蒲園","お花茶屋","青砥","京成高砂"],"つくばエクスプレス":["秋葉原","新御徒町","浅草","南千住","北千住","青井","六町","八潮","三郷中央","南流山","柏の葉キャンパス","守谷","つくば"],"ゆりかもめ":["新橋","汐留","竹芝","日の出","芝浦ふ頭","お台場海浜公園","台場","船の科学館","テレコムセンター","青海","東京ビッグサイト","有明","豊洲"],"都電荒川線":["三ノ輪橋","荒川区役所前","荒川二丁目","荒川七丁目","小台","宮ノ前","熊野前","東尾久三丁目","大根橋","高野","落合南長崎","一本榎","西ヶ原四丁目","滝野川一丁目","西巣鴨","新庚申塚","庚申塚","巣鴨新田","大塚駅前","向原","東池袋四丁目","都電雑司ヶ谷","鬼子母神前","学習院下","面影橋","早稲田"],"日暮里・舎人ライナー":["日暮里","西日暮里","赤土小学校前","熊野前","足立小台","扇大橋","高野","江北","西新井大師西","谷在家","舎人公園","舎人","見沼代親水公園"]};
+// 路線・駅
+const LINES = {"JR山手線":["品川","大崎","五反田","目黒","恵比寿","渋谷","原宿","代々木","新宿","新大久保","高田馬場","目白","池袋","大塚","巣鴨","駒込","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ"],"JR中央線快速":["東京","神田","御茶ノ水","四ツ谷","新宿","中野","高円寺","阿佐ヶ谷","荻窪","西荻窪","吉祥寺","三鷹","武蔵境","東小金井","武蔵小金井","国分寺","西国分寺","国立","立川","日野","豊田","八王子","西八王子","高尾"],"JR中央・総武線各停":["三鷹","吉祥寺","西荻窪","荻窪","阿佐ヶ谷","高円寺","中野","東中野","大久保","新宿","代々木","千駄ヶ谷","信濃町","四ツ谷","市ヶ谷","飯田橋","水道橋","御茶ノ水","秋葉原","浅草橋","両国","錦糸町","亀戸","平井","新小岩","小岩"],"JR京浜東北線":["赤羽","東十条","王子","上中里","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ","品川","西大井","大井町","大森","蒲田"],"JR埼京線":["赤羽","板橋","十条","池袋","新宿","渋谷","恵比寿","大崎"],"JR常磐線":["上野","日暮里","三河島","南千住","北千住"],"JR京葉線":["東京","八丁堀","越中島","潮見","新木場","葛西臨海公園","舞浜"],"東京メトロ銀座線":["渋谷","表参道","外苑前","青山一丁目","赤坂見附","溜池山王","虎ノ門","新橋","銀座","京橋","日本橋","三越前","神田","末広町","上野広小路","上野","稲荷町","田原町","浅草"],"東京メトロ丸ノ内線":["荻窪","南阿佐ヶ谷","新高円寺","東高円寺","新中野","中野坂上","西新宿","新宿","新宿三丁目","新宿御苑前","四谷三丁目","四ツ谷","赤坂見附","国会議事堂前","霞ケ関","銀座","東京","大手町","淡路町","御茶ノ水","本郷三丁目","後楽園","茗荷谷","新大塚","池袋","中野富士見町","中野新橋","方南町"],"東京メトロ日比谷線":["北千住","南千住","三ノ輪","入谷","上野","仲御徒町","秋葉原","小伝馬町","人形町","茅場町","八丁堀","築地","東銀座","銀座","日比谷","霞ケ関","国会議事堂前","六本木","広尾","恵比寿","中目黒","神谷町","虎ノ門ヒルズ"],"東京メトロ東西線":["中野","落合","高田馬場","早稲田","神楽坂","飯田橋","九段下","竹橋","大手町","日本橋","茅場町","門前仲町","木場","東陽町","南砂町","葛西","西葛西","船堀","一之江","瑞江","篠崎","本八幡"],"東京メトロ千代田線":["代々木上原","代々木公園","明治神宮前","表参道","乃木坂","赤坂","国会議事堂前","霞ケ関","日比谷","二重橋前","大手町","新御茶ノ水","湯島","根津","千駄木","西日暮里","町屋","北千住","綾瀬","北綾瀬"],"東京メトロ有楽町線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","東池袋","護国寺","江戸川橋","飯田橋","市ケ谷","麹町","永田町","桜田門","有楽町","銀座一丁目","新富町","月島","豊洲","辰巳","新木場"],"東京メトロ半蔵門線":["渋谷","表参道","青山一丁目","永田町","半蔵門","九段下","神保町","大手町","三越前","水天宮前","清澄白河","住吉","錦糸町","押上"],"東京メトロ南北線":["目黒","白金台","白金高輪","麻布十番","六本木一丁目","溜池山王","永田町","四ツ谷","市ケ谷","飯田橋","後楽園","東大前","本駒込","駒込","西ヶ原","王子","王子神谷","志茂","赤羽岩淵"],"東京メトロ副都心線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","雑司が谷","西早稲田","東新宿","新宿三丁目","北参道","明治神宮前","渋谷"],"都営浅草線":["西馬込","馬込","中延","戸越","五反田","高輪台","泉岳寺","三田","大門","新橋","東銀座","宝町","日本橋","人形町","東日本橋","浅草橋","蔵前","浅草","本所吾妻橋","押上"],"都営三田線":["目黒","白金台","白金高輪","三田","芝公園","御成門","内幸町","日比谷","大手町","神保町","水道橋","春日","白山","千石","巣鴨","西巣鴨","新板橋","板橋区役所前","板橋本町","本蓮沼","志村坂上","志村三丁目","蓮根","西台","高島平","新高島平","西高島平"],"都営新宿線":["新宿","新宿三丁目","曙橋","市ケ谷","九段下","神保町","小川町","岩本町","馬喰横山","浜町","森下","菊川","住吉","西大島","大島","東大島","船堀","一之江","瑞江","篠崎","本八幡"],"都営大江戸線":["都庁前","新宿","西新宿五丁目","中野坂上","東中野","落合南長崎","新江古田","練馬","豊島園","練馬春日町","光が丘","国立競技場","青山一丁目","六本木","麻布十番","赤羽橋","大門","汐留","築地市場","勝どき","月島","門前仲町","清澄白河","森下","蔵前","両国","春日","本郷三丁目","上野御徒町","新御徒町"],"東急東横線":["渋谷","代官山","中目黒","祐天寺","学芸大学","都立大学","自由が丘","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉","綱島","大倉山","菊名","妙蓮寺","白楽","東白楽","反町","横浜"],"東急目黒線":["目黒","不動前","武蔵小山","西小山","洗足","大岡山","奥沢","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉"],"東急田園都市線":["渋谷","池尻大橋","三軒茶屋","駒沢大学","桜新町","用賀","二子玉川","二子新地","高津","溝の口","梶が谷","宮崎台","宮前平","鷺沼","たまプラーザ","あざみ野"],"東急大井町線":["大井町","下神明","戸越公園","中延","荏原町","旗の台","北千束","大岡山","緑が丘","自由が丘","九品仏","尾山台","等々力","上野毛","二子玉川"],"京王線":["新宿","初台","幡ヶ谷","笹塚","代田橋","明大前","下高井戸","桜上水","上北沢","八幡山","芦花公園","千歳烏山","仙川","つつじヶ丘","柴崎","国領","布田","調布","西調布","飛田給","武蔵野台","多磨霊園","東府中","府中","分倍河原","聖蹟桜ヶ丘","高幡不動","北野","八王子"],"京王井の頭線":["渋谷","神泉","駒場東大前","池ノ上","下北沢","新代田","東松原","明大前","永福町","西永福","浜田山","高井戸","富士見ヶ丘","久我山","三鷹台","井の頭公園","吉祥寺"],"小田急小田原線":["新宿","南新宿","参宮橋","代々木八幡","代々木上原","東北沢","下北沢","世田谷代田","梅ヶ丘","豪徳寺","経堂","千歳船橋","祖師ヶ谷大蔵","成城学園前","喜多見","狛江","和泉多摩川","登戸","向ヶ丘遊園","生田","読売ランド前","百合ヶ丘","新百合ヶ丘"],"西武池袋線":["池袋","椎名町","東長崎","江古田","桜台","練馬","中村橋","富士見台","練馬高野台","石神井公園","大泉学園","保谷","ひばりヶ丘","東久留米","清瀬","秋津","所沢"],"西武新宿線":["西武新宿","高田馬場","下落合","中井","新井薬師前","沼袋","野方","都立家政","鷺ノ宮","下井草","井荻","上井草","上石神井","武蔵関","東伏見","西武柳沢","田無","花小金井","小平","久米川","東村山","所沢"],"東武東上線":["池袋","北池袋","下板橋","大山","中板橋","ときわ台","上板橋","東武練馬","下赤塚","成増","和光市"],"東武スカイツリーライン":["浅草","とうきょうスカイツリー","押上","曳舟","東向島","鐘ヶ淵","堀切","牛田","北千住","小菅","五反野","梅島","西新井","竹ノ塚"],"京成本線":["上野","日暮里","新三河島","町屋","千住大橋","京成関屋","堀切菖蒲園","お花茶屋","青砥","京成高砂"],"つくばエクスプレス":["秋葉原","新御徒町","浅草","南千住","北千住","青井","六町","八潮","三郷中央","南流山","柏の葉キャンパス","守谷","つくば"],"ゆりかもめ":["新橋","汐留","竹芝","日の出","芝浦ふ頭","お台場海浜公園","台場","船の科学館","テレコムセンター","青海","東京ビッグサイト","有明","豊洲"],"都電荒川線":["三ノ輪橋","荒川区役所前","荒川二丁目","荒川七丁目","小台","宮ノ前","熊野前","東尾久三丁目","大根橋","高野","落合南長崎","一本榎","西ヶ原四丁目","滝野川一丁目","西巣鴨","新庚申塚","庚申塚","巣鴨新田","大塚駅前","向原","東池袋四丁目","都電雑司ヶ谷","鬼子母神前","学習院下","面影橋","早稲田"],"日暮里・舎人ライナー":["日暮里","西日暮里","赤土小学校前","熊野前","足立小台","扇大橋","高野","江北","西新井大師西","谷在家","舎人公園","舎人","見沼代親水公園"]};
 
-const lineEl=document.getElementById('f-line');
-const stEl=document.getElementById('f-station');
-Object.keys(LINES).forEach(l=>{ const o=document.createElement('option');o.value=l;o.textContent=l;lineEl.appendChild(o); });
-window.updateStations=function(){
-  const line=lineEl.value; stEl.innerHTML='<option value="">駅を選択</option>';
-  if(line&&LINES[line]) LINES[line].forEach(s=>{ const o=document.createElement('option');o.value=s;o.textContent=s;stEl.appendChild(o); });
+const lineEl = document.getElementById('f-line');
+const stEl = document.getElementById('f-station');
+Object.keys(LINES).forEach(l => { const o=document.createElement('option');o.value=l;o.textContent=l;lineEl.appendChild(o); });
+window.updateStations = function() {
+  const line = lineEl.value; stEl.innerHTML = '<option value="">駅を選択</option>';
+  if (line && LINES[line]) LINES[line].forEach(s => { const o=document.createElement('option');o.value=s;o.textContent=s;stEl.appendChild(o); });
 };
 
-// ── Modal ──
-window.openModal=function(id=null){
-  editId=id; currentPhotos=[];
-  document.getElementById('modal-title').textContent=id?'物件を編集':'物件を追加';
-  document.getElementById('img-list').innerHTML='';
-  lineEl.value=''; stEl.innerHTML='<option value="">駅を選択</option>';
-  document.getElementById('days-auto-display').innerHTML='';
-  if(id){
-    const p=props.find(x=>x.id===id); if(!p) return;
-    const setVal=(eid,v)=>{ const el=document.getElementById(eid); if(el) el.value=v||''; };
-    setVal('f-name',p.name); setVal('f-kind-form',p.kind||'マンション・アパート');
-    setVal('f-loc',p.loc); setVal('f-sta-free',p.sta);
-    setVal('f-walk',''); setVal('f-land',p.land); setVal('f-floor',p.floor);
-    setVal('f-layout',p.layout); setVal('f-price-val',p.price);
-    setVal('f-built',p.built); setVal('f-yield',p.yld);
-    setVal('f-uso',p.uso); setVal('f-struct',p.struct);
-    setVal('f-road',p.road); setVal('f-right',p.right);
-    setVal('f-kenpei',p.kenpei); setVal('f-yoseki',p.yoseki);
-    setVal('f-zone',p.zone||''); setVal('f-bouka',p.bouka); setVal('f-toshi',p.toshi);
-    setVal('f-sale-status',p.saleStatus||'販売中');
-    setVal('f-prop-status',p.propStatus||'空室');
-    setVal('f-baitai-form',p.baitai||'売主');
-    setVal('f-delivery',p.delivery); setVal('f-note',p.note);
-    // 社内専用
-    setVal('f-buy-price',p.buyPrice); setVal('f-buy-from',p.buyFrom);
-    setVal('f-buy-contract',p.buyContract); setVal('f-buy-settle',p.buySettle);
-    setVal('f-loan-amt',p.loanAmt); setVal('f-loan-bank',p.loanBank);
-    setVal('f-sell-price',p.sellPrice); setVal('f-sell-to',p.sellTo);
-    setVal('f-sell-contract',p.sellContract); setVal('f-sell-settle',p.sellSettle);
-    setVal('f-internal-memo',p.internalMemo);
-    updateDaysDisplay();
-    currentPhotos=p.photos?JSON.parse(JSON.stringify(p.photos)):(p.img?[{url:p.img,caption:''}]:[]);
+// Modal
+window.openModal = function(id=null) {
+  editId = id; currentPhotos = [];
+  document.getElementById('modal-title').textContent = id ? '物件を編集' : '物件を追加';
+  document.getElementById('img-list').innerHTML = '';
+  lineEl.value = ''; stEl.innerHTML = '<option value="">駅を選択</option>';
+  document.getElementById('days-auto-display').innerHTML = '';
+  const intData = id ? (internalMap[id]||{}) : {};
+  const setV = (eid, v) => { const el=document.getElementById(eid); if(el) el.value=v||''; };
+  if (id) {
+    const p = props.find(x=>x.id===id); if (!p) return;
+    setV('f-name',p.name); setV('f-kind-form',p.kind||'一棟もの');
+    setV('f-loc',p.loc); setV('f-sta-free',p.sta); setV('f-walk','');
+    setV('f-land',p.land); setV('f-floor',p.floor); setV('f-layout',p.layout);
+    setV('f-price-val',p.price); setV('f-built',p.built); setV('f-yield',p.yld);
+    setV('f-uso',p.uso); setV('f-struct',p.struct); setV('f-road',p.road);
+    setV('f-right',p.right); setV('f-kenpei',p.kenpei); setV('f-yoseki',p.yoseki);
+    setV('f-zone',p.zone||''); setV('f-bouka',p.bouka); setV('f-toshi',p.toshi);
+    setV('f-sale-status',p.saleStatus||'販売中');
+    setV('f-prop-status',p.propStatus||'空室');
+    setV('f-baitai-form',p.baitai||'売主');
+    setV('f-delivery',p.delivery); setV('f-note',p.note);
+    currentPhotos = p.photos ? JSON.parse(JSON.stringify(p.photos)) : (p.img?[{url:p.img,caption:''}]:[]);
     renderImgList();
   } else {
-    ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-yield','f-uso','f-struct','f-road','f-right','f-kenpei','f-yoseki','f-bouka','f-toshi','f-delivery','f-note','f-buy-price','f-buy-from','f-buy-contract','f-buy-settle','f-loan-amt','f-loan-bank','f-sell-price','f-sell-to','f-sell-contract','f-sell-settle','f-internal-memo'].forEach(x=>document.getElementById(x).value='');
-    document.getElementById('f-kind-form').value='マンション・アパート';
-    document.getElementById('f-zone').value='';
-    document.getElementById('f-sale-status').value='販売中';
-    document.getElementById('f-prop-status').value='空室';
-    document.getElementById('f-baitai-form').value='売主';
+    ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-yield','f-uso','f-struct','f-road','f-right','f-kenpei','f-yoseki','f-bouka','f-toshi','f-delivery','f-note'].forEach(x=>setV(x,''));
+    setV('f-kind-form','一棟もの'); setV('f-zone','');
+    setV('f-sale-status','販売中'); setV('f-prop-status','空室'); setV('f-baitai-form','売主');
   }
+  // 社内専用
+  setV('f-buy-price', intData.buyPrice); setV('f-buy-from', intData.buyFrom);
+  setV('f-buy-contract', intData.buyContract); setV('f-buy-settle', intData.buySettle);
+  setV('f-loan-amt', intData.loanAmt); setV('f-loan-bank', intData.loanBank);
+  setV('f-sell-price', intData.sellPrice); setV('f-sell-to', intData.sellTo);
+  setV('f-sell-contract', intData.sellContract); setV('f-sell-settle', intData.sellSettle);
+  setV('f-internal-memo', intData.internalMemo);
+  updateDaysDisplay();
   document.getElementById('modal').classList.add('open');
 };
-window.closeModal=function(){ document.getElementById('modal').classList.remove('open'); };
+window.closeModal = function() { document.getElementById('modal').classList.remove('open'); };
 
-// ── カード描画 ──
-let cardPhotoIdx={};
-function propTagClass(s){
-  if(!s) return 'tag-other';
-  if(s.includes('満室')) return 'tag-full';
-  if(s.includes('賃貸')) return 'tag-rent';
-  if(s.includes('空室')) return 'tag-empty';
-  if(s.includes('建築')||s.includes('新築')) return 'tag-build';
+// カード描画
+let cardPhotoIdx = {};
+function propTagClass(s) {
+  if (!s) return 'tag-other';
+  if (s.includes('満室')) return 'tag-full';
+  if (s.includes('賃貸')) return 'tag-rent';
+  if (s.includes('空室')) return 'tag-empty';
+  if (s.includes('建築')) return 'tag-build';
   return 'tag-other';
 }
-
-window.renderCards=function(){
-  const kw=document.getElementById('f-keyword').value.trim().toLowerCase();
-  const sale=document.getElementById('f-sale').value;
-  const prop=document.getElementById('f-prop').value;
-  const kind=document.getElementById('f-kind').value;
-  const filtered=props.filter(p=>{
-    if(kw&&!(p.name||'').toLowerCase().includes(kw)&&!(p.loc||'').toLowerCase().includes(kw)&&!(p.sta||'').toLowerCase().includes(kw)) return false;
-    if(sale&&p.saleStatus!==sale) return false;
-    if(prop&&p.propStatus!==prop) return false;
-    if(kind&&p.kind!==kind) return false;
+window.renderCards = function() {
+  const kw = document.getElementById('f-keyword').value.trim().toLowerCase();
+  const sale = document.getElementById('f-sale').value;
+  const prop = document.getElementById('f-prop').value;
+  const kind = document.getElementById('f-kind').value;
+  const filtered = props.filter(p => {
+    if (kw && !(p.name||'').toLowerCase().includes(kw) && !(p.loc||'').toLowerCase().includes(kw) && !(p.sta||'').toLowerCase().includes(kw)) return false;
+    if (sale && p.saleStatus !== sale) return false;
+    if (prop && p.propStatus !== prop) return false;
+    if (kind && p.kind !== kind) return false;
     return true;
   });
-  document.getElementById('count-info').textContent=filtered.length+'件表示中 / 全'+props.length+'件';
-  document.getElementById('s-total').textContent=props.length;
-  document.getElementById('s-sale').textContent=props.filter(p=>p.saleStatus==='販売中').length;
-  document.getElementById('s-applied').textContent=props.filter(p=>p.saleStatus==='申込あり').length;
-  document.getElementById('s-done').textContent=props.filter(p=>p.saleStatus==='販売済').length;
-  document.getElementById('s-empty').textContent=props.filter(p=>p.propStatus&&p.propStatus.includes('空室')).length;
-  document.getElementById('s-build').textContent=props.filter(p=>p.propStatus&&(p.propStatus.includes('建築')||p.propStatus.includes('新築'))).length;
+  document.getElementById('count-info').textContent = filtered.length + '件表示中 / 全' + props.length + '件';
+  document.getElementById('s-total').textContent = props.length;
+  document.getElementById('s-sale').textContent = props.filter(p=>p.saleStatus==='販売中').length;
+  document.getElementById('s-applied').textContent = props.filter(p=>p.saleStatus==='申込あり').length;
+  document.getElementById('s-done').textContent = props.filter(p=>p.saleStatus==='販売済').length;
+  document.getElementById('s-empty').textContent = props.filter(p=>p.propStatus&&p.propStatus.includes('空室')).length;
+  document.getElementById('s-build').textContent = props.filter(p=>p.propStatus&&p.propStatus.includes('建築')).length;
 
-  const grid=document.getElementById('card-grid');
-  if(!filtered.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;">該当する物件がありません</div>'; return; }
+  const grid = document.getElementById('card-grid');
+  if (!filtered.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;">該当する物件がありません</div>'; return; }
 
-  grid.innerHTML=filtered.map(p=>{
-    const photos=p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img,caption:''}]:[]);
-    const pj=JSON.stringify(photos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
-    const photoArea=photos.length
-      ?'<img src="'+photos[0].url+'" alt="" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;"/>'+
+  grid.innerHTML = filtered.map(p => {
+    const photos = p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img,caption:''}]:[]);
+    const pj = JSON.stringify(photos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+    const photoArea = photos.length
+      ? '<img src="'+photos[0].url+'" alt="" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;"/>'+
         (photos.length>1?'<button class="photo-prev" onclick="cardNav(event,\''+p.id+'\','+pj+',-1)">&#8249;</button><button class="photo-next" onclick="cardNav(event,\''+p.id+'\','+pj+',1)">&#8250;</button><span class="photo-count" id="cnt-'+p.id+'">1 / '+photos.length+'</span>':'')
-      :'<div class="card-no-photo">写真なし</div>';
-    const badgeCls=p.saleStatus==='販売済'?'badge-done':p.saleStatus==='申込あり'?'badge-applied':'badge-sale';
-    const propTagCls=propTagClass(p.propStatus);
-    const notes=(p.note||'').split('\n').filter(Boolean);
-    // 社内専用セクション
-    const days=p.daysHeld!=null?p.daysHeld:(p.buySettle&&p.sellSettle?Math.round((new Date(p.sellSettle)-new Date(p.buySettle))/86400000):null);
-    const intSection=`
+      : '<div class="card-no-photo">写真なし</div>';
+    const badgeCls = p.saleStatus==='販売済'?'badge-done':p.saleStatus==='申込あり'?'badge-applied':'badge-sale';
+    const notes = (p.note||'').split('\n').filter(Boolean);
+    const int = internalMap[p.id] || {};
+    const days = int.daysHeld != null ? int.daysHeld : calcDays(int.buySettle, int.sellSettle);
+    const intSection = `
       <div class="internal-section">
         <div class="internal-title">社内専用情報</div>
         <div class="internal-grid">
-          <div class="internal-row"><span class="internal-lbl">仕入れ金額</span><span class="internal-val">${p.buyPrice?p.buyPrice.toLocaleString()+'万円':'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">仕入れ先</span><span class="internal-val">${p.buyFrom||'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">仕入れ契約</span><span class="internal-val">${p.buyContract||'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">仕入れ決済</span><span class="internal-val">${p.buySettle||'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">${p.loanAmt?p.loanAmt.toLocaleString()+'万円':'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">${p.loanBank||'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">${p.sellPrice?p.sellPrice.toLocaleString()+'万円':'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">${p.sellTo||'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">再販契約</span><span class="internal-val">${p.sellContract||'—'}</span></div>
-          <div class="internal-row"><span class="internal-lbl">再販決済</span><span class="internal-val">${p.sellSettle||'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">仕入れ金額</span><span class="internal-val">${int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">仕入れ先</span><span class="internal-val">${int.buyFrom||'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">仕入れ契約</span><span class="internal-val">${int.buyContract||'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">仕入れ決済</span><span class="internal-val">${int.buySettle||'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">${int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">${int.loanBank||'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">${int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">${int.sellTo||'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">再販契約</span><span class="internal-val">${int.sellContract||'—'}</span></div>
+          <div class="internal-row"><span class="internal-lbl">再販決済</span><span class="internal-val">${int.sellSettle||'—'}</span></div>
           ${days!=null?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">保有日数</span><span class="internal-val"><span class="days-badge">'+days+'日</span></span></div>':''}
-          ${p.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+p.internalMemo+'</span></div>':''}
+          ${int.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+int.internalMemo+'</span></div>':''}
         </div>
       </div>`;
-
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+photoArea+'<span class="sale-badge '+badgeCls+'">'+(p.saleStatus||'販売中')+'</span></div>'+
       '<div class="card-body">'+
         '<div class="card-name">'+(p.name||'')+'</div>'+
         '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'</div>'+
-        '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagCls+'">'+(p.propStatus||'')+'</span></div>'+
+        '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus||'')+'</span></div>'+
         '<div class="card-sta">'+(p.sta||'—')+'</div>'+
         '<div class="card-specs">'+
           '<div class="spec-row"><span class="spec-lbl">所在地</span><span class="spec-val">'+(p.loc||'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-lbl">土地面積</span><span class="spec-val">'+(p.land?p.land+'㎡':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-lbl">延床面積</span><span class="spec-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-lbl">間取り</span><span class="spec-val">'+(p.layout||'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-lbl">築年月</span><span class="spec-val">'+(p.built||'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-lbl">利回り</span><span class="spec-val">'+(p.yld?p.yld+'%':'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">用途地域</span><span class="spec-val">'+(p.zone||'—')+'</span></div>'+
         '</div>'+
         intSection+
         (notes.length?'<div style="font-size:11px;color:#777;margin-top:6px;border-top:1px solid #eee;padding-top:6px;"><ul style="padding-left:14px;line-height:1.8;">'+notes.slice(0,3).map(n=>'<li>'+n+'</li>').join('')+'</ul></div>':'')+
@@ -895,20 +858,15 @@ window.renderCards=function(){
   }).join('');
 };
 
-window.cardNav=function(e,id,photos,dir){
+window.cardNav = function(e,id,photos,dir) {
   e.stopPropagation();
-  if(!cardPhotoIdx[id]) cardPhotoIdx[id]=0;
+  if (!cardPhotoIdx[id]) cardPhotoIdx[id]=0;
   cardPhotoIdx[id]=(cardPhotoIdx[id]+dir+photos.length)%photos.length;
-  const img=document.getElementById('cimg-'+id);
-  if(img) img.src=photos[cardPhotoIdx[id]].url;
-  const cnt=document.getElementById('cnt-'+id);
-  if(cnt) cnt.textContent=(cardPhotoIdx[id]+1)+' / '+photos.length;
+  const img=document.getElementById('cimg-'+id); if(img) img.src=photos[cardPhotoIdx[id]].url;
+  const cnt=document.getElementById('cnt-'+id); if(cnt) cnt.textContent=(cardPhotoIdx[id]+1)+' / '+photos.length;
 };
 
-// ── 印刷設定 ──
-let currentPrintType='broker';
-
-// 仲介向け行定義
+// 印刷
 const BROKER_ROWS=[
   {key:'price',label:'価格',type:'price'},
   {key:'img',label:'外観',type:'img'},
@@ -932,8 +890,6 @@ const BROKER_ROWS=[
   {key:'baitai',label:'取引業態',fmt:p=>p.baitai||'—'},
   {key:'note',label:'備考',type:'note'},
 ];
-
-// 銀行向け行定義（社内専用含む）
 const BANK_ROWS=[
   {key:'price',label:'販売価格',type:'price'},
   {key:'img',label:'外観',type:'img'},
@@ -945,85 +901,85 @@ const BANK_ROWS=[
   {key:'struct',label:'構造',fmt:p=>p.struct||'—'},
   {key:'zone',label:'用途地域',fmt:p=>p.zone||'—'},
   {key:'yld',label:'回利り',fmt:p=>p.yld?p.yld+'%':'—'},
-  // 社内専用
-  {key:'buyPrice',label:'仕入れ金額',fmt:p=>p.buyPrice?p.buyPrice.toLocaleString()+'万円':'—',internal:true},
-  {key:'buyFrom',label:'仕入れ先',fmt:p=>p.buyFrom||'—',internal:true},
-  {key:'buyContract',label:'仕入れ契約日',fmt:p=>p.buyContract||'—',internal:true},
-  {key:'buySettle',label:'仕入れ決済日',fmt:p=>p.buySettle||'—',internal:true},
-  {key:'loanAmt',label:'融資金額',fmt:p=>p.loanAmt?p.loanAmt.toLocaleString()+'万円':'—',internal:true},
-  {key:'loanBank',label:'融資先',fmt:p=>p.loanBank||'—',internal:true},
-  {key:'sellPrice',label:'再販価格',fmt:p=>p.sellPrice?p.sellPrice.toLocaleString()+'万円':'—',internal:true},
-  {key:'sellTo',label:'販売先',fmt:p=>p.sellTo||'—',internal:true},
-  {key:'sellContract',label:'再販契約日',fmt:p=>p.sellContract||'—',internal:true},
-  {key:'sellSettle',label:'再販決済日',fmt:p=>p.sellSettle||'—',internal:true},
-  {key:'daysHeld',label:'保有日数',fmt:p=>{ const d=p.daysHeld!=null?p.daysHeld:(p.buySettle&&p.sellSettle?Math.round((new Date(p.sellSettle)-new Date(p.buySettle))/86400000):null); return d!=null?d+'日':'—'; },internal:true},
+  {key:'buyPrice',label:'仕入れ金額',fmt:(p,int)=>int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—',internal:true},
+  {key:'buyFrom',label:'仕入れ先',fmt:(p,int)=>int.buyFrom||'—',internal:true},
+  {key:'buyContract',label:'仕入れ契約日',fmt:(p,int)=>int.buyContract||'—',internal:true},
+  {key:'buySettle',label:'仕入れ決済日',fmt:(p,int)=>int.buySettle||'—',internal:true},
+  {key:'loanAmt',label:'融資金額',fmt:(p,int)=>int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—',internal:true},
+  {key:'loanBank',label:'融資先',fmt:(p,int)=>int.loanBank||'—',internal:true},
+  {key:'sellPrice',label:'再販価格',fmt:(p,int)=>int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—',internal:true},
+  {key:'sellTo',label:'販売先',fmt:(p,int)=>int.sellTo||'—',internal:true},
+  {key:'sellContract',label:'再販契約日',fmt:(p,int)=>int.sellContract||'—',internal:true},
+  {key:'sellSettle',label:'再販決済日',fmt:(p,int)=>int.sellSettle||'—',internal:true},
+  {key:'daysHeld',label:'保有日数',fmt:(p,int)=>{ const d=int.daysHeld!=null?int.daysHeld:calcDays(int.buySettle,int.sellSettle); return d!=null?d+'日':'—'; },internal:true},
   {key:'note',label:'備考',type:'note'},
 ];
 
-window.openPrintConfig=function(type){
-  currentPrintType=type;
-  document.getElementById('pc-title').textContent=type==='broker'?'仲介向け印刷設定':'銀行向け印刷設定';
-  document.getElementById('pc-type-label').textContent=type==='broker'?'仲介向け（在庫一覧表）：販売中物件を仲介業者に配布':'銀行向け（実績一覧表）：仕入れ・融資・再販情報を含む社内専用版';
-  // 物件リスト
-  const list=document.getElementById('pc-prop-list');
-  list.innerHTML=props.map(p=>
+let currentPrintType = 'broker';
+window.openPrintConfig = function(type) {
+  currentPrintType = type;
+  document.getElementById('pc-title').textContent = type==='broker'?'仲介向け印刷設定':'銀行向け印刷設定';
+  document.getElementById('pc-type-label').textContent = type==='broker'
+    ?'仲介向け（在庫一覧表）：販売中物件を仲介業者に配布'
+    :'銀行向け（実績一覧表）：仕入れ・融資・再販情報を含む社内専用版';
+  const list = document.getElementById('pc-prop-list');
+  list.innerHTML = props.map(p =>
     '<label class="pc-prop-item"><input type="checkbox" class="pc-prop-check" value="'+p.id+'" checked/>'+p.name+'<span style="font-size:10px;color:#999;margin-left:6px;">'+(p.saleStatus||'')+'</span></label>'
   ).join('');
-  // 行チェックボックス
-  const rows=type==='broker'?BROKER_ROWS:BANK_ROWS;
-  const checksEl=type==='broker'?document.getElementById('pc-row-checks'):document.getElementById('pc-bank-row-checks');
-  checksEl.innerHTML=rows.map(r=>
+  const rows = type==='broker' ? BROKER_ROWS : BANK_ROWS;
+  const checksId = type==='broker' ? 'pc-row-checks' : 'pc-bank-row-checks';
+  document.getElementById(checksId).innerHTML = rows.map(r =>
     '<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'" checked/>'+(r.internal?'<span style="color:#a00;">★</span> ':'')+r.label+'</label>'
   ).join('');
-  document.getElementById('pc-broker-rows').style.display=type==='broker'?'':'none';
-  document.getElementById('pc-bank-rows').style.display=type==='bank'?'':'none';
+  document.getElementById('pc-broker-rows').style.display = type==='broker'?'':'none';
+  document.getElementById('pc-bank-rows').style.display = type==='bank'?'':'none';
   document.getElementById('print-config').classList.add('open');
 };
-window.closePrintConfig=function(){ document.getElementById('print-config').classList.remove('open'); };
-window.toggleAllProps=function(v){ document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v); };
+window.closePrintConfig = function() { document.getElementById('print-config').classList.remove('open'); };
+window.toggleAllProps = function(v) { document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v); };
 
-window.generatePrint=function(){
-  const selectedIds=new Set([...document.querySelectorAll('.pc-prop-check:checked')].map(c=>c.value));
-  const selectedRows=new Set([...document.querySelectorAll('.pc-row-check:checked')].map(c=>c.value));
-  const maskDone=document.querySelector('input[name="price-mask"]:checked').value==='mask';
-  const selectedProps=props.filter(p=>selectedIds.has(p.id));
-  if(!selectedProps.length){ alert('物件を1件以上選択してください'); return; }
-  const rows=(currentPrintType==='broker'?BROKER_ROWS:BANK_ROWS).filter(r=>selectedRows.has(r.key));
-  const title=currentPrintType==='broker'?'在庫一覧表':'実績一覧表';
-  document.getElementById('pp-title').textContent=title+' 印刷プレビュー（A4横向き）';
-  const pages=[];
-  for(let i=0;i<selectedProps.length;i+=6) pages.push(selectedProps.slice(i,i+6));
-  const html=pages.map(page=>{
-    const cols=6;
-    const colW=Math.floor(225/cols);
-    const nameRow='<tr><td class="lbl">物件名</td>'+
-      Array(cols).fill(0).map((_,c)=>page[c]?'<td class="name-cell">'+page[c].name+'</td>':'<td class="name-cell empty-cell"></td>').join('')+
-      '</tr>';
-    const dataRows=rows.map(row=>{
-      let tr='<tr><td class="'+(row.internal?'lbl-int':'lbl')+'">'+row.label+'</td>';
-      for(let c=0;c<cols;c++){
-        const p=page[c];
-        if(!p){ tr+='<td class="empty-cell"></td>'; continue; }
-        if(row.type==='price'){
-          const isDone=p.saleStatus==='販売済';
-          const priceVal=row.key==='sellPrice'?(p.sellPrice?p.sellPrice.toLocaleString()+'万円':'—'):(p.price?p.price.toLocaleString()+'万円':'—');
-          const masked=isDone&&maskDone?'＊＊＊＊万円':priceVal;
-          tr+='<td class="price-cell">'+masked+'</td>';
-        } else if(row.type==='img'){
-          const photos=p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img}]:[]);
-          const imgHtml=photos.length?'<img src="'+photos[0].url+'" style="width:100%;height:100%;object-fit:contain;background:#f4f4f4;display:block;"/>':'<div class="no-img-ph">写真なし</div>';
-          const stamp=p.saleStatus==='販売済'?'<div class="pstamp pst-done">済</div>':p.saleStatus==='申込あり'?'<div class="pstamp pst-applied">申込</div>':'';
-          tr+='<td class="img-cell">'+imgHtml+stamp+'</td>';
-        } else if(row.type==='note'){
-          const notes=(p.note||'').split('\n').filter(Boolean);
-          tr+='<td class="note-val"><ol style="padding-left:8px;line-height:1.5;">'+notes.map((n,i)=>'<li>'+n+'</li>').join('')+'</ol></td>';
+window.generatePrint = function() {
+  const selectedIds = new Set([...document.querySelectorAll('.pc-prop-check:checked')].map(c=>c.value));
+  const selectedRows = new Set([...document.querySelectorAll('.pc-row-check:checked')].map(c=>c.value));
+  const maskDone = document.querySelector('input[name="price-mask"]:checked').value === 'mask';
+  const selectedProps = props.filter(p=>selectedIds.has(p.id));
+  if (!selectedProps.length) { alert('物件を1件以上選択してください'); return; }
+  const rows = (currentPrintType==='broker'?BROKER_ROWS:BANK_ROWS).filter(r=>selectedRows.has(r.key));
+  const title = currentPrintType==='broker'?'在庫一覧表':'実績一覧表';
+  document.getElementById('pp-title').textContent = title + ' 印刷プレビュー（A4横向き）';
+
+  const pages = [];
+  for (let i=0; i<selectedProps.length; i+=6) pages.push(selectedProps.slice(i,i+6));
+
+  const html = pages.map(page => {
+    const cols = 6;
+    const colW = Math.floor(225/cols);
+    const nameRow = '<tr><td class="lbl">物件名</td>' +
+      Array(cols).fill(0).map((_,c) => page[c]?'<td class="name-cell">'+page[c].name+'</td>':'<td class="name-cell empty-cell"></td>').join('') + '</tr>';
+    const dataRows = rows.map(row => {
+      let tr = '<tr><td class="'+(row.internal?'lbl-int':'lbl')+'">'+row.label+'</td>';
+      for (let c=0; c<cols; c++) {
+        const p = page[c];
+        if (!p) { tr += '<td class="empty-cell"></td>'; continue; }
+        const int = internalMap[p.id] || {};
+        if (row.type==='price') {
+          const isDone = p.saleStatus==='販売済';
+          const priceVal = p.price ? p.price.toLocaleString()+'万円' : '—';
+          tr += '<td class="price-cell">'+(isDone&&maskDone?'＊＊＊＊万円':priceVal)+'</td>';
+        } else if (row.type==='img') {
+          const photos = p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img}]:[]);
+          const imgHtml = photos.length?'<img src="'+photos[0].url+'" style="width:100%;height:100%;object-fit:contain;background:#f4f4f4;display:block;"/>':'<div class="no-img-ph">写真なし</div>';
+          const stamp = p.saleStatus==='販売済'?'<div class="pstamp pst-done">済</div>':p.saleStatus==='申込あり'?'<div class="pstamp pst-applied">申込</div>':'';
+          tr += '<td class="img-cell">'+imgHtml+stamp+'</td>';
+        } else if (row.type==='note') {
+          const notes = (p.note||'').split('\n').filter(Boolean);
+          tr += '<td class="note-val"><ol style="padding-left:8px;line-height:1.5;">'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ol></td>';
         } else {
-          const val=row.fmt?row.fmt(p):(p[row.key]||'—');
-          const cls=row.internal?'val-int':'val';
-          tr+='<td class="'+cls+'">'+val+'</td>';
+          const val = row.fmt ? row.fmt(p, int) : (p[row.key]||'—');
+          tr += '<td class="'+(row.internal?'val-int':'val')+'">'+val+'</td>';
         }
       }
-      tr+='</tr>';
+      tr += '</tr>';
       return tr;
     }).join('');
     return '<div class="ppage">'+
@@ -1037,13 +993,13 @@ window.generatePrint=function(){
       '<tbody>'+nameRow+dataRows+'</tbody></table>'+
     '</div>';
   }).join('');
-  document.getElementById('pp-body').innerHTML=html||'<p style="text-align:center;padding:2rem;color:#999;">物件がありません</p>';
-  document.getElementById('printable').innerHTML=html;
+  document.getElementById('pp-body').innerHTML = html||'<p style="text-align:center;padding:2rem;color:#999;">物件がありません</p>';
+  document.getElementById('printable').innerHTML = html;
   document.getElementById('print-config').classList.remove('open');
   document.getElementById('print-prev').classList.add('open');
 };
 
-function showLoading(v){ document.getElementById('loading').className='loading-overlay'+(v?' show':''); }
+function showLoading(v) { document.getElementById('loading').className='loading-overlay'+(v?' show':''); }
 </script>
 </body>
 </html>
