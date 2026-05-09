@@ -12,46 +12,40 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
 
-/* 検索バー */
-.search-wrap{background:#fff;border-bottom:3px solid var(--gold);padding:16px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(27,42,107,0.08);}
+.search-wrap{background:#fff;border-bottom:3px solid var(--gold);padding:14px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(27,42,107,0.08);}
 .search-input-wrap{display:flex;flex:1;min-width:220px;border:1.5px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.15s;}
 .search-input-wrap:focus-within{border-color:var(--navy);}
 .search-input{flex:1;padding:9px 14px;font-size:14px;border:none;outline:none;font-family:inherit;color:var(--text);}
-.search-btn{padding:9px 20px;background:linear-gradient(135deg,var(--gold-light),var(--gold));border:none;font-size:13px;font-weight:700;color:var(--navy-dark);cursor:pointer;white-space:nowrap;transition:opacity 0.15s;}
+.search-btn{padding:9px 20px;background:linear-gradient(135deg,var(--gold-light),var(--gold));border:none;font-size:13px;font-weight:700;color:var(--navy-dark);cursor:pointer;white-space:nowrap;}
 .search-btn:hover{opacity:0.88;}
 .filter-selects{display:flex;gap:8px;flex-wrap:wrap;}
-.filter-selects select{font-size:12px;padding:8px 12px;border:1.5px solid var(--border);border-radius:4px;background:#fff;outline:none;color:var(--text);cursor:pointer;transition:border-color 0.15s;}
+.filter-selects select{font-size:12px;padding:8px 12px;border:1.5px solid var(--border);border-radius:4px;background:#fff;outline:none;color:var(--text);cursor:pointer;}
 .filter-selects select:focus{border-color:var(--navy);}
 .result-count{font-size:12px;color:var(--sub);white-space:nowrap;padding:4px 0;}
 
-/* カードグリッド */
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:16px 20px;}
-
-/* 物件カード */
 .prop-card{background:#fff;border-radius:6px;border:1px solid var(--border);overflow:hidden;transition:box-shadow 0.2s,transform 0.15s;}
 .prop-card:hover{box-shadow:0 6px 24px rgba(27,42,107,0.13);transform:translateY(-2px);}
 
-/* 写真エリア */
 .card-photos{position:relative;height:240px;background:#f2f2f4;overflow:hidden;cursor:pointer;}
 .card-photos img{width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;}
 .card-no-photo{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ccc;gap:8px;background:#f2f2f4;font-size:13px;}
 .photo-count{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.5);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;}
 .photo-arrows{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;opacity:0;transition:opacity 0.2s;}
 .card-photos:hover .photo-arrows{opacity:1;}
-.photo-btn{background:rgba(0,0,0,0.4);color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.photo-btn{background:rgba(0,0,0,0.4);color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;}
 .photo-btn:hover{background:rgba(0,0,0,0.65);}
 .sale-badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:2px;letter-spacing:0.5px;}
 .badge-sale{background:var(--navy);color:#fff;}
 .badge-applied{background:#D84315;color:#fff;}
 
-/* カード本文 */
 .card-body{padding:14px 16px;}
 .card-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;line-height:1.35;}
 .card-price{font-size:20px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:baseline;gap:8px;}
 .card-price-unit{font-size:13px;font-weight:400;color:var(--sub);}
 .card-yield{font-size:12px;color:var(--sub);}
 .card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
-.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:2px;font-weight:600;white-space:nowrap;}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:2px;font-weight:600;white-space:nowrap;}
 .tag-kind{background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;}
 .tag-empty{background:#FFF9C4;color:#7B6000;}
 .tag-rent{background:#E3F2FD;color:#1565C0;}
@@ -66,36 +60,30 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .spec-val{color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .card-notes{font-size:11px;color:var(--sub);margin-top:4px;}
 .card-notes ul{padding-left:14px;line-height:1.9;}
-
-/* 問い合わせ */
 .card-contact{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
-.btn-tel{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;transition:background 0.15s;border:none;cursor:pointer;white-space:nowrap;}
+.btn-tel{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;transition:background 0.15s;white-space:nowrap;}
 .btn-tel:hover{background:var(--navy-dark);}
-.btn-mail{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;transition:opacity 0.15s;border:none;cursor:pointer;white-space:nowrap;}
+.btn-mail{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;transition:opacity 0.15s;white-space:nowrap;}
 .btn-mail:hover{opacity:0.88;}
 
-/* 空状態 */
 .empty-state{text-align:center;padding:60px 20px;color:var(--sub);}
 .empty-text{font-size:15px;font-weight:500;margin-bottom:6px;}
 .empty-sub{font-size:13px;}
 
-/* LIGHTBOX */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:500;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.open{display:flex;}
 .lightbox-img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:3px;display:block;background:#111;}
-.lightbox-caption{color:rgba(255,255,255,0.7);font-size:13px;margin-top:10px;text-align:center;max-width:560px;}
+.lightbox-caption{color:rgba(255,255,255,0.7);font-size:13px;margin-top:10px;text-align:center;max-width:600px;}
 .lightbox-close{position:absolute;top:14px;right:18px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:0.7;}
 .lightbox-close:hover{opacity:1;}
-.lightbox-prev,.lightbox-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:24px;padding:12px 16px;cursor:pointer;border-radius:4px;transition:background 0.15s;}
+.lightbox-prev,.lightbox-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:24px;padding:12px 16px;cursor:pointer;border-radius:4px;}
 .lightbox-prev:hover,.lightbox-next:hover{background:rgba(255,255,255,0.3);}
-.lightbox-prev{left:14px;}
-.lightbox-next{right:14px;}
+.lightbox-prev{left:14px;}.lightbox-next{right:14px;}
 .lightbox-dots{display:flex;gap:6px;margin-top:12px;}
-.lb-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;transition:background 0.15s;}
+.lb-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;}
 .lb-dot.active{background:#fff;}
 .lightbox-counter{position:absolute;top:14px;left:18px;color:rgba(255,255,255,0.55);font-size:12px;}
 
-/* ローディング */
 .page-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:14px;color:var(--sub);}
 .spinner{width:36px;height:36px;border:3px solid #ddd;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -103,19 +91,17 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 </head>
 <body>
 
-<!-- 検索・フィルターバー -->
 <div class="search-wrap">
   <div class="search-input-wrap">
-    <input type="text" class="search-input" id="search-input" placeholder="物件名・エリア・駅名などで検索..." oninput="filterCards()" />
+    <input type="text" class="search-input" id="search-input" placeholder="物件名・エリア・駅名などで検索..." oninput="filterCards()"/>
     <button class="search-btn" onclick="filterCards()">検索</button>
   </div>
   <div class="filter-selects">
     <select id="f-kind" onchange="filterCards()">
       <option value="">種別：すべて</option>
-      <option>マンション・アパート</option>
+      <option>一棟もの</option>
       <option>一戸建て</option>
       <option>土地</option>
-      <option>商業物件・オフィス</option>
       <option>区分マンション</option>
     </select>
     <select id="f-prop" onchange="filterCards()">
@@ -124,30 +110,30 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <option>賃貸中</option>
       <option>満室賃貸中</option>
       <option>建築中</option>
-      <option>新築未入居</option>
+      <option>古屋有</option>
+      <option>更地</option>
     </select>
     <select id="f-price" onchange="filterCards()">
       <option value="">価格：すべて</option>
-      <option value="0-3000">〜3,000万円</option>
-      <option value="3000-5000">3,000〜5,000万円</option>
       <option value="5000-10000">5,000万〜1億円</option>
-      <option value="10000-">1億円〜</option>
+      <option value="10000-20000">1億〜2億円</option>
+      <option value="20000-30000">2億〜3億円</option>
+      <option value="30000-50000">3億〜5億円</option>
+      <option value="50000-">5億円以上</option>
     </select>
   </div>
   <span class="result-count" id="result-info"></span>
 </div>
 
-<!-- カードグリッド -->
 <div id="card-grid">
   <div class="page-loading"><div class="spinner"></div><div>物件情報を読み込み中...</div></div>
 </div>
 
-<!-- ライトボックス -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
   <span class="lightbox-counter" id="lb-counter"></span>
   <button class="lightbox-prev" onclick="lbMove(-1)">&#8249;</button>
-  <img class="lightbox-img" id="lb-img" src="" alt="" />
+  <img class="lightbox-img" id="lb-img" src="" alt=""/>
   <button class="lightbox-next" onclick="lbMove(1)">&#8250;</button>
   <div class="lightbox-caption" id="lb-cap"></div>
   <div class="lightbox-dots" id="lb-dots"></div>
@@ -155,6 +141,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+// ★ getFirestore のみ使用。社内専用コレクションには一切アクセスしない
 import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -170,6 +157,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let allProps = [];
 
+// ★ "properties" コレクションのみ読み込む（社内専用の "properties_internal" は読まない）
 onSnapshot(collection(db, "properties"), snap => {
   allProps = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .filter(p => p.saleStatus !== '販売済')
@@ -208,7 +196,7 @@ function propTagClass(s) {
   if (s.includes('満室')) return 'tag-full';
   if (s.includes('賃貸')) return 'tag-rent';
   if (s.includes('空室')) return 'tag-empty';
-  if (s.includes('建築')||s.includes('新築')) return 'tag-build';
+  if (s.includes('建築')) return 'tag-build';
   return 'tag-other';
 }
 
@@ -220,102 +208,94 @@ function renderCards(list) {
     grid.innerHTML = '<div class="empty-state"><div class="empty-text">条件に一致する物件が見つかりません</div><div class="empty-sub">検索キーワードや絞り込み条件を変えてみてください</div></div>';
     return;
   }
-
   grid.innerHTML = '<div class="card-grid">' + list.map(p => {
     const photos = p.photos && p.photos.length ? p.photos : (p.img ? [{url:p.img,caption:''}] : []);
     const hasPhotos = photos.length > 0;
-    const photosJson = JSON.stringify(photos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
-    const propName = (p.name||'').replace(/"/g,'&quot;');
-    const mailSubject = encodeURIComponent('物件についてのお問い合わせ（' + (p.name||'') + '）');
-    const mailBody = encodeURIComponent('物件名：' + (p.name||'') + '\n\nお名前：\nご連絡先：\n\nお問い合わせ内容：');
+    const pj = JSON.stringify(photos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+    const mailSub = encodeURIComponent('物件についてのお問い合わせ（'+(p.name||'')+'）');
+    const mailBody = encodeURIComponent('物件名：'+(p.name||'')+'\n\nお名前：\nご連絡先：\n\nお問い合わせ内容：');
 
     const photoArea = hasPhotos
-      ? '<img src="' + photos[0].url + '" alt="' + propName + '" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;" />' +
-        (photos.length > 1
-          ? '<div class="photo-arrows">' +
-              '<button class="photo-btn" onclick="cardNav(event,\''+p.id+'\','+photosJson+',-1)">&#8249;</button>' +
-              '<button class="photo-btn" onclick="cardNav(event,\''+p.id+'\','+photosJson+',1)">&#8250;</button>' +
-            '</div>' +
+      ? '<img src="'+photos[0].url+'" alt="'+(p.name||'')+'" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;"/>'+
+        (photos.length>1
+          ? '<div class="photo-arrows">'+
+              '<button class="photo-btn" onclick="cardNav(event,\''+p.id+'\','+pj+',-1)">&#8249;</button>'+
+              '<button class="photo-btn" onclick="cardNav(event,\''+p.id+'\','+pj+',1)">&#8250;</button>'+
+            '</div>'+
             '<span class="photo-count" id="cnt-'+p.id+'">1 / '+photos.length+'</span>'
           : '')
       : '<div class="card-no-photo"><span style="font-size:32px;opacity:0.3;">&#127968;</span><span>写真なし</span></div>';
 
-    const badgeCls = p.saleStatus === '申込あり' ? 'badge-applied' : 'badge-sale';
+    const badgeCls = p.saleStatus==='申込あり'?'badge-applied':'badge-sale';
     const notes = (p.note||'').split('\n').filter(Boolean);
 
-    return '<div class="prop-card">' +
-      '<div class="card-photos" onclick="openLB('+photosJson+',0)">' +
-        photoArea +
-        '<span class="sale-badge '+badgeCls+'">'+(p.saleStatus||'販売中')+'</span>' +
-      '</div>' +
-      '<div class="card-body">' +
-        '<div class="card-name">'+(p.name||'')+'</div>' +
-        '<div class="card-price">' +
-          (p.price
-            ? p.price.toLocaleString() + '<span class="card-price-unit">万円</span>'
-            : '<span style="font-size:15px;">価格応相談</span>') +
-          (p.yld ? '<span class="card-yield">利回り '+p.yld+'%</span>' : '') +
-        '</div>' +
-        '<div class="card-tags">' +
-          '<span class="tag tag-kind">'+(p.kind||'')+'</span>' +
-          (p.propStatus ? '<span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus)+'</span>' : '') +
-        '</div>' +
-        '<div class="card-sta">'+(p.sta||'—')+'</div>' +
-        '<div class="card-divider"></div>' +
-        '<div class="card-specs">' +
-          '<div class="spec-row"><span class="spec-label">所在地</span><span class="spec-val">'+(p.loc||'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">土地面積</span><span class="spec-val">'+(p.land?p.land+'㎡':'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">延床面積</span><span class="spec-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">間取り</span><span class="spec-val">'+(p.layout||'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">築年月</span><span class="spec-val">'+(p.built||'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">構造</span><span class="spec-val">'+(p.struct||'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">建蔽率</span><span class="spec-val">'+(p.kenpei?p.kenpei+'%':'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">容積率</span><span class="spec-val">'+(p.yoseki?p.yoseki+'%':'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+(p.zone||'—')+'</span></div>' +
-          '<div class="spec-row"><span class="spec-label">取引業態</span><span class="spec-val">'+(p.baitai||'—')+'</span></div>' +
-        '</div>' +
-        (notes.length ? '<div class="card-notes"><ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul></div>' : '') +
-        '<div class="card-contact">' +
-          '<a href="tel:0362606811" class="btn-tel">電話で問い合わせる</a>' +
-          '<a href="mailto:info@ldy-house.com?subject='+mailSubject+'&body='+mailBody+'" class="btn-mail">メールで問い合わせる</a>' +
-        '</div>' +
-      '</div>' +
+    return '<div class="prop-card">'+
+      '<div class="card-photos" onclick="openLB('+pj+',0)">'+
+        photoArea+
+        '<span class="sale-badge '+badgeCls+'">'+(p.saleStatus||'販売中')+'</span>'+
+      '</div>'+
+      '<div class="card-body">'+
+        '<div class="card-name">'+(p.name||'')+'</div>'+
+        '<div class="card-price">'+
+          (p.price?p.price.toLocaleString()+'<span class="card-price-unit">万円</span>':'<span style="font-size:15px;">価格応相談</span>')+
+          (p.yld?'<span class="card-yield">利回り '+p.yld+'%</span>':'')+
+        '</div>'+
+        '<div class="card-tags">'+
+          '<span class="tag tag-kind">'+(p.kind||'')+'</span>'+
+          (p.propStatus?'<span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus)+'</span>':'')+
+        '</div>'+
+        '<div class="card-sta">'+(p.sta||'—')+'</div>'+
+        '<div class="card-divider"></div>'+
+        '<div class="card-specs">'+
+          '<div class="spec-row"><span class="spec-label">所在地</span><span class="spec-val">'+(p.loc||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">土地面積</span><span class="spec-val">'+(p.land?p.land+'㎡':'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">延床面積</span><span class="spec-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">間取り</span><span class="spec-val">'+(p.layout||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">築年月</span><span class="spec-val">'+(p.built||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">構造</span><span class="spec-val">'+(p.struct||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">建蔽率</span><span class="spec-val">'+(p.kenpei?p.kenpei+'%':'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">容積率</span><span class="spec-val">'+(p.yoseki?p.yoseki+'%':'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+(p.zone||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">取引業態</span><span class="spec-val">'+(p.baitai||'—')+'</span></div>'+
+        '</div>'+
+        (notes.length?'<div class="card-notes"><ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul></div>':'')+
+        '<div class="card-contact">'+
+          '<a href="tel:0362606811" class="btn-tel">電話で問い合わせる</a>'+
+          '<a href="mailto:info@ldy-house.com?subject='+mailSub+'&body='+mailBody+'" class="btn-mail">メールで問い合わせる</a>'+
+        '</div>'+
+      '</div>'+
     '</div>';
-  }).join('') + '</div>';
+  }).join('')+'</div>';
 }
 
 window.cardNav = function(e, id, photos, dir) {
   e.stopPropagation();
   if (!cardPhotoIdx[id]) cardPhotoIdx[id] = 0;
-  cardPhotoIdx[id] = (cardPhotoIdx[id] + dir + photos.length) % photos.length;
+  cardPhotoIdx[id] = (cardPhotoIdx[id]+dir+photos.length)%photos.length;
   const img = document.getElementById('cimg-'+id);
   if (img) img.src = photos[cardPhotoIdx[id]].url;
   const cnt = document.getElementById('cnt-'+id);
   if (cnt) cnt.textContent = (cardPhotoIdx[id]+1)+' / '+photos.length;
 };
 
-let lbPhotos = [], lbIdx = 0;
-window.openLB = function(photos, idx) {
+let lbPhotos=[], lbIdx=0;
+window.openLB = function(photos,idx) {
   if (!photos.length) return;
-  lbPhotos = photos; lbIdx = idx;
-  updateLB();
+  lbPhotos=photos; lbIdx=idx; updateLB();
   document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 };
 window.closeLightbox = function() {
   document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 };
-window.lbMove = function(dir) {
-  lbIdx = (lbIdx + dir + lbPhotos.length) % lbPhotos.length;
-  updateLB();
-};
+window.lbMove = function(dir) { lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length; updateLB(); };
 function updateLB() {
-  const p = lbPhotos[lbIdx];
-  document.getElementById('lb-img').src = p.url||p;
-  document.getElementById('lb-cap').textContent = p.caption||'';
-  document.getElementById('lb-counter').textContent = (lbIdx+1)+' / '+lbPhotos.length;
-  document.getElementById('lb-dots').innerHTML = lbPhotos.map((_,i) =>
+  const p=lbPhotos[lbIdx];
+  document.getElementById('lb-img').src=p.url||p;
+  document.getElementById('lb-cap').textContent=p.caption||'';
+  document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;
+  document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>
     '<div class="lb-dot'+(i===lbIdx?' active':'')+'" onclick="lbMove('+(i-lbIdx)+')"></div>'
   ).join('');
 }
