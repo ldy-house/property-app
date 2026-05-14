@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>物件検索｜株式会社LDY</title>
+<meta name="description" content="株式会社LDYの取扱物件一覧。東京都内の収益物件・投資用不動産・一棟もの・区分マンション・土地を掲載。"/>
 <style>
 :root{
   --navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;
@@ -12,6 +13,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
 
+/* 検索バー */
 .search-wrap{background:#fff;border-bottom:3px solid var(--gold);padding:14px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(27,42,107,0.08);}
 .search-input-wrap{display:flex;flex:1;min-width:220px;border:1.5px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.15s;}
 .search-input-wrap:focus-within{border-color:var(--navy);}
@@ -23,11 +25,24 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .filter-selects select:focus{border-color:var(--navy);}
 .result-count{font-size:12px;color:var(--sub);white-space:nowrap;padding:4px 0;}
 
+/* カードグリッド */
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:16px 20px;}
-.prop-card{background:#fff;border-radius:6px;border:1px solid var(--border);overflow:hidden;transition:box-shadow 0.2s,transform 0.15s;}
+
+/* カード：高さ統一のためflexレイアウト */
+.prop-card{
+  background:#fff;border-radius:6px;border:1px solid var(--border);
+  overflow:hidden;transition:box-shadow 0.2s,transform 0.15s;
+  display:flex;flex-direction:column;
+}
 .prop-card:hover{box-shadow:0 6px 24px rgba(27,42,107,0.13);transform:translateY(-2px);}
 
-.card-photos{position:relative;height:240px;background:#f2f2f4;overflow:hidden;cursor:pointer;}
+/* 写真エリア：固定高さ・contain */
+.card-photos{
+  position:relative;
+  height:220px;
+  flex-shrink:0;
+  background:#f2f2f4;overflow:hidden;cursor:pointer;
+}
 .card-photos img{width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;}
 .card-no-photo{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ccc;gap:8px;background:#f2f2f4;font-size:13px;}
 .photo-count{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.5);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;}
@@ -35,13 +50,15 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .card-photos:hover .photo-arrows{opacity:1;}
 .photo-btn{background:rgba(0,0,0,0.4);color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;}
 .photo-btn:hover{background:rgba(0,0,0,0.65);}
-.sale-badge{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:2px;letter-spacing:0.5px;}
+.sale-badge{position:absolute;top:10px;left:10px;font-size:11px;font-weight:700;padding:4px 12px;border-radius:2px;letter-spacing:0.5px;}
 .badge-sale{background:var(--navy);color:#fff;}
 .badge-applied{background:#D84315;color:#fff;}
+.badge-contract{background:#6A1B9A;color:#fff;}
 
-.card-body{padding:14px 16px;}
+/* カード本文：flexで伸縮 */
+.card-body{padding:14px 16px;display:flex;flex-direction:column;flex:1;}
 .card-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;line-height:1.35;}
-.card-price{font-size:20px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:baseline;gap:8px;}
+.card-price{font-size:20px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:baseline;gap:8px;min-height:32px;}
 .card-price-unit{font-size:13px;font-weight:400;color:var(--sub);}
 .card-yield{font-size:12px;color:var(--sub);}
 .card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
@@ -51,25 +68,31 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .tag-rent{background:#E3F2FD;color:#1565C0;}
 .tag-full{background:#E8F5E9;color:#2E7D32;}
 .tag-build{background:#EDE7F6;color:#4527A0;}
+.tag-contract{background:#F3E5F5;color:#6A1B9A;}
 .tag-other{background:#F5F5F5;color:#666;}
 .card-sta{font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6;}
-.card-divider{height:1px;background:var(--border);margin:8px 0;}
+.card-divider{height:1px;background:var(--border);margin:8px 0;flex-shrink:0;}
 .card-specs{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:11px;margin-bottom:8px;}
 .spec-row{display:flex;gap:5px;}
 .spec-label{color:var(--sub);min-width:50px;flex-shrink:0;}
 .spec-val{color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.card-notes{font-size:11px;color:var(--sub);margin-top:4px;}
+
+/* 備考：flex:1で残りスペースを埋める→カード高さ統一 */
+.card-notes{font-size:11px;color:var(--sub);flex:1;margin-bottom:8px;}
 .card-notes ul{padding-left:14px;line-height:1.9;}
-.card-contact{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
-.btn-tel{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;transition:background 0.15s;white-space:nowrap;}
+
+/* 問い合わせボタン：常にカード最下部 */
+.card-contact{margin-top:auto;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.btn-tel{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;white-space:nowrap;}
 .btn-tel:hover{background:var(--navy-dark);}
-.btn-mail{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;transition:opacity 0.15s;white-space:nowrap;}
+.btn-mail{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);font-weight:700;font-size:12px;padding:9px 12px;border-radius:4px;text-decoration:none;white-space:nowrap;}
 .btn-mail:hover{opacity:0.88;}
 
 .empty-state{text-align:center;padding:60px 20px;color:var(--sub);}
 .empty-text{font-size:15px;font-weight:500;margin-bottom:6px;}
 .empty-sub{font-size:13px;}
 
+/* ライトボックス */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:500;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.open{display:flex;}
 .lightbox-img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:3px;display:block;background:#111;}
@@ -99,23 +122,15 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   <div class="filter-selects">
     <select id="f-kind" onchange="filterCards()">
       <option value="">種別：すべて</option>
-      <option>一棟もの</option>
-      <option>一戸建て</option>
-      <option>土地</option>
-      <option>区分マンション</option>
+      <option>一棟もの</option><option>一戸建て</option><option>土地</option><option>区分マンション</option>
     </select>
     <select id="f-prop" onchange="filterCards()">
       <option value="">現状：すべて</option>
-      <option>空室</option>
-      <option>一部賃貸中</option>
-      <option>満室賃貸中</option>
-      <option>建築中</option>
-      <option>古屋有</option>
-      <option>更地</option>
+      <option>空室</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option>
     </select>
     <select id="f-price" onchange="filterCards()">
       <option value="">価格：すべて</option>
-      <option value="0-10000">〜1億円</option>
+      <option value="5000-10000">5,000万〜1億円</option>
       <option value="10000-20000">1億〜2億円</option>
       <option value="20000-30000">2億〜3億円</option>
       <option value="30000-50000">3億〜5億円</option>
@@ -141,7 +156,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-// ★ getFirestore のみ使用。社内専用コレクションには一切アクセスしない
 import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -157,9 +171,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let allProps = [];
 
-// ★ "properties" コレクションのみ読み込む（社内専用の "properties_internal" は読まない）
-onSnapshot(collection(db, "properties"), snap => {
+onSnapshot(collection(db, 'properties'), snap => {
   allProps = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    // 販売済のみ非表示。契約済・申込あり・販売中はすべて表示
     .filter(p => p.saleStatus !== '販売済')
     .sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
   filterCards();
@@ -197,7 +211,14 @@ function propTagClass(s) {
   if (s.includes('賃貸')) return 'tag-rent';
   if (s.includes('空室')) return 'tag-empty';
   if (s.includes('建築')) return 'tag-build';
+  if (s === '契約済') return 'tag-contract';
   return 'tag-other';
+}
+
+function badgeClass(s) {
+  if (s === '申込あり') return 'badge-applied';
+  if (s === '契約済') return 'badge-contract';
+  return 'badge-sale';
 }
 
 let cardPhotoIdx = {};
@@ -209,37 +230,37 @@ function renderCards(list) {
     return;
   }
   grid.innerHTML = '<div class="card-grid">' + list.map(p => {
-    const photos = p.photos && p.photos.length ? p.photos : (p.img ? [{url:p.img,caption:''}] : []);
-    const hasPhotos = photos.length > 0;
+    const photos = p.photos&&p.photos.length ? p.photos : (p.img?[{url:p.img,caption:''}]:[]);
     const pj = JSON.stringify(photos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
     const mailSub = encodeURIComponent('物件についてのお問い合わせ（'+(p.name||'')+'）');
     const mailBody = encodeURIComponent('物件名：'+(p.name||'')+'\n\nお名前：\nご連絡先：\n\nお問い合わせ内容：');
+    const isContract = p.saleStatus === '契約済';
 
-    const photoArea = hasPhotos
+    const photoArea = photos.length
       ? '<img src="'+photos[0].url+'" alt="'+(p.name||'')+'" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;"/>'+
         (photos.length>1
           ? '<div class="photo-arrows">'+
               '<button class="photo-btn" onclick="cardNav(event,\''+p.id+'\','+pj+',-1)">&#8249;</button>'+
               '<button class="photo-btn" onclick="cardNav(event,\''+p.id+'\','+pj+',1)">&#8250;</button>'+
-            '</div>'+
-            '<span class="photo-count" id="cnt-'+p.id+'">1 / '+photos.length+'</span>'
+            '</div><span class="photo-count" id="cnt-'+p.id+'">1 / '+photos.length+'</span>'
           : '')
       : '<div class="card-no-photo"><span style="font-size:32px;opacity:0.3;">&#127968;</span><span>写真なし</span></div>';
 
-    const badgeCls = p.saleStatus==='申込あり'?'badge-applied':'badge-sale';
     const notes = (p.note||'').split('\n').filter(Boolean);
+
+    // 契約済は価格を隠す
+    const priceHtml = isContract
+      ? '<span style="font-size:15px;color:var(--sub);">価格非公開</span>'
+      : (p.price ? p.price.toLocaleString()+'<span class="card-price-unit">万円</span>'+(p.yld?'<span class="card-yield">利回り '+p.yld+'%</span>':'') : '<span style="font-size:15px;">価格応相談</span>');
 
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+
         photoArea+
-        '<span class="sale-badge '+badgeCls+'">'+(p.saleStatus||'販売中')+'</span>'+
+        '<span class="sale-badge '+badgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span>'+
       '</div>'+
       '<div class="card-body">'+
         '<div class="card-name">'+(p.name||'')+'</div>'+
-        '<div class="card-price">'+
-          (p.price?p.price.toLocaleString()+'<span class="card-price-unit">万円</span>':'<span style="font-size:15px;">価格応相談</span>')+
-          (p.yld?'<span class="card-yield">利回り '+p.yld+'%</span>':'')+
-        '</div>'+
+        '<div class="card-price">'+priceHtml+'</div>'+
         '<div class="card-tags">'+
           '<span class="tag tag-kind">'+(p.kind||'')+'</span>'+
           (p.propStatus?'<span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus)+'</span>':'')+
@@ -258,7 +279,10 @@ function renderCards(list) {
           '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+(p.zone||'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">取引業態</span><span class="spec-val">'+(p.baitai||'—')+'</span></div>'+
         '</div>'+
-        (notes.length?'<div class="card-notes"><ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul></div>':'')+
+        // 備考：flex:1で高さを埋める
+        '<div class="card-notes">'+
+          (notes.length?'<ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul>':'<div style="height:8px;"></div>')+
+        '</div>'+
         '<div class="card-contact">'+
           '<a href="tel:0362606811" class="btn-tel">電話で問い合わせる</a>'+
           '<a href="mailto:info@ldy-house.com?subject='+mailSub+'&body='+mailBody+'" class="btn-mail">メールで問い合わせる</a>'+
@@ -268,14 +292,12 @@ function renderCards(list) {
   }).join('')+'</div>';
 }
 
-window.cardNav = function(e, id, photos, dir) {
+window.cardNav = function(e,id,photos,dir) {
   e.stopPropagation();
-  if (!cardPhotoIdx[id]) cardPhotoIdx[id] = 0;
-  cardPhotoIdx[id] = (cardPhotoIdx[id]+dir+photos.length)%photos.length;
-  const img = document.getElementById('cimg-'+id);
-  if (img) img.src = photos[cardPhotoIdx[id]].url;
-  const cnt = document.getElementById('cnt-'+id);
-  if (cnt) cnt.textContent = (cardPhotoIdx[id]+1)+' / '+photos.length;
+  if (!cardPhotoIdx[id]) cardPhotoIdx[id]=0;
+  cardPhotoIdx[id]=(cardPhotoIdx[id]+dir+photos.length)%photos.length;
+  const img=document.getElementById('cimg-'+id); if(img) img.src=photos[cardPhotoIdx[id]].url;
+  const cnt=document.getElementById('cnt-'+id); if(cnt) cnt.textContent=(cardPhotoIdx[id]+1)+' / '+photos.length;
 };
 
 let lbPhotos=[], lbIdx=0;
@@ -299,15 +321,13 @@ function updateLB() {
     '<div class="lb-dot'+(i===lbIdx?' active':'')+'" onclick="lbMove('+(i-lbIdx)+')"></div>'
   ).join('');
 }
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', e=>{
   if (!document.getElementById('lightbox').classList.contains('open')) return;
   if (e.key==='ArrowLeft') lbMove(-1);
   if (e.key==='ArrowRight') lbMove(1);
   if (e.key==='Escape') closeLightbox();
 });
-document.getElementById('search-input').addEventListener('keydown', e => {
-  if (e.key==='Enter') filterCards();
-});
+document.getElementById('search-input').addEventListener('keydown', e=>{ if(e.key==='Enter') filterCards(); });
 </script>
 </body>
 </html>
