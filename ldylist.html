@@ -174,7 +174,7 @@ let allProps = [];
 onSnapshot(collection(db, 'properties'), snap => {
   allProps = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     // 販売済のみ非表示。契約済・申込あり・販売中はすべて表示
-    .filter(p => p.saleStatus !== '販売済')
+    .filter(p => !p.saleStatus)
     .sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
   filterCards();
 });
