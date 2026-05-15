@@ -128,9 +128,18 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <option value="">現状：すべて</option>
       <option>空室</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option>
     </select>
+    <select id="f-price" onchange="filterCards()">
+      <option value="">価格：すべて</option>
+      <option value="5000-10000">5,000万〜1億円</option>
+      <option value="10000-20000">1億〜2億円</option>
+      <option value="20000-30000">2億〜3億円</option>
+      <option value="30000-50000">3億〜5億円</option>
+      <option value="50000-">5億円以上</option>
+    </select>
   </div>
   <span class="result-count" id="result-info"></span>
 </div>
+
 <div id="card-grid">
   <div class="page-loading"><div class="spinner"></div><div>物件情報を読み込み中...</div></div>
 </div>
@@ -165,8 +174,7 @@ let allProps = [];
 onSnapshot(collection(db, 'properties'), snap => {
   allProps = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     // 販売済のみ非表示。契約済・申込あり・販売中はすべて表示
-    .filter(p =>  p.saleStatus !== '販売済' &&
-      p.saleStatus !== '契約済')
+    .filter(p => p.saleStatus !== '販売済')
     .sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
   filterCards();
 });
@@ -241,10 +249,9 @@ function renderCards(list) {
     const notes = (p.note||'').split('\n').filter(Boolean);
 
     // 契約済は価格を隠す
-const priceHtml = true
-  ? '<span style="font-size:15px;color:var(--sub);">価格非公開</span>'
-  : '';
-     // : (p.price ? p.price.toLocaleString()+'<span class="card-price-unit">万円</span>'+(p.yld?'<span class="card-yield">利回り '+p.yld+'%</span>':'') : '<span style="font-size:15px;">価格応相談</span>');
+    const priceHtml = isContract
+      ? '<span style="font-size:15px;color:var(--sub);">価格非公開</span>'
+      : (p.price ? p.price.toLocaleString()+'<span class="card-price-unit">万円</span>'+(p.yld?'<span class="card-yield">利回り '+p.yld+'%</span>':'') : '<span style="font-size:15px;">価格応相談</span>');
 
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+
