@@ -72,10 +72,32 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .tag-other{background:#F5F5F5;color:#666;}
 .card-sta{font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6;}
 .card-divider{height:1px;background:var(--border);margin:8px 0;flex-shrink:0;}
-.card-specs{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:11px;margin-bottom:8px;}
-.spec-row{display:flex;gap:5px;}
-.spec-label{color:var(--sub);min-width:50px;flex-shrink:0;}
-.spec-val{color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-specs{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:6px 12px;
+  font-size:11px;
+  margin-bottom:8px;
+}
+
+.spec-row{
+  display:flex;
+  gap:5px;
+  align-items:flex-start;
+}
+
+.spec-label{
+  color:var(--sub);
+  min-width:52px;
+  flex-shrink:0;
+}
+
+.spec-val{
+  color:var(--text);
+  font-weight:600;
+  word-break:break-word;
+  white-space:normal;
+}
 
 /* 備考：flex:1で残りスペースを埋める→カード高さ統一 */
 .card-notes{font-size:11px;color:var(--sub);flex:1;margin-bottom:8px;}
