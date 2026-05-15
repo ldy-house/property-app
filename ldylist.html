@@ -207,7 +207,11 @@ function badgeClass(s) {
 }
 
 let cardPhotoIdx = {};
-
+function shortLoc(loc='') {
+  return loc
+    .replace(/^東京都/, '')                 // 先頭の東京都を削除
+    .replace(/(.+?[0-9]+丁目).*/, '$1'); // ○丁目以降を削除
+}
 function renderCards(list) {
   const grid = document.getElementById('card-grid');
   if (!list.length) {
@@ -246,7 +250,7 @@ function renderCards(list) {
         '<div class="card-sta">'+(p.sta||'—')+'</div>'+
         '<div class="card-divider"></div>'+
         '<div class="card-specs">'+
-          '<div class="spec-row"><span class="spec-label">所在地</span><span class="spec-val">'+(p.loc||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">所在地</span><span class="spec-val">'+shortLoc(p.loc||'')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">土地面積</span><span class="spec-val">'+(p.land?p.land+'㎡':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">延床面積</span><span class="spec-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">間取り</span><span class="spec-val">'+(p.layout||'—')+'</span></div>'+
