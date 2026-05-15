@@ -26,7 +26,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .result-count{font-size:12px;color:var(--sub);white-space:nowrap;padding:4px 0;}
 
 /* カードグリッド */
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:16px 20px;}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;padding:16px 20px;}
 
 /* カード：高さ統一のためflexレイアウト */
 .prop-card{
@@ -74,7 +74,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .card-divider{height:1px;background:var(--border);margin:8px 0;flex-shrink:0;}
 .card-specs{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  grid-template-columns:1fr 1fr;
   gap:6px 12px;
   font-size:11px;
   margin-bottom:8px;
@@ -97,6 +97,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   font-weight:600;
   word-break:break-word;
   white-space:normal;
+}
+
+@media (max-width:480px){
+  .card-specs{
+    grid-template-columns:1fr;
+  }
 }
 
 /* 備考：flex:1で残りスペースを埋める→カード高さ統一 */
