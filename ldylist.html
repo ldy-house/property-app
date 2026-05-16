@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:14px;
   /* アーカイブ帯の分だけ下に余白 */
-  padding-bottom:140px;
+  padding-bottom:148px;
 }
 
 /* ── 検索バー ── */
@@ -64,7 +64,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .card-specs{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:11px;margin-bottom:8px;}
 .spec-row{display:flex;gap:5px;}
 .spec-label{color:var(--sub);min-width:50px;flex-shrink:0;}
-.spec-val{color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.spec-val{color:var(--text);font-weight:600;word-break:break-all;line-height:1.4;}
 .card-notes{font-size:11px;color:var(--sub);flex:1;margin-bottom:8px;}
 .card-notes ul{padding-left:14px;line-height:1.9;}
 .card-contact{margin-top:auto;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;}
@@ -82,8 +82,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   position:fixed;bottom:0;left:0;right:0;
   background:linear-gradient(135deg,var(--navy-dark),var(--navy));
   border-top:3px solid var(--gold);
-  height:130px;z-index:100;overflow:hidden;
-  display:none; /* JSで表示 */
+  height:140px;z-index:100;overflow:hidden;
+  display:none;
 }
 .archive-bar-header{
   padding:6px 16px 4px;
@@ -108,14 +108,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   100%{transform:translateX(-50%);}
 }
 .archive-card{
-  flex-shrink:0;width:120px;
+  flex-shrink:0;width:100px;
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.15);
   border-radius:4px;overflow:hidden;cursor:pointer;
   transition:background 0.2s;
 }
 .archive-card:hover{background:rgba(255,255,255,0.18);}
-.archive-card img{width:100%;height:68px;object-fit:contain;background:#1a1a2e;display:block;}
+.archive-card img{width:100%;height:80px;object-fit:contain;background:#1a1a2e;display:block;}
 .archive-card-no-img{width:100%;height:68px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:10px;}
 .archive-card-name{font-size:9px;color:rgba(255,255,255,0.7);padding:3px 5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
@@ -328,7 +328,7 @@ function renderArchive() {
   track.innerHTML = items.map(p => {
     const photos = p.photos&&p.photos.length ? p.photos : (p.img?[{url:p.img}]:[]);
     const imgHtml = photos.length
-      ? '<img src="'+photos[0].url+'" alt="'+(p.name||'')+'" style="width:100%;height:68px;object-fit:cover;display:block;filter:grayscale(20%);" />'
+      ? '<img src="'+photos[0].url+'" alt="'+(p.name||'')+'" style="width:100%;height:80px;object-fit:contain;background:#1a1a2e;display:block;" />'
       : '<div class="archive-card-no-img">写真なし</div>';
     return '<div class="archive-card"><div>'+imgHtml+'</div><div class="archive-card-name">'+(p.name||'')+'</div></div>';
   }).join('');
