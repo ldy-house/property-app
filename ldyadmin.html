@@ -79,6 +79,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .photo-prev{left:7px;}.photo-next{right:7px;}
 .sale-badge{position:absolute;top:9px;left:9px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:2px;}
 .badge-sale{background:var(--navy);color:#fff;}
+.badge-private{background:#4A4A4A;color:#fff;}
 .badge-applied{background:var(--orange);color:#fff;}
 .badge-contract{background:var(--purple);color:#fff;}
 .badge-done{background:#555;color:#fff;}
@@ -264,8 +265,26 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 @media print{
   body>*:not(#printable){display:none!important;}
   #printable{display:block!important;}
-  .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;}
-  @page{size:A4 landscape;margin:5mm;}
+  .ppage{
+    margin:0;
+    box-shadow:none;
+    page-break-after:always;
+    break-after:page;
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+  /* ブラウザが自動追加するURL・ページ番号を非表示 */
+  @page{
+    size:A4 landscape;
+    margin:5mm;
+    /* Chrome/Edge: ヘッダー・フッターを消す */
+    margin-header:0;
+    margin-footer:0;
+  }
+}
+/* 印刷時にURLとページ番号を消す（Chrome対応） */
+@media print {
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 #printable{display:none;}
 </style>
@@ -315,7 +334,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     <input type="text" id="f-keyword" placeholder="物件名・所在地・駅で検索..." oninput="renderCards()"/>
     <select id="f-sale" onchange="renderCards()">
       <option value="">販売状況：すべて</option>
-      <option>販売中</option><option>申込あり</option><option>契約済</option><option>販売済</option>
+      <option>販売中</option><option>非公開販売中</option><option>申込あり</option><option>契約済</option><option>販売済</option>
     </select>
     <select id="f-prop" onchange="renderCards()">
       <option value="">物件現状：すべて</option>
@@ -431,7 +450,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         <div class="fs-title">販売・物件状況</div>
         <div class="fg">
           <div class="fr"><label>販売状況</label>
-            <select id="f-sale-status"><option>販売中</option><option>申込あり</option><option>契約済</option><option>販売済</option></select>
+            <select id="f-sale-status"><option>販売中</option><option>非公開販売中</option><option>申込あり</option><option>契約済</option><option>販売済</option></select>
           </div>
           <div class="fr"><label>物件の現状</label>
             <select id="f-prop-status"><option>空室</option><option>一部賃貸中</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option></select>
@@ -645,8 +664,28 @@ window.doLogin = async function() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   document.getElementById('login-err').textContent = '';
-  try { showLoading(true); await signInWithEmailAndPassword(auth, email, pass); }
-  catch(e) { document.getElementById('login-err').textContent = 'メールアドレスまたはパスワードが違います'; }
+  if (!email || !pass) {
+    document.getElementById('login-err').textContent = 'メールアドレスとパスワードを入力してください';
+    return;
+  }
+  try {
+    showLoading(true);
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    let msg = 'ログインに失敗しました';
+    if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      msg = 'メールアドレスまたはパスワードが違います';
+    } else if (e.code === 'auth/too-many-requests') {
+      msg = 'ログイン試行が多すぎます。しばらく待ってから再試行してください';
+    } else if (e.code === 'auth/network-request-failed') {
+      msg = 'ネットワークエラーです。接続を確認してください';
+    } else if (e.code === 'auth/invalid-email') {
+      msg = 'メールアドレスの形式が正しくありません';
+    } else {
+      msg = 'エラー: ' + e.code;
+    }
+    document.getElementById('login-err').textContent = msg;
+  }
   showLoading(false);
 };
 window.doLogout = async function() { await signOut(auth); };
@@ -955,6 +994,7 @@ function getBadgeClass(s){
   if(s==='販売済') return 'badge-done';
   if(s==='申込あり') return 'badge-applied';
   if(s==='契約済') return 'badge-contract';
+  if(s==='非公開販売中') return 'badge-private';
   return 'badge-sale';
 }
 function llStatusHtml(ll){
