@@ -149,7 +149,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .days-auto{font-size:11px;color:var(--sub);margin-top:4px;}
 .days-auto span{font-weight:700;color:var(--navy);}
 
-/* ライフライン入力エリア */
+/* ライフライン写真 */
+.ll-photo-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+.ll-photo-item{position:relative;width:72px;height:72px;border-radius:4px;overflow:hidden;background:#eee;border:1px solid #C8E6C9;}
+.ll-photo-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.ll-photo-del{position:absolute;top:2px;right:2px;background:rgba(200,0,0,0.8);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .ll-entry{background:#F9FFFA;border:1px solid #C8E6C9;border-radius:4px;padding:10px;margin-bottom:8px;}
 .ll-entry-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .ll-entry-title{font-size:11px;font-weight:700;color:var(--green);}
@@ -415,10 +419,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>間取り</label><input id="f-layout" placeholder="例：3LDK"/></div>
           <div class="fr"><label>販売価格（万円）</label><input id="f-price-val" type="number"/></div>
         </div>
-        <div class="fg">
-          <div class="fr"><label>回利り (%)</label><input id="f-yield" type="number" step="0.01"/></div>
-          <div class="fr"><label>築年月</label><input id="f-built" placeholder="例：1990年12月"/></div>
-        </div>
+        <div class="fr"><label>築年月</label><input id="f-built" placeholder="例：1990年12月"/></div>
       </div>
       <!-- 建物情報 -->
       <div class="fs">
@@ -509,39 +510,82 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <!-- ライフライン（スタッフ・管理者共通） -->
       <div class="fs" style="background:#F0FFF4;border:1px solid #A8D5B5;border-radius:6px;padding:14px;">
         <div class="fs-title-ll">ライフライン情報</div>
+
+        <!-- 水道 -->
         <div class="ll-entry">
           <div class="ll-entry-head"><span class="ll-entry-title">水道</span></div>
-          <div class="fr">
-            <label>開通状況</label>
-            <select id="f-water-status" class="fr-ll">
-              <option value="">未確認</option><option value="on">開通済</option><option value="off">未開通</option>
-            </select>
+          <div class="fg">
+            <div class="fr">
+              <label>開通状況</label>
+              <select id="f-water-status" class="fr-ll">
+                <option value="">未確認</option><option value="on">開通済</option><option value="off">未開通</option><option value="cancelled">解約済</option>
+              </select>
+            </div>
+            <div class="fr">
+              <label>解約日</label>
+              <input id="f-water-cancel-date" type="date" class="fr-ll"/>
+            </div>
           </div>
           <div id="water-meters"></div>
           <button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="addMeter('water')">＋ メーターを追加</button>
+          <div style="margin-top:8px;">
+            <label style="font-size:11px;color:var(--sub);font-weight:700;display:block;margin-bottom:4px;">水道の写真</label>
+            <div class="ll-photo-list" id="water-photos"></div>
+            <button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="document.getElementById('water-photo-input').click()">＋ 写真を追加</button>
+            <input type="file" id="water-photo-input" accept="image/*" multiple style="display:none;" onchange="handleLLPhoto(event,'water')"/>
+          </div>
         </div>
+
+        <!-- 電気 -->
         <div class="ll-entry">
           <div class="ll-entry-head"><span class="ll-entry-title">電気</span></div>
-          <div class="fr">
-            <label>開通状況</label>
-            <select id="f-elec-status" class="fr-ll">
-              <option value="">未確認</option><option value="on">開通済</option><option value="off">未開通</option>
-            </select>
+          <div class="fg">
+            <div class="fr">
+              <label>開通状況</label>
+              <select id="f-elec-status" class="fr-ll">
+                <option value="">未確認</option><option value="on">開通済</option><option value="off">未開通</option><option value="cancelled">解約済</option>
+              </select>
+            </div>
+            <div class="fr">
+              <label>解約日</label>
+              <input id="f-elec-cancel-date" type="date" class="fr-ll"/>
+            </div>
           </div>
           <div id="elec-meters"></div>
           <button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="addMeter('elec')">＋ メーターを追加</button>
+          <div style="margin-top:8px;">
+            <label style="font-size:11px;color:var(--sub);font-weight:700;display:block;margin-bottom:4px;">電気の写真</label>
+            <div class="ll-photo-list" id="elec-photos"></div>
+            <button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="document.getElementById('elec-photo-input').click()">＋ 写真を追加</button>
+            <input type="file" id="elec-photo-input" accept="image/*" multiple style="display:none;" onchange="handleLLPhoto(event,'elec')"/>
+          </div>
         </div>
+
+        <!-- ガス -->
         <div class="ll-entry">
           <div class="ll-entry-head"><span class="ll-entry-title">ガス</span></div>
-          <div class="fr">
-            <label>開通状況</label>
-            <select id="f-gas-status" class="fr-ll">
-              <option value="">未確認</option><option value="on">開通済</option><option value="off">未開通</option>
-            </select>
+          <div class="fg">
+            <div class="fr">
+              <label>開通状況</label>
+              <select id="f-gas-status" class="fr-ll">
+                <option value="">未確認</option><option value="on">開通済</option><option value="off">未開通</option><option value="cancelled">解約済</option>
+              </select>
+            </div>
+            <div class="fr">
+              <label>解約日</label>
+              <input id="f-gas-cancel-date" type="date" class="fr-ll"/>
+            </div>
           </div>
           <div id="gas-meters"></div>
           <button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="addMeter('gas')">＋ メーターを追加</button>
+          <div style="margin-top:8px;">
+            <label style="font-size:11px;color:var(--sub);font-weight:700;display:block;margin-bottom:4px;">ガスの写真</label>
+            <div class="ll-photo-list" id="gas-photos"></div>
+            <button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="document.getElementById('gas-photo-input').click()">＋ 写真を追加</button>
+            <input type="file" id="gas-photo-input" accept="image/*" multiple style="display:none;" onchange="handleLLPhoto(event,'gas')"/>
+          </div>
         </div>
+
         <div class="fr" style="margin-top:8px;">
           <label>ライフラインメモ</label>
           <textarea id="f-ll-memo" class="fr-ll" style="height:60px;" placeholder="例：1Fのブレーカーは右端、電力会社は東京電力"></textarea>
@@ -623,8 +667,8 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 let props=[], internalMap={}, lifelineMap={}, editId=null, currentPhotos=[], currentRole='staff';
-// ライフライン一時保存
 let llMeters = { water:[], elec:[], gas:[] };
+let llPhotos = { water:[], elec:[], gas:[] };
 
 // ── 認証・権限 ──
 onAuthStateChanged(auth, async user => {
@@ -772,9 +816,9 @@ window.doSave = async function() {
 
   // ライフライン
   const llObj = {
-    water: { status: document.getElementById('f-water-status').value, meters: llMeters.water },
-    elec:  { status: document.getElementById('f-elec-status').value,  meters: llMeters.elec },
-    gas:   { status: document.getElementById('f-gas-status').value,   meters: llMeters.gas },
+    water: { status: document.getElementById('f-water-status').value, cancelDate: document.getElementById('f-water-cancel-date').value, meters: llMeters.water, photos: llPhotos.water },
+    elec:  { status: document.getElementById('f-elec-status').value,  cancelDate: document.getElementById('f-elec-cancel-date').value,  meters: llMeters.elec,  photos: llPhotos.elec },
+    gas:   { status: document.getElementById('f-gas-status').value,   cancelDate: document.getElementById('f-gas-cancel-date').value,   meters: llMeters.gas,   photos: llPhotos.gas },
     memo: document.getElementById('f-ll-memo').value.trim(),
     updatedAt: serverTimestamp(),
   };
@@ -853,6 +897,29 @@ function renderMeterInputs(type) {
   ).join('');
 }
 
+// ── ライフライン写真 ──
+window.handleLLPhoto = async function(e, type) {
+  const files = Array.from(e.target.files); if(!files.length) return;
+  for(const f of files){
+    try{ const p = await uploadOne(f); llPhotos[type].push(p.url); renderLLPhotos(type); }
+    catch(err){ alert('失敗: '+err.message); }
+  }
+  e.target.value='';
+};
+window.removeLLPhoto = function(type, idx) {
+  llPhotos[type].splice(idx,1); renderLLPhotos(type);
+};
+function renderLLPhotos(type) {
+  const el = document.getElementById(type+'-photos');
+  if(!el) return;
+  el.innerHTML = (llPhotos[type]||[]).map((url,i)=>
+    '<div class="ll-photo-item">'+
+      '<img src="'+url+'" alt=""/>'+
+      '<button type="button" class="ll-photo-del" onclick="removeLLPhoto(\''+type+'\','+i+')">✕</button>'+
+    '</div>'
+  ).join('');
+}
+
 // ── Cloudinary ──
 const CLD='dujllruro', CLD_PRESET='ldy-property';
 async function uploadOne(file) {
@@ -921,6 +988,7 @@ window.updateStations=function(){
 window.openModal = function(id=null) {
   editId=id; currentPhotos=[];
   llMeters={water:[],elec:[],gas:[]};
+  llPhotos={water:[],elec:[],gas:[]};
   document.getElementById('modal-title').textContent=id?'物件を編集':'物件を追加';
   document.getElementById('img-list').innerHTML='';
   lineEl.value=''; stEl.innerHTML='<option value="">駅を選択</option>';
@@ -949,13 +1017,19 @@ window.openModal = function(id=null) {
     // ライフライン
     const ll=lifelineMap[id]||{};
     setV('f-water-status',ll.water?.status||'');
+    setV('f-water-cancel-date',ll.water?.cancelDate||'');
     setV('f-elec-status',ll.elec?.status||'');
+    setV('f-elec-cancel-date',ll.elec?.cancelDate||'');
     setV('f-gas-status',ll.gas?.status||'');
+    setV('f-gas-cancel-date',ll.gas?.cancelDate||'');
     setV('f-ll-memo',ll.memo||'');
     llMeters.water=ll.water?.meters?JSON.parse(JSON.stringify(ll.water.meters)):[];
     llMeters.elec=ll.elec?.meters?JSON.parse(JSON.stringify(ll.elec.meters)):[];
     llMeters.gas=ll.gas?.meters?JSON.parse(JSON.stringify(ll.gas.meters)):[];
-    ['water','elec','gas'].forEach(t=>renderMeterInputs(t));
+    llPhotos.water=ll.water?.photos?JSON.parse(JSON.stringify(ll.water.photos)):[];
+    llPhotos.elec=ll.elec?.photos?JSON.parse(JSON.stringify(ll.elec.photos)):[];
+    llPhotos.gas=ll.gas?.photos?JSON.parse(JSON.stringify(ll.gas.photos)):[];
+    ['water','elec','gas'].forEach(t=>{renderMeterInputs(t);renderLLPhotos(t);});
     // 管理者専用
     if(currentRole==='admin'){
       const int=internalMap[id]||{};
@@ -968,10 +1042,13 @@ window.openModal = function(id=null) {
       updateDaysDisplay();
     }
   } else {
-    ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-yield','f-uso','f-struct','f-road','f-right','f-kenpei','f-yoseki','f-bouka','f-toshi','f-delivery','f-note','f-ll-memo'].forEach(x=>setV(x,''));
+    ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-uso','f-struct','f-road','f-right','f-kenpei','f-yoseki','f-bouka','f-toshi','f-delivery','f-note','f-ll-memo'].forEach(x=>setV(x,''));
     setV('f-kind-form','一棟もの'); setV('f-zone','');
     setV('f-sale-status','販売中'); setV('f-prop-status','空室'); setV('f-baitai-form','売主');
-    setV('f-water-status',''); setV('f-elec-status',''); setV('f-gas-status','');
+    setV('f-water-status',''); setV('f-water-cancel-date','');
+    setV('f-elec-status','');  setV('f-elec-cancel-date','');
+    setV('f-gas-status','');   setV('f-gas-cancel-date','');
+    ['water','elec','gas'].forEach(t=>renderLLPhotos(t));
     if(currentRole==='admin'){
       ['f-buy-price','f-buy-from','f-buy-contract','f-buy-settle','f-loan-amt','f-loan-bank','f-sell-price','f-sell-to','f-sell-contract','f-sell-settle','f-internal-memo'].forEach(x=>setV(x,''));
     }
@@ -1002,9 +1079,12 @@ function llStatusHtml(ll){
   const items=['water','elec','gas'].map(t=>{
     const d=ll[t]||{};
     const icon=t==='water'?'水道':t==='elec'?'電気':'ガス';
-    const st=d.status==='on'?'<span class="ll-status ll-on">開通</span>':d.status==='off'?'<span class="ll-status ll-off">未開通</span>':'<span class="ll-status ll-off">未確認</span>';
+    const st=d.status==='on'?'<span class="ll-status ll-on">開通</span>':d.status==='off'?'<span class="ll-status ll-off">未開通</span>':d.status==='cancelled'?'<span class="ll-status ll-off">解約済</span>':'<span class="ll-status ll-off">未確認</span>';
+    const cancelDate=d.status==='cancelled'&&d.cancelDate?'<div class="ll-detail">解約日：'+d.cancelDate+'</div>':'';
     const meters=(d.meters||[]).map(m=>'<div class="ll-detail">'+(m.label||'')+(m.openDate?' ('+m.openDate+')':'')+'</div>').join('');
-    return '<div class="ll-item"><div class="ll-type">'+icon+'</div>'+st+meters+'</div>';
+    const photos=(d.photos||[]).length>0
+      ?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">'+(d.photos||[]).map(url=>'<img src="'+url+'" style="width:36px;height:36px;object-fit:cover;border-radius:3px;border:1px solid #C8E6C9;" />').join('')+'</div>':'';
+    return '<div class="ll-item"><div class="ll-type">'+icon+'</div>'+st+cancelDate+meters+photos+'</div>';
   });
   return '<div class="lifeline-section"><div class="lifeline-title">ライフライン</div><div class="lifeline-grid">'+items.join('')+'</div>'+(ll.memo?'<div style="font-size:9px;color:#555;margin-top:4px;">'+ll.memo+'</div>':'')+'</div>';
 }
