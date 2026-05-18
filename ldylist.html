@@ -238,7 +238,7 @@ function badgeClass(s) {
 onSnapshot(collection(db, 'properties'), snap => {
   const all = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-  // 販売中・申込ありのみメイン表示
+  // 販売済・非公開販売中はお客様に非表示
   allProps = all.filter(p => p.saleStatus === '販売中' || p.saleStatus === '申込あり');
   // 契約済・販売済はアーカイブ
   archiveProps = all.filter(p => p.saleStatus === '契約済' || p.saleStatus === '販売済');
