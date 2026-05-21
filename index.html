@@ -432,17 +432,17 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>容積率 (%)</label><input id="f-yoseki" type="number" placeholder="400"/></div>
         </div>
         <div class="fg">
-          <div class="fr"><label>用途地域</label>
-            <select id="f-zone">
+          <div class="fr"><label>用途地域（複数の場合はカンマ区切り）</label>
+            <input id="f-zone" placeholder="例：商業地域、第一種住居地域"/></div>
+          <div class="fr"><label>防火指定</label>
+            <select id="f-bouka">
               <option value="">選択</option>
-              <option>第一種低層住居専用地域</option><option>第二種低層住居専用地域</option>
-              <option>第一種中高層住居専用地域</option><option>第二種中高層住居専用地域</option>
-              <option>第一種住居地域</option><option>第二種住居地域</option><option>準住居地域</option>
-              <option>田園住居地域</option><option>近隣商業地域</option><option>商業地域</option>
-              <option>準工業地域</option><option>工業地域</option><option>工業専用地域</option><option>無指定</option>
+              <option>防火地域</option>
+              <option>準防火地域</option>
+              <option>防火地域・準防火地域</option>
+              <option>指定なし</option>
             </select>
           </div>
-          <div class="fr"><label>防火指定</label><input id="f-bouka" placeholder="例：防火地域"/></div>
         </div>
         <div class="fr"><label>都市計画</label><input id="f-toshi" placeholder="例：市街化区域"/></div>
       </div>
@@ -796,7 +796,6 @@ window.doSave = async function() {
     layout: document.getElementById('f-layout').value.trim(),
     price: parseInt(document.getElementById('f-price-val').value)||null,
     built: document.getElementById('f-built').value.trim(),
-    yld: parseFloat(document.getElementById('f-yield').value)||null,
     uso: document.getElementById('f-uso').value.trim(),
     struct: document.getElementById('f-struct').value.trim(),
     road: document.getElementById('f-road').value.trim(),
@@ -890,8 +889,19 @@ function renderMeterInputs(type) {
         '<button type="button" class="btn btn-sm btn-red" onclick="removeMeter(\''+type+'\','+i+')">削除</button>'+
       '</div>'+
       '<div class="fg">'+
-        '<div class="fr"><label>メーター番号・場所</label><input class="fr-ll" value="'+(m.label||'')+'" placeholder="例：1F 左側メーター" oninput="updateMeter(\''+type+'\','+i+',\'label\',this.value)"/></div>'+
+        '<div class="fr"><label>メーター番号・場所</label><input class="fr-ll" value="'+(m.label||'')+'" placeholder="例：1F 左側" oninput="updateMeter(\''+type+'\','+i+',\'label\',this.value)"/></div>'+
+        '<div class="fr"><label>開通状況</label>'+
+          '<select class="fr-ll" onchange="updateMeter(\''+type+'\','+i+',\'status\',this.value)">'+
+            '<option value="" '+((!m.status)?'selected':'')+'>未確認</option>'+
+            '<option value="on" '+(m.status==='on'?'selected':'')+'>開通済</option>'+
+            '<option value="off" '+(m.status==='off'?'selected':'')+'>未開通</option>'+
+            '<option value="cancelled" '+(m.status==='cancelled'?'selected':'')+'>解約済</option>'+
+          '</select>'+
+        '</div>'+
+      '</div>'+
+      '<div class="fg">'+
         '<div class="fr"><label>開通日</label><input class="fr-ll" type="date" value="'+(m.openDate||'')+'" oninput="updateMeter(\''+type+'\','+i+',\'openDate\',this.value)"/></div>'+
+        '<div class="fr"><label>解約日</label><input class="fr-ll" type="date" value="'+(m.cancelDate||'')+'" oninput="updateMeter(\''+type+'\','+i+',\'cancelDate\',this.value)"/></div>'+
       '</div>'+
     '</div>'
   ).join('');
@@ -974,7 +984,47 @@ document.addEventListener('keydown',e=>{
 });
 
 // ── 路線・駅 ──
-const LINES={"JR山手線":["品川","大崎","五反田","目黒","恵比寿","渋谷","原宿","代々木","新宿","新大久保","高田馬場","目白","池袋","大塚","巣鴨","駒込","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ"],"JR中央線快速":["東京","神田","御茶ノ水","四ツ谷","新宿","中野","高円寺","阿佐ヶ谷","荻窪","西荻窪","吉祥寺","三鷹","武蔵境","東小金井","武蔵小金井","国分寺","西国分寺","国立","立川","日野","豊田","八王子","西八王子","高尾"],"JR中央・総武線各停":["三鷹","吉祥寺","西荻窪","荻窪","阿佐ヶ谷","高円寺","中野","東中野","大久保","新宿","代々木","千駄ヶ谷","信濃町","四ツ谷","市ヶ谷","飯田橋","水道橋","御茶ノ水","秋葉原","浅草橋","両国","錦糸町","亀戸","平井","新小岩","小岩"],"JR京浜東北線":["赤羽","東十条","王子","上中里","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ","品川","西大井","大井町","大森","蒲田"],"JR埼京線":["赤羽","板橋","十条","池袋","新宿","渋谷","恵比寿","大崎"],"JR常磐線":["上野","日暮里","三河島","南千住","北千住"],"JR京葉線":["東京","八丁堀","越中島","潮見","新木場","葛西臨海公園","舞浜"],"東京メトロ銀座線":["渋谷","表参道","外苑前","青山一丁目","赤坂見附","溜池山王","虎ノ門","新橋","銀座","京橋","日本橋","三越前","神田","末広町","上野広小路","上野","稲荷町","田原町","浅草"],"東京メトロ丸ノ内線":["荻窪","南阿佐ヶ谷","新高円寺","東高円寺","新中野","中野坂上","西新宿","新宿","新宿三丁目","新宿御苑前","四谷三丁目","四ツ谷","赤坂見附","国会議事堂前","霞ケ関","銀座","東京","大手町","淡路町","御茶ノ水","本郷三丁目","後楽園","茗荷谷","新大塚","池袋","中野富士見町","中野新橋","方南町"],"東京メトロ日比谷線":["北千住","南千住","三ノ輪","入谷","上野","仲御徒町","秋葉原","小伝馬町","人形町","茅場町","八丁堀","築地","東銀座","銀座","日比谷","霞ケ関","国会議事堂前","六本木","広尾","恵比寿","中目黒","神谷町","虎ノ門ヒルズ"],"東京メトロ東西線":["中野","落合","高田馬場","早稲田","神楽坂","飯田橋","九段下","竹橋","大手町","日本橋","茅場町","門前仲町","木場","東陽町","南砂町","葛西","西葛西","船堀","一之江","瑞江","篠崎","本八幡"],"東京メトロ千代田線":["代々木上原","代々木公園","明治神宮前","表参道","乃木坂","赤坂","国会議事堂前","霞ケ関","日比谷","二重橋前","大手町","新御茶ノ水","湯島","根津","千駄木","西日暮里","町屋","北千住","綾瀬","北綾瀬"],"東京メトロ有楽町線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","東池袋","護国寺","江戸川橋","飯田橋","市ケ谷","麹町","永田町","桜田門","有楽町","銀座一丁目","新富町","月島","豊洲","辰巳","新木場"],"東京メトロ半蔵門線":["渋谷","表参道","青山一丁目","永田町","半蔵門","九段下","神保町","大手町","三越前","水天宮前","清澄白河","住吉","錦糸町","押上"],"東京メトロ南北線":["目黒","白金台","白金高輪","麻布十番","六本木一丁目","溜池山王","永田町","四ツ谷","市ケ谷","飯田橋","後楽園","東大前","本駒込","駒込","西ヶ原","王子","王子神谷","志茂","赤羽岩淵"],"東京メトロ副都心線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","雑司が谷","西早稲田","東新宿","新宿三丁目","北参道","明治神宮前","渋谷"],"都営浅草線":["西馬込","馬込","中延","戸越","五反田","高輪台","泉岳寺","三田","大門","新橋","東銀座","宝町","日本橋","人形町","東日本橋","浅草橋","蔵前","浅草","本所吾妻橋","押上"],"都営三田線":["目黒","白金台","白金高輪","三田","芝公園","御成門","内幸町","日比谷","大手町","神保町","水道橋","春日","白山","千石","巣鴨","西巣鴨","新板橋","板橋区役所前","板橋本町","本蓮沼","志村坂上","志村三丁目","蓮根","西台","高島平","新高島平","西高島平"],"都営新宿線":["新宿","新宿三丁目","曙橋","市ケ谷","九段下","神保町","小川町","岩本町","馬喰横山","浜町","森下","菊川","住吉","西大島","大島","東大島","船堀","一之江","瑞江","篠崎","本八幡"],"都営大江戸線":["都庁前","新宿","西新宿五丁目","中野坂上","東中野","落合南長崎","新江古田","練馬","豊島園","練馬春日町","光が丘","国立競技場","青山一丁目","六本木","麻布十番","赤羽橋","大門","汐留","築地市場","勝どき","月島","門前仲町","清澄白河","森下","蔵前","両国","春日","本郷三丁目","上野御徒町","新御徒町"],"東急東横線":["渋谷","代官山","中目黒","祐天寺","学芸大学","都立大学","自由が丘","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉","綱島","大倉山","菊名","妙蓮寺","白楽","東白楽","反町","横浜"],"東急目黒線":["目黒","不動前","武蔵小山","西小山","洗足","大岡山","奥沢","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉"],"東急田園都市線":["渋谷","池尻大橋","三軒茶屋","駒沢大学","桜新町","用賀","二子玉川","二子新地","高津","溝の口","梶が谷","宮崎台","宮前平","鷺沼","たまプラーザ","あざみ野"],"東急大井町線":["大井町","下神明","戸越公園","中延","荏原町","旗の台","北千束","大岡山","緑が丘","自由が丘","九品仏","尾山台","等々力","上野毛","二子玉川"],"京王線":["新宿","初台","幡ヶ谷","笹塚","代田橋","明大前","下高井戸","桜上水","上北沢","八幡山","芦花公園","千歳烏山","仙川","つつじヶ丘","柴崎","国領","布田","調布","西調布","飛田給","武蔵野台","多磨霊園","東府中","府中","分倍河原","聖蹟桜ヶ丘","高幡不動","北野","八王子"],"京王井の頭線":["渋谷","神泉","駒場東大前","池ノ上","下北沢","新代田","東松原","明大前","永福町","西永府","浜田山","高井戸","富士見ヶ丘","久我山","三鷹台","井の頭公園","吉祥寺"],"小田急小田原線":["新宿","南新宿","参宮橋","代々木八幡","代々木上原","東北沢","下北沢","世田谷代田","梅ヶ丘","豪徳寺","経堂","千歳船橋","祖師ヶ谷大蔵","成城学園前","喜多見","狛江","和泉多摩川","登戸","向ヶ丘遊園","生田","読売ランド前","百合ヶ丘","新百合ヶ丘"],"西武池袋線":["池袋","椎名町","東長崎","江古田","桜台","練馬","中村橋","富士見台","練馬高野台","石神井公園","大泉学園","保谷","ひばりヶ丘","東久留米","清瀬","秋津","所沢"],"西武新宿線":["西武新宿","高田馬場","下落合","中井","新井薬師前","沼袋","野方","都立家政","鷺ノ宮","下井草","井荻","上井草","上石神井","武蔵関","東伏見","西武柳沢","田無","花小金井","小平","久米川","東村山","所沢"],"東武東上線":["池袋","北池袋","下板橋","大山","中板橋","ときわ台","上板橋","東武練馬","下赤塚","成増","和光市"],"東武スカイツリーライン":["浅草","とうきょうスカイツリー","押上","曳舟","東向島","鐘ヶ淵","堀切","牛田","北千住","小菅","五反野","梅島","西新井","竹ノ塚"],"京成本線":["上野","日暮里","新三河島","町屋","千住大橋","京成関屋","堀切菖蒲園","お花茶屋","青砥","京成高砂"],"つくばエクスプレス":["秋葉原","新御徒町","浅草","南千住","北千住","青井","六町","八潮","三郷中央","南流山","柏の葉キャンパス","守谷","つくば"],"ゆりかもめ":["新橋","汐留","竹芝","日の出","芝浦ふ頭","お台場海浜公園","台場","船の科学館","テレコムセンター","青海","東京ビッグサイト","有明","豊洲"],"都電荒川線":["三ノ輪橋","荒川区役所前","荒川二丁目","荒川七丁目","小台","宮ノ前","熊野前","東尾久三丁目","大根橋","高野","落合南長崎","一本榎","西ヶ原四丁目","滝野川一丁目","西巣鴨","新庚申塚","庚申塚","巣鴨新田","大塚駅前","向原","東池袋四丁目","都電雑司ヶ谷","鬼子母神前","学習院下","面影橋","早稲田"],"日暮里・舎人ライナー":["日暮里","西日暮里","赤土小学校前","熊野前","足立小台","扇大橋","高野","江北","西新井大師西","谷在家","舎人公園","舎人","見沼代親水公園"]};
+const LINES={
+"JR山手線":["品川","大崎","五反田","目黒","恵比寿","渋谷","原宿","代々木","新宿","新大久保","高田馬場","目白","池袋","大塚","巣鴨","駒込","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ"],
+"JR中央線快速":["東京","神田","御茶ノ水","四ツ谷","新宿","中野","高円寺","阿佐ヶ谷","荻窪","西荻窪","吉祥寺","三鷹","武蔵境","東小金井","武蔵小金井","国分寺","西国分寺","国立","立川","日野","豊田","八王子","西八王子","高尾"],
+"JR中央・総武線各停":["三鷹","吉祥寺","西荻窪","荻窪","阿佐ヶ谷","高円寺","中野","東中野","大久保","新宿","代々木","千駄ヶ谷","信濃町","四ツ谷","市ヶ谷","飯田橋","水道橋","御茶ノ水","秋葉原","浅草橋","両国","錦糸町","亀戸","平井","新小岩","小岩"],
+"JR総武線快速":["東京","新日本橋","馬喰町","錦糸町","新小岩","市川","本八幡"],
+"JR京浜東北線":["赤羽","東十条","王子","上中里","田端","西日暮里","日暮里","鶯谷","上野","御徒町","秋葉原","神田","東京","有楽町","新橋","浜松町","田町","高輪ゲートウェイ","品川","西大井","大井町","大森","蒲田"],
+"JR埼京線":["大宮","北与野","与野本町","南与野","中浦和","武蔵浦和","戸田公園","戸田","北赤羽","赤羽","板橋","十条","池袋","新宿","渋谷","恵比寿","大崎"],
+"JR常磐線":["上野","日暮里","三河島","南千住","北千住","松戸","柏","我孫子"],
+"JR京葉線":["東京","八丁堀","越中島","潮見","新木場","葛西臨海公園","舞浜","新浦安"],
+"東京メトロ銀座線":["渋谷","表参道","外苑前","青山一丁目","赤坂見附","溜池山王","虎ノ門","新橋","銀座","京橋","日本橋","三越前","神田","末広町","上野広小路","上野","稲荷町","田原町","浅草"],
+"東京メトロ丸ノ内線":["荻窪","南阿佐ヶ谷","新高円寺","東高円寺","新中野","中野坂上","西新宿","新宿","新宿三丁目","新宿御苑前","四谷三丁目","四ツ谷","赤坂見附","国会議事堂前","霞ケ関","銀座","東京","大手町","淡路町","御茶ノ水","本郷三丁目","後楽園","茗荷谷","新大塚","池袋","中野富士見町","中野新橋","方南町"],
+"東京メトロ日比谷線":["北千住","南千住","三ノ輪","入谷","上野","仲御徒町","秋葉原","小伝馬町","人形町","茅場町","八丁堀","築地","東銀座","銀座","日比谷","霞ケ関","国会議事堂前","六本木","広尾","恵比寿","中目黒","神谷町","虎ノ門ヒルズ"],
+"東京メトロ東西線":["中野","落合","高田馬場","早稲田","神楽坂","飯田橋","九段下","竹橋","大手町","日本橋","茅場町","門前仲町","木場","東陽町","南砂町","葛西","西葛西","浦安","南行徳","行徳","妙典","原木中山","西船橋"],
+"東京メトロ千代田線":["代々木上原","代々木公園","明治神宮前","表参道","乃木坂","赤坂","国会議事堂前","霞ケ関","日比谷","二重橋前","大手町","新御茶ノ水","湯島","根津","千駄木","西日暮里","町屋","北千住","綾瀬","北綾瀬"],
+"東京メトロ有楽町線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","東池袋","護国寺","江戸川橋","飯田橋","市ケ谷","麹町","永田町","桜田門","有楽町","銀座一丁目","新富町","月島","豊洲","辰巳","新木場"],
+"東京メトロ半蔵門線":["渋谷","表参道","青山一丁目","永田町","半蔵門","九段下","神保町","大手町","三越前","水天宮前","清澄白河","住吉","錦糸町","押上"],
+"東京メトロ南北線":["目黒","白金台","白金高輪","麻布十番","六本木一丁目","溜池山王","永田町","四ツ谷","市ケ谷","飯田橋","後楽園","東大前","本駒込","駒込","西ヶ原","王子","王子神谷","志茂","赤羽岩淵"],
+"東京メトロ副都心線":["和光市","地下鉄成増","地下鉄赤塚","平和台","氷川台","小竹向原","千川","要町","池袋","雑司が谷","西早稲田","東新宿","新宿三丁目","北参道","明治神宮前","渋谷"],
+"都営浅草線":["西馬込","馬込","中延","戸越","五反田","高輪台","泉岳寺","三田","大門","新橋","東銀座","宝町","日本橋","人形町","東日本橋","浅草橋","蔵前","浅草","本所吾妻橋","押上"],
+"都営三田線":["目黒","白金台","白金高輪","三田","芝公園","御成門","内幸町","日比谷","大手町","神保町","水道橋","春日","白山","千石","巣鴨","西巣鴨","新板橋","板橋区役所前","板橋本町","本蓮沼","志村坂上","志村三丁目","蓮根","西台","高島平","新高島平","西高島平"],
+"都営新宿線":["新宿","新宿三丁目","曙橋","市ケ谷","九段下","神保町","小川町","岩本町","馬喰横山","浜町","森下","菊川","住吉","西大島","大島","東大島","船堀","一之江","瑞江","篠崎","本八幡"],
+"都営大江戸線":["都庁前","新宿","西新宿五丁目","中野坂上","東中野","落合南長崎","新江古田","練馬","豊島園","練馬春日町","光が丘","国立競技場","青山一丁目","六本木","麻布十番","赤羽橋","大門","汐留","築地市場","勝どき","月島","門前仲町","清澄白河","森下","両国","蔵前","新御徒町","上野御徒町","本郷三丁目","春日","牛込神楽坂","牛込柳町","若松河田","東新宿","新宿西口","中井","落合南長崎"],
+"東急東横線":["渋谷","代官山","中目黒","祐天寺","学芸大学","都立大学","自由が丘","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉","綱島","大倉山","菊名","妙蓮寺","白楽","東白楽","反町","横浜"],
+"東急目黒線":["目黒","不動前","武蔵小山","西小山","洗足","大岡山","奥沢","田園調布","多摩川","新丸子","武蔵小杉","元住吉","日吉"],
+"東急田園都市線":["渋谷","池尻大橋","三軒茶屋","駒沢大学","桜新町","用賀","二子玉川","二子新地","高津","溝の口","梶が谷","宮崎台","宮前平","鷺沼","たまプラーザ","あざみ野","江田","市が尾","藤が丘","青葉台","田奈","長津田"],
+"東急大井町線":["大井町","下神明","戸越公園","中延","荏原町","旗の台","北千束","大岡山","緑が丘","自由が丘","九品仏","尾山台","等々力","上野毛","二子玉川"],
+"東急世田谷線":["三軒茶屋","西太子堂","若林","松陰神社前","世田谷","上町","宮の坂","山下","松原","下高井戸"],
+"京王線":["新宿","初台","幡ヶ谷","笹塚","代田橋","明大前","下高井戸","桜上水","上北沢","八幡山","芦花公園","千歳烏山","仙川","つつじヶ丘","柴崎","国領","布田","調布","西調布","飛田給","武蔵野台","多磨霊園","東府中","府中","分倍河原","聖蹟桜ヶ丘","百草園","高幡不動","南平","平山城址公園","長沼","北野","八王子"],
+"京王井の頭線":["渋谷","神泉","駒場東大前","池ノ上","下北沢","新代田","東松原","明大前","永福町","西永福","浜田山","高井戸","富士見ヶ丘","久我山","三鷹台","井の頭公園","吉祥寺"],
+"小田急小田原線":["新宿","南新宿","参宮橋","代々木八幡","代々木上原","東北沢","下北沢","世田谷代田","梅ヶ丘","豪徳寺","経堂","千歳船橋","祖師ヶ谷大蔵","成城学園前","喜多見","狛江","和泉多摩川","登戸","向ヶ丘遊園","生田","読売ランド前","百合ヶ丘","新百合ヶ丘"],
+"西武池袋線":["池袋","椎名町","東長崎","江古田","桜台","練馬","中村橋","富士見台","練馬高野台","石神井公園","大泉学園","保谷","ひばりヶ丘","東久留米","清瀬","秋津","所沢"],
+"西武新宿線":["西武新宿","高田馬場","下落合","中井","新井薬師前","沼袋","野方","都立家政","鷺ノ宮","下井草","井荻","上井草","上石神井","武蔵関","東伏見","西武柳沢","田無","花小金井","小平","久米川","東村山","所沢"],
+"東武東上線":["池袋","北池袋","下板橋","大山","中板橋","ときわ台","上板橋","東武練馬","下赤塚","成増","和光市"],
+"東武スカイツリーライン":["浅草","とうきょうスカイツリー","押上","曳舟","東向島","鐘ヶ淵","堀切","牛田","北千住","小菅","五反野","梅島","西新井","竹ノ塚"],
+"京成本線":["上野","日暮里","新三河島","町屋","千住大橋","京成関屋","堀切菖蒲園","お花茶屋","青砥","京成高砂","京成小岩","江戸川","国府台","市川真間","菅野","京成八幡","鬼越","京成中山","東中山","京成西船","海神","京成船橋"],
+"つくばエクスプレス":["秋葉原","新御徒町","浅草","南千住","北千住","青井","六町","八潮","三郷中央","南流山","流山セントラルパーク","流山おおたかの森","柏の葉キャンパス","柏たなか","守谷","みらい平","みどりの","万博記念公園","研究学園","つくば"],
+"ゆりかもめ":["新橋","汐留","竹芝","日の出","芝浦ふ頭","お台場海浜公園","台場","船の科学館","テレコムセンター","青海","東京ビッグサイト","有明","有明テニスの森","市場前","新豊洲","豊洲"],
+"東京モノレール":["浜松町","天王洲アイル","昭和島","流通センター","大井競馬場前","整備場","天空橋","羽田空港第3ターミナル","羽田空港第1ターミナル","羽田空港第2ターミナル"],
+"都電荒川線":["三ノ輪橋","荒川一中前","荒川区役所前","荒川二丁目","荒川七丁目","小台","宮ノ前","熊野前","東尾久三丁目","大根橋","西尾久八丁目","小竹通り","栄町","梶原","栄町","荒川遊園地前","荒川車庫前","荒川区役所前","西ヶ原四丁目","滝野川一丁目","西巣鴨","新庚申塚","庚申塚","巣鴨新田","大塚駅前","向原","東池袋四丁目","都電雑司ヶ谷","鬼子母神前","学習院下","面影橋","早稲田"],
+"日暮里・舎人ライナー":["日暮里","西日暮里","赤土小学校前","熊野前","足立小台","扇大橋","高野","江北","西新井大師西","谷在家","舎人公園","舎人","見沼代親水公園"]
+};
 
 const lineEl=document.getElementById('f-line');
 const stEl=document.getElementById('f-station');
@@ -1004,10 +1054,10 @@ window.openModal = function(id=null) {
     setV('f-name',p.name); setV('f-kind-form',p.kind||'一棟もの');
     setV('f-loc',p.loc); setV('f-sta-free',p.sta); setV('f-walk','');
     setV('f-land',p.land); setV('f-floor',p.floor); setV('f-layout',p.layout);
-    setV('f-price-val',p.price); setV('f-built',p.built); setV('f-yield',p.yld);
+    setV('f-price-val',p.price); setV('f-built',p.built);
     setV('f-uso',p.uso); setV('f-struct',p.struct); setV('f-road',p.road);
     setV('f-right',p.right); setV('f-kenpei',p.kenpei); setV('f-yoseki',p.yoseki);
-    setV('f-zone',p.zone||''); setV('f-bouka',p.bouka); setV('f-toshi',p.toshi);
+    setV('f-zone',p.zone||''); setV('f-bouka',p.bouka||''); setV('f-toshi',p.toshi);
     setV('f-sale-status',p.saleStatus||'販売中');
     setV('f-prop-status',p.propStatus||'空室');
     setV('f-baitai-form',p.baitai||'売主');
@@ -1076,15 +1126,20 @@ function getBadgeClass(s){
 }
 function llStatusHtml(ll){
   if(!ll) return '';
+  const stLabel=(s)=>s==='on'?'<span style="color:#2E7D32;font-weight:700;">開通</span>':s==='off'?'<span style="color:#999;">未開通</span>':s==='cancelled'?'<span style="color:#C62828;">解約済</span>':'<span style="color:#999;">未確認</span>';
   const items=['water','elec','gas'].map(t=>{
     const d=ll[t]||{};
     const icon=t==='water'?'水道':t==='elec'?'電気':'ガス';
-    const st=d.status==='on'?'<span class="ll-status ll-on">開通</span>':d.status==='off'?'<span class="ll-status ll-off">未開通</span>':d.status==='cancelled'?'<span class="ll-status ll-off">解約済</span>':'<span class="ll-status ll-off">未確認</span>';
-    const cancelDate=d.status==='cancelled'&&d.cancelDate?'<div class="ll-detail">解約日：'+d.cancelDate+'</div>':'';
-    const meters=(d.meters||[]).map(m=>'<div class="ll-detail">'+(m.label||'')+(m.openDate?' ('+m.openDate+')':'')+'</div>').join('');
+    const overallSt=stLabel(d.status);
+    const cancelDate=d.cancelDate?'<div class="ll-detail">解約日：'+d.cancelDate+'</div>':'';
+    const meters=(d.meters||[]).map((m,i)=>{
+      const mst=stLabel(m.status);
+      const dates=(m.openDate?'開通：'+m.openDate:'')+(m.cancelDate?' 解約：'+m.cancelDate:'');
+      return '<div class="ll-detail" style="border-top:0.5px solid #C8E6C9;margin-top:2px;padding-top:2px;">'+(m.label?m.label+'　':'')+mst+(dates?'<br><span style="font-size:8px;">'+dates+'</span>':'')+'</div>';
+    }).join('');
     const photos=(d.photos||[]).length>0
-      ?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">'+(d.photos||[]).map(url=>'<img src="'+url+'" style="width:36px;height:36px;object-fit:cover;border-radius:3px;border:1px solid #C8E6C9;" />').join('')+'</div>':'';
-    return '<div class="ll-item"><div class="ll-type">'+icon+'</div>'+st+cancelDate+meters+photos+'</div>';
+      ?'<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;">'+(d.photos||[]).map(url=>'<img src="'+url+'" style="width:34px;height:34px;object-fit:cover;border-radius:3px;border:1px solid #C8E6C9;cursor:pointer;" onclick="openLB([{url:\''+url+'\',caption:\'\'}],0)"/>').join('')+'</div>':'';
+    return '<div class="ll-item"><div class="ll-type">'+icon+'</div>'+overallSt+cancelDate+meters+photos+'</div>';
   });
   return '<div class="lifeline-section"><div class="lifeline-title">ライフライン</div><div class="lifeline-grid">'+items.join('')+'</div>'+(ll.memo?'<div style="font-size:9px;color:#555;margin-top:4px;">'+ll.memo+'</div>':'')+'</div>';
 }
@@ -1194,26 +1249,25 @@ const BROKER_ROWS=[
   {key:'zone',label:'用途地域',fmt:p=>p.zone||'—'},
   {key:'bouka',label:'防火指定',fmt:p=>p.bouka||'—'},
   {key:'toshi',label:'都市計画',fmt:p=>p.toshi||'—'},
-  {key:'yld',label:'回利り',fmt:p=>p.yld?p.yld+'%':'—'},
   {key:'propStatus',label:'現状',fmt:p=>p.propStatus||'—'},
   {key:'delivery',label:'引渡可能日',fmt:p=>p.delivery||'相談'},
   {key:'baitai',label:'取引業態',fmt:p=>p.baitai||'—'},
-  {key:'ll_water',label:'水道',fmt:(p,i,ll)=>{ const d=ll?.water; return (d?.status==='on'?'開通':d?.status==='off'?'未開通':'未確認')+(d?.meters?.length?' ('+d.meters.length+'個)':''); },type:'ll'},
-  {key:'ll_elec',label:'電気',fmt:(p,i,ll)=>{ const d=ll?.elec; return (d?.status==='on'?'開通':d?.status==='off'?'未開通':'未確認')+(d?.meters?.length?' ('+d.meters.length+'個)':''); },type:'ll'},
-  {key:'ll_gas',label:'ガス',fmt:(p,i,ll)=>{ const d=ll?.gas; return (d?.status==='on'?'開通':d?.status==='off'?'未開通':'未確認')+(d?.meters?.length?' ('+d.meters.length+'個)':''); },type:'ll'},
+  {key:'ll_water',label:'水道',fmt:(p,i,ll)=>{const d=ll?.water;const st=d?.status==='on'?'開通':d?.status==='cancelled'?'解約済':d?.status==='off'?'未開通':'未確認';const ms=(d?.meters||[]).map(m=>(m.label||'')+'['+(m.status==='on'?'開通':m.status==='cancelled'?'解約済':'未開通')+']'+(m.openDate?'('+m.openDate+')':'')).join(' ');return st+(ms?' '+ms:'');},type:'ll',defaultChecked:false},
+  {key:'ll_elec',label:'電気',fmt:(p,i,ll)=>{const d=ll?.elec;const st=d?.status==='on'?'開通':d?.status==='cancelled'?'解約済':d?.status==='off'?'未開通':'未確認';const ms=(d?.meters||[]).map(m=>(m.label||'')+'['+(m.status==='on'?'開通':m.status==='cancelled'?'解約済':'未開通')+']'+(m.openDate?'('+m.openDate+')':'')).join(' ');return st+(ms?' '+ms:'');},type:'ll',defaultChecked:false},
+  {key:'ll_gas',label:'ガス',fmt:(p,i,ll)=>{const d=ll?.gas;const st=d?.status==='on'?'開通':d?.status==='cancelled'?'解約済':d?.status==='off'?'未開通':'未確認';const ms=(d?.meters||[]).map(m=>(m.label||'')+'['+(m.status==='on'?'開通':m.status==='cancelled'?'解約済':'未開通')+']'+(m.openDate?'('+m.openDate+')':'')).join(' ');return st+(ms?' '+ms:'');},type:'ll',defaultChecked:false},
   {key:'note',label:'備考',type:'note'},
 ];
 // 銀行向け（管理者のみ）
 const BANK_ROWS=[
   ...BROKER_ROWS.filter(r=>r.key!=='note'),
   {key:'buyPrice',label:'仕入れ金額',fmt:(p,i)=>i?.buyPrice?i.buyPrice.toLocaleString()+'万円':'—',internal:true},
-  {key:'buyFrom',label:'仕入れ先',fmt:(p,i)=>i?.buyFrom||'—',internal:true},
+  {key:'buyFrom',label:'仕入れ先',fmt:(p,i)=>i?.buyFrom||'—',internal:true,defaultChecked:false},
   {key:'buyContract',label:'仕入れ契約日',fmt:(p,i)=>i?.buyContract||'—',internal:true},
   {key:'buySettle',label:'仕入れ決済日',fmt:(p,i)=>i?.buySettle||'—',internal:true},
   {key:'loanAmt',label:'融資金額',fmt:(p,i)=>i?.loanAmt?i.loanAmt.toLocaleString()+'万円':'—',internal:true},
-  {key:'loanBank',label:'融資先',fmt:(p,i)=>i?.loanBank||'—',internal:true},
+  {key:'loanBank',label:'融資先',fmt:(p,i)=>i?.loanBank||'—',internal:true,defaultChecked:false},
   {key:'sellPrice',label:'再販価格',fmt:(p,i)=>i?.sellPrice?i.sellPrice.toLocaleString()+'万円':'—',internal:true},
-  {key:'sellTo',label:'販売先',fmt:(p,i)=>i?.sellTo||'—',internal:true},
+  {key:'sellTo',label:'販売先',fmt:(p,i)=>i?.sellTo||'—',internal:true,defaultChecked:false},
   {key:'sellContract',label:'再販契約日',fmt:(p,i)=>i?.sellContract||'—',internal:true},
   {key:'sellSettle',label:'再販決済日',fmt:(p,i)=>i?.sellSettle||'—',internal:true},
   {key:'daysHeld',label:'保有日数',fmt:(p,i)=>{const d=i?.daysHeld!=null?i.daysHeld:calcDays(i?.buySettle,i?.sellSettle);return d!=null?d+'日':'—';},internal:true},
@@ -1230,9 +1284,11 @@ window.openPrintConfig=function(type){
     '<label class="pc-prop-item"><input type="checkbox" class="pc-prop-check" value="'+p.id+'" checked/>'+p.name+'<span style="font-size:10px;color:#999;margin-left:6px;">'+(p.saleStatus||'')+'</span></label>'
   ).join('');
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
-  document.getElementById('pc-row-checks').innerHTML=rows.map(r=>
-    '<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'" checked/>'+(r.internal?'<span style="color:#a00;">★</span> ':'')+r.label+'</label>'
-  ).join('');
+  // defaultChecked:falseの項目はデフォルトでチェックを外す
+  document.getElementById('pc-row-checks').innerHTML=rows.map(r=>{
+    const chk=(r.defaultChecked===false)?'':' checked';
+    return '<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+chk+'/>'+(r.internal?'<span style="color:#a00;">★</span> ':r.type==='ll'?'<span style="color:#2E7D32;">水</span> ':'')+r.label+'</label>';
+  }).join('');
   document.getElementById('print-config').classList.add('open');
 };
 window.closePrintConfig=function(){document.getElementById('print-config').classList.remove('open');};
