@@ -190,7 +190,21 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .spinner{width:38px;height:38px;border:3px solid #eee;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-text{font-size:13px;font-weight:700;color:var(--navy);}
-@media print{body>*:not(#printable){display:none!important;}#printable{display:block!important;}.ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;}@page{size:A4 landscape;margin:5mm;}}
+@media print{
+  body>*:not(#printable){display:none!important;}
+  #printable{display:block!important;}
+  .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;}
+  @page{
+    size:A4 landscape;
+    margin:5mm;
+    /* ヘッダー・フッター（URL・ページ番号）を非表示 */
+    margin-top:5mm;
+    margin-bottom:5mm;
+  }
+  /* Chrome/Safariでヘッダー・フッターを消す */
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+/* 印刷ダイアログでヘッダー/フッターをOFFにする案内をJSで表示 */
 #printable{display:none;}
 </style>
 </head>
@@ -238,7 +252,17 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <option value="">種別：すべて</option>
       <option>一棟もの</option><option>一戸建て</option><option>土地</option><option>区分マンション</option>
     </select>
-    <div class="toolbar-right" id="print-btns"></div>
+    <select id="f-sort" onchange="renderCards()">
+      <option value="date-desc">登録日：新しい順</option>
+      <option value="date-asc">登録日：古い順</option>
+      <option value="price-desc">価格：高い順</option>
+      <option value="price-asc">価格：安い順</option>
+      <option value="buy-desc">仕入れ日：新しい順</option>
+      <option value="buy-asc">仕入れ日：古い順</option>
+      <option value="sell-desc">再販日：新しい順</option>
+      <option value="sell-asc">再販日：古い順</option>
+      <option value="status">販売状況順</option>
+    </select>
     <button class="btn btn-gold" onclick="openModal()">＋ 物件を追加</button>
   </div>
   <p class="count-info" id="count-info"></p>
@@ -511,6 +535,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <span id="pp-title">印刷プレビュー</span>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-gold" onclick="window.print()">印刷 / PDF保存</button>
+        <span style="font-size:10px;color:rgba(255,255,255,0.5);">※印刷設定で「ヘッダーとフッター」をOFFにするとURLが消えます</span>
         <button class="btn" style="color:#fff;border-color:rgba(255,255,255,0.3);background:transparent;" onclick="document.getElementById('print-prev').classList.remove('open')">閉じる</button>
       </div>
     </div>
@@ -694,27 +719,97 @@ function propTagClass(s){if(!s)return'tag-other';if(s.includes('満室'))return'
 
 function jimuHtml(jm){
   if(!jm)return'';
-  const stIcon=s=>s==='on'?'✅':s==='off'?'❌':s==='cancelled'?'🚫':'❓';
+  const stBadge=s=>{
+    if(s==='on')return'<span style="background:#E8F5E9;color:#2E7D32;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;border:1px solid #A5D6A7;">開通</span>';
+    if(s==='off')return'<span style="background:#F5F5F5;color:#999;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;border:1px solid #DDD;">未開通</span>';
+    if(s==='cancelled')return'<span style="background:#FFEBEE;color:#C62828;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;border:1px solid #FFCDD2;">解約済</span>';
+    return'<span style="background:#F5F5F5;color:#bbb;font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid #EEE;">未確認</span>';
+  };
   const rows=[];
   // 水道
-  const wm=(jm.water?.meters||[]);if(wm.length){rows.push('<div class="jimu-row"><span class="jimu-lbl">水道</span><span class="jimu-val">'+wm.map(m=>(m.label||'')+'['+stIcon(m.status)+(m.customerNo?'/'+m.customerNo:'')+']').join(' ')+'</span></div>');}
+  const wm=(jm.water?.meters||[]);
+  if(wm.length){
+    wm.forEach((m,i)=>{
+      const lbl=m.label||('メーター'+(i+1));
+      const dates=[];
+      if(m.customerNo)dates.push('No.'+m.customerNo);
+      if(m.openDate)dates.push('開通:'+m.openDate);
+      if(m.cancelDate)dates.push('解約:'+m.cancelDate);
+      rows.push('<div class="jimu-row" style="grid-column:1/-1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
+        '<span class="jimu-lbl" style="min-width:80px;">水道 '+lbl+'</span>'+
+        stBadge(m.status)+
+        (dates.length?'<span style="font-size:9px;color:#888;">'+dates.join('　')+'</span>':'')+
+      '</div>');
+    });
+  }else{
+    rows.push('<div class="jimu-row"><span class="jimu-lbl">水道</span><span class="jimu-val" style="color:#bbb;">未登録</span></div>');
+  }
   // 電気
-  const em=(jm.elec?.meters||[]);const ecn=jm.elec?.customerNo;rows.push('<div class="jimu-row"><span class="jimu-lbl">電気</span><span class="jimu-val">'+(ecn?'No.'+ecn+' ':'')+em.map(m=>(m.label||'')+'['+stIcon(m.status)+']').join(' ')+'</span></div>');
+  const em=(jm.elec?.meters||[]);const ecn=jm.elec?.customerNo;
+  if(ecn||em.length){
+    if(em.length){
+      em.forEach((m,i)=>{
+        const lbl=m.label||('メーター'+(i+1));
+        const dates=[];
+        if(ecn)dates.push('No.'+ecn);
+        if(m.openDate)dates.push('開通:'+m.openDate);
+        if(m.cancelDate)dates.push('解約:'+m.cancelDate);
+        rows.push('<div class="jimu-row" style="grid-column:1/-1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
+          '<span class="jimu-lbl" style="min-width:80px;">電気 '+lbl+'</span>'+
+          stBadge(m.status)+
+          (dates.length?'<span style="font-size:9px;color:#888;">'+dates.join('　')+'</span>':'')+
+        '</div>');
+      });
+    }else{
+      rows.push('<div class="jimu-row"><span class="jimu-lbl">電気</span><span class="jimu-val">'+(ecn?'No.'+ecn:'—')+'</span></div>');
+    }
+  }
   // ガス
-  const gm=(jm.gas?.meters||[]);const gcn=jm.gas?.customerNo;rows.push('<div class="jimu-row"><span class="jimu-lbl">ガス</span><span class="jimu-val">'+(gcn?'No.'+gcn+' ':'')+gm.map(m=>(m.label||'')+'['+stIcon(m.status)+']').join(' ')+'</span></div>');
+  const gm=(jm.gas?.meters||[]);const gcn=jm.gas?.customerNo;
+  if(gcn||gm.length){
+    if(gm.length){
+      gm.forEach((m,i)=>{
+        const lbl=m.label||('メーター'+(i+1));
+        const dates=[];
+        if(gcn)dates.push('No.'+gcn);
+        if(m.openDate)dates.push('開通:'+m.openDate);
+        if(m.cancelDate)dates.push('解約:'+m.cancelDate);
+        rows.push('<div class="jimu-row" style="grid-column:1/-1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
+          '<span class="jimu-lbl" style="min-width:80px;">ガス '+lbl+'</span>'+
+          stBadge(m.status)+
+          (dates.length?'<span style="font-size:9px;color:#888;">'+dates.join('　')+'</span>':'')+
+        '</div>');
+      });
+    }else{
+      rows.push('<div class="jimu-row"><span class="jimu-lbl">ガス</span><span class="jimu-val">'+(gcn?'No.'+gcn:'—')+'</span></div>');
+    }
+  }
+  // 各種事務
   if(jm.adStatus)rows.push('<div class="jimu-row"><span class="jimu-lbl">広告掲載</span><span class="jimu-val">'+jm.adStatus+'</span></div>');
-  if(jm.fixedTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">固定資産税</span><span class="jimu-val">'+jm.fixedTax+(jm.fixedTaxDate?'('+jm.fixedTaxDate+')':'')+'</span></div>');
-  if(jm.acqTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">不動産取得税</span><span class="jimu-val">'+jm.acqTax+(jm.acqTaxDate?'('+jm.acqTaxDate+')':'')+'</span></div>');
-  if(jm.insurance)rows.push('<div class="jimu-row"><span class="jimu-lbl">火災保険</span><span class="jimu-val">'+jm.insurance+(jm.insuranceDate?'('+jm.insuranceDate+')':'')+'</span></div>');
-  if(jm.keybox)rows.push('<div class="jimu-row"><span class="jimu-lbl">キーボックス</span><span class="jimu-val">'+jm.keybox+(jm.keyboxLocation?' 場所:'+jm.keyboxLocation:'')+(jm.keyboxCode?' 番号:'+jm.keyboxCode:'')+'</span></div>');
+  if(jm.fixedTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">固定資産税</span><span class="jimu-val">'+jm.fixedTax+(jm.fixedTaxDate?'　<span style="font-size:9px;color:#888;">'+jm.fixedTaxDate+'</span>':'')+'</span></div>');
+  if(jm.acqTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">不動産取得税</span><span class="jimu-val">'+jm.acqTax+(jm.acqTaxDate?'　<span style="font-size:9px;color:#888;">'+jm.acqTaxDate+'</span>':'')+'</span></div>');
+  if(jm.insurance)rows.push('<div class="jimu-row"><span class="jimu-lbl">火災保険</span><span class="jimu-val">'+jm.insurance+(jm.insuranceDate?'　<span style="font-size:9px;color:#888;">'+jm.insuranceDate+'</span>':'')+'</span></div>');
+  if(jm.keybox)rows.push('<div class="jimu-row"><span class="jimu-lbl">キーボックス</span><span class="jimu-val">'+jm.keybox+(jm.keyboxLocation?'　場所:'+jm.keyboxLocation:'')+(jm.keyboxCode?'　番号:'+jm.keyboxCode:'')+'</span></div>');
   if(jm.rightsDoc)rows.push('<div class="jimu-row"><span class="jimu-lbl">識別権利書</span><span class="jimu-val">'+jm.rightsDoc+'</span></div>');
   if(jm.jimuMemo)rows.push('<div class="jimu-row" style="grid-column:1/-1;"><span class="jimu-lbl">メモ</span><span class="jimu-val">'+jm.jimuMemo+'</span></div>');
-  return '<div class="jimu-section"><div class="jimu-title">事務</div><div class="jimu-grid">'+rows.join('')+'</div></div>';
+  return '<div class="jimu-section"><div class="jimu-title">事務</div><div class="jimu-grid" style="grid-template-columns:1fr;">'+rows.join('')+'</div></div>';
 }
 
 window.renderCards=function(){
   const kw=document.getElementById('f-keyword').value.trim().toLowerCase(),sale=document.getElementById('f-sale').value,prop=document.getElementById('f-prop').value,kind=document.getElementById('f-kind').value;
-  const filtered=props.filter(p=>{if(kw&&!(p.name||'').toLowerCase().includes(kw)&&!(p.loc||'').toLowerCase().includes(kw)&&!(p.sta||'').toLowerCase().includes(kw))return false;if(sale&&p.saleStatus!==sale)return false;if(prop&&p.propStatus!==prop)return false;if(kind&&p.kind!==kind)return false;return true;});
+  const sortVal=document.getElementById('f-sort').value;
+  const STATUS_ORDER={'販売中':0,'非公開販売中':1,'申込あり':2,'契約済':3,'販売済':4};
+  let filtered=props.filter(p=>{if(kw&&!(p.name||'').toLowerCase().includes(kw)&&!(p.loc||'').toLowerCase().includes(kw)&&!(p.sta||'').toLowerCase().includes(kw))return false;if(sale&&p.saleStatus!==sale)return false;if(prop&&p.propStatus!==prop)return false;if(kind&&p.kind!==kind)return false;return true;});
+  // ソート
+  filtered.sort((a,b)=>{
+    if(sortVal==='date-desc')return(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0);
+    if(sortVal==='date-asc')return(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0);
+    if(sortVal==='price-desc')return(b.price||0)-(a.price||0);
+    if(sortVal==='price-asc'){if(!a.price&&!b.price)return 0;if(!a.price)return 1;if(!b.price)return -1;return a.price-b.price;}
+    if(sortVal==='name-asc')return(a.name||'').localeCompare(b.name||'','ja');
+    if(sortVal==='status')return(STATUS_ORDER[a.saleStatus]??9)-(STATUS_ORDER[b.saleStatus]??9);
+    return 0;
+  });
   document.getElementById('count-info').textContent=filtered.length+'件表示中 / 全'+props.length+'件';
   document.getElementById('s-total').textContent=props.length;
   document.getElementById('s-sale').textContent=props.filter(p=>p.saleStatus==='販売中').length;
