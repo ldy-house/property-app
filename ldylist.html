@@ -310,7 +310,7 @@ function renderCards(list) {
           '<div class="spec-row"><span class="spec-label">構造</span><span class="spec-val">'+(p.struct||'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">建蔽率</span><span class="spec-val">'+(p.kenpei?p.kenpei+'%':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">容積率</span><span class="spec-val">'+(p.yoseki?p.yoseki+'%':'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+(p.zone||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+((p.zones&&p.zones.length)?p.zones.join(' / '):(p.zone||'—'))+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">取引業態</span><span class="spec-val">'+(p.baitai||'—')+'</span></div>'+
         '</div>'+
         '<div class="card-notes">'+(notes.length?'<ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul>':'')+'</div>'+
