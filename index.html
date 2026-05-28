@@ -253,8 +253,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <option>一棟もの</option><option>一戸建て</option><option>土地</option><option>区分マンション</option>
     </select>
     <select id="f-sort" onchange="renderCards()">
-      <option value="date-desc">登録日：新しい順</option>
-      <option value="date-asc">登録日：古い順</option>
       <option value="price-desc">価格：高い順</option>
       <option value="price-asc">価格：安い順</option>
       <option value="buy-desc">仕入れ日：新しい順</option>
@@ -263,6 +261,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <option value="sell-asc">再販日：古い順</option>
       <option value="status">販売状況順</option>
     </select>
+    <div id="print-btns" style="margin-left:auto;display:flex;gap:6px;">
+      <button class="btn btn-navy btn-sm" onclick="openPrintConfig('broker')">仲介向け印刷</button>
+      <button class="btn btn-navy btn-sm" onclick="openPrintConfig('bank')">銀行向け印刷</button>
+    </div>
     <button class="btn btn-gold" onclick="openModal()">＋ 物件を追加</button>
   </div>
   <p class="count-info" id="count-info"></p>
@@ -334,19 +336,42 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         <div class="fs-title">建物情報</div>
         <div class="fr"><label>構造</label><input id="f-struct"/></div>
         <div class="fr"><label>接道</label><input id="f-road"/></div>
-        <div class="fr"><label>権利</label><input id="f-right" placeholder="例：所有権"/></div>
-        <div class="fg">
-          <div class="fr"><label>建蔽率（複数はカンマ区切り）</label><input id="f-kenpei" placeholder="例：80% または 60%,80%"/></div>
-          <div class="fr"><label>容積率（複数はカンマ区切り）</label><input id="f-yoseki" placeholder="例：400% または 200%,400%"/></div>
+
+        <!-- 用途地域（複数追加可） -->
+        <div style="background:#f8f8f8;border:1px solid #ddd;border-radius:4px;padding:10px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;">用途地域</div>
+          <div id="zone-list"></div>
+          <button type="button" class="btn btn-sm" onclick="addLandUse()">＋ 用途地域を追加</button>
         </div>
-        <div class="fg">
-          <div class="fr"><label>用途地域（複数はカンマ区切り）</label><input id="f-zone" placeholder="例：商業地域 または 商業地域,第一種住居地域"/></div>
-          <div class="fr"><label>防火指定</label>
-            <select id="f-bouka">
-              <option value="">選択</option><option>防火地域</option><option>準防火地域</option><option>防火地域・準防火地域</option><option>指定なし</option>
-            </select>
-          </div>
+
+        <!-- 防火指定（複数追加可） -->
+        <div style="background:#f8f8f8;border:1px solid #ddd;border-radius:4px;padding:10px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;">防火指定</div>
+          <div id="bouka-list"></div>
+          <button type="button" class="btn btn-sm" onclick="addBouka()">＋ 防火指定を追加</button>
         </div>
+
+        <!-- 建蔽率（複数追加可） -->
+        <div style="background:#f8f8f8;border:1px solid #ddd;border-radius:4px;padding:10px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;">建蔽率（%）</div>
+          <div id="kenpei-list"></div>
+          <button type="button" class="btn btn-sm" onclick="addKenpei()">＋ 建蔽率を追加</button>
+        </div>
+
+        <!-- 容積率（複数追加可） -->
+        <div style="background:#f8f8f8;border:1px solid #ddd;border-radius:4px;padding:10px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;">容積率（%）</div>
+          <div id="yoseki-list"></div>
+          <button type="button" class="btn btn-sm" onclick="addYoseki()">＋ 容積率を追加</button>
+        </div>
+
+        <!-- 権利（複数追加可） -->
+        <div style="background:#f8f8f8;border:1px solid #ddd;border-radius:4px;padding:10px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;">権利</div>
+          <div id="right-list"></div>
+          <button type="button" class="btn btn-sm" onclick="addRight()">＋ 権利を追加</button>
+        </div>
+
         <div class="fr"><label>都市計画 / 備考</label><input id="f-toshi" placeholder="例：市街化区域　備考があれば追記"/></div>
       </div>
 
@@ -463,17 +488,26 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>固定資産税</label>
             <select id="f-fixed-tax" class="fr-jimu" onchange="toggleTaxDate('fixed')"><option value="">未設定</option><option>未通知</option><option>通知あり未払</option><option>支払済</option></select>
           </div>
-          <div class="fr" id="fixed-tax-date-row" style="display:none;"><label>支払日</label><input id="f-fixed-tax-date" type="date" class="fr-jimu"/></div>
+          <div class="fg" id="fixed-tax-date-row" style="display:none;">
+            <div class="fr"><label>通知日</label><input id="f-fixed-tax-notify" type="date" class="fr-jimu"/></div>
+            <div class="fr"><label>支払日</label><input id="f-fixed-tax-date" type="date" class="fr-jimu"/></div>
+          </div>
           <!-- 不動産取得税 -->
           <div class="fr"><label>不動産取得税</label>
             <select id="f-acq-tax" class="fr-jimu" onchange="toggleTaxDate('acq')"><option value="">未設定</option><option>未通知</option><option>通知あり未払</option><option>支払済</option></select>
           </div>
-          <div class="fr" id="acq-tax-date-row" style="display:none;"><label>支払日</label><input id="f-acq-tax-date" type="date" class="fr-jimu"/></div>
+          <div class="fg" id="acq-tax-date-row" style="display:none;">
+            <div class="fr"><label>通知日</label><input id="f-acq-tax-notify" type="date" class="fr-jimu"/></div>
+            <div class="fr"><label>支払日</label><input id="f-acq-tax-date" type="date" class="fr-jimu"/></div>
+          </div>
           <!-- 火災保険 -->
           <div class="fr"><label>火災保険</label>
             <select id="f-insurance" class="fr-jimu" onchange="toggleInsuranceDate()"><option value="">未設定</option><option>未加入</option><option>加入済み</option><option>解約済み</option><option>解約予約済み</option></select>
           </div>
-          <div class="fr" id="insurance-date-row" style="display:none;"><label>日付（加入日/解約日）</label><input id="f-insurance-date" type="date" class="fr-jimu"/></div>
+          <div class="fg" id="insurance-date-row" style="display:none;">
+            <div class="fr"><label>加入日</label><input id="f-insurance-start" type="date" class="fr-jimu"/></div>
+            <div class="fr"><label>解約日</label><input id="f-insurance-date" type="date" class="fr-jimu"/></div>
+          </div>
           <!-- キーボックス -->
           <div class="fr"><label>キーボックス設置</label>
             <select id="f-keybox" class="fr-jimu" onchange="toggleKeybox()"><option value="">未設定</option><option>なし</option><option>設置済</option><option>回収済</option></select>
@@ -482,6 +516,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             <div class="fg">
               <div class="fr"><label>設置場所</label><input id="f-keybox-location" class="fr-jimu" placeholder="例：玄関横"/></div>
               <div class="fr"><label>暗証番号</label><input id="f-keybox-code" class="fr-jimu" placeholder="例：1234"/></div>
+            </div>
+            <div class="fg">
+              <div class="fr"><label>設置日</label><input id="f-keybox-set-date" type="date" class="fr-jimu"/></div>
+              <div class="fr"><label>回収日</label><input id="f-keybox-collect-date" type="date" class="fr-jimu"/></div>
             </div>
           </div>
           <!-- 識別権利書 -->
@@ -593,9 +631,66 @@ function updateDaysDisplay(){const bs=document.getElementById('f-buy-settle').va
 ['f-buy-settle','f-sell-settle'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',updateDaysDisplay);});
 
 // UI toggle helpers
-window.toggleTaxDate=function(type){const sel=document.getElementById('f-'+type+'-tax').value;document.getElementById(type+'-tax-date-row').style.display=sel==='支払済'?'':'none';};
-window.toggleInsuranceDate=function(){const sel=document.getElementById('f-insurance').value;document.getElementById('insurance-date-row').style.display=(sel==='加入済み'||sel==='解約済み'||sel==='解約予約済み')?'':'none';};
-window.toggleKeybox=function(){const sel=document.getElementById('f-keybox').value;document.getElementById('keybox-detail-row').style.display=sel==='設置済'?'':'none';};
+window.toggleTaxDate=function(type){
+  const sel=document.getElementById('f-'+type+'-tax').value;
+  document.getElementById(type+'-tax-date-row').style.display=(sel&&sel!=='未通知')?'':'none';
+};
+window.toggleInsuranceDate=function(){
+  const sel=document.getElementById('f-insurance').value;
+  document.getElementById('insurance-date-row').style.display=(sel&&sel!=='未加入')?'':'none';
+};
+window.toggleKeybox=function(){
+  const sel=document.getElementById('f-keybox').value;
+  document.getElementById('keybox-detail-row').style.display=(sel==='設置済'||sel==='回収済')?'':'none';
+};
+
+// 動的フィールド（用途地域・防火・建蔽率・容積率・権利）
+let landUseList=[],boukaList=[],kenpeiList=[],yosekiList=[],rightList=[];
+const ZONES=['第一種低層住居専用地域','第二種低層住居専用地域','第一種中高層住居専用地域','第二種中高層住居専用地域','第一種住居地域','第二種住居地域','準住居地域','田園住居地域','近隣商業地域','商業地域','準工業地域','工業地域','工業専用地域'];
+const BOUKA_OPTIONS=['防火地域','準防火地域','その他'];
+const RIGHT_OPTIONS=['所有権','借地権'];
+
+function renderDynField(listId,arr,type){
+  const el=document.getElementById(listId);if(!el)return;
+  el.innerHTML=arr.map((v,i)=>{
+    let input='';
+    if(type==='zone'){
+      input='<select style="flex:1;font-size:12px;padding:6px 8px;border:1px solid #ddd;border-radius:4px;" onchange="updateDyn(\''+type+'\','+i+',this.value)">'+
+        '<option value="">選択</option>'+ZONES.map(z=>'<option value="'+z+'" '+(v===z?'selected':'')+'>'+z+'</option>').join('')+'</select>';
+    }else if(type==='bouka'){
+      input='<select style="flex:1;font-size:12px;padding:6px 8px;border:1px solid #ddd;border-radius:4px;" onchange="updateDyn(\''+type+'\','+i+',this.value)">'+
+        '<option value="">選択</option>'+BOUKA_OPTIONS.map(z=>'<option value="'+z+'" '+(v===z?'selected':'')+'>'+z+'</option>').join('')+'</select>';
+    }else if(type==='right'){
+      input='<select style="flex:1;font-size:12px;padding:6px 8px;border:1px solid #ddd;border-radius:4px;" onchange="updateDyn(\''+type+'\','+i+',this.value)">'+
+        '<option value="">選択</option>'+RIGHT_OPTIONS.map(z=>'<option value="'+z+'" '+(v===z?'selected':'')+'>'+z+'</option>').join('')+'</select>';
+    }else{
+      input='<input type="number" min="0" max="1000" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid #ddd;border-radius:4px;" value="'+(v||'')+'" placeholder="数字のみ" oninput="updateDyn(\''+type+'\','+i+',this.value)"/>';
+    }
+    return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">'+
+      input+
+      '<button type="button" class="btn btn-sm btn-red" onclick="removeDyn(\''+type+'\','+i+')">削除</button>'+
+    '</div>';
+  }).join('');
+}
+window.updateDyn=function(type,i,val){
+  if(type==='zone')landUseList[i]=val;
+  else if(type==='bouka')boukaList[i]=val;
+  else if(type==='kenpei')kenpeiList[i]=val;
+  else if(type==='yoseki')yosekiList[i]=val;
+  else if(type==='right')rightList[i]=val;
+};
+window.removeDyn=function(type,i){
+  if(type==='zone'){landUseList.splice(i,1);renderDynField('zone-list',landUseList,'zone');}
+  else if(type==='bouka'){boukaList.splice(i,1);renderDynField('bouka-list',boukaList,'bouka');}
+  else if(type==='kenpei'){kenpeiList.splice(i,1);renderDynField('kenpei-list',kenpeiList,'kenpei');}
+  else if(type==='yoseki'){yosekiList.splice(i,1);renderDynField('yoseki-list',yosekiList,'yoseki');}
+  else if(type==='right'){rightList.splice(i,1);renderDynField('right-list',rightList,'right');}
+};
+window.addLandUse=function(){landUseList.push('');renderDynField('zone-list',landUseList,'zone');};
+window.addBouka=function(){boukaList.push('');renderDynField('bouka-list',boukaList,'bouka');};
+window.addKenpei=function(){kenpeiList.push('');renderDynField('kenpei-list',kenpeiList,'kenpei');};
+window.addYoseki=function(){yosekiList.push('');renderDynField('yoseki-list',yosekiList,'yoseki');};
+window.addRight=function(){rightList.push('');renderDynField('right-list',rightList,'right');};
 
 window.doSave=async function(){
   const name=document.getElementById('f-name').value.trim();
@@ -603,8 +698,32 @@ window.doSave=async function(){
   showLoading(true);
   const line=document.getElementById('f-line').value,station=document.getElementById('f-station').value,walk=document.getElementById('f-walk').value,staFree=document.getElementById('f-sta-free').value.trim();
   let sta='';if(line&&station)sta=line+'【'+station+'】'+(walk?'徒歩'+walk+'分':'');if(staFree)sta=sta?sta+'　'+staFree:staFree;
-  const pubObj={name,sta,kind:document.getElementById('f-kind-form').value,loc:document.getElementById('f-loc').value.trim(),land:parseFloat(document.getElementById('f-land').value)||null,floor:parseFloat(document.getElementById('f-floor').value)||null,layout:document.getElementById('f-layout').value.trim(),price:parseInt(document.getElementById('f-price-val').value)||null,built:document.getElementById('f-built').value.trim(),uso:document.getElementById('f-uso').value.trim(),struct:document.getElementById('f-struct').value.trim(),road:document.getElementById('f-road').value.trim(),right:document.getElementById('f-right').value.trim(),kenpei:document.getElementById('f-kenpei').value.trim(),yoseki:document.getElementById('f-yoseki').value.trim(),zone:document.getElementById('f-zone').value.trim(),bouka:document.getElementById('f-bouka').value,toshi:document.getElementById('f-toshi').value.trim(),saleStatus:document.getElementById('f-sale-status').value,propStatus:document.getElementById('f-prop-status').value,baitai:document.getElementById('f-baitai-form').value,delivery:document.getElementById('f-delivery').value.trim(),note:document.getElementById('f-note').value.trim(),photos:currentPhotos};
-  const jimuObj={water:{meters:llMeters.water,photos:llPhotos.water},elec:{customerNo:document.getElementById('f-elec-customer-no').value.trim(),meters:llMeters.elec,photos:llPhotos.elec},gas:{customerNo:document.getElementById('f-gas-customer-no').value.trim(),meters:llMeters.gas,photos:llPhotos.gas},adStatus:document.getElementById('f-ad-status').value,fixedTax:document.getElementById('f-fixed-tax').value,fixedTaxDate:document.getElementById('f-fixed-tax-date').value,acqTax:document.getElementById('f-acq-tax').value,acqTaxDate:document.getElementById('f-acq-tax-date').value,insurance:document.getElementById('f-insurance').value,insuranceDate:document.getElementById('f-insurance-date').value,keybox:document.getElementById('f-keybox').value,keyboxLocation:document.getElementById('f-keybox-location').value.trim(),keyboxCode:document.getElementById('f-keybox-code').value.trim(),rightsDoc:document.getElementById('f-rights-doc').value,jimuMemo:document.getElementById('f-jimu-memo').value.trim(),updatedAt:serverTimestamp()};
+  const pubObj={name,sta,kind:document.getElementById('f-kind-form').value,loc:document.getElementById('f-loc').value.trim(),land:parseFloat(document.getElementById('f-land').value)||null,floor:parseFloat(document.getElementById('f-floor').value)||null,layout:document.getElementById('f-layout').value.trim(),price:parseInt(document.getElementById('f-price-val').value)||null,built:document.getElementById('f-built').value.trim(),uso:document.getElementById('f-uso').value.trim(),struct:document.getElementById('f-struct').value.trim(),road:document.getElementById('f-road').value.trim(),
+    zones:landUseList.filter(v=>v),
+    boukas:boukaList.filter(v=>v),
+    kenpeis:kenpeiList.filter(v=>v),
+    yosekis:yosekiList.filter(v=>v),
+    rights:rightList.filter(v=>v),
+    toshi:document.getElementById('f-toshi').value.trim(),saleStatus:document.getElementById('f-sale-status').value,propStatus:document.getElementById('f-prop-status').value,baitai:document.getElementById('f-baitai-form').value,delivery:document.getElementById('f-delivery').value.trim(),note:document.getElementById('f-note').value.trim(),photos:currentPhotos};
+  const jimuObj={water:{meters:llMeters.water,photos:llPhotos.water},elec:{customerNo:document.getElementById('f-elec-customer-no').value.trim(),meters:llMeters.elec,photos:llPhotos.elec},gas:{customerNo:document.getElementById('f-gas-customer-no').value.trim(),meters:llMeters.gas,photos:llPhotos.gas},
+    adStatus:document.getElementById('f-ad-status').value,
+    fixedTax:document.getElementById('f-fixed-tax').value,
+    fixedTaxNotify:document.getElementById('f-fixed-tax-notify').value,
+    fixedTaxDate:document.getElementById('f-fixed-tax-date').value,
+    acqTax:document.getElementById('f-acq-tax').value,
+    acqTaxNotify:document.getElementById('f-acq-tax-notify').value,
+    acqTaxDate:document.getElementById('f-acq-tax-date').value,
+    insurance:document.getElementById('f-insurance').value,
+    insuranceStart:document.getElementById('f-insurance-start').value,
+    insuranceDate:document.getElementById('f-insurance-date').value,
+    keybox:document.getElementById('f-keybox').value,
+    keyboxLocation:document.getElementById('f-keybox-location').value.trim(),
+    keyboxCode:document.getElementById('f-keybox-code').value.trim(),
+    keyboxSetDate:document.getElementById('f-keybox-set-date').value,
+    keyboxCollectDate:document.getElementById('f-keybox-collect-date').value,
+    rightsDoc:document.getElementById('f-rights-doc').value,
+    jimuMemo:document.getElementById('f-jimu-memo').value.trim(),
+    updatedAt:serverTimestamp()};
   try{
     let propId=editId;
     if(editId){await updateDoc(doc(db,'properties',editId),pubObj);}
@@ -687,25 +806,44 @@ window.openModal=function(id=null){
   ['water','elec','gas'].forEach(t=>{renderMeterInputs(t);renderLLPhotos(t);});
   const setV=(eid,v)=>{const el=document.getElementById(eid);if(el)el.value=v||'';};
   // reset all
-  ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-uso','f-struct','f-road','f-right','f-kenpei','f-yoseki','f-zone','f-toshi','f-delivery','f-note','f-elec-customer-no','f-gas-customer-no','f-fixed-tax-date','f-acq-tax-date','f-insurance-date','f-keybox-location','f-keybox-code','f-jimu-memo'].forEach(x=>setV(x,''));
-  ['f-kind-form','f-bouka','f-sale-status','f-prop-status','f-baitai-form','f-ad-status','f-fixed-tax','f-acq-tax','f-insurance','f-keybox','f-rights-doc'].forEach(x=>setV(x,''));
+  landUseList=[];boukaList=[];kenpeiList=[];yosekiList=[];rightList=[];
+  ['zone-list','bouka-list','kenpei-list','yoseki-list','right-list'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-uso','f-struct','f-road','f-toshi','f-delivery','f-note','f-elec-customer-no','f-gas-customer-no','f-fixed-tax-notify','f-fixed-tax-date','f-acq-tax-notify','f-acq-tax-date','f-insurance-start','f-insurance-date','f-keybox-location','f-keybox-code','f-keybox-set-date','f-keybox-collect-date','f-jimu-memo'].forEach(x=>setV(x,''));
+  ['f-kind-form','f-sale-status','f-prop-status','f-baitai-form','f-ad-status','f-fixed-tax','f-acq-tax','f-insurance','f-keybox','f-rights-doc'].forEach(x=>setV(x,''));
   document.getElementById('fixed-tax-date-row').style.display='none';
   document.getElementById('acq-tax-date-row').style.display='none';
   document.getElementById('insurance-date-row').style.display='none';
   document.getElementById('keybox-detail-row').style.display='none';
   if(id){
     const p=props.find(x=>x.id===id);if(!p)return;
-    setV('f-name',p.name);setV('f-kind-form',p.kind||'一棟もの');setV('f-loc',p.loc);setV('f-sta-free',p.sta);setV('f-land',p.land);setV('f-floor',p.floor);setV('f-layout',p.layout);setV('f-price-val',p.price);setV('f-built',p.built);setV('f-uso',p.uso);setV('f-struct',p.struct);setV('f-road',p.road);setV('f-right',p.right);setV('f-kenpei',p.kenpei);setV('f-yoseki',p.yoseki);setV('f-zone',p.zone);setV('f-bouka',p.bouka||'');setV('f-toshi',p.toshi);setV('f-sale-status',p.saleStatus||'販売中');setV('f-prop-status',p.propStatus||'空室');setV('f-baitai-form',p.baitai||'売主');setV('f-delivery',p.delivery);setV('f-note',p.note);
+    setV('f-name',p.name);setV('f-kind-form',p.kind||'一棟もの');setV('f-loc',p.loc);setV('f-sta-free',p.sta);setV('f-land',p.land);setV('f-floor',p.floor);setV('f-layout',p.layout);setV('f-price-val',p.price);setV('f-built',p.built);setV('f-uso',p.uso);setV('f-struct',p.struct);setV('f-road',p.road);setV('f-toshi',p.toshi);setV('f-sale-status',p.saleStatus||'販売中');setV('f-prop-status',p.propStatus||'空室');setV('f-baitai-form',p.baitai||'売主');setV('f-delivery',p.delivery);setV('f-note',p.note);
+    // 動的フィールド読み込み
+    landUseList=p.zones?[...p.zones]:(p.zone?[p.zone]:[]);
+    boukaList=p.boukas?[...p.boukas]:(p.bouka?[p.bouka]:[]);
+    kenpeiList=p.kenpeis?[...p.kenpeis]:(p.kenpei?[p.kenpei]:[]);
+    yosekiList=p.yosekis?[...p.yosekis]:(p.yoseki?[p.yoseki]:[]);
+    rightList=p.rights?[...p.rights]:(p.right?[p.right]:[]);
+    renderDynField('zone-list',landUseList,'zone');
+    renderDynField('bouka-list',boukaList,'bouka');
+    renderDynField('kenpei-list',kenpeiList,'kenpei');
+    renderDynField('yoseki-list',yosekiList,'yoseki');
+    renderDynField('right-list',rightList,'right');
     currentPhotos=p.photos?JSON.parse(JSON.stringify(p.photos)):(p.img?[{url:p.img,caption:''}]:[]);
     renderImgList();
     // jimu
     const jm=jimuMap[id]||{};
     setV('f-elec-customer-no',jm.elec?.customerNo);setV('f-gas-customer-no',jm.gas?.customerNo);
-    setV('f-ad-status',jm.adStatus);setV('f-fixed-tax',jm.fixedTax);setV('f-fixed-tax-date',jm.fixedTaxDate);setV('f-acq-tax',jm.acqTax);setV('f-acq-tax-date',jm.acqTaxDate);setV('f-insurance',jm.insurance);setV('f-insurance-date',jm.insuranceDate);setV('f-keybox',jm.keybox);setV('f-keybox-location',jm.keyboxLocation);setV('f-keybox-code',jm.keyboxCode);setV('f-rights-doc',jm.rightsDoc);setV('f-jimu-memo',jm.jimuMemo);
-    if(jm.fixedTax==='支払済')document.getElementById('fixed-tax-date-row').style.display='';
-    if(jm.acqTax==='支払済')document.getElementById('acq-tax-date-row').style.display='';
+    setV('f-ad-status',jm.adStatus);
+    setV('f-fixed-tax',jm.fixedTax);setV('f-fixed-tax-notify',jm.fixedTaxNotify);setV('f-fixed-tax-date',jm.fixedTaxDate);
+    setV('f-acq-tax',jm.acqTax);setV('f-acq-tax-notify',jm.acqTaxNotify);setV('f-acq-tax-date',jm.acqTaxDate);
+    setV('f-insurance',jm.insurance);setV('f-insurance-start',jm.insuranceStart);setV('f-insurance-date',jm.insuranceDate);
+    setV('f-keybox',jm.keybox);setV('f-keybox-location',jm.keyboxLocation);setV('f-keybox-code',jm.keyboxCode);
+    setV('f-keybox-set-date',jm.keyboxSetDate);setV('f-keybox-collect-date',jm.keyboxCollectDate);
+    setV('f-rights-doc',jm.rightsDoc);setV('f-jimu-memo',jm.jimuMemo);
+    if(jm.fixedTax&&jm.fixedTax!=='未通知')document.getElementById('fixed-tax-date-row').style.display='';
+    if(jm.acqTax&&jm.acqTax!=='未通知')document.getElementById('acq-tax-date-row').style.display='';
     if(jm.insurance&&jm.insurance!=='未加入')document.getElementById('insurance-date-row').style.display='';
-    if(jm.keybox==='設置済')document.getElementById('keybox-detail-row').style.display='';
+    if(jm.keybox==='設置済'||jm.keybox==='回収済')document.getElementById('keybox-detail-row').style.display='';
     llMeters.water=jm.water?.meters?JSON.parse(JSON.stringify(jm.water.meters)):[];
     llMeters.elec=jm.elec?.meters?JSON.parse(JSON.stringify(jm.elec.meters)):[];
     llMeters.gas=jm.gas?.meters?JSON.parse(JSON.stringify(jm.gas.meters)):[];
@@ -793,10 +931,10 @@ function jimuHtml(jm){
   }
   // 各種事務
   if(jm.adStatus)rows.push('<div class="jimu-row"><span class="jimu-lbl">広告掲載</span><span class="jimu-val">'+jm.adStatus+'</span></div>');
-  if(jm.fixedTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">固定資産税</span><span class="jimu-val">'+jm.fixedTax+(jm.fixedTaxDate?'　<span style="font-size:9px;color:#888;">'+jm.fixedTaxDate+'</span>':'')+'</span></div>');
-  if(jm.acqTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">不動産取得税</span><span class="jimu-val">'+jm.acqTax+(jm.acqTaxDate?'　<span style="font-size:9px;color:#888;">'+jm.acqTaxDate+'</span>':'')+'</span></div>');
-  if(jm.insurance)rows.push('<div class="jimu-row"><span class="jimu-lbl">火災保険</span><span class="jimu-val">'+jm.insurance+(jm.insuranceDate?'　<span style="font-size:9px;color:#888;">'+jm.insuranceDate+'</span>':'')+'</span></div>');
-  if(jm.keybox)rows.push('<div class="jimu-row"><span class="jimu-lbl">キーボックス</span><span class="jimu-val">'+jm.keybox+(jm.keyboxLocation?'　場所:'+jm.keyboxLocation:'')+(jm.keyboxCode?'　番号:'+jm.keyboxCode:'')+'</span></div>');
+  if(jm.fixedTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">固定資産税</span><span class="jimu-val">'+jm.fixedTax+(jm.fixedTaxNotify?'　通知:'+jm.fixedTaxNotify:'')+(jm.fixedTaxDate?'　支払:'+jm.fixedTaxDate:'')+'</span></div>');
+  if(jm.acqTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">不動産取得税</span><span class="jimu-val">'+jm.acqTax+(jm.acqTaxNotify?'　通知:'+jm.acqTaxNotify:'')+(jm.acqTaxDate?'　支払:'+jm.acqTaxDate:'')+'</span></div>');
+  if(jm.insurance)rows.push('<div class="jimu-row"><span class="jimu-lbl">火災保険</span><span class="jimu-val">'+jm.insurance+(jm.insuranceStart?'　加入:'+jm.insuranceStart:'')+(jm.insuranceDate?'　解約:'+jm.insuranceDate:'')+'</span></div>');
+  if(jm.keybox)rows.push('<div class="jimu-row"><span class="jimu-lbl">キーボックス</span><span class="jimu-val">'+jm.keybox+(jm.keyboxLocation?'　場所:'+jm.keyboxLocation:'')+(jm.keyboxCode?'　番号:'+jm.keyboxCode:'')+(jm.keyboxSetDate?'　設置:'+jm.keyboxSetDate:'')+(jm.keyboxCollectDate?'　回収:'+jm.keyboxCollectDate:'')+'</span></div>');
   if(jm.rightsDoc)rows.push('<div class="jimu-row"><span class="jimu-lbl">識別権利書</span><span class="jimu-val">'+jm.rightsDoc+'</span></div>');
   if(jm.jimuMemo)rows.push('<div class="jimu-row" style="grid-column:1/-1;"><span class="jimu-lbl">メモ</span><span class="jimu-val">'+jm.jimuMemo+'</span></div>');
   return '<div class="jimu-section"><div class="jimu-title">事務</div><div class="jimu-grid" style="grid-template-columns:1fr;">'+rows.join('')+'</div></div>';
@@ -879,8 +1017,11 @@ window.renderCards=function(){
           '<div class="spec-row"><span class="spec-lbl">土地面積</span><span class="spec-val">'+(p.land?p.land+'㎡':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-lbl">延床面積</span><span class="spec-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-lbl">築年月</span><span class="spec-val">'+(p.built||'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-lbl">用途地域</span><span class="spec-val">'+(p.zone||'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-lbl">防火指定</span><span class="spec-val">'+(p.bouka||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">用途地域</span><span class="spec-val">'+((p.zones&&p.zones.length)?p.zones.join(' / '):(p.zone||'—'))+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">防火指定</span><span class="spec-val">'+((p.boukas&&p.boukas.length)?p.boukas.join(' / '):(p.bouka||'—'))+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">建蔽率</span><span class="spec-val">'+((p.kenpeis&&p.kenpeis.length)?p.kenpeis.map(v=>v+'%').join(' / '):(p.kenpei?p.kenpei+'%':'—'))+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">容積率</span><span class="spec-val">'+((p.yosekis&&p.yosekis.length)?p.yosekis.map(v=>v+'%').join(' / '):(p.yoseki?p.yoseki+'%':'—'))+'</span></div>'+
+          '<div class="spec-row"><span class="spec-lbl">権利</span><span class="spec-val">'+((p.rights&&p.rights.length)?p.rights.join(' / '):(p.right||'—'))+'</span></div>'+
         '</div>'+
         jimuHtml(jm)+
         intSection+
