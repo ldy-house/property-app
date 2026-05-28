@@ -560,9 +560,16 @@ onAuthStateChanged(auth,async user=>{
     document.getElementById('main-app').style.display='block';
     document.getElementById('user-email').textContent=user.email;
     const badge=document.getElementById('role-badge');
-    if(currentRole==='admin'){badge.textContent='管理者';badge.className='role-badge role-admin';document.getElementById('print-btns').innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">仲介向け印刷</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'bank\')">銀行向け印刷</button>';}
-    else{badge.textContent='スタッフ';badge.className='role-badge role-staff';document.getElementById('print-btns').innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">印刷プレビュー</button>';}
-    startSync();
+    const printBtns=document.getElementById('print-btns');
+    if(currentRole==='admin'){
+      badge.textContent='管理者';badge.className='role-badge role-admin';
+      if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">仲介向け印刷</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'bank\')">銀行向け印刷</button>';
+    }else{
+      badge.textContent='スタッフ';badge.className='role-badge role-staff';
+      if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">印刷プレビュー</button>';
+    }
+    // DOM表示後にFirebase同期開始
+    setTimeout(()=>startSync(),0);
   }else{document.getElementById('login-screen').style.display='flex';document.getElementById('main-app').style.display='none';}
 });
 window.doLogin=async function(){
@@ -796,7 +803,12 @@ function jimuHtml(jm){
 }
 
 window.renderCards=function(){
-  const kw=document.getElementById('f-keyword').value.trim().toLowerCase(),sale=document.getElementById('f-sale').value,prop=document.getElementById('f-prop').value,kind=document.getElementById('f-kind').value;
+  // ログイン前・DOM未準備の場合はスキップ
+  if(!document.getElementById('f-keyword')||!document.getElementById('card-grid'))return;
+  const kw=(document.getElementById('f-keyword').value||'').trim().toLowerCase();
+  const sale=document.getElementById('f-sale').value||'';
+  const prop=document.getElementById('f-prop').value||'';
+  const kind=document.getElementById('f-kind').value||'';
   const sortEl=document.getElementById('f-sort');
   const sortVal=sortEl?sortEl.value:'date-desc';
   const STATUS_ORDER={'販売中':0,'非公開販売中':1,'申込あり':2,'契約済':3,'販売済':4};
