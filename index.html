@@ -232,10 +232,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="s-total">0</div><div class="stat-label">総物件数</div></div>
     <div class="stat-item"><div class="stat-num" id="s-sale">0</div><div class="stat-label">販売中</div></div>
+    <div class="stat-item"><div class="stat-num" id="s-private">0</div><div class="stat-label">非公開販売中</div></div>
     <div class="stat-item"><div class="stat-num" id="s-applied">0</div><div class="stat-label">申込あり</div></div>
     <div class="stat-item"><div class="stat-num" id="s-contract">0</div><div class="stat-label">契約済</div></div>
     <div class="stat-item"><div class="stat-num" id="s-done">0</div><div class="stat-label">販売済</div></div>
-    <div class="stat-item"><div class="stat-num" id="s-empty">0</div><div class="stat-label">空室</div></div>
     <div class="stat-item"><div class="stat-num" id="s-build">0</div><div class="stat-label">建築中</div></div>
   </div>
   <div class="toolbar">
@@ -797,7 +797,8 @@ function jimuHtml(jm){
 
 window.renderCards=function(){
   const kw=document.getElementById('f-keyword').value.trim().toLowerCase(),sale=document.getElementById('f-sale').value,prop=document.getElementById('f-prop').value,kind=document.getElementById('f-kind').value;
-  const sortVal=document.getElementById('f-sort').value;
+  const sortEl=document.getElementById('f-sort');
+  const sortVal=sortEl?sortEl.value:'date-desc';
   const STATUS_ORDER={'販売中':0,'非公開販売中':1,'申込あり':2,'契約済':3,'販売済':4};
   let filtered=props.filter(p=>{if(kw&&!(p.name||'').toLowerCase().includes(kw)&&!(p.loc||'').toLowerCase().includes(kw)&&!(p.sta||'').toLowerCase().includes(kw))return false;if(sale&&p.saleStatus!==sale)return false;if(prop&&p.propStatus!==prop)return false;if(kind&&p.kind!==kind)return false;return true;});
   // ソート
@@ -806,9 +807,20 @@ window.renderCards=function(){
     if(sortVal==='date-asc')return(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0);
     if(sortVal==='price-desc')return(b.price||0)-(a.price||0);
     if(sortVal==='price-asc'){if(!a.price&&!b.price)return 0;if(!a.price)return 1;if(!b.price)return -1;return a.price-b.price;}
-    if(sortVal==='name-asc')return(a.name||'').localeCompare(b.name||'','ja');
+    if(sortVal==='buy-desc'||sortVal==='buy-asc'){
+      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const da=ia.buySettle||ia.buyContract||'',db=ib.buySettle||ib.buyContract||'';
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
+      return sortVal==='buy-desc'?db.localeCompare(da):da.localeCompare(db);
+    }
+    if(sortVal==='sell-desc'||sortVal==='sell-asc'){
+      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const da=ia.sellSettle||ia.sellContract||'',db=ib.sellSettle||ib.sellContract||'';
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
+      return sortVal==='sell-desc'?db.localeCompare(da):da.localeCompare(db);
+    }
     if(sortVal==='status')return(STATUS_ORDER[a.saleStatus]??9)-(STATUS_ORDER[b.saleStatus]??9);
-    return 0;
+    return(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0);
   });
   document.getElementById('count-info').textContent=filtered.length+'件表示中 / 全'+props.length+'件';
   document.getElementById('s-total').textContent=props.length;
@@ -816,7 +828,7 @@ window.renderCards=function(){
   document.getElementById('s-applied').textContent=props.filter(p=>p.saleStatus==='申込あり').length;
   document.getElementById('s-contract').textContent=props.filter(p=>p.saleStatus==='契約済').length;
   document.getElementById('s-done').textContent=props.filter(p=>p.saleStatus==='販売済').length;
-  document.getElementById('s-empty').textContent=props.filter(p=>p.propStatus&&p.propStatus.includes('空室')).length;
+  document.getElementById('s-private').textContent=props.filter(p=>p.saleStatus==='非公開販売中').length;
   document.getElementById('s-build').textContent=props.filter(p=>p.propStatus&&p.propStatus.includes('建築')).length;
   const grid=document.getElementById('card-grid');
   if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;">該当する物件がありません</div>';return;}
