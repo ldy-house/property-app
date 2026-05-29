@@ -159,7 +159,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     </select>
     <select id="f-prop" onchange="filterCards()">
       <option value="">現状：すべて</option>
-      <option>空室</option><option>一部賃貸中</option><option>賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option>
+      <option>空室</option><option>一部賃貸中</option><option>満室賃貸中</option><option>建築中</option><option>古屋有</option><option>更地</option>
     </select>
   </div>
   <span class="result-count" id="result-info"></span>
@@ -310,7 +310,7 @@ function renderCards(list) {
           '<div class="spec-row"><span class="spec-label">構造</span><span class="spec-val">'+(p.struct||'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">建蔽率</span><span class="spec-val">'+(p.kenpei?p.kenpei+'%':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">容積率</span><span class="spec-val">'+(p.yoseki?p.yoseki+'%':'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+((p.zones&&p.zones.length)?p.zones.join(' / '):(p.zone||'—'))+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+((p.zoneBlocks&&p.zoneBlocks.length)?p.zoneBlocks.map(b=>b.zone||'').filter(v=>v).join(','):(p.zones&&p.zones.length?p.zones.join(','):p.zone||'—'))+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">取引業態</span><span class="spec-val">'+(p.baitai||'—')+'</span></div>'+
         '</div>'+
         '<div class="card-notes">'+(notes.length?'<ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul>':'')+'</div>'+
