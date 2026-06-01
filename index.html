@@ -161,7 +161,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pp-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;}
 .pp-head span{font-size:13px;font-weight:700;color:#fff;}
 .pp-body{padding:14px;max-height:80vh;overflow-y:auto;background:#bbb;}
-.ppage{width:277mm;height:190mm;background:#fff;margin:0 auto 10px;padding:5mm 5mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;display:flex;flex-direction:column;overflow:hidden;}
+.ppage{width:277mm;max-height:190mm;background:#fff;margin:0 auto 10px;padding:5mm 5mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;display:flex;flex-direction:column;overflow:hidden;}
 .phdr{display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--navy);padding-bottom:4px;margin-bottom:3px;flex-shrink:0;}
 .phdr-logo{display:flex;align-items:center;gap:6px;}
 .phdr-lmark{font-size:18px;font-weight:900;background:linear-gradient(135deg,#E8D08A,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
@@ -1052,20 +1052,23 @@ window.generatePrint=function(){
   document.getElementById('pp-title').textContent=title+' 印刷プレビュー';
   const pages=[];for(let i=0;i<selectedProps.length;i+=6)pages.push(selectedProps.slice(i,i+6));
   const html=pages.map(page=>{
-    const cols=6,colW=Math.floor(220/cols);
+    // 実際の物件数に合わせて列数・列幅を決定（空列を作らない）
+    const cols=page.length; // 実際の件数（最大6）
+    const totalW=220; // mm
+    const colW=Math.floor(totalW/cols);
     const dataRowCount=rows.length,hasImg=rows.some(r=>r.type==='img'),hasNote=rows.some(r=>r.type==='note');
     const available=153,totalWeight=dataRowCount+(hasImg?3:0)+(hasNote?2:0);
     const unitH=Math.max(4,Math.floor(available/totalWeight));
     const imgH=hasImg?Math.max(26,unitH*4):0,noteH=hasNote?Math.max(12,unitH*3):0,normalH=Math.max(4,unitH);
     const nameRow='<tr style="height:9mm;"><td class="lbl" style="font-size:6px;">物件名</td>'+
-      Array(cols).fill(0).map((_,c)=>page[c]?'<td class="name-cell" style="font-size:'+(page[c].name.length>12?'6':'8')+'px;">'+page[c].name+'</td>':'<td class="empty-cell"></td>').join('')+'</tr>';
+      page.map(p=>'<td class="name-cell" style="font-size:'+(p.name.length>12?'6':'8')+'px;">'+p.name+'</td>').join('')+'</tr>';
     const dataRows=rows.map(row=>{
       const isImg=row.type==='img',isNote=row.type==='note';
       const rowH=(isImg?imgH:isNote?noteH:normalH)+'mm';
       let tr='<tr style="height:'+rowH+';">'+
         '<td class="'+(row.internal?'lbl-int':'lbl')+'">'+row.label+'</td>';
-      for(let c=0;c<cols;c++){
-        const p=page[c];if(!p){tr+='<td class="empty-cell"></td>';continue;}
+      for(let c=0;c<page.length;c++){
+        const p=page[c];if(!p)continue;
         const int=internalMap[p.id]||{};
         const isDone=p.saleStatus==='販売済'||p.saleStatus==='契約済';
         if(row.type==='price'){
