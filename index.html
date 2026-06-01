@@ -170,12 +170,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .phdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.7;}
 .pgold{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));margin-bottom:3px;flex-shrink:0;}
 .ptable-wrap{flex:1;overflow:hidden;}
-.ptable{width:100%;height:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;}
-.ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;}
+.ptable{width:100%;height:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;background:#fff;}
+.ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;background:#fff;}
 .lbl{background:#EEF2FF;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
-.name-cell{background:linear-gradient(135deg,var(--navy-dark),var(--navy));color:#fff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
-.empty-cell{background:#fff;border-color:#eee !important;}
+.name-cell{background:linear-gradient(135deg,var(--navy-dark),var(--navy)) !important;color:#fff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
+.empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
 .price-cell{font-size:9px;font-weight:900;color:var(--red);text-align:center;}
 .img-cell{padding:2px;text-align:center;position:relative;}
 .img-cell img{width:100%;height:100%;object-fit:contain;background:#f4f4f4;display:block;}
@@ -194,6 +194,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   body>*:not(#printable){display:none!important;}
   #printable{display:block!important;}
   .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;}
+  .ptable td{background:#ffffff !important;}
+  .ptable .lbl{background:#EEF2FF !important;}
+  .ptable .lbl-int{background:#FFF0F0 !important;}
+  .ptable .name-cell{background:#111C4E !important;color:#fff !important;}
+  .ptable .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
+  .ptable .price-cell{background:#ffffff !important;}
   @page{
     size:A4 landscape;
     margin:5mm;
@@ -839,8 +845,6 @@ function jimuHtml(jm){
         (dates.length?'<span style="font-size:9px;color:#888;">'+dates.join('　')+'</span>':'')+
       '</div>');
     });
-  }else{
-    rows.push('<div class="jimu-row"><span class="jimu-lbl">水道</span><span class="jimu-val" style="color:#bbb;">未登録</span></div>');
   }
   // 電気
   const em=(jm.elec?.meters||[]);const ecn=jm.elec?.customerNo;
