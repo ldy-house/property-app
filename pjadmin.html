@@ -123,10 +123,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   <div class="main">
     <div class="page-title">開発プロジェクト管理</div>
     <div class="page-sub">写真・進捗・概要を編集できます。変更はお客様向けページに即時反映されます。</div>
-    <div class="notice">
-      ⚠️ 初回のみ：<strong>Firebaseコンソール → Firestore → ルール</strong> に以下を追加してください：<br>
-      <code style="background:#fff;padding:2px 6px;border-radius:3px;font-size:11px;">match /dev_projects/{id} { allow read: if true; allow write: if request.auth != null; }</code>
-    </div>
     <div class="project-cards" id="project-cards">
       <div style="text-align:center;padding:3rem;color:var(--sub);grid-column:1/-1;">読み込み中...</div>
     </div>
