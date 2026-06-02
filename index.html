@@ -181,8 +181,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .phdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.7;}
 .pgold{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));margin-bottom:3px;flex-shrink:0;}
 .ptable-wrap{flex:1;overflow:hidden;}
-.ptable{width:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;background:#fff;}
-.ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;background:#ffffff;}
+.ptable{width:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;background:#fff !important;}
+.ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;background:#ffffff !important;}
+/* 印刷時の背景色を正確に再現 */
+.ppage,.ptable,.ptable td,.ptable tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .lbl{background:#EEF2FF;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .name-cell{background:linear-gradient(135deg,var(--navy-dark),var(--navy)) !important;color:#fff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
@@ -193,9 +195,9 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .no-img-ph{width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:6px;color:#aaa;}
 .pstamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:20px;font-weight:900;border:3px solid;border-radius:4px;padding:2px 6px;opacity:0.88;white-space:nowrap;z-index:10;letter-spacing:2px;}
 .pst-done{color:#C00;border-color:#C00;}.pst-applied{color:#c07000;border-color:#c07000;}.pst-contract{color:#6A1B9A;border-color:#6A1B9A;}
-.val{font-size:6.5px;color:#222;text-align:center;word-break:break-all;}
-.val-int{font-size:6.5px;color:#800;text-align:center;font-weight:600;word-break:break-all;}
-.note-val{font-size:6px;color:#333;text-align:left;vertical-align:top;padding:2px 3px;word-break:break-all;}
+.val{font-size:6.5px;color:#222;text-align:center;word-break:break-all;background:#ffffff !important;}
+.val-int{font-size:6.5px;color:#800;text-align:center;font-weight:600;word-break:break-all;background:#FFF0F0 !important;}
+.note-val{font-size:6px;color:#333;text-align:left;vertical-align:top;padding:2px 3px;word-break:break-all;background:#ffffff !important;}
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
 .loading-overlay.show{display:flex;}
 .spinner{width:38px;height:38px;border:3px solid #eee;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
@@ -205,12 +207,16 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   body>*:not(#printable){display:none!important;}
   #printable{display:block!important;}
   .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;}
-  .ptable td{background:#ffffff !important;}
-  .ptable .lbl{background:#EEF2FF !important;}
-  .ptable .lbl-int{background:#FFF0F0 !important;}
+  /* 全セルに白背景を強制 */
+  .ptable td{background:#ffffff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .ptable .lbl{background:#EEF2FF !important;color:var(--navy) !important;}
+  .ptable .lbl-int{background:#FFF0F0 !important;color:#900 !important;}
   .ptable .name-cell{background:#111C4E !important;color:#fff !important;}
   .ptable .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
+  .ptable .val{background:#ffffff !important;}
+  .ptable .val-int{background:#FFF0F0 !important;}
   .ptable .price-cell{background:#ffffff !important;}
+  .ptable .note-val{background:#ffffff !important;}
   @page{
     size:A4 landscape;
     margin:5mm;
