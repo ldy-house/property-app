@@ -164,7 +164,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pp-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;}
 .pp-head span{font-size:13px;font-weight:700;color:#fff;}
 .pp-body{padding:14px;max-height:80vh;overflow-y:auto;background:#888;}
-.ppage{width:277mm;height:190mm;background:#fff;margin:0 auto 12px;padding:5mm 5mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.ppage{width:277mm;background:#fff;margin:0 auto 12px;padding:5mm 5mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;display:flex;flex-direction:column;overflow:hidden;}
 .phdr{display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--navy);padding-bottom:4px;margin-bottom:3px;flex-shrink:0;}
 .phdr-logo{display:flex;align-items:center;gap:6px;}
 .phdr-lmark{font-size:18px;font-weight:900;background:linear-gradient(135deg,#E8D08A,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
@@ -185,7 +185,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;background:#ffffff !important;}
 /* 印刷時の背景色を正確に再現 */
 .ppage,.ptable,.ptable td,.ptable tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.lbl{background:#EEF2FF;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
+.lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .name-cell{background:linear-gradient(135deg,var(--navy-dark),var(--navy)) !important;color:#fff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
 .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
@@ -206,10 +206,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 @media print{
   body>*:not(#printable){display:none!important;}
   #printable{display:block!important;}
-  .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;}
+  .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;height:190mm !important;overflow:hidden !important;}
   /* 全セルに白背景を強制 */
   .ptable td{background:#ffffff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
-  .ptable .lbl{background:#EEF2FF !important;color:var(--navy) !important;}
+  .ptable .lbl{background:#F0F2F8 !important;color:var(--navy) !important;}
   .ptable .lbl-int{background:#FFF0F0 !important;color:#900 !important;}
   .ptable .name-cell{background:#111C4E !important;color:#fff !important;}
   .ptable .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
