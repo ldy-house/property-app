@@ -164,7 +164,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pp-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;}
 .pp-head span{font-size:13px;font-weight:700;color:#fff;}
 .pp-body{padding:14px;max-height:80vh;overflow-y:auto;background:#888;}
-.ppage{width:277mm;background:#fff;margin:0 auto 12px;padding:5mm 5mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;display:flex;flex-direction:column;overflow:hidden;}
+.ppage{width:277mm;background:#fff;margin:0 auto 12px;padding:5mm 5mm;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;overflow:hidden;}
 .phdr{display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--navy);padding-bottom:4px;margin-bottom:3px;flex-shrink:0;}
 .phdr-logo{display:flex;align-items:center;gap:6px;}
 .phdr-lmark{font-size:18px;font-weight:900;background:linear-gradient(135deg,#E8D08A,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
@@ -172,7 +172,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .phdr-ttl{font-size:20px;font-weight:900;letter-spacing:5px;color:var(--navy);}
 .phdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.7;}
 .pgold{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));margin-bottom:3px;flex-shrink:0;}
-.ptable-wrap{flex:none;overflow:hidden;min-height:0;}
+.ptable-wrap{overflow:hidden;background:#ffffff;}
 .phdr{display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--navy);padding-bottom:4px;margin-bottom:3px;flex-shrink:0;}
 .phdr-logo{display:flex;align-items:center;gap:6px;}
 .phdr-lmark{font-size:18px;font-weight:900;background:linear-gradient(135deg,#E8D08A,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
@@ -180,7 +180,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .phdr-ttl{font-size:20px;font-weight:900;letter-spacing:5px;color:var(--navy);}
 .phdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.7;}
 .pgold{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));margin-bottom:3px;flex-shrink:0;}
-.ptable-wrap{flex:none;overflow:hidden;}
+.ptable-wrap{overflow:hidden;background:#ffffff;}
 .ptable{width:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;background:#fff !important;}
 .ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;background:#ffffff !important;}
 /* 印刷時の背景色を正確に再現 */
@@ -206,7 +206,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 @media print{
   body>*:not(#printable){display:none!important;}
   #printable{display:block!important;}
-  .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;overflow:hidden !important;}
+  .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;height:190mm !important;overflow:hidden !important;}
   /* 全セルに白背景を強制 */
   .ptable td{background:#ffffff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .ptable .lbl{background:#F0F2F8 !important;color:var(--navy) !important;}
@@ -970,13 +970,11 @@ window.renderCards=function(){
     const intSection=int?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ金額</span><span class="internal-val">'+(int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ先</span><span class="internal-val">'+(int.buyFrom||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">仕入れ契約</span><span class="internal-val">'+(int.buyContract||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ決済</span><span class="internal-val">'+(int.buySettle||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">'+(int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">'+(int.loanBank||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">'+(int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">'+(int.sellTo||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">再販契約</span><span class="internal-val">'+(int.sellContract||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販決済</span><span class="internal-val">'+(int.sellSettle||'—')+'</span></div>'+
       (days!=null?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">保有日数</span><span class="internal-val"><span class="days-badge">'+days+'日</span></span></div>':'')+
       (int.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+int.internalMemo+'</span></div>':'')+
@@ -1077,20 +1075,21 @@ window.generatePrint=function(){
     const colW=Math.floor(totalW/cols);
     const dataRowCount=rows.length,hasImg=rows.some(r=>r.type==='img'),hasNote=rows.some(r=>r.type==='note');
     // 使用可能高さ：190mm - ヘッダー約16mm - padding10mm - 名前行9mm - 余白2mm = 153mm
-    const available=153;
-    // 重み：img=4倍、note=3倍、通常=1倍
+    // px単位で計算（ブラウザ差異を吸収）
+    // A4横 190mm = 約718px、ヘッダー約60px、padding約38px、名前行約34px → 残り約586px
+    const availPx=586;
     const imgWeight=hasImg?4:0,noteWeight=hasNote?3:0;
     const normalCount=dataRowCount-(hasImg?1:0)-(hasNote?1:0);
     const totalWeight=normalCount+imgWeight+noteWeight;
-    const unitH=totalWeight>0?Math.max(4,Math.floor(available/totalWeight)):6;
-    const imgH=hasImg?Math.min(50,Math.max(24,unitH*4)):0;
-    const noteH=hasNote?Math.min(30,Math.max(10,unitH*3)):0;
-    const normalH=Math.max(4,Math.min(12,unitH));
+    const unitPx=totalWeight>0?Math.max(14,Math.floor(availPx/totalWeight)):20;
+    const imgH=hasImg?Math.min(180,Math.max(80,unitPx*4))+'px':0;
+    const noteH=hasNote?Math.min(90,Math.max(36,unitPx*3))+'px':0;
+    const normalH=Math.max(14,Math.min(40,unitPx))+'px';
     const nameRow='<tr style="height:9mm;"><td class="lbl" style="font-size:6px;">物件名</td>'+
       page.map(p=>'<td class="name-cell" style="font-size:'+(p.name.length>12?'6':'8')+'px;">'+p.name+'</td>').join('')+'</tr>';
     const dataRows=rows.map(row=>{
       const isImg=row.type==='img',isNote=row.type==='note';
-      const rowH=(isImg?imgH:isNote?noteH:normalH)+'mm';
+      const rowH=(isImg?imgH:isNote?noteH:normalH);
       let tr='<tr style="height:'+rowH+';">'+
         '<td class="'+(row.internal?'lbl-int':'lbl')+'">'+row.label+'</td>';
       for(let c=0;c<page.length;c++){
@@ -1102,9 +1101,9 @@ window.generatePrint=function(){
           tr+='<td class="price-cell">'+(isDone&&maskDone?'＊＊＊＊万円':pv)+'</td>';
         }else if(row.type==='img'){
           const photos=p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img}]:[]);
-          const imgHtml=photos.length?'<img src="'+photos[0].url+'" style="width:100%;height:'+imgH+'mm;object-fit:contain;background:#f4f4f4;display:block;"/>':'<div class="no-img-ph" style="height:'+imgH+'mm;">写真なし</div>';
+          const imgHtml=photos.length?'<img src="'+photos[0].url+'" style="width:100%;height:'+imgH+';object-fit:contain;background:#f4f4f4;display:block;"/>':'<div class="no-img-ph" style="height:'+imgH+';">写真なし</div>';
           const stamp=p.saleStatus==='販売済'?'<div class="pstamp pst-done">済</div>':p.saleStatus==='申込あり'?'<div class="pstamp pst-applied">申込</div>':p.saleStatus==='契約済'?'<div class="pstamp pst-contract">契約</div>':'';
-          tr+='<td class="img-cell" style="height:'+imgH+'mm;padding:2px;position:relative;">'+imgHtml+stamp+'</td>';
+          tr+='<td class="img-cell" style="height:'+imgH+';padding:2px;position:relative;">'+imgHtml+stamp+'</td>';
         }else if(row.type==='note'){
           const notes=(p.note||'').split('\n').filter(Boolean);
           tr+='<td class="note-val"><ol style="padding-left:7px;line-height:1.4;">'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ol></td>';
