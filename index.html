@@ -970,11 +970,13 @@ window.renderCards=function(){
     const intSection=int?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ金額</span><span class="internal-val">'+(int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ先</span><span class="internal-val">'+(int.buyFrom||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">仕入れ契約</span><span class="internal-val">'+(int.buyContract||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ決済</span><span class="internal-val">'+(int.buySettle||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">'+(int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">'+(int.loanBank||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">'+(int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">'+(int.sellTo||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">再販契約</span><span class="internal-val">'+(int.sellContract||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販決済</span><span class="internal-val">'+(int.sellSettle||'—')+'</span></div>'+
       (days!=null?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">保有日数</span><span class="internal-val"><span class="days-badge">'+days+'日</span></span></div>':'')+
       (int.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+int.internalMemo+'</span></div>':'')+
