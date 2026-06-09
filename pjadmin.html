@@ -3,382 +3,328 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>開発プロジェクト管理｜株式会社LDY</title>
+<title>開発プロジェクト｜株式会社LDY</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
-:root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;--red:#C62828;--green:#2E7D32;}
+:root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F5F4F0;--white:#FAFAF8;--text:#1a1a2e;--sub:#6B6560;--border:rgba(201,168,76,0.25);}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy-dark),var(--navy));}
-.login-box{background:#fff;border-radius:12px;padding:40px 36px;width:360px;max-width:95%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
-.login-logo{text-align:center;margin-bottom:24px;}
-.login-lmark{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
-.login-lsub{font-size:11px;color:var(--sub);margin-top:4px;}
-.login-title{font-size:14px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:18px;}
-.lf{margin-bottom:12px;}.lf label{display:block;font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;}
-.lf input{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:5px;font-size:14px;outline:none;}
-.lf input:focus{border-color:var(--navy);}
-.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;}
-.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
-.header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.25);}
-.hdr-left{display:flex;align-items:center;gap:12px;}
-.hdr-lmark{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
-.hdr-title{font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:2px;}
-.hdr-right{display:flex;align-items:center;gap:10px;}
-.hdr-user{font-size:11px;color:rgba(255,255,255,0.65);}
-.btn-logout{font-size:11px;padding:4px 10px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);border-radius:3px;cursor:pointer;}
-.btn-back{font-size:11px;padding:4px 12px;border:1px solid rgba(201,168,76,0.5);background:transparent;color:var(--gold);border-radius:3px;text-decoration:none;}
-.main{max-width:1000px;margin:0 auto;padding:24px 20px;}
-.page-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:6px;}
-.page-sub{font-size:12px;color:var(--sub);margin-bottom:8px;}
-.notice{background:#FFF9E6;border:1px solid var(--gold);border-radius:4px;padding:10px 14px;font-size:11px;color:#7B5800;margin-bottom:20px;}
-.project-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;}
-.proj-card{background:#fff;border-radius:8px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(27,42,107,0.07);overflow:hidden;}
-.proj-img{height:180px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));position:relative;overflow:hidden;}
-.proj-img img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.85);}
-.proj-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:rgba(255,255,255,0.3);font-size:12px;letter-spacing:2px;}
-.proj-placeholder-icon{font-size:32px;color:rgba(201,168,76,0.4);}
-.proj-badge{position:absolute;top:10px;left:10px;font-size:9px;font-weight:700;letter-spacing:3px;padding:4px 10px;border-radius:2px;}
-.badge-done{background:rgba(46,125,50,0.85);color:#fff;}
-.badge-progress{background:rgba(201,168,76,0.9);color:var(--navy-dark);}
-.badge-early{background:rgba(25,118,210,0.85);color:#fff;}
+body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);}
+
+.page-header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:40px 24px 34px;text-align:center;border-bottom:3px solid var(--gold);}
+.page-header-label{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:5px;color:var(--gold);margin-bottom:10px;}
+.page-header-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,5vw,42px);font-weight:300;color:#fff;letter-spacing:2px;margin-bottom:8px;}
+.page-header-sub{font-size:12px;color:rgba(255,255,255,0.45);letter-spacing:2px;}
+
+.cards-wrap{max-width:1060px;margin:0 auto;padding:40px 20px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+
+.proj-card{background:var(--white);border-radius:6px;overflow:hidden;border:1px solid rgba(27,42,107,0.08);box-shadow:0 2px 16px rgba(27,42,107,0.07);cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;}
+.proj-card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(27,42,107,0.14);}
+.proj-img{position:relative;height:240px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));overflow:hidden;flex-shrink:0;}
+.proj-img img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.88);transition:transform 0.5s ease;}
+.proj-card:hover .proj-img img{transform:scale(1.04);}
+.proj-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,0.25);font-size:12px;letter-spacing:2px;}
+.proj-placeholder-icon{font-size:36px;color:rgba(201,168,76,0.4);}
+.proj-badge{position:absolute;top:12px;left:12px;font-size:9px;font-weight:700;letter-spacing:3px;padding:5px 12px;border-radius:2px;}
+.badge-done{background:rgba(46,125,50,0.88);color:#fff;}
+.badge-progress{background:rgba(201,168,76,0.92);color:var(--navy-dark);}
+.badge-early{background:rgba(25,118,210,0.88);color:#fff;}
+.badge-construction{background:rgba(230,81,0,0.88);color:#fff;}
+.badge-plan{background:rgba(100,100,100,0.8);color:#fff;}
 .badge-complete{background:rgba(27,42,107,0.9);color:#fff;}
-.proj-body{padding:14px 16px;}
-.proj-num{font-size:10px;color:var(--gold);letter-spacing:3px;margin-bottom:4px;}
-.proj-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.3;}
-.proj-type{font-size:11px;color:var(--sub);margin-bottom:8px;}
-.proj-desc{font-size:11px;color:var(--sub);line-height:1.7;margin-bottom:10px;}
-.step-item{display:flex;align-items:center;gap:6px;padding:3px 0;}
-.step-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.step-dot.done{background:var(--gold);}.step-dot.current{background:var(--gold-light);box-shadow:0 0 0 2px rgba(201,168,76,0.3);}.step-dot.future{background:#ddd;}
-.step-text{font-size:10px;color:var(--sub);}
-.step-text.current{color:var(--gold);font-weight:700;}.step-text.future{color:#ccc;}
-.proj-footer{padding:10px 16px;border-top:1px solid #eee;background:#fafafa;}
-.btn{font-size:12px;padding:6px 14px;border-radius:4px;border:1px solid #ccc;background:#fff;color:var(--text);cursor:pointer;white-space:nowrap;}
-.btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);border:none;font-weight:700;}
-.btn-navy{background:var(--navy);color:#fff;border:none;}
-.btn-sm{font-size:11px;padding:4px 10px;}
-.btn-red{color:var(--red);border-color:#f7c1c1;}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,15,40,0.65);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);}
+.proj-hint{position:absolute;bottom:10px;right:12px;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.55);display:flex;align-items:center;gap:4px;}
+.proj-hint::after{content:'›';font-size:14px;}
+
+.proj-body{padding:20px 20px 22px;flex:1;display:flex;flex-direction:column;}
+.proj-num{font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:6px;}
+.proj-name{font-size:16px;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:6px;}
+.proj-type{font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:10px;}
+.proj-desc{font-size:12px;line-height:1.9;color:var(--sub);flex:1;margin-bottom:10px;}
+.proj-current{display:inline-block;font-size:10px;font-weight:700;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);padding:4px 12px;border-radius:3px;margin-bottom:10px;}
+.proj-cta{font-size:11px;letter-spacing:2px;color:var(--gold);display:flex;align-items:center;gap:6px;border-top:1px solid var(--border);padding-top:12px;margin-top:auto;}
+.proj-cta::after{content:'›';font-size:16px;transition:transform 0.2s;}
+.proj-card:hover .proj-cta::after{transform:translateX(4px);}
+
+.page-footer{text-align:center;padding:28px 24px;font-size:11px;color:var(--sub);letter-spacing:1px;border-top:1px solid var(--border);}
+
+/* ── プロジェクトモーダル ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,15,40,0.75);z-index:400;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;backdrop-filter:blur(4px);}
 .modal-bg.open{display:flex;}
-.modal{background:#fff;border-radius:8px;width:600px;max-width:96%;max-height:93vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);display:flex;flex-direction:column;}
-.modal-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;flex-shrink:0;}
-.modal-head h3{font-size:14px;font-weight:700;color:#fff;}
-.modal-close{background:none;border:none;color:rgba(255,255,255,0.6);font-size:20px;cursor:pointer;}
-.modal-body{padding:18px;overflow-y:auto;flex:1;}
-.fs{margin-bottom:16px;}
-.fs-title{font-size:10px;font-weight:700;color:var(--navy);letter-spacing:1.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--gold);}
-.fr{margin-bottom:10px;}
-.fr label{display:block;font-size:11px;color:var(--sub);margin-bottom:3px;font-weight:700;}
-.fr input,.fr select,.fr textarea{width:100%;font-size:13px;padding:8px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;font-family:inherit;}
-.fr input:focus,.fr select:focus,.fr textarea:focus{border-color:var(--navy);}
-.fr textarea{resize:vertical;height:80px;line-height:1.7;}
-.modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;flex-shrink:0;}
-.img-drop{border:2px dashed #ccc;border-radius:5px;padding:14px;text-align:center;cursor:pointer;color:#999;font-size:12px;transition:all 0.2s;background:#fafafa;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;min-height:70px;}
-.img-drop:hover,.img-drop.dragover{border-color:var(--gold);background:#fffbf0;}
-.img-preview{margin-top:8px;position:relative;height:160px;background:#eee;border-radius:4px;overflow:hidden;}
-.img-preview img{width:100%;height:100%;object-fit:cover;display:block;}
-.img-preview-del{position:absolute;top:6px;right:6px;background:rgba(200,0,0,0.85);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.img-uploading{font-size:12px;color:var(--navy);margin-top:5px;display:none;font-weight:600;}
-.step-block{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
-.step-block input{flex:1;font-size:12px;padding:7px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;}
-.step-block input:focus{border-color:var(--navy);}
-.step-block select{font-size:12px;padding:7px 8px;border:1.5px solid #ddd;border-radius:4px;outline:none;width:90px;}
-.step-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;}
-.step-del:hover{color:var(--red);}
-.loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
-.loading-overlay.show{display:flex;}
-.spinner{width:36px;height:36px;border:3px solid #eee;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
+.modal{background:var(--white);border-radius:8px;width:100%;max-width:600px;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);}
+.modal-img{height:240px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));position:relative;overflow:hidden;border-radius:8px 8px 0 0;}
+.modal-img img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.85);}
+.modal-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:rgba(255,255,255,0.2);}
+.modal-img-ph-icon{font-size:40px;color:rgba(201,168,76,0.4);}
+.modal-close{position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.45);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:rgba(0,0,0,0.7);}
+.modal-body{padding:24px 24px 28px;}
+.modal-badge-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.modal-badge{font-size:9px;font-weight:700;letter-spacing:3px;padding:4px 12px;border-radius:2px;}
+.modal-proj-num{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--gold);letter-spacing:3px;}
+.modal-name{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.3;}
+.modal-type{font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:16px;}
+.modal-desc{font-size:13px;line-height:2;color:var(--sub);margin-bottom:20px;}
+
+/* ステップリスト */
+.steps-label{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.step-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(27,42,107,0.06);cursor:pointer;transition:background 0.15s;border-radius:4px;padding-left:8px;padding-right:8px;}
+.step-row:last-child{border-bottom:none;}
+.step-row:hover{background:rgba(201,168,76,0.06);}
+.step-row.has-photos:hover .step-row-arrow{transform:translateX(3px);}
+.step-dot-col{display:flex;flex-direction:column;align-items:center;padding-top:3px;flex-shrink:0;}
+.step-dot{width:12px;height:12px;border-radius:50%;}
+.dot-done{background:var(--gold);}
+.dot-current{background:var(--gold-light);box-shadow:0 0 0 3px rgba(201,168,76,0.25);}
+.dot-future{background:#ddd;}
+.step-vline{width:1px;flex:1;margin-top:4px;background:rgba(201,168,76,0.2);min-height:14px;}
+.step-row-content{flex:1;}
+.step-row-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.step-row-name.current{color:var(--gold);}
+.step-row-name.future{color:#bbb;}
+.step-now-badge{font-size:9px;color:var(--gold);background:rgba(201,168,76,0.1);padding:1px 8px;border-radius:10px;margin-left:8px;font-weight:700;}
+.step-row-photos{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.step-thumb{width:44px;height:34px;object-fit:cover;border-radius:3px;border:1px solid rgba(201,168,76,0.3);}
+.step-photo-count{font-size:10px;color:var(--gold);padding:2px 8px;background:rgba(201,168,76,0.1);border-radius:10px;border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;}
+.step-row-arrow{font-size:16px;color:var(--gold);opacity:0.6;padding-top:2px;flex-shrink:0;transition:transform 0.15s;}
+.step-row.no-photos .step-row-arrow{opacity:0;}
+
+.modal-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+.ms-label{font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:3px;}
+.ms-val{font-size:13px;font-weight:700;color:var(--navy);}
+.modal-contact{margin-top:20px;display:flex;gap:10px;}
+.btn-tel{flex:1;display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:11px;border-radius:4px;text-decoration:none;}
+.btn-tel:hover{background:var(--navy-dark);}
+.btn-mail{flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);font-weight:700;font-size:12px;padding:11px;border-radius:4px;text-decoration:none;}
+
+/* ── 写真ライトボックス ── */
+.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;flex-direction:column;align-items:center;justify-content:center;}
+.lb.open{display:flex;}
+.lb-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:0.7;z-index:10;}
+.lb-close:hover{opacity:1;}
+.lb-step-name{position:absolute;top:16px;left:20px;font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:2px;}
+.lb-counter{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,0.55);}
+.lb-img-wrap{max-width:90vw;max-height:75vh;display:flex;align-items:center;justify-content:center;}
+.lb-img{max-width:100%;max-height:75vh;object-fit:contain;border-radius:4px;display:block;}
+.lb-date{color:rgba(255,255,255,0.6);font-size:13px;margin-top:14px;letter-spacing:1px;}
+.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:24px;padding:14px 18px;cursor:pointer;border-radius:4px;transition:background 0.15s;}
+.lb-prev:hover,.lb-next:hover{background:rgba(255,255,255,0.25);}
+.lb-prev{left:16px;}.lb-next{right:16px;}
+.lb-dots{display:flex;gap:6px;margin-top:14px;}
+.lb-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;}
+.lb-dot.active{background:#fff;}
+/* サムネイル一覧 */
+.lb-thumbs{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;justify-content:center;max-width:90vw;}
+.lb-thumb{width:48px;height:36px;object-fit:cover;border-radius:3px;cursor:pointer;opacity:0.5;border:2px solid transparent;transition:all 0.15s;}
+.lb-thumb.active{opacity:1;border-color:#fff;}
+
+.loading-state{text-align:center;padding:4rem;color:var(--sub);grid-column:1/-1;}
+.spinner{width:32px;height:32px;border:3px solid #ddd;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-text{font-size:13px;font-weight:700;color:var(--navy);}
+
+@media(max-width:600px){
+  .cards-wrap{grid-template-columns:1fr;padding:24px 16px 48px;}
+  .proj-img,.modal-img{height:200px;}
+  .modal-contact{flex-direction:column;}
+  .lb-prev{left:8px;}.lb-next{right:8px;}
+}
 </style>
 </head>
 <body>
-<div class="loading-overlay" id="loading"><div class="spinner"></div><div class="loading-text">処理中...</div></div>
 
-<div id="login-screen" style="display:flex;">
-  <div class="login-wrap">
-    <div class="login-box">
-      <div class="login-logo"><div class="login-lmark">LDY</div><div class="login-lsub">株式会社LDY</div></div>
-      <div class="login-title">社員ログイン</div>
-      <div class="lf"><label>メールアドレス</label><input type="email" id="login-email" placeholder="example@ldy-house.com"/></div>
-      <div class="lf"><label>パスワード</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
-      <button class="login-btn" onclick="doLogin()">ログイン</button>
-      <div class="login-err" id="login-err"></div>
-    </div>
-  </div>
+<div class="page-header">
+  <div class="page-header-label">DEVELOPMENT PROJECTS</div>
+  <h1 class="page-header-title">進行中のプロジェクト</h1>
+  <p class="page-header-sub">株式会社LDY ｜ 現在進行中の開発物件</p>
 </div>
 
-<div id="main-app" style="display:none;">
-  <div class="header">
-    <div class="hdr-left">
-      <span class="hdr-lmark">LDY</span>
-      <span class="hdr-title">開発プロジェクト管理</span>
-    </div>
-    <div class="hdr-right">
-      <a href="admin.html" class="btn-back">← 管理画面へ</a>
-      <span class="hdr-user" id="user-email"></span>
-      <button class="btn-logout" onclick="doLogout()">ログアウト</button>
-    </div>
-  </div>
-  <div class="main">
-    <div class="page-title">開発プロジェクト管理</div>
-    <div class="page-sub">写真・進捗・概要を編集できます。変更はお客様向けページに即時反映されます。</div>
-    <div class="project-cards" id="project-cards">
-      <div style="text-align:center;padding:3rem;color:var(--sub);grid-column:1/-1;">読み込み中...</div>
-    </div>
-  </div>
+<div class="cards-wrap" id="cards-wrap">
+  <div class="loading-state"><div class="spinner"></div><div>読み込み中...</div></div>
 </div>
 
-<!-- 編集モーダル -->
-<div class="modal-bg" id="modal">
-  <div class="modal">
-    <div class="modal-head"><h3 id="modal-title">プロジェクトを編集</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+<div class="page-footer">
+  株式会社LDY ｜ 〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F ｜ TEL 03-6260-6811
+</div>
+
+<!-- プロジェクトモーダル -->
+<div class="modal-bg" id="modal-bg" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <div class="modal-img" id="modal-img-wrap">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
     <div class="modal-body">
-      <div class="fs">
-        <div class="fs-title">メイン写真</div>
-        <div class="img-drop" id="img-drop" onclick="document.getElementById('proj-img-input').click()">
-          <div style="font-size:22px;color:#bbb;">&#128247;</div>
-          <div style="font-weight:600;color:#555;">クリックまたはドラッグ＆ドロップ</div>
-          <div style="font-size:10px;color:#aaa;">推奨サイズ：1200×800px</div>
-        </div>
-        <div class="img-uploading" id="img-uploading">アップロード中...</div>
-        <div id="img-preview-wrap"></div>
-        <input type="file" id="proj-img-input" accept="image/*" style="display:none;" onchange="handleImg(event)"/>
+      <div class="modal-badge-row">
+        <span class="modal-badge" id="modal-badge"></span>
+        <span class="modal-proj-num" id="modal-num"></span>
       </div>
-      <div class="fs">
-        <div class="fs-title">基本情報</div>
-        <div class="fr"><label>プロジェクト名</label><input id="f-proj-name" placeholder="例：アパート・マンション開発プロジェクト"/></div>
-        <div class="fr"><label>種別・タイプ表示</label><input id="f-proj-type" placeholder="例：集合住宅 ｜ 東京都内"/></div>
-        <div class="fr"><label>ステータス</label>
-          <select id="f-proj-status">
-            <option value="done">上棟済み</option>
-            <option value="progress">間もなく上棟</option>
-            <option value="early">解体中</option>
-            <option value="construction">工事中</option>
-            <option value="plan">計画中</option>
-            <option value="complete">完成</option>
-          </select>
-        </div>
-        <div class="fr"><label>概要説明（お客様向け）</label><textarea id="f-proj-desc" placeholder="プロジェクトの概要"></textarea></div>
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-type" id="modal-type"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="steps-label">工事の進捗状況 ― ステップをクリックで現場写真を見る</div>
+      <div id="modal-steps"></div>
+      <div class="modal-specs" id="modal-specs"></div>
+      <div class="modal-contact">
+        <a href="tel:0362606811" class="btn-tel">📞 電話で問い合わせる</a>
+        <a href="mailto:info@ldy-house.com?subject=開発プロジェクトについてのお問い合わせ" class="btn-mail">✉ メールで問い合わせる</a>
       </div>
-      <div class="fs">
-        <div class="fs-title">進捗ステップ</div>
-        <div id="step-list"></div>
-        <button type="button" class="btn btn-sm btn-navy" onclick="addStep()" style="margin-top:4px;">＋ ステップを追加</button>
-      </div>
-      <div class="fs">
-        <div class="fs-title">詳細情報</div>
-        <div class="fr"><label>エリア</label><input id="f-proj-area" placeholder="例：東京都目黒区"/></div>
-        <div class="fr"><label>完成予定</label><input id="f-proj-completion" placeholder="例：2026年秋予定"/></div>
-        <div class="fr"><label>社内メモ（お客様には非表示）</label><textarea id="f-proj-memo" style="height:60px;"></textarea></div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-gold" onclick="doSave()">保存する</button>
     </div>
   </div>
+</div>
+
+<!-- 写真ライトボックス -->
+<div class="lb" id="lb" onclick="closeLBOutside(event)">
+  <button class="lb-close" onclick="closeLB()">✕</button>
+  <span class="lb-step-name" id="lb-step-name"></span>
+  <span class="lb-counter" id="lb-counter"></span>
+  <button class="lb-prev" onclick="lbMove(-1)">&#8249;</button>
+  <div class="lb-img-wrap">
+    <img class="lb-img" id="lb-img" src="" alt=""/>
+  </div>
+  <button class="lb-next" onclick="lbMove(1)">&#8250;</button>
+  <div class="lb-date" id="lb-date"></div>
+  <div class="lb-dots" id="lb-dots"></div>
+  <div class="lb-thumbs" id="lb-thumbs"></div>
 </div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,collection,doc,setDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,collection,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
-const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
+const app=initializeApp(FC),db=getFirestore(app);
 
-// デフォルトプロジェクト（Firebaseに未保存の場合に使用）
 const DEFAULTS=[
-  {id:'p1',num:'PROJECT 01',name:'アパート・マンション開発プロジェクト',type:'集合住宅 ｜ 東京都内',status:'done',photo:'',desc:'上棟を完了。現在は内装・設備工事を進めています。',area:'東京都内',completion:'2026年予定',memo:'',
-   steps:[{text:'着工・基礎工事',status:'done'},{text:'躯体工事',status:'done'},{text:'上棟',status:'done'},{text:'内装・設備工事',status:'current'},{text:'完成・引渡し',status:'future'}]},
-  {id:'p2',num:'PROJECT 02',name:'プレミアム戸建て開発プロジェクト',type:'豪華戸建て ｜ 東京都内',status:'progress',photo:'',desc:'基礎工事が完了し、間もなく上棟を迎えます。',area:'東京都内',completion:'2026年予定',memo:'',
-   steps:[{text:'着工・地縄確認',status:'done'},{text:'基礎工事',status:'done'},{text:'上棟',status:'current'},{text:'内装・設備工事',status:'future'},{text:'完成・引渡し',status:'future'}]},
-  {id:'p3',num:'PROJECT 03',name:'戸建て開発プロジェクト',type:'戸建て ｜ 東京都内',status:'early',photo:'',desc:'既存建物の解体工事を進めています。',area:'東京都内',completion:'2026年予定',memo:'',
-   steps:[{text:'解体工事',status:'current'},{text:'基礎工事',status:'future'},{text:'躯体・上棟',status:'future'},{text:'内装・設備工事',status:'future'},{text:'完成・引渡し',status:'future'}]},
+  {id:'p1',num:'PROJECT 01',name:'アパート・マンション開発プロジェクト',type:'集合住宅 ｜ 東京都内',status:'done',photo:'',desc:'上棟を完了し、現在は内装・設備工事を進めています。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'着工・基礎工事',status:'done',photos:[]},{text:'躯体工事',status:'done',photos:[]},{text:'上棟',status:'done',photos:[]},{text:'内装・設備工事',status:'current',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
+  {id:'p2',num:'PROJECT 02',name:'プレミアム戸建て開発プロジェクト',type:'豪華戸建て ｜ 東京都内',status:'progress',photo:'',desc:'随所にこだわりを詰め込んだ豪華な一邸。基礎工事が完了し、いよいよ上棟を迎えようとしています。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'着工・地縄確認',status:'done',photos:[]},{text:'基礎工事',status:'done',photos:[]},{text:'上棟',status:'current',photos:[]},{text:'内装・設備工事',status:'future',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
+  {id:'p3',num:'PROJECT 03',name:'戸建て開発プロジェクト',type:'戸建て ｜ 東京都内',status:'early',photo:'',desc:'現在、既存建物の解体工事を進めています。更地になった後は新築工事へと移行します。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'解体工事',status:'current',photos:[]},{text:'地盤調査・基礎工事',status:'future',photos:[]},{text:'躯体・上棟',status:'future',photos:[]},{text:'内装・設備工事',status:'future',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
 ];
 
-// DBデータとデフォルトをマージ
-let dbData={}; // id→データ
-let editId=null,currentPhoto='',editSteps=[];
+let dbData={},allProjects=[];
 
-function getProjects(){
-  return DEFAULTS.map(d=>dbData[d.id]?{...d,...dbData[d.id]}:d);
-}
-
-onAuthStateChanged(auth,user=>{
-  if(user){
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('main-app').style.display='block';
-    document.getElementById('user-email').textContent=user.email;
-    setTimeout(()=>{
-      onSnapshot(collection(db,'dev_projects'),snap=>{
-        dbData={};
-        snap.docs.forEach(d=>{dbData[d.id]={id:d.id,...d.data()};});
-        renderCards();
-      },err=>{
-        console.error('Firestore error:',err);
-        renderCards(); // エラーでもデフォルト表示
-      });
-    },0);
-  }else{
-    document.getElementById('login-screen').style.display='flex';
-    document.getElementById('main-app').style.display='none';
-  }
+onSnapshot(collection(db,'dev_projects'),snap=>{
+  dbData={};
+  snap.docs.forEach(d=>{dbData[d.id]={id:d.id,...d.data()};});
+  allProjects=DEFAULTS.map(d=>dbData[d.id]?{...d,...dbData[d.id]}:d);
+  renderCards();
 });
 
-window.doLogin=async function(){
-  const email=document.getElementById('login-email').value.trim(),pass=document.getElementById('login-pass').value;
-  document.getElementById('login-err').textContent='';
-  if(!email||!pass){document.getElementById('login-err').textContent='入力してください';return;}
-  try{showLoading(true);await signInWithEmailAndPassword(auth,email,pass);}
-  catch(e){
-    let m='ログイン失敗';
-    if(e.code==='auth/invalid-credential'||e.code==='auth/user-not-found'||e.code==='auth/wrong-password')m='メールアドレスまたはパスワードが違います';
-    else m='エラー: '+e.code;
-    document.getElementById('login-err').textContent=m;
-  }
-  showLoading(false);
-};
-window.doLogout=async function(){await signOut(auth);};
-document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin();});
-
-function statusLabel(s){return{done:'上棟済み',progress:'間もなく上棟',early:'解体中',plan:'計画中',construction:'工事中',complete:'完成'}[s]||s;}
-function statusBadgeClass(s){return{done:'badge-done',progress:'badge-progress',early:'badge-early',plan:'badge-early',construction:'badge-progress',complete:'badge-complete'}[s]||'badge-early';}
+function statusLabel(s){return{done:'上棟済み',progress:'間もなく上棟',early:'解体中',construction:'工事中',plan:'計画中',complete:'完成'}[s]||s;}
+function statusBadgeClass(s){return{done:'badge-done',progress:'badge-progress',early:'badge-early',construction:'badge-construction',plan:'badge-plan',complete:'badge-complete'}[s]||'badge-early';}
 
 function renderCards(){
-  const grid=document.getElementById('project-cards');
-  if(!grid)return;
-  const projects=getProjects();
-  grid.innerHTML=projects.map(p=>{
+  const wrap=document.getElementById('cards-wrap');if(!wrap)return;
+  wrap.innerHTML=allProjects.map(p=>{
     const steps=p.steps||[];
-    const stepsHtml=steps.map(s=>'<div class="step-item"><div class="step-dot '+s.status+'"></div><span class="step-text '+s.status+'">'+s.text+(s.status==='current'?' ← 現在':'')+'</span></div>').join('');
-    const imgArea=p.photo
-      ?'<img src="'+p.photo+'" alt="'+p.name+'"/>'
-      :'<div class="proj-placeholder"><div class="proj-placeholder-icon">&#127968;</div><span>写真なし</span></div>';
-    return '<div class="proj-card">'+
-      '<div class="proj-img">'+imgArea+'<span class="proj-badge '+statusBadgeClass(p.status)+'">'+statusLabel(p.status)+'</span></div>'+
-      '<div class="proj-body">'+
-        '<div class="proj-num">'+(p.num||'')+'</div>'+
-        '<div class="proj-name">'+(p.name||'（名称未設定）')+'</div>'+
-        '<div class="proj-type">'+(p.type||'')+'</div>'+
-        '<div class="proj-desc">'+(p.desc||'')+'</div>'+
-        (steps.length?'<div style="margin-bottom:8px;">'+stepsHtml+'</div>':'')+
-        '<div style="font-size:10px;color:var(--sub);">エリア：'+(p.area||'—')+'　完成予定：'+(p.completion||'—')+'</div>'+
-        (p.memo?'<div style="font-size:10px;color:#999;margin-top:4px;">メモ：'+p.memo+'</div>':'')+
-      '</div>'+
-      '<div class="proj-footer"><button class="btn btn-navy btn-sm" onclick="openModal(\''+p.id+'\')">編集する</button></div>'+
-    '</div>';
+    const current=steps.find(s=>s.status==='current');
+    const imgArea=p.photo?`<img src="${p.photo}" alt="${p.name}"/>`:'<div class="proj-placeholder"><div class="proj-placeholder-icon">&#127968;</div><span>外観写真</span></div>';
+    return `<div class="proj-card" onclick="openModal('${p.id}')">
+      <div class="proj-img">
+        ${imgArea}
+        <span class="proj-badge ${statusBadgeClass(p.status)}">${statusLabel(p.status)}</span>
+        <span class="proj-hint">進捗を見る</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-num">${p.num||''}</div>
+        <div class="proj-name">${p.name||''}</div>
+        <div class="proj-type">${p.type||''}</div>
+        <div class="proj-desc">${p.desc||''}</div>
+        ${current?`<div class="proj-current">現在：${current.text}</div>`:''}
+        <div class="proj-cta">工事の進捗を見る</div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-// Cloudinary
-const CLD='dujllruro',CLD_P='ldy-property';
-async function uploadFile(file){
-  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLD_P);
-  const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});
-  const d=await r.json();
-  if(d.secure_url)return d.secure_url;
-  throw new Error(d.error?.message||'アップロード失敗');
-}
-window.handleImg=async function(e){
-  const file=e.target.files[0];if(!file)return;
-  document.getElementById('img-uploading').style.display='block';
-  try{currentPhoto=await uploadFile(file);renderImgPreview();}
-  catch(err){alert('アップロード失敗: '+err.message);}
-  document.getElementById('img-uploading').style.display='none';
-  e.target.value='';
-};
-const dropEl=document.getElementById('img-drop');
-dropEl.addEventListener('dragover',e=>{e.preventDefault();dropEl.classList.add('dragover');});
-dropEl.addEventListener('dragleave',()=>dropEl.classList.remove('dragover'));
-dropEl.addEventListener('drop',async e=>{
-  e.preventDefault();dropEl.classList.remove('dragover');
-  const file=e.dataTransfer.files[0];if(!file||!file.type.startsWith('image/'))return;
-  document.getElementById('img-uploading').style.display='block';
-  try{currentPhoto=await uploadFile(file);renderImgPreview();}
-  catch(err){alert('アップロード失敗: '+err.message);}
-  document.getElementById('img-uploading').style.display='none';
-});
-function renderImgPreview(){
-  const el=document.getElementById('img-preview-wrap');
-  el.innerHTML=currentPhoto
-    ?'<div class="img-preview"><img src="'+currentPhoto+'" alt=""/><button class="img-preview-del" onclick="removePhoto()">✕</button></div>'
-    :'';
-}
-window.removePhoto=function(){currentPhoto='';renderImgPreview();};
-
-// ステップ編集
-window.addStep=function(){editSteps.push({text:'',status:'future'});renderSteps();};
-window.removeStep=function(i){editSteps.splice(i,1);renderSteps();};
-window.updateStepText=function(i,v){if(editSteps[i])editSteps[i].text=v;};
-window.updateStepStatus=function(i,v){if(editSteps[i])editSteps[i].status=v;};
-function renderSteps(){
-  document.getElementById('step-list').innerHTML=editSteps.map((s,i)=>
-    '<div class="step-block">'+
-      '<input value="'+s.text+'" placeholder="例：基礎工事" oninput="updateStepText('+i+',this.value)"/>'+
-      '<select onchange="updateStepStatus('+i+',this.value)">'+
-        '<option value="done" '+(s.status==='done'?'selected':'')+'>✓ 完了</option>'+
-        '<option value="current" '+(s.status==='current'?'selected':'')+'>→ 現在</option>'+
-        '<option value="future" '+(s.status==='future'?'selected':'')+'>○ 予定</option>'+
-      '</select>'+
-      '<button class="step-del" onclick="removeStep('+i+')">✕</button>'+
-    '</div>'
-  ).join('');
-}
-
-// Modal
 window.openModal=function(id){
-  editId=id;
-  const projects=getProjects();
-  const p=projects.find(x=>x.id===id);
-  if(!p){alert('プロジェクトが見つかりません');return;}
-  document.getElementById('modal-title').textContent=(p.name||'プロジェクト')+'を編集';
-  document.getElementById('f-proj-name').value=p.name||'';
-  document.getElementById('f-proj-type').value=p.type||'';
-  document.getElementById('f-proj-status').value=p.status||'progress';
-  document.getElementById('f-proj-desc').value=p.desc||'';
-  document.getElementById('f-proj-area').value=p.area||'';
-  document.getElementById('f-proj-completion').value=p.completion||'';
-  document.getElementById('f-proj-memo').value=p.memo||'';
-  currentPhoto=p.photo||'';
-  renderImgPreview();
-  editSteps=p.steps?JSON.parse(JSON.stringify(p.steps)):[];
-  renderSteps();
-  document.getElementById('modal').classList.add('open');
+  const p=allProjects.find(x=>x.id===id);if(!p)return;
+  // 画像
+  const imgWrap=document.getElementById('modal-img-wrap');
+  imgWrap.innerHTML='<button class="modal-close" onclick="closeModal()">✕</button>';
+  if(p.photo){const img=document.createElement('img');img.src=p.photo;img.alt=p.name||'';imgWrap.insertBefore(img,imgWrap.firstChild);}
+  else{const ph=document.createElement('div');ph.className='modal-img-placeholder';ph.innerHTML='<div class="modal-img-ph-icon">&#127968;</div>';imgWrap.insertBefore(ph,imgWrap.firstChild);}
+  // バッジ
+  const badge=document.getElementById('modal-badge');
+  badge.textContent=statusLabel(p.status);badge.className='modal-badge '+statusBadgeClass(p.status);
+  document.getElementById('modal-num').textContent=p.num||'';
+  document.getElementById('modal-name').textContent=p.name||'';
+  document.getElementById('modal-type').textContent=p.type||'';
+  document.getElementById('modal-desc').textContent=p.desc||'';
+  // ステップ
+  const steps=p.steps||[];
+  document.getElementById('modal-steps').innerHTML=steps.map((s,i)=>{
+    const photos=s.photos||[];
+    const hasPhotos=photos.length>0;
+    const isLast=i===steps.length-1;
+    const dotClass='dot-'+(s.status||'future');
+    const nameClass=s.status==='current'?'current':s.status==='future'?'future':'';
+    const thumbsHtml=hasPhotos?photos.slice(0,4).map(ph=>`<img class="step-thumb" src="${ph.url}" alt=""/>`).join('')+(photos.length>4?`<span class="step-photo-count">+${photos.length-4}</span>`:''):'';
+    return `<div class="step-row ${hasPhotos?'has-photos':'no-photos'}" onclick="${hasPhotos?`openLB('${id}',${i})`:'void(0)'}">
+      <div class="step-dot-col">
+        <div class="step-dot ${dotClass}"></div>
+        ${!isLast?'<div class="step-vline"></div>':''}
+      </div>
+      <div class="step-row-content">
+        <div class="step-row-name ${nameClass}">${s.text||''}${s.status==='current'?'<span class="step-now-badge">現在</span>':''}</div>
+        ${thumbsHtml?`<div class="step-row-photos">${thumbsHtml}</div>`:''}
+        ${hasPhotos?`<div style="font-size:10px;color:var(--gold);margin-top:4px;">📷 ${photos.length}枚の現場写真 → タップで見る</div>`:''}
+      </div>
+      <div class="step-row-arrow">${hasPhotos?'›':''}</div>
+    </div>`;
+  }).join('');
+  // 詳細
+  document.getElementById('modal-specs').innerHTML=
+    `<div class="ms-item"><div class="ms-label">エリア</div><div class="ms-val">${p.area||'東京都内'}</div></div>`+
+    `<div class="ms-item"><div class="ms-label">完成予定</div><div class="ms-val">${p.completion||'—'}</div></div>`;
+  document.getElementById('modal-bg').classList.add('open');
+  document.body.style.overflow='hidden';
 };
-window.closeModal=function(){document.getElementById('modal').classList.remove('open');};
 
-window.doSave=async function(){
-  if(!editId){alert('エラー: IDが不明です');return;}
-  const name=document.getElementById('f-proj-name').value.trim();
-  if(!name){alert('プロジェクト名を入力してください');return;}
-  showLoading(true);
-  const defP=DEFAULTS.find(d=>d.id===editId)||{};
-  const data={
-    id:editId,
-    num:defP.num||editId,
-    name,
-    type:document.getElementById('f-proj-type').value.trim(),
-    status:document.getElementById('f-proj-status').value,
-    photo:currentPhoto,
-    desc:document.getElementById('f-proj-desc').value.trim(),
-    area:document.getElementById('f-proj-area').value.trim(),
-    completion:document.getElementById('f-proj-completion').value.trim(),
-    memo:document.getElementById('f-proj-memo').value.trim(),
-    steps:editSteps.filter(s=>s.text.trim()),
-  };
-  try{
-    await setDoc(doc(db,'dev_projects',editId),data);
-    closeModal();
-  }catch(e){
-    console.error('Save error:',e);
-    alert('保存失敗: '+e.message+'\n\nFirestoreのルールに dev_projects の権限を追加しているか確認してください。');
+window.closeModal=function(){
+  document.getElementById('modal-bg').classList.remove('open');
+  document.body.style.overflow='';
+};
+window.closeModalOutside=function(e){if(e.target===document.getElementById('modal-bg'))closeModal();};
+
+// ライトボックス
+let lbPhotos=[],lbIdx=0;
+window.openLB=function(pid,stepIdx){
+  const p=allProjects.find(x=>x.id===pid);if(!p)return;
+  const step=p.steps[stepIdx];if(!step)return;
+  lbPhotos=step.photos||[];
+  if(!lbPhotos.length)return;
+  lbIdx=0;
+  document.getElementById('lb-step-name').textContent=step.text||'';
+  updateLB();
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow='hidden';
+};
+window.closeLB=function(){
+  document.getElementById('lb').classList.remove('open');
+};
+window.closeLBOutside=function(e){if(e.target===document.getElementById('lb'))closeLB();};
+window.lbMove=function(dir){
+  lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length;
+  updateLB();
+};
+function updateLB(){
+  const ph=lbPhotos[lbIdx];
+  document.getElementById('lb-img').src=ph.url;
+  document.getElementById('lb-date').textContent=ph.date?'📅 '+ph.date:'';
+  document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;
+  document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>`<div class="lb-dot${i===lbIdx?' active':''}" onclick="lbGoTo(${i})"></div>`).join('');
+  document.getElementById('lb-thumbs').innerHTML=lbPhotos.map((p2,i)=>`<img class="lb-thumb${i===lbIdx?' active':''}" src="${p2.url}" onclick="lbGoTo(${i})" alt=""/>`).join('');
+}
+window.lbGoTo=function(i){lbIdx=i;updateLB();};
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('lb').classList.contains('open')){
+    if(e.key==='ArrowLeft')lbMove(-1);
+    if(e.key==='ArrowRight')lbMove(1);
+    if(e.key==='Escape')closeLB();
+    return;
   }
-  showLoading(false);
-};
-
-function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
+  if(e.key==='Escape')closeModal();
+});
 </script>
 </body>
 </html>
