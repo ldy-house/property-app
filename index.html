@@ -566,9 +566,9 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   <div class="pp-inner">
     <div class="pp-head">
       <span id="pp-title">印刷プレビュー</span>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-gold" onclick="window.print()">印刷 / PDF保存</button>
-        <span style="font-size:10px;color:rgba(255,255,255,0.5);">※印刷設定で「ヘッダーとフッター」をOFFにするとURLが消えます</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-size:10px;color:rgba(255,255,255,0.5);" id="pdf-status"></span>
+        <button class="btn btn-gold" onclick="downloadPDF()" id="pdf-btn">📄 PDFダウンロード</button>
         <button class="btn" style="color:#fff;border-color:rgba(255,255,255,0.3);background:transparent;" onclick="document.getElementById('print-prev').classList.remove('open')">閉じる</button>
       </div>
     </div>
@@ -1123,6 +1123,76 @@ window.generatePrint=function(){
 };
 
 function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
+</script>
+<!-- jsPDF + html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+async function downloadPDF() {
+  const btn = document.getElementById('pdf-btn');
+  const status = document.getElementById('pdf-status');
+  const pages = document.querySelectorAll('#pp-body .ppage');
+  if (!pages.length) { alert('プレビューを表示してからダウンロードしてください'); return; }
+
+  btn.disabled = true;
+  btn.textContent = '生成中...';
+  status.textContent = '0 / ' + pages.length + ' ページ処理中';
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pdfW = 297; // A4横 mm
+    const pdfH = 210;
+
+    for (let i = 0; i < pages.length; i++) {
+      status.textContent = (i + 1) + ' / ' + pages.length + ' ページ処理中...';
+      const page = pages[i];
+
+      // 一時的にスタイルを調整してキャプチャしやすくする
+      const origStyle = page.style.cssText;
+      page.style.width = '1122px'; // A4横のpx換算（96dpi）
+      page.style.height = 'auto';
+      page.style.margin = '0';
+      page.style.boxShadow = 'none';
+
+      const canvas = await html2canvas(page, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: 1122,
+      });
+
+      page.style.cssText = origStyle;
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      const canvasW = canvas.width;
+      const canvasH = canvas.height;
+      const ratio = canvasW / canvasH;
+
+      // A4横に収まるよう縦横比を維持
+      let imgW = pdfW;
+      let imgH = pdfW / ratio;
+      if (imgH > pdfH) { imgH = pdfH; imgW = pdfH * ratio; }
+      const x = (pdfW - imgW) / 2;
+      const y = (pdfH - imgH) / 2;
+
+      if (i > 0) pdf.addPage('a4', 'landscape');
+      pdf.addImage(imgData, 'JPEG', x, y, imgW, imgH);
+    }
+
+    const title = document.getElementById('pp-title').textContent.replace(' 印刷プレビュー', '');
+    pdf.save('LDY_' + title + '_' + new Date().toISOString().slice(0,10) + '.pdf');
+    status.textContent = '✓ ダウンロード完了';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  } catch(e) {
+    alert('PDF生成失敗: ' + e.message);
+    console.error(e);
+  }
+  btn.disabled = false;
+  btn.textContent = '📄 PDFダウンロード';
+}
 </script>
 </body>
 </html>
