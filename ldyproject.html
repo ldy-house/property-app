@@ -158,7 +158,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div class="modal-name" id="modal-name"></div>
       <div class="modal-type" id="modal-type"></div>
       <div class="modal-desc" id="modal-desc"></div>
-      <div class="steps-label">工事の進捗状況 ― ステップをクリックで現場写真を見る</div>
+      <div class="steps-label">工事の進捗状況</div>
       <div id="modal-steps"></div>
       <div class="modal-specs" id="modal-specs"></div>
       <div class="modal-contact">
@@ -267,7 +267,7 @@ window.openModal=function(id){
       <div class="step-row-content">
         <div class="step-row-name ${nameClass}">${s.text||''}${s.status==='current'?'<span class="step-now-badge">現在</span>':''}</div>
         ${thumbsHtml?`<div class="step-row-photos">${thumbsHtml}</div>`:''}
-        ${hasPhotos?`<div style="font-size:10px;color:var(--gold);margin-top:4px;">📷 ${photos.length}枚の現場写真 → タップで見る</div>`:''}
+        ${hasPhotos?`<div style="font-size:10px;color:var(--gold);margin-top:4px;">${photos.length}枚の現場写真</div>`:''}
       </div>
       <div class="step-row-arrow">${hasPhotos?'›':''}</div>
     </div>`;
