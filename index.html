@@ -502,6 +502,9 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fg" id="insurance-date-row" style="display:none;">
             <div class="fr"><label>加入日</label><input id="f-insurance-start" type="date" class="fr-jimu"/></div>
             <div class="fr"><label>解約日</label><input id="f-insurance-date" type="date" class="fr-jimu"/></div>
+            <div class="fr"><label>保険証書番号</label>
+            <input id="f-insurance-no" class="fr-jimu" placeholder="例：ABC-12345678"/>
+            </div>
           </div>
           <!-- キーボックス -->
           <div class="fr"><label>キーボックス設置</label>
@@ -693,6 +696,8 @@ window.doSave=async function(){
     insurance:document.getElementById('f-insurance').value,
     insuranceStart:document.getElementById('f-insurance-start').value,
     insuranceDate:document.getElementById('f-insurance-date').value,
+    setV('f-insurance-no',jm.insuranceNo);
+    insuranceNo:document.getElementById('f-insurance-no').value.trim(),
     keybox:document.getElementById('f-keybox').value,
     keyboxLocation:document.getElementById('f-keybox-location').value.trim(),
     keyboxCode:document.getElementById('f-keybox-code').value.trim(),
@@ -785,7 +790,7 @@ window.openModal=function(id=null){
   // reset all
   zoneBlocks=[];
   renderZoneBlocks();
-  ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-uso','f-struct','f-road','f-toshi','f-delivery','f-note','f-elec-customer-no','f-gas-customer-no','f-fixed-tax-notify','f-fixed-tax-date','f-acq-tax-notify','f-acq-tax-date','f-insurance-start','f-insurance-date','f-keybox-location','f-keybox-code','f-keybox-set-date','f-keybox-collect-date','f-jimu-memo'].forEach(x=>setV(x,''));
+  ['f-name','f-loc','f-sta-free','f-walk','f-land','f-floor','f-layout','f-price-val','f-built','f-uso','f-struct','f-road','f-toshi','f-delivery','f-note','f-elec-customer-no','f-gas-customer-no','f-fixed-tax-notify','f-fixed-tax-date','f-acq-tax-notify','f-acq-tax-date','f-insurance-start','f-insurance-no','f-insurance-date','f-keybox-location','f-keybox-code','f-keybox-set-date','f-keybox-collect-date','f-jimu-memo'].forEach(x=>setV(x,''));
   ['f-kind-form','f-sale-status','f-prop-status','f-baitai-form','f-ad-status','f-fixed-tax','f-acq-tax','f-insurance','f-keybox','f-rights-doc'].forEach(x=>setV(x,''));
   document.getElementById('fixed-tax-date-row').style.display='none';
   document.getElementById('acq-tax-date-row').style.display='none';
@@ -908,6 +913,7 @@ function jimuHtml(jm){
   if(jm.fixedTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">固定資産税</span><span class="jimu-val">'+jm.fixedTax+(jm.fixedTaxNotify?'　通知:'+jm.fixedTaxNotify:'')+(jm.fixedTaxDate?'　支払:'+jm.fixedTaxDate:'')+'</span></div>');
   if(jm.acqTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">不動産取得税</span><span class="jimu-val">'+jm.acqTax+(jm.acqTaxNotify?'　通知:'+jm.acqTaxNotify:'')+(jm.acqTaxDate?'　支払:'+jm.acqTaxDate:'')+'</span></div>');
   if(jm.insurance)rows.push('<div class="jimu-row"><span class="jimu-lbl">火災保険</span><span class="jimu-val">'+jm.insurance+(jm.insuranceStart?'　加入:'+jm.insuranceStart:'')+(jm.insuranceDate?'　解約:'+jm.insuranceDate:'')+'</span></div>');
+  if(jm.insurance)rows.push('...' + (jm.insuranceNo ? '　証書番号:'+jm.insuranceNo : '') + '...')
   if(jm.keybox)rows.push('<div class="jimu-row"><span class="jimu-lbl">キーボックス</span><span class="jimu-val">'+jm.keybox+(jm.keyboxLocation?'　場所:'+jm.keyboxLocation:'')+(jm.keyboxCode?'　番号:'+jm.keyboxCode:'')+(jm.keyboxSetDate?'　設置:'+jm.keyboxSetDate:'')+(jm.keyboxCollectDate?'　回収:'+jm.keyboxCollectDate:'')+'</span></div>');
   if(jm.rightsDoc)rows.push('<div class="jimu-row"><span class="jimu-lbl">識別権利書</span><span class="jimu-val">'+jm.rightsDoc+'</span></div>');
   if(jm.jimuMemo)rows.push('<div class="jimu-row" style="grid-column:1/-1;"><span class="jimu-lbl">メモ</span><span class="jimu-val">'+jm.jimuMemo+'</span></div>');
