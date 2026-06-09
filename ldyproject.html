@@ -3,285 +3,385 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>開発プロジェクト｜株式会社LDY</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet"/>
+<title>開発プロジェクト管理｜株式会社LDY</title>
 <style>
-:root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F5F4F0;--white:#FAFAF8;--text:#1a1a2e;--sub:#6B6560;--border:rgba(201,168,76,0.25);}
+:root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;--red:#C62828;--green:#2E7D32;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);}
-
-/* ヘッダー */
-.page-header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:40px 24px 34px;text-align:center;border-bottom:3px solid var(--gold);}
-.page-header-label{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:5px;color:var(--gold);margin-bottom:10px;}
-.page-header-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,5vw,42px);font-weight:300;color:#fff;letter-spacing:2px;margin-bottom:8px;}
-.page-header-sub{font-size:12px;color:rgba(255,255,255,0.45);letter-spacing:2px;}
-
-/* カードグリッド */
-.cards-wrap{max-width:1060px;margin:0 auto;padding:40px 20px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
-
-/* カード */
-.proj-card{background:var(--white);border-radius:6px;overflow:hidden;border:1px solid rgba(27,42,107,0.08);box-shadow:0 2px 16px rgba(27,42,107,0.07);cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;}
-.proj-card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(27,42,107,0.14);}
-
-/* 写真エリア */
-.proj-img{position:relative;height:240px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));overflow:hidden;flex-shrink:0;}
-.proj-img img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.88);transition:transform 0.5s ease;}
-.proj-card:hover .proj-img img{transform:scale(1.04);}
-.proj-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,0.25);font-size:12px;letter-spacing:2px;}
-.proj-placeholder-icon{font-size:36px;color:rgba(201,168,76,0.4);}
-.proj-badge{position:absolute;top:12px;left:12px;font-size:9px;font-weight:700;letter-spacing:3px;padding:5px 12px;border-radius:2px;}
-.badge-done{background:rgba(46,125,50,0.88);color:#fff;}
-.badge-progress{background:rgba(201,168,76,0.92);color:var(--navy-dark);}
-.badge-early{background:rgba(25,118,210,0.88);color:#fff;}
-.badge-construction{background:rgba(230,81,0,0.88);color:#fff;}
-.badge-plan{background:rgba(100,100,100,0.8);color:#fff;}
-.badge-complete{background:rgba(27,42,107,0.9);color:#fff;}
-.proj-hint{position:absolute;bottom:10px;right:12px;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.55);display:flex;align-items:center;gap:4px;}
-.proj-hint::after{content:'›';font-size:14px;}
-
-/* カード本文 */
-.proj-body{padding:20px 20px 22px;flex:1;display:flex;flex-direction:column;}
-.proj-num{font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:6px;}
-.proj-name{font-size:16px;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:6px;}
-.proj-type{font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:10px;}
-.proj-desc{font-size:12px;line-height:1.9;color:var(--sub);flex:1;margin-bottom:10px;}
-
-/* ステップ（カード内） */
-.proj-steps{margin-bottom:14px;}
-.step-item{display:flex;align-items:center;gap:7px;padding:3px 0;}
-.step-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.step-dot.done{background:var(--gold);}
-.step-dot.current{background:var(--gold-light);box-shadow:0 0 0 2px rgba(201,168,76,0.3);}
-.step-dot.future{background:#ddd;}
-.step-label{font-size:10px;color:var(--sub);}
-.step-label.current{color:var(--gold);font-weight:700;}
-.step-label.future{color:#ccc;}
-
-.proj-cta{font-size:11px;letter-spacing:2px;color:var(--gold);display:flex;align-items:center;gap:6px;border-top:1px solid var(--border);padding-top:12px;margin-top:auto;}
-.proj-cta::after{content:'›';font-size:16px;transition:transform 0.2s;}
-.proj-card:hover .proj-cta::after{transform:translateX(4px);}
-
-/* フッター */
-.page-footer{text-align:center;padding:28px 24px;font-size:11px;color:var(--sub);letter-spacing:1px;border-top:1px solid var(--border);}
-
-/* モーダル */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,15,40,0.72);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
-.modal-bg.open{display:flex;}
-.modal{background:var(--white);border-radius:8px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);display:flex;flex-direction:column;}
-.modal-img{height:220px;flex-shrink:0;background:linear-gradient(135deg,var(--navy-dark),var(--navy));position:relative;overflow:hidden;}
-.modal-img img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.85);}
-.modal-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:rgba(255,255,255,0.2);font-size:12px;letter-spacing:2px;}
-.modal-img-ph-icon{font-size:40px;color:rgba(201,168,76,0.4);}
-.modal-close{position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.45);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.modal-close:hover{background:rgba(0,0,0,0.7);}
-.modal-body{padding:24px 24px 28px;}
-.modal-badge-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.modal-badge{font-size:9px;font-weight:700;letter-spacing:3px;padding:4px 12px;border-radius:2px;}
-.modal-proj-num{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--gold);letter-spacing:3px;}
-.modal-name{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.3;}
-.modal-type{font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:18px;}
-.modal-desc{font-size:13px;line-height:2;color:var(--sub);margin-bottom:20px;}
-
-/* 進捗タイムライン（モーダル内） */
-.progress-title{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-.progress-list{display:flex;flex-direction:column;}
-.progress-item{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid rgba(27,42,107,0.06);}
-.progress-item:last-child{border-bottom:none;}
-.progress-dot-col{display:flex;flex-direction:column;align-items:center;padding-top:3px;flex-shrink:0;}
-.progress-dot{width:12px;height:12px;border-radius:50%;}
-.dot-done{background:var(--gold);}
-.dot-current{background:var(--gold-light);box-shadow:0 0 0 3px rgba(201,168,76,0.25);}
-.dot-future{background:#ddd;}
-.progress-vline{width:1px;flex:1;margin-top:4px;background:rgba(201,168,76,0.2);min-height:16px;}
-.progress-content{flex:1;}
-.progress-phase{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;}
-.progress-phase.current{color:var(--gold);}
-.progress-phase.future{color:#bbb;}
-.progress-now{font-size:10px;color:var(--gold);background:rgba(201,168,76,0.1);padding:1px 8px;border-radius:10px;margin-left:8px;font-weight:700;}
-
-/* 詳細情報 */
-.modal-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
-.ms-label{font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:3px;}
-.ms-val{font-size:13px;font-weight:700;color:var(--navy);}
-
-/* 問い合わせ */
-.modal-contact{margin-top:20px;display:flex;gap:10px;}
-.btn-tel{flex:1;display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:11px;border-radius:4px;text-decoration:none;}
-.btn-tel:hover{background:var(--navy-dark);}
-.btn-mail{flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);font-weight:700;font-size:12px;padding:11px;border-radius:4px;text-decoration:none;}
-
-/* ローディング */
-.loading-state{text-align:center;padding:4rem;color:var(--sub);grid-column:1/-1;}
-.spinner{width:32px;height:32px;border:3px solid #ddd;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy-dark),var(--navy));}
+.login-box{background:#fff;border-radius:12px;padding:40px 36px;width:360px;max-width:95%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-lmark{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
+.login-lsub{font-size:11px;color:var(--sub);margin-top:4px;}
+.login-title{font-size:14px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:18px;}
+.lf{margin-bottom:12px;}.lf label{display:block;font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;}
+.lf input{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:5px;font-size:14px;outline:none;}
+.lf input:focus{border-color:var(--navy);}
+.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;}
+.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
+.header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-lmark{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.hdr-title{font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:2px;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.hdr-user{font-size:11px;color:rgba(255,255,255,0.65);}
+.btn-logout{font-size:11px;padding:4px 10px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);border-radius:3px;cursor:pointer;}
+.btn-back{font-size:11px;padding:4px 12px;border:1px solid rgba(201,168,76,0.5);background:transparent;color:var(--gold);border-radius:3px;text-decoration:none;}
+.main{max-width:1000px;margin:0 auto;padding:24px 20px;}
+.page-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.page-sub{font-size:12px;color:var(--sub);margin-bottom:24px;}
+.proj-list{display:flex;flex-direction:column;gap:16px;}
+/* プロジェクトパネル */
+.proj-panel{background:#fff;border-radius:8px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(27,42,107,0.07);overflow:hidden;}
+.proj-panel-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.proj-panel-name{font-size:14px;font-weight:700;color:#fff;}
+.proj-panel-num{font-size:10px;color:var(--gold);letter-spacing:3px;}
+.proj-panel-body{padding:16px 20px;}
+.proj-cover{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+.proj-cover-img{width:160px;height:110px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));border-radius:4px;overflow:hidden;position:relative;flex-shrink:0;}
+.proj-cover-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.proj-cover-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:11px;}
+.proj-cover-info{flex:1;min-width:200px;}
+.fr{margin-bottom:10px;}
+.fr label{display:block;font-size:11px;color:var(--sub);margin-bottom:3px;font-weight:700;}
+.fr input,.fr select,.fr textarea{width:100%;font-size:12px;padding:7px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;font-family:inherit;}
+.fr input:focus,.fr select:focus{border-color:var(--navy);}
+.fr textarea{resize:vertical;height:60px;line-height:1.6;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.img-drop-sm{border:2px dashed #ccc;border-radius:4px;padding:10px;text-align:center;cursor:pointer;color:#999;font-size:11px;transition:all 0.2s;background:#fafafa;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-height:50px;}
+.img-drop-sm:hover,.img-drop-sm.dragover{border-color:var(--gold);background:#fffbf0;}
+.img-uploading{font-size:11px;color:var(--navy);margin-top:4px;display:none;font-weight:600;}
+/* ステップ一覧 */
+.steps-title{font-size:11px;font-weight:700;color:var(--navy);letter-spacing:1px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;}
+.step-item{background:#f8f8f8;border:1px solid #eee;border-radius:6px;padding:12px;margin-bottom:8px;}
+.step-item-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.step-status-sel{font-size:11px;padding:4px 8px;border:1px solid #ddd;border-radius:4px;outline:none;width:90px;}
+.step-text-inp{flex:1;font-size:12px;padding:6px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;}
+.step-text-inp:focus{border-color:var(--navy);}
+.step-del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;}
+.step-del-btn:hover{color:var(--red);}
+/* ステップ写真 */
+.step-photos-area{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:10px;}
+.step-photos-title{font-size:10px;font-weight:700;color:var(--sub);margin-bottom:8px;}
+.step-photo-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.step-photo-item{position:relative;width:80px;}
+.step-photo-img{width:80px;height:60px;object-fit:cover;border-radius:4px;display:block;border:1px solid #eee;}
+.step-photo-date{width:100%;font-size:9px;color:var(--sub);margin-top:2px;text-align:center;}
+.step-photo-del{position:absolute;top:2px;right:2px;background:rgba(200,0,0,0.85);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.step-photo-add{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.step-photo-add input[type="date"]{font-size:11px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;outline:none;}
+.btn{font-size:12px;padding:6px 14px;border-radius:4px;border:1px solid #ccc;background:#fff;color:var(--text);cursor:pointer;white-space:nowrap;}
+.btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);border:none;font-weight:700;}
+.btn-navy{background:var(--navy);color:#fff;border:none;font-weight:600;}
+.btn-navy:hover{background:var(--navy-dark);}
+.btn-red{color:var(--red);border-color:#f7c1c1;}
+.btn-sm{font-size:11px;padding:4px 10px;}
+.save-bar{position:sticky;bottom:0;background:rgba(255,255,255,0.95);border-top:2px solid var(--gold);padding:12px 20px;display:flex;gap:10px;justify-content:flex-end;backdrop-filter:blur(4px);}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-overlay.show{display:flex;}
+.spinner{width:36px;height:36px;border:3px solid #eee;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
-@media(max-width:600px){
-  .cards-wrap{grid-template-columns:1fr;padding:24px 16px 48px;}
-  .proj-img{height:200px;}
-  .modal-img{height:180px;}
-  .modal-contact{flex-direction:column;}
-}
+.loading-text{font-size:13px;font-weight:700;color:var(--navy);}
 </style>
 </head>
 <body>
-<div class="cards-wrap" id="cards-wrap">
-  <div class="loading-state"><div class="spinner"></div><div>読み込み中...</div></div>
+<div class="loading-overlay" id="loading"><div class="spinner"></div><div class="loading-text" id="loading-text">処理中...</div></div>
+
+<div id="login-screen" style="display:flex;">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-logo"><div class="login-lmark">LDY</div><div class="login-lsub">株式会社LDY</div></div>
+      <div class="login-title">社員ログイン</div>
+      <div class="lf"><label>メールアドレス</label><input type="email" id="login-email" placeholder="example@ldy-house.com"/></div>
+      <div class="lf"><label>パスワード</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
+      <button class="login-btn" onclick="doLogin()">ログイン</button>
+      <div class="login-err" id="login-err"></div>
+    </div>
+  </div>
 </div>
 
-<!-- モーダル -->
-<div class="modal-bg" id="modal-bg" onclick="closeModalOutside(event)">
-  <div class="modal" id="modal">
-    <div class="modal-img" id="modal-img-wrap">
-      <button class="modal-close" onclick="closeModal()">✕</button>
+<div id="main-app" style="display:none;">
+  <div class="header">
+    <div class="hdr-left">
+      <span class="hdr-lmark">LDY</span>
+      <span class="hdr-title">開発プロジェクト管理</span>
     </div>
-    <div class="modal-body">
-      <div class="modal-badge-row">
-        <span class="modal-badge" id="modal-badge"></span>
-        <span class="modal-proj-num" id="modal-num"></span>
-      </div>
-      <div class="modal-name" id="modal-name"></div>
-      <div class="modal-type" id="modal-type"></div>
-      <div class="modal-desc" id="modal-desc"></div>
-      <div class="progress-title">工事の進捗状況</div>
-      <div class="progress-list" id="modal-progress"></div>
-      <div class="modal-specs" id="modal-specs"></div>
-      <div class="modal-contact">
-        <a href="tel:0362606811" class="btn-tel">📞 電話で問い合わせる</a>
-        <a href="mailto:info@ldy-house.com?subject=開発プロジェクトについてのお問い合わせ" class="btn-mail">✉ メールで問い合わせる</a>
-      </div>
+    <div class="hdr-right">
+      <a href="admin.html" class="btn-back">← 管理画面へ</a>
+      <span class="hdr-user" id="user-email"></span>
+      <button class="btn-logout" onclick="doLogout()">ログアウト</button>
     </div>
+  </div>
+
+  <div class="main">
+    <div class="page-title">開発プロジェクト管理</div>
+    <div class="page-sub">各プロジェクトの写真・進捗・現場写真を編集できます。変更はお客様向けページに即時反映されます。</div>
+    <div class="proj-list" id="proj-list">
+      <div style="text-align:center;padding:3rem;color:var(--sub);">読み込み中...</div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <span id="save-status" style="font-size:12px;color:var(--sub);padding:6px 0;"></span>
+    <button class="btn btn-gold" onclick="saveAll()">すべて保存する</button>
   </div>
 </div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,collection,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,doc,setDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
-const app=initializeApp(FC),db=getFirestore(app);
+const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
 
-// デフォルトデータ（Firebaseに未保存時のフォールバック）
 const DEFAULTS=[
-  {id:'p1',num:'PROJECT 01',name:'アパート・マンション開発プロジェクト',type:'集合住宅 ｜ 東京都内',status:'done',photo:'',desc:'上棟を完了し、現在は内装・設備工事を進めています。入居者の方々が快適に暮らせるよう、細部にまでこだわった施工を進めています。',area:'東京都内',completion:'2026年予定',
-   steps:[{text:'着工・基礎工事',status:'done'},{text:'躯体工事',status:'done'},{text:'上棟',status:'done'},{text:'内装・設備工事',status:'current'},{text:'完成・引渡し',status:'future'}]},
-  {id:'p2',num:'PROJECT 02',name:'プレミアム戸建て開発プロジェクト',type:'豪華戸建て ｜ 東京都内',status:'progress',photo:'',desc:'随所にこだわりを詰め込んだ豪華な一邸。基礎工事が完了し、いよいよ上棟を迎えようとしています。',area:'東京都内',completion:'2026年予定',
-   steps:[{text:'着工・地縄確認',status:'done'},{text:'基礎工事',status:'done'},{text:'上棟',status:'current'},{text:'内装・設備工事',status:'future'},{text:'完成・引渡し',status:'future'}]},
-  {id:'p3',num:'PROJECT 03',name:'戸建て開発プロジェクト',type:'戸建て ｜ 東京都内',status:'early',photo:'',desc:'現在、既存建物の解体工事を進めています。更地になった後は新築工事へと移行します。',area:'東京都内',completion:'2026年予定',
-   steps:[{text:'解体工事',status:'current'},{text:'地盤調査・基礎工事',status:'future'},{text:'躯体・上棟',status:'future'},{text:'内装・設備工事',status:'future'},{text:'完成・引渡し',status:'future'}]},
+  {id:'p1',num:'PROJECT 01',name:'アパート・マンション開発プロジェクト',type:'集合住宅 ｜ 東京都内',status:'done',photo:'',desc:'上棟を完了。現在は内装・設備工事を進めています。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'着工・基礎工事',status:'done',photos:[]},{text:'躯体工事',status:'done',photos:[]},{text:'上棟',status:'done',photos:[]},{text:'内装・設備工事',status:'current',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
+  {id:'p2',num:'PROJECT 02',name:'プレミアム戸建て開発プロジェクト',type:'豪華戸建て ｜ 東京都内',status:'progress',photo:'',desc:'基礎工事が完了し、間もなく上棟を迎えます。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'着工・地縄確認',status:'done',photos:[]},{text:'基礎工事',status:'done',photos:[]},{text:'上棟',status:'current',photos:[]},{text:'内装・設備工事',status:'future',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
+  {id:'p3',num:'PROJECT 03',name:'戸建て開発プロジェクト',type:'戸建て ｜ 東京都内',status:'early',photo:'',desc:'既存建物の解体工事を進めています。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'解体工事',status:'current',photos:[]},{text:'地盤調査・基礎工事',status:'future',photos:[]},{text:'躯体・上棟',status:'future',photos:[]},{text:'内装・設備工事',status:'future',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
 ];
 
+let data={}; // id → プロジェクトデータ（編集中）
 let dbData={};
-let allProjects=[];
 
-// Firebaseからリアルタイム取得
-onSnapshot(collection(db,'dev_projects'),snap=>{
-  dbData={};
-  snap.docs.forEach(d=>{dbData[d.id]={id:d.id,...d.data()};});
-  mergeAndRender();
+onAuthStateChanged(auth,user=>{
+  if(user){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('main-app').style.display='block';
+    document.getElementById('user-email').textContent=user.email;
+    setTimeout(()=>{
+      onSnapshot(collection(db,'dev_projects'),snap=>{
+        dbData={};
+        snap.docs.forEach(d=>{dbData[d.id]={id:d.id,...d.data()};});
+        // 初回のみdataを初期化
+        DEFAULTS.forEach(def=>{
+          if(!data[def.id]){
+            data[def.id]=JSON.parse(JSON.stringify(dbData[def.id]||def));
+          }
+        });
+        renderAll();
+      });
+    },0);
+  }else{
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('main-app').style.display='none';
+  }
 });
 
-function mergeAndRender(){
-  // デフォルトにFirebaseデータをマージ
-  allProjects=DEFAULTS.map(d=>dbData[d.id]?{...d,...dbData[d.id]}:d);
-  renderCards();
+window.doLogin=async function(){
+  const email=document.getElementById('login-email').value.trim(),pass=document.getElementById('login-pass').value;
+  document.getElementById('login-err').textContent='';
+  if(!email||!pass){document.getElementById('login-err').textContent='入力してください';return;}
+  try{showLoading(true,'ログイン中...');await signInWithEmailAndPassword(auth,email,pass);}
+  catch(e){let m='ログイン失敗';if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password')m='メールアドレスまたはパスワードが違います';else m='エラー: '+e.code;document.getElementById('login-err').textContent=m;}
+  showLoading(false);
+};
+window.doLogout=async function(){await signOut(auth);};
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin();});
+
+// Cloudinary
+const CLD='dujllruro',CLD_P='ldy-property';
+async function uploadFile(file){
+  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLD_P);
+  const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});
+  const d=await r.json();if(d.secure_url)return d.secure_url;throw new Error(d.error?.message||'失敗');
 }
 
 function statusLabel(s){return{done:'上棟済み',progress:'間もなく上棟',early:'解体中',construction:'工事中',plan:'計画中',complete:'完成'}[s]||s;}
-function statusBadgeClass(s){return{done:'badge-done',progress:'badge-progress',early:'badge-early',construction:'badge-construction',plan:'badge-plan',complete:'badge-complete'}[s]||'badge-early';}
 
-function renderCards(){
-  const wrap=document.getElementById('cards-wrap');
-  if(!wrap)return;
-  wrap.innerHTML=allProjects.map(p=>{
-    const steps=(p.steps||[]).slice(0,5); // カードは最大5件
-    const stepsHtml=steps.map(s=>
-      '<div class="step-item">'+
-        '<div class="step-dot '+s.status+'"></div>'+
-        '<span class="step-label '+(s.status==='future'?'future':s.status==='current'?'current':'')+'">'+(s.text||'')+(s.status==='current'?' ← 現在':'')+'</span>'+
-      '</div>'
-    ).join('');
-    const imgArea=p.photo
-      ?'<img src="'+p.photo+'" alt="'+p.name+'"/>'
-      :'<div class="proj-placeholder"><div class="proj-placeholder-icon">&#127968;</div><span>外観写真</span></div>';
-    return '<div class="proj-card" onclick="openModal(\''+p.id+'\')">'+
-      '<div class="proj-img">'+
-        imgArea+
-        '<span class="proj-badge '+statusBadgeClass(p.status)+'">'+statusLabel(p.status)+'</span>'+
-        '<span class="proj-hint">最新進捗を見る</span>'+
-      '</div>'+
-      '<div class="proj-body">'+
-        '<div class="proj-num">'+(p.num||'')+'</div>'+
-        '<div class="proj-name">'+(p.name||'')+'</div>'+
-        '<div class="proj-type">'+(p.type||'')+'</div>'+
-        '<div class="proj-desc">'+(p.desc||'')+'</div>'+
-        (stepsHtml?'<div class="proj-steps">'+stepsHtml+'</div>':'')+
-        '<div class="proj-cta">最新の進捗を見る</div>'+
-      '</div>'+
-    '</div>';
+function renderAll(){
+  const list=document.getElementById('proj-list');
+  list.innerHTML=DEFAULTS.map(def=>{
+    const p=data[def.id]||def;
+    const steps=(p.steps||[]);
+    return `<div class="proj-panel" id="panel-${p.id}">
+      <div class="proj-panel-head">
+        <div>
+          <div class="proj-panel-num">${p.num||''}</div>
+          <div class="proj-panel-name">${p.name||''}</div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);">ステップ数：${steps.length}</div>
+      </div>
+      <div class="proj-panel-body">
+        <!-- カバー写真・基本情報 -->
+        <div class="proj-cover">
+          <div>
+            <div class="proj-cover-img" id="cover-img-${p.id}">
+              ${p.photo?`<img src="${p.photo}" alt=""/>`: '<div class="proj-cover-img-placeholder">写真なし</div>'}
+            </div>
+            <div style="margin-top:6px;">
+              <div class="img-drop-sm" onclick="document.getElementById('cover-input-${p.id}').click()">
+                <div>&#128247;</div><div>カバー写真を変更</div>
+              </div>
+              <div class="img-uploading" id="cover-uploading-${p.id}">アップロード中...</div>
+              <input type="file" id="cover-input-${p.id}" accept="image/*" style="display:none;" onchange="handleCover(event,'${p.id}')"/>
+            </div>
+          </div>
+          <div class="proj-cover-info">
+            <div class="fr"><label>ステータス</label>
+              <select id="status-${p.id}" onchange="updateField('${p.id}','status',this.value)">
+                <option value="done" ${p.status==='done'?'selected':''}>上棟済み</option>
+                <option value="progress" ${p.status==='progress'?'selected':''}>間もなく上棟</option>
+                <option value="early" ${p.status==='early'?'selected':''}>解体中</option>
+                <option value="construction" ${p.status==='construction'?'selected':''}>工事中</option>
+                <option value="plan" ${p.status==='plan'?'selected':''}>計画中</option>
+                <option value="complete" ${p.status==='complete'?'selected':''}>完成</option>
+              </select>
+            </div>
+            <div class="fr"><label>概要説明</label>
+              <textarea id="desc-${p.id}" oninput="updateField('${p.id}','desc',this.value)">${p.desc||''}</textarea>
+            </div>
+            <div class="fg">
+              <div class="fr"><label>エリア</label><input id="area-${p.id}" value="${p.area||''}" oninput="updateField('${p.id}','area',this.value)"/></div>
+              <div class="fr"><label>完成予定</label><input id="comp-${p.id}" value="${p.completion||''}" oninput="updateField('${p.id}','completion',this.value)"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ステップ一覧 -->
+        <div class="steps-title">
+          <span>工事ステップ・現場写真</span>
+          <button class="btn btn-sm btn-navy" onclick="addStep('${p.id}')">＋ ステップ追加</button>
+        </div>
+        <div id="steps-${p.id}">
+          ${steps.map((s,si)=>renderStep(p.id,si,s)).join('')}
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-window.openModal=function(id){
-  const p=allProjects.find(x=>x.id===id);
-  if(!p)return;
+function renderStep(pid,si,s){
+  const photos=(s.photos||[]);
+  const photoListHtml=photos.map((ph,pi)=>
+    `<div class="step-photo-item">
+      <img class="step-photo-img" src="${ph.url}" alt=""/>
+      <div class="step-photo-date">${ph.date||''}</div>
+      <button class="step-photo-del" onclick="removeStepPhoto('${pid}',${si},${pi})">✕</button>
+    </div>`
+  ).join('');
 
-  // 画像
-  const imgWrap=document.getElementById('modal-img-wrap');
-  imgWrap.innerHTML='<button class="modal-close" onclick="closeModal()">✕</button>';
-  if(p.photo){
-    const img=document.createElement('img');
-    img.src=p.photo;img.alt=p.name||'';
-    imgWrap.insertBefore(img,imgWrap.firstChild);
-  }else{
-    const ph=document.createElement('div');
-    ph.className='modal-img-placeholder';
-    ph.innerHTML='<div class="modal-img-ph-icon">&#127968;</div><span>外観写真</span>';
-    imgWrap.insertBefore(ph,imgWrap.firstChild);
+  return `<div class="step-item" id="step-${pid}-${si}">
+    <div class="step-item-head">
+      <select class="step-status-sel" onchange="updateStep('${pid}',${si},'status',this.value)">
+        <option value="done" ${s.status==='done'?'selected':''}>✓ 完了</option>
+        <option value="current" ${s.status==='current'?'selected':''}>→ 現在</option>
+        <option value="future" ${s.status==='future'?'selected':''}>○ 予定</option>
+      </select>
+      <input class="step-text-inp" value="${s.text||''}" placeholder="ステップ名" oninput="updateStep('${pid}',${si},'text',this.value)"/>
+      <button class="step-del-btn" onclick="removeStep('${pid}',${si})">✕</button>
+    </div>
+    <div class="step-photos-area">
+      <div class="step-photos-title">現場写真</div>
+      <div class="step-photo-list" id="step-photos-${pid}-${si}">${photoListHtml}</div>
+      <div class="step-photo-add">
+        <input type="date" id="step-date-${pid}-${si}" style="font-size:11px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;outline:none;"/>
+        <button class="btn btn-sm" onclick="document.getElementById('step-photo-input-${pid}-${si}').click()">＋ 写真を追加</button>
+        <span class="img-uploading" id="step-uploading-${pid}-${si}">アップロード中...</span>
+        <input type="file" id="step-photo-input-${pid}-${si}" accept="image/*" multiple style="display:none;" onchange="handleStepPhoto(event,'${pid}',${si})"/>
+      </div>
+    </div>
+  </div>`;
+}
+
+// フィールド更新
+window.updateField=function(pid,field,val){if(data[pid])data[pid][field]=val;};
+window.updateStep=function(pid,si,field,val){if(data[pid]&&data[pid].steps[si])data[pid].steps[si][field]=val;};
+
+// カバー写真
+window.handleCover=async function(e,pid){
+  const file=e.target.files[0];if(!file)return;
+  document.getElementById('cover-uploading-'+pid).style.display='block';
+  try{
+    const url=await uploadFile(file);
+    data[pid].photo=url;
+    const wrap=document.getElementById('cover-img-'+pid);
+    wrap.innerHTML=`<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
+  }catch(err){alert('失敗: '+err.message);}
+  document.getElementById('cover-uploading-'+pid).style.display='none';
+  e.target.value='';
+};
+
+// ステップ写真
+window.handleStepPhoto=async function(e,pid,si){
+  const files=Array.from(e.target.files);if(!files.length)return;
+  const uploadEl=document.getElementById('step-uploading-'+pid+'-'+si);
+  uploadEl.style.display='inline';
+  const dateEl=document.getElementById('step-date-'+pid+'-'+si);
+  const date=dateEl.value||'';
+  for(const file of files){
+    try{
+      const url=await uploadFile(file);
+      if(!data[pid].steps[si].photos)data[pid].steps[si].photos=[];
+      data[pid].steps[si].photos.push({url,date});
+      // 写真リストを再描画
+      const listEl=document.getElementById('step-photos-'+pid+'-'+si);
+      listEl.innerHTML=data[pid].steps[si].photos.map((ph,pi)=>
+        `<div class="step-photo-item">
+          <img class="step-photo-img" src="${ph.url}" alt=""/>
+          <div class="step-photo-date">${ph.date||''}</div>
+          <button class="step-photo-del" onclick="removeStepPhoto('${pid}',${si},${pi})">✕</button>
+        </div>`
+      ).join('');
+    }catch(err){alert('失敗: '+err.message);}
   }
-
-  // バッジ・名前
-  const badge=document.getElementById('modal-badge');
-  badge.textContent=statusLabel(p.status);
-  badge.className='modal-badge '+statusBadgeClass(p.status);
-  document.getElementById('modal-num').textContent=p.num||'';
-  document.getElementById('modal-name').textContent=p.name||'';
-  document.getElementById('modal-type').textContent=p.type||'';
-  document.getElementById('modal-desc').textContent=p.desc||'';
-
-  // 進捗タイムライン
-  const steps=p.steps||[];
-  document.getElementById('modal-progress').innerHTML=steps.map((s,i)=>{
-    const isLast=i===steps.length-1;
-    const dotClass='dot-'+(s.status||'future');
-    const phaseClass=s.status==='current'?'current':s.status==='future'?'future':'';
-    return '<div class="progress-item">'+
-      '<div class="progress-dot-col">'+
-        '<div class="progress-dot '+dotClass+'"></div>'+
-        (!isLast?'<div class="progress-vline"></div>':'')+
-      '</div>'+
-      '<div class="progress-content">'+
-        '<div class="progress-phase '+phaseClass+'">'+(s.text||'')+(s.status==='current'?'<span class="progress-now">現在</span>':'')+'</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-
-  // 詳細情報
-  document.getElementById('modal-specs').innerHTML=
-    '<div class="ms-item"><div class="ms-label">エリア</div><div class="ms-val">'+(p.area||'東京都内')+'</div></div>'+
-    '<div class="ms-item"><div class="ms-label">完成予定</div><div class="ms-val">'+(p.completion||'—')+'</div></div>';
-
-  document.getElementById('modal-bg').classList.add('open');
-  document.body.style.overflow='hidden';
+  uploadEl.style.display='none';
+  e.target.value='';
 };
 
-window.closeModal=function(){
-  document.getElementById('modal-bg').classList.remove('open');
-  document.body.style.overflow='';
+window.removeStepPhoto=function(pid,si,pi){
+  data[pid].steps[si].photos.splice(pi,1);
+  const listEl=document.getElementById('step-photos-'+pid+'-'+si);
+  listEl.innerHTML=data[pid].steps[si].photos.map((ph,pi2)=>
+    `<div class="step-photo-item">
+      <img class="step-photo-img" src="${ph.url}" alt=""/>
+      <div class="step-photo-date">${ph.date||''}</div>
+      <button class="step-photo-del" onclick="removeStepPhoto('${pid}',${si},${pi2})">✕</button>
+    </div>`
+  ).join('');
 };
-window.closeModalOutside=function(e){
-  if(e.target===document.getElementById('modal-bg'))closeModal();
+
+window.addStep=function(pid){
+  if(!data[pid].steps)data[pid].steps=[];
+  const si=data[pid].steps.length;
+  data[pid].steps.push({text:'',status:'future',photos:[]});
+  const container=document.getElementById('steps-'+pid);
+  const div=document.createElement('div');
+  div.innerHTML=renderStep(pid,si,data[pid].steps[si]);
+  container.appendChild(div.firstElementChild);
 };
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+window.removeStep=function(pid,si){
+  data[pid].steps.splice(si,1);
+  const container=document.getElementById('steps-'+pid);
+  container.innerHTML=data[pid].steps.map((s,i)=>renderStep(pid,i,s)).join('');
+};
+
+// 保存
+window.saveAll=async function(){
+  showLoading(true,'保存中...');
+  const statusEl=document.getElementById('save-status');
+  try{
+    for(const pid of Object.keys(data)){
+      const def=DEFAULTS.find(d=>d.id===pid)||{};
+      await setDoc(doc(db,'dev_projects',pid),{...data[pid],num:def.num||pid});
+    }
+    statusEl.textContent='✓ 保存しました';
+    setTimeout(()=>{statusEl.textContent='';},3000);
+  }catch(e){
+    alert('保存失敗: '+e.message);
+    console.error(e);
+  }
+  showLoading(false);
+};
+
+function showLoading(v,txt='処理中...'){
+  document.getElementById('loading').className='loading-overlay'+(v?' show':'');
+  document.getElementById('loading-text').textContent=txt;
+}
 </script>
 </body>
 </html>
