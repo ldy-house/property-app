@@ -162,8 +162,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div id="modal-steps"></div>
       <div class="modal-specs" id="modal-specs"></div>
       <div class="modal-contact">
-        <a href="tel:0362606811" class="btn-tel">📞 電話で問い合わせる</a>
-        <a href="mailto:info@ldy-house.com?subject=開発プロジェクトについてのお問い合わせ" class="btn-mail">✉ メールで問い合わせる</a>
+        <a href="tel:0362606811" class="btn-tel">電話で問い合わせる</a>
+        <a href="mailto:info@ldy-house.com?subject=開発プロジェクトについてのお問い合わせ" class="btn-mail">メールで問い合わせる</a>
       </div>
     </div>
   </div>
@@ -310,7 +310,7 @@ window.lbMove=function(dir){
 function updateLB(){
   const ph=lbPhotos[lbIdx];
   document.getElementById('lb-img').src=ph.url;
-  document.getElementById('lb-date').textContent=ph.date?'📅 '+ph.date:'';
+  document.getElementById('lb-date').textContent=ph.date?''+ph.date:'';
   document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;
   document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>`<div class="lb-dot${i===lbIdx?' active':''}" onclick="lbGoTo(${i})"></div>`).join('');
   document.getElementById('lb-thumbs').innerHTML=lbPhotos.map((p2,i)=>`<img class="lb-thumb${i===lbIdx?' active':''}" src="${p2.url}" onclick="lbGoTo(${i})" alt=""/>`).join('');
