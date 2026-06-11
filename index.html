@@ -1141,19 +1141,57 @@ async function downloadPDF() {
   try {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const pdfW = 297; // A4横 mm
+    const pdfW = 297;
     const pdfH = 210;
 
     for (let i = 0; i < pages.length; i++) {
       status.textContent = (i + 1) + ' / ' + pages.length + ' ページ処理中...';
       const page = pages[i];
 
-      // 一時的にスタイルを調整してキャプチャしやすくする
+      // キャプチャ前にスタイルを固定（高さauto・flex解除で引き伸ばし防止）
       const origStyle = page.style.cssText;
-      page.style.width = '1122px'; // A4横のpx換算（96dpi）
-      page.style.height = 'auto';
-      page.style.margin = '0';
-      page.style.boxShadow = 'none';
+      page.style.cssText = [
+        'width:1122px',
+        'height:auto',
+        'min-height:0',
+        'max-height:none',
+        'margin:0',
+        'padding:19px 19px',
+        'box-shadow:none',
+        'overflow:visible',
+        'display:block',
+        'background:#ffffff'
+      ].join(';');
+
+      // ptable-wrap も高さ制限を解除
+      const wrap = page.querySelector('.ptable-wrap');
+      let origWrapStyle = '';
+      if (wrap) {
+        origWrapStyle = wrap.style.cssText;
+        wrap.style.cssText = 'overflow:visible;height:auto;';
+      }
+
+      // name-cellの文字を確実に白で表示
+      const nameCells = page.querySelectorAll('.name-cell');
+      nameCells.forEach(c => {
+        c._origColor = c.style.color;
+        c._origFill = c.style.webkitTextFillColor;
+        c.style.color = '#ffffff';
+        c.style.webkitTextFillColor = '#ffffff';
+      });
+
+      // name-cell, lbl, lbl-int 以外のtdを白背景に固定
+      const allTd = page.querySelectorAll('td');
+      allTd.forEach(td => {
+        if (!td.classList.contains('name-cell') &&
+            !td.classList.contains('lbl') &&
+            !td.classList.contains('lbl-int')) {
+          td._origBg = td.style.backgroundColor;
+          td.style.backgroundColor = '#ffffff';
+        }
+      });
+
+      await new Promise(r => setTimeout(r, 80));
 
       const canvas = await html2canvas(page, {
         scale: 2,
@@ -1161,20 +1199,32 @@ async function downloadPDF() {
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 1122,
+        imageTimeout: 15000,
       });
 
+      // スタイルを元に戻す
       page.style.cssText = origStyle;
+      if (wrap) wrap.style.cssText = origWrapStyle;
+      nameCells.forEach(c => {
+        c.style.color = c._origColor || '';
+        c.style.webkitTextFillColor = c._origFill || '';
+      });
+      allTd.forEach(td => {
+        if (td._origBg !== undefined) td.style.backgroundColor = td._origBg;
+      });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      const imgData = canvas.toDataURL('image/jpeg', 0.93);
       const canvasW = canvas.width;
       const canvasH = canvas.height;
       const ratio = canvasW / canvasH;
 
-      // A4横に収まるよう縦横比を維持
-      let imgW = pdfW;
-      let imgH = pdfW / ratio;
-      if (imgH > pdfH) { imgH = pdfH; imgW = pdfH * ratio; }
+      const margin = 5;
+      let imgW = pdfW - margin * 2;
+      let imgH = imgW / ratio;
+      if (imgH > pdfH - margin * 2) {
+        imgH = pdfH - margin * 2;
+        imgW = imgH * ratio;
+      }
       const x = (pdfW - imgW) / 2;
       const y = (pdfH - imgH) / 2;
 
