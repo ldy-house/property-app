@@ -187,7 +187,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ppage,.ptable,.ptable td,.ptable tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
-.name-cell{background-color:#1B2A6B !important;color:#ffffff !important;font-weight:700;font-size:8px;text-align:center;padding:3px;}
+.name-cell{background-color:#1B2A6B;color:#ffffff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
 .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
 .price-cell{font-size:9px;font-weight:900;color:var(--red);text-align:center;}
 .img-cell{padding:2px;text-align:center;position:relative;}
@@ -211,7 +211,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   .ptable td{background:#ffffff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .ptable .lbl{background:#F0F2F8 !important;color:var(--navy) !important;}
   .ptable .lbl-int{background:#FFF0F0 !important;color:#900 !important;}
-  .ptable .name-cell{background:#111C4E !important;color:#fff !important;}
+  .ptable .name-cell{background:#111C4E;color:#fff;}
   .ptable .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
   .ptable .val{background:#ffffff !important;}
   .ptable .val-int{background:#FFF0F0 !important;}
@@ -1087,7 +1087,7 @@ window.generatePrint=function(){
     const imgH=hasImg?Math.min(180,Math.max(80,unitPx*4))+'px':0;
     const noteH=hasNote?Math.min(90,Math.max(36,unitPx*3))+'px':0;
     const normalH=Math.max(14,Math.min(40,unitPx))+'px';
-    const nameRow='<tr style="height:9mm;"><td class="lbl" style="font-size:6px;">物件名</td>'+
+    const nameRow='<tr style="height:32px;"><td class="lbl" style="font-size:6px;">物件名</td>'+
       page.map(p=>'<td class="name-cell" style="font-size:'+(p.name.length>12?'6':'8')+'px;">'+p.name+'</td>').join('')+'</tr>';
     const dataRows=rows.map(row=>{
       const isImg=row.type==='img',isNote=row.type==='note';
