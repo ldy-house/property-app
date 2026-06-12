@@ -182,12 +182,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pgold{height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));margin-bottom:3px;flex-shrink:0;}
 .ptable-wrap{overflow:hidden;background:#ffffff;}
 .ptable{width:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;background:#fff !important;}
-.ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;background:#ffffff !important;}
+.ptable td{border:0.5px solid #bbb;padding:1.5px 2px;vertical-align:middle;line-height:1.4;overflow:hidden;background:#ffffff;}
 /* 印刷時の背景色を正確に再現 */
 .ppage,.ptable,.ptable td,.ptable tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
-.name-cell{background-color:#1B2A6B;color:#ffffff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
+.name-cell{background-color:#1B2A6B !important;color:#ffffff !important;font-weight:700;font-size:8px;text-align:center;padding:3px;}
 .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
 .price-cell{font-size:9px;font-weight:900;color:var(--red);text-align:center;}
 .img-cell{padding:2px;text-align:center;position:relative;}
@@ -207,11 +207,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   body>*:not(#printable){display:none!important;}
   #printable{display:block!important;}
   .ppage{margin:0;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;height:190mm !important;overflow:hidden !important;}
-  /* 全セルに白背景を強制 */
-  .ptable td{background:#ffffff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  /* 全セルに白背景を強制（name-cellは除く） */
+  .ptable td:not(.name-cell){background:#ffffff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .ptable .lbl{background:#F0F2F8 !important;color:var(--navy) !important;}
   .ptable .lbl-int{background:#FFF0F0 !important;color:#900 !important;}
-  .ptable .name-cell{background:#111C4E;color:#fff;}
+  .ptable .name-cell{background:#1B2A6B !important;color:#fff !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .ptable .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
   .ptable .val{background:#ffffff !important;}
   .ptable .val-int{background:#FFF0F0 !important;}
@@ -1080,13 +1080,13 @@ window.generatePrint=function(){
     // px単位で計算（ブラウザ差異を吸収）
     // A4横 190mm = 約718px、ヘッダー約60px、padding約38px、名前行約34px → 残り約586px
     const availPx=586;
-    const imgWeight=hasImg?4:0,noteWeight=hasNote?3:0;
+    const imgWeight=hasImg?3:0,noteWeight=hasNote?3:0;
     const normalCount=dataRowCount-(hasImg?1:0)-(hasNote?1:0);
     const totalWeight=normalCount+imgWeight+noteWeight;
     const unitPx=totalWeight>0?Math.max(14,Math.floor(availPx/totalWeight)):20;
-    const imgH=hasImg?Math.min(180,Math.max(80,unitPx*4))+'px':0;
+    const imgH=hasImg?Math.min(110,Math.max(70,unitPx*3))+'px':0;
     const noteH=hasNote?Math.min(90,Math.max(36,unitPx*3))+'px':0;
-    const normalH=Math.max(14,Math.min(40,unitPx))+'px';
+    const normalH=Math.max(14,Math.min(28,unitPx))+'px';
     const nameRow='<tr style="height:32px;"><td class="lbl" style="font-size:6px;">物件名</td>'+
       page.map(p=>'<td class="name-cell" style="font-size:'+(p.name.length>12?'6':'8')+'px;">'+p.name+'</td>').join('')+'</tr>';
     const dataRows=rows.map(row=>{
