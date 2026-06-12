@@ -187,7 +187,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ppage,.ptable,.ptable td,.ptable tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
-.name-cell{background:linear-gradient(135deg,var(--navy-dark),var(--navy)) !important;color:#fff;font-weight:700;font-size:8px;text-align:center;padding:3px;}
+.name-cell{background-color:#1B2A6B !important;color:#ffffff !important;font-weight:700;font-size:8px;text-align:center;padding:3px;}
 .empty-cell{background:#ffffff !important;border:0.5px solid #ebebeb !important;}
 .price-cell{font-size:9px;font-weight:900;color:var(--red);text-align:center;}
 .img-cell{padding:2px;text-align:center;position:relative;}
@@ -1140,6 +1140,15 @@ async function downloadPDF() {
   btn.textContent = '生成中...';
   status.textContent = '0 / ' + pages.length + ' ページ処理中';
 
+  // オフスクリーンのキャプチャ専用コンテナを用意
+  const captureHost = document.createElement('div');
+  captureHost.style.position = 'fixed';
+  captureHost.style.left = '-99999px';
+  captureHost.style.top = '0';
+  captureHost.style.zIndex = '-1';
+  captureHost.style.background = '#ffffff';
+  document.body.appendChild(captureHost);
+
   try {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -1150,69 +1159,58 @@ async function downloadPDF() {
       status.textContent = (i + 1) + ' / ' + pages.length + ' ページ処理中...';
       const page = pages[i];
 
-      // キャプチャ前にスタイルを固定（高さauto・flex解除で引き伸ばし防止）
-      const origStyle = page.style.cssText;
-      page.style.cssText = [
-        'width:1122px',
-        'height:auto',
-        'min-height:0',
-        'max-height:none',
-        'margin:0',
-        'padding:19px 19px',
-        'box-shadow:none',
-        'overflow:visible',
-        'display:block',
-        'background:#ffffff'
-      ].join(';');
+      // ページのクローンを作り、キャプチャ用に固定スタイルで配置
+      const clone = page.cloneNode(true);
+      clone.style.width = '1122px';
+      clone.style.height = 'auto';
+      clone.style.minHeight = '0';
+      clone.style.maxHeight = 'none';
+      clone.style.margin = '0';
+      clone.style.padding = '19px';
+      clone.style.boxShadow = 'none';
+      clone.style.overflow = 'visible';
+      clone.style.display = 'block';
+      clone.style.background = '#ffffff';
 
-      // ptable-wrap も高さ制限を解除
-      const wrap = page.querySelector('.ptable-wrap');
-      let origWrapStyle = '';
+      const wrap = clone.querySelector('.ptable-wrap');
       if (wrap) {
-        origWrapStyle = wrap.style.cssText;
-        wrap.style.cssText = 'overflow:visible;height:auto;';
+        wrap.style.overflow = 'visible';
+        wrap.style.height = 'auto';
+        wrap.style.flex = 'none';
+      }
+      const table = clone.querySelector('.ptable');
+      if (table) {
+        table.style.height = 'auto';
       }
 
-      // name-cellの文字を確実に白で表示
-      const nameCells = page.querySelectorAll('.name-cell');
-      nameCells.forEach(c => {
-        c._origColor = c.style.color;
-        c._origFill = c.style.webkitTextFillColor;
+      // name-cell, lbl, lbl-int 以外のセルを白背景に統一
+      clone.querySelectorAll('td').forEach(td => {
+        if (!td.classList.contains('name-cell') &&
+            !td.classList.contains('lbl') &&
+            !td.classList.contains('lbl-int')) {
+          td.style.backgroundColor = '#ffffff';
+        }
+      });
+      // name-cellは確実に紺色背景＋白文字
+      clone.querySelectorAll('.name-cell').forEach(c => {
+        c.style.backgroundColor = '#1B2A6B';
         c.style.color = '#ffffff';
         c.style.webkitTextFillColor = '#ffffff';
       });
 
-      // name-cell, lbl, lbl-int 以外のtdを白背景に固定
-      const allTd = page.querySelectorAll('td');
-      allTd.forEach(td => {
-        if (!td.classList.contains('name-cell') &&
-            !td.classList.contains('lbl') &&
-            !td.classList.contains('lbl-int')) {
-          td._origBg = td.style.backgroundColor;
-          td.style.backgroundColor = '#ffffff';
-        }
-      });
+      captureHost.innerHTML = '';
+      captureHost.appendChild(clone);
 
-      await new Promise(r => setTimeout(r, 80));
+      // レンダリング待ち（画像読み込み含む）
+      await new Promise(r => setTimeout(r, 150));
 
-      const canvas = await html2canvas(page, {
+      const canvas = await html2canvas(clone, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
         imageTimeout: 15000,
-      });
-
-      // スタイルを元に戻す
-      page.style.cssText = origStyle;
-      if (wrap) wrap.style.cssText = origWrapStyle;
-      nameCells.forEach(c => {
-        c.style.color = c._origColor || '';
-        c.style.webkitTextFillColor = c._origFill || '';
-      });
-      allTd.forEach(td => {
-        if (td._origBg !== undefined) td.style.backgroundColor = td._origBg;
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 0.93);
@@ -1242,6 +1240,7 @@ async function downloadPDF() {
     alert('PDF生成失敗: ' + e.message);
     console.error(e);
   }
+  captureHost.remove();
   btn.disabled = false;
   btn.textContent = '📄 PDFダウンロード';
 }
