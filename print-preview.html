@@ -27,11 +27,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 /* 印刷ページ本体 */
 .ppage{
-  width:270mm;
-  height:183mm;
+  width:287mm;
+  height:200mm;
   background:#fff;
   margin:0 auto 12px;
-  padding:4mm;
+  padding:5mm;
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
   overflow:hidden;
 }
@@ -45,6 +45,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 table.ptable{width:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;}
 table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;line-height:1.4;}
+
+
 
 .lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
@@ -74,10 +76,10 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   .toolbar{display:none !important;}
   .pages-wrap{padding:0;margin:0;}
   .ppage{
-    width:270mm;
-    height:183mm;
+    width:287mm;
+    height:200mm;
     margin:0 auto;
-    padding:4mm;
+    padding:5mm;
     box-shadow:none;
     page-break-after:always;
     page-break-inside:avoid;
@@ -86,7 +88,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   .ppage:last-child{page-break-after:auto;}
   @page{
     size:A4 landscape;
-    margin:10mm 13mm;
+    margin:5mm;
   }
 }
 </style>
@@ -128,10 +130,10 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 
   const html = pages.map(page => {
     const cols = page.length;
-    const colW = Math.floor(210 / cols);
+    const colW = Math.floor(225 / cols);
 
-    // 使用可能高さ：183mm - ヘッダー約15mm - padding8mm - 名前行8mm - 余白2mm = 150mm
-    const available = 150;
+    // 200mm - ヘッダー15mm - padding(5mm×2=10mm) - 名前行8mm - 余白2mm = 165mm
+    const available = 165;
     const hasImg = rows.some(r => r.type === 'img');
     const hasNote = rows.some(r => r.type === 'note');
     const dataRowCount = rows.length;
