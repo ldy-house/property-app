@@ -27,11 +27,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 /* 印刷ページ本体 */
 .ppage{
-  width:287mm;
-  height:200mm;
+  width:291mm;
+  height:204mm;
   background:#fff;
   margin:0 auto 12px;
-  padding:5mm;
+  padding:4mm;
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
   overflow:hidden;
 }
@@ -67,7 +67,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 
 .val{font-size:6.5px;color:#222;text-align:center;background:#fff;word-break:break-all;}
 .val-int{font-size:6.5px;color:#800;text-align:center;font-weight:600;background:#fff;word-break:break-all;}
-.note-val{font-size:6px;color:#333;text-align:left;vertical-align:top;padding:2px 4px;background:#fff;word-break:break-all;}
+.note-val{font-size:5.5px;color:#333;text-align:left;vertical-align:top;padding:2px 4px;background:#fff;word-break:break-all;overflow:hidden;line-height:1.5;}
 .empty-cell{background:#fff;}
 
 /* 印刷時 */
@@ -76,10 +76,10 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   .toolbar{display:none !important;}
   .pages-wrap{padding:0;margin:0;}
   .ppage{
-    width:287mm;
-    height:200mm;
+    width:291mm;
+    height:204mm;
     margin:0 auto;
-    padding:5mm;
+    padding:4mm;
     box-shadow:none;
     page-break-after:always;
     page-break-inside:avoid;
@@ -88,7 +88,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   .ppage:last-child{page-break-after:auto;}
   @page{
     size:A4 landscape;
-    margin:5mm;
+    margin:3mm;
   }
 }
 </style>
@@ -130,24 +130,24 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 
   const html = pages.map(page => {
     const cols = page.length;
-    const colW = Math.floor(225 / cols);
+    const colW = Math.floor(232 / cols);
 
-    // 200mm - ヘッダー15mm - padding(5mm×2=10mm) - 名前行8mm - 余白2mm = 165mm
-    const available = 165;
+    // 204mm - ヘッダー15mm - padding(4mm×2=8mm) - 名前行8mm - 余白3mm = 170mm
+    const available = 170;
     const hasImg = rows.some(r => r.type === 'img');
     const hasNote = rows.some(r => r.type === 'note');
     const dataRowCount = rows.length;
 
-    // img行=3倍、note行=2倍、通常行=1倍で重み付け均等割り
+    // img行=3倍、note行=4倍、通常行=1倍で重み付け均等割り
     const imgWeight = hasImg ? 3 : 0;
-    const noteWeight = hasNote ? 2 : 0;
+    const noteWeight = hasNote ? 4 : 0;
     const normalCount = dataRowCount - (hasImg ? 1 : 0) - (hasNote ? 1 : 0);
     const totalWeight = normalCount + imgWeight + noteWeight;
     const unitMm = totalWeight > 0 ? available / totalWeight : 5;
 
     // 上限なし・下限だけ設定
     const imgH = hasImg ? Math.max(18, unitMm * 3) : 0;
-    const noteH = hasNote ? Math.max(8, unitMm * 2) : 0;
+    const noteH = hasNote ? Math.max(20, unitMm * 4) : 0;
     const normalH = Math.max(3, unitMm);
 
     const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:6px;">物件名</td>' +
