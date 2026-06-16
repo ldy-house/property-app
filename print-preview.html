@@ -28,10 +28,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 /* 印刷ページ本体 */
 .ppage{
   width:277mm;
+  height:190mm;
   background:#fff;
   margin:0 auto 12px;
   padding:5mm;
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  overflow:hidden;
 }
 .phdr{display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--navy);padding-bottom:4px;margin-bottom:3px;}
 .phdr-logo{display:flex;align-items:center;gap:6px;}
@@ -69,17 +71,23 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 /* 印刷時 */
 @media print{
   body{background:#fff;}
-  .toolbar{display:none;}
-  .pages-wrap{padding:0;}
+  .toolbar{display:none !important;}
+  .pages-wrap{padding:0;margin:0;}
   .ppage{
-    width:auto;
+    width:100%;
+    height:100vh;
     margin:0;
     padding:5mm;
     box-shadow:none;
     page-break-after:always;
+    page-break-inside:avoid;
+    overflow:hidden;
   }
   .ppage:last-child{page-break-after:auto;}
-  @page{size:A4 landscape;margin:0;}
+  @page{
+    size:A4 landscape;
+    margin:0;
+  }
 }
 </style>
 </head>
@@ -105,8 +113,13 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   const data = JSON.parse(raw);
   const { title, pages, rows, internalMap, maskDone } = data;
 
+  const today = new Date();
+  const yyyymmdd = today.getFullYear().toString() +
+    String(today.getMonth()+1).padStart(2,'0') +
+    String(today.getDate()).padStart(2,'0');
+  const pageTitle = 'LDY物件一覧_' + yyyymmdd;
   document.getElementById('pp-title').textContent = title + ' 印刷プレビュー';
-  document.title = title + ' 印刷プレビュー';
+  document.title = pageTitle;
 
   function esc(s){
     if (s == null) return '';
@@ -159,7 +172,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
             : p.saleStatus === '契約済' ? '<div class="pstamp pst-contract">契約</div>' : '';
           tr += '<td class="img-cell" style="height:' + imgH + 'mm;">' + imgHtml + stamp + '</td>';
         } else if (row.type === 'note') {
-          const notes = (p.note || '').split('\\n').filter(Boolean);
+          const notes = (p.note || '').split('\n').filter(Boolean);
           tr += '<td class="note-val"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
         } else if (row.type === 'll') {
           tr += '<td class="val" style="text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
