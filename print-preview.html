@@ -139,16 +139,15 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const dataRowCount = rows.length;
 
     // img行=3倍、note行=4倍、通常行=1倍で重み付け均等割り
-    const imgWeight = hasImg ? 3 : 0;
+    const imgWeight = hasImg ? 5 : 0;
     const noteWeight = hasNote ? 4 : 0;
     const normalCount = dataRowCount - (hasImg ? 1 : 0) - (hasNote ? 1 : 0);
     const totalWeight = normalCount + imgWeight + noteWeight;
     const unitMm = totalWeight > 0 ? available / totalWeight : 5;
 
-    // 上限なし・下限だけ設定
-    const imgH = hasImg ? Math.max(18, unitMm * 3) : 0;
+    const imgH = hasImg ? Math.max(30, unitMm * 5) : 0;
     const noteH = hasNote ? Math.max(20, unitMm * 4) : 0;
-    const normalH = Math.max(3, unitMm);
+    const normalH = Math.max(2.5, unitMm);
 
     const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:6px;">物件名</td>' +
       page.map(p => '<td class="name-cell" style="font-size:' + (p.name.length > 12 ? '7' : '9') + 'px;">' + esc(p.name) + '</td>').join('') +
