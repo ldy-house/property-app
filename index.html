@@ -475,10 +475,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
           <span class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</span>
           <span class="pc-select-all" onclick="toggleAllProps(false)">すべて解除</span>
+          <span class="pc-select-all" onclick="toggleByStatus('販売中')">販売中のみ</span>
+          <span class="pc-select-all" onclick="toggleByStatus('申込あり')">申込ありのみ</span>
+          <span class="pc-select-all" onclick="toggleByStatus('契約済','販売済')">契約済・販売済のみ</span>
           <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
             <span style="font-size:11px;color:var(--sub);">並び替え：</span>
             <select id="pc-sort" onchange="renderPropList()" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:3px;outline:none;">
-              <option value="default">登録順</option>
               <option value="status">販売状況順</option>
               <option value="price-desc">価格：高い順</option>
               <option value="price-asc">価格：安い順</option>
@@ -982,7 +984,7 @@ window.openPrintConfig=function(type){
   currentPrintType=type;
   document.getElementById('pc-title').textContent=type==='broker'?'仲介向け印刷設定':'銀行向け印刷設定';
   document.getElementById('pc-type-label').textContent=type==='broker'?'仲介向け（在庫一覧表）':'銀行向け（実績一覧表）';
-  if(document.getElementById('pc-sort'))document.getElementById('pc-sort').value='default';
+  if(document.getElementById('pc-sort'))document.getElementById('pc-sort').value='status';
   renderPropList();
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
   document.getElementById('pc-row-checks').innerHTML=rows.map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('');
@@ -990,7 +992,7 @@ window.openPrintConfig=function(type){
 };
 
 window.renderPropList=function(){
-  const sortVal=document.getElementById('pc-sort')?.value||'default';
+  const sortVal=document.getElementById('pc-sort')?.value||'status';
   let sorted=[...props];
   if(sortVal==='status')sorted.sort((a,b)=>(STATUS_ORDER2[a.saleStatus]??9)-(STATUS_ORDER2[b.saleStatus]??9));
   else if(sortVal==='price-desc')sorted.sort((a,b)=>(b.price||0)-(a.price||0));
@@ -1023,6 +1025,14 @@ window.updatePropCount=function(){
 };
 window.closePrintConfig=function(){document.getElementById('print-config').classList.remove('open');};
 window.toggleAllProps=function(v){document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v);updatePropCount();};
+window.toggleByStatus=function(...statuses){
+  document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=false);
+  document.querySelectorAll('.pc-prop-check').forEach(c=>{
+    const p=props.find(x=>x.id===c.value);
+    if(p&&statuses.includes(p.saleStatus))c.checked=true;
+  });
+  updatePropCount();
+};
 
 window.generatePrint=function(){
   const selectedIds=new Set([...document.querySelectorAll('.pc-prop-check:checked')].map(c=>c.value));
