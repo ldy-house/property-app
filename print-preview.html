@@ -172,7 +172,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         const isDone = p.saleStatus === '販売済' || p.saleStatus === '契約済';
         if (row.type === 'price') {
           const pv = p.price ? p.price.toLocaleString() + '万円' : '—';
-          tr += '<td class="price-cell" style="font-size:' + Math.max(8, valFontPx * 1.3) + 'px;">' + (isDone && maskDone ? '＊＊＊＊万円' : pv) + '</td>';
+          tr += '<td class="price-cell" style="overflow:hidden;"><div style="overflow:hidden;height:100%;font-size:' + Math.max(8, valFontPx * 1.3) + 'px;">' + (isDone && maskDone ? '＊＊＊＊万円' : pv) + '</div></td>';
         } else if (row.type === 'img') {
           const photos = (p.photos && p.photos.length) ? p.photos : (p.img ? [{ url: p.img }] : []);
           const imgHtml = photos.length
@@ -185,10 +185,10 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         } else if (row.type === 'note') {
           const notes = (p.note || '').split('\n').filter(Boolean);
           tr += '<td class="note-val" style="font-size:' + noteFontPx + 'px;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
-        } else if (row.type === 'll') {
-          tr += '<td class="val" style="font-size:' + cellFont + 'px;text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
+          tr += '<td class="note-val"><div style="height:' + noteH + 'mm;overflow:hidden;line-height:1.4;font-size:6px;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></div></td>';
+          tr += '<td class="val" style="overflow:hidden;"><div style="overflow:hidden;height:100%;font-size:' + cellFont + 'px;text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</div></td>';
         } else {
-          tr += '<td class="' + (row.internal ? 'val-int' : 'val') + '" style="font-size:' + cellFont + 'px;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
+          tr += '<td class="' + (row.internal ? 'val-int' : 'val') + '" style="overflow:hidden;"><div style="overflow:hidden;height:100%;font-size:' + cellFont + 'px;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</div></td>';
         }
       }
       tr += '</tr>';
