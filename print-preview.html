@@ -152,7 +152,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const valFontPx = Math.max(5.5, Math.min(9, normalH * 1.7));
     const lblFontPx = Math.max(5, Math.min(8, normalH * 1.5));
     const nameFontPx = Math.max(7, Math.min(12, normalH * 2.2)); // 物件名：通常行より大きめ
-    const noteFontPx = Math.max(5.5, Math.min(8, normalH * 1.6)); // 備考：通常行と同比率
+    const noteFontPx = Math.max(5, Math.min(6.5, noteH * 0.22)); // 備考：固定28mmに収まるサイズ
 
     const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:' + lblFontPx + 'px;">物件名</td>' +
       page.map(p => '<td class="name-cell" style="font-size:' + (p.name.length > 12 ? nameFontPx * 0.8 : nameFontPx) + 'px;">' + esc(p.name) + '</td>').join('') +
