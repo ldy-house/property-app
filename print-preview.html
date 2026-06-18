@@ -138,12 +138,14 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const hasNote = rows.some(r => r.type === 'note');
     const dataRowCount = rows.length;
 
-    // 通常行・img行を固定、備考行に残り全部を割り当て
+    // 固定行
+    const imgH = hasImg ? 30 : 0;    // 外観：固定30mm
+    const noteH = hasNote ? 28 : 0;  // 備考：固定28mm（仲介・銀行共通）
+
+    // 通常行：残りを均等割り
     const normalCount = dataRowCount - (hasImg ? 1 : 0) - (hasNote ? 1 : 0);
-    const normalH = 4;           // 通常行：固定4mm
-    const imgH = hasImg ? 32 : 0; // 外観：固定32mm
-    const usedByOthers = (normalCount * normalH) + imgH;
-    const noteH = hasNote ? Math.max(15, available - usedByOthers) : 0;
+    const usedByFixed = imgH + noteH;
+    const normalH = normalCount > 0 ? Math.max(3, (available - usedByFixed) / normalCount) : 4;
 
     const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:6px;">物件名</td>' +
       page.map(p => '<td class="name-cell" style="font-size:' + (p.name.length > 12 ? '7' : '9') + 'px;">' + esc(p.name) + '</td>').join('') +
