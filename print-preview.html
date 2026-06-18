@@ -172,7 +172,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         const isDone = p.saleStatus === '販売済' || p.saleStatus === '契約済';
         if (row.type === 'price') {
           const pv = p.price ? p.price.toLocaleString() + '万円' : '—';
-          tr += '<td class="price-cell" style="overflow:hidden;"><div style="overflow:hidden;height:100%;font-size:' + Math.max(8, valFontPx * 1.3) + 'px;">' + (isDone && maskDone ? '＊＊＊＊万円' : pv) + '</div></td>';
+          tr += '<td class="price-cell" style="font-size:' + Math.max(8, valFontPx * 1.3) + 'px;">' + (isDone && maskDone ? '＊＊＊＊万円' : pv) + '</td>';
         } else if (row.type === 'img') {
           const photos = (p.photos && p.photos.length) ? p.photos : (p.img ? [{ url: p.img }] : []);
           const imgHtml = photos.length
@@ -185,10 +185,10 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         } else if (row.type === 'note') {
           const notes = (p.note || '').split('\n').filter(Boolean);
           tr += '<td class="note-val" style="font-size:' + noteFontPx + 'px;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
-          tr += '<td class="note-val"><div style="height:' + noteH + 'mm;overflow:hidden;line-height:1.4;font-size:6px;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></div></td>';
-          tr += '<td class="val" style="overflow:hidden;"><div style="overflow:hidden;height:100%;font-size:' + cellFont + 'px;text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</div></td>';
+          tr += '<td class="note-val" style="font-size:6px;overflow:hidden;max-height:' + noteH + 'mm;"><ol style="padding-left:8px;overflow:hidden;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
+          tr += '<td class="val" style="font-size:' + cellFont + 'px;text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
         } else {
-          tr += '<td class="' + (row.internal ? 'val-int' : 'val') + '" style="overflow:hidden;"><div style="overflow:hidden;height:100%;font-size:' + cellFont + 'px;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</div></td>';
+          tr += '<td class="' + (row.internal ? 'val-int' : 'val') + '" style="font-size:' + cellFont + 'px;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
         }
       }
       tr += '</tr>';
@@ -202,8 +202,10 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br>作成日：' + dateStr + '</div>' +
       '</div>' +
       '<div class="pgold"></div>' +
+      '<div style="overflow:hidden;height:' + (available) + 'mm;">' +
       '<table class="ptable"><colgroup><col style="width:54px;">' + page.map(() => '<col style="width:' + colW + 'mm;">').join('') + '</colgroup>' +
       '<tbody>' + nameRow + dataRows + '</tbody></table>' +
+      '</div>' +
     '</div>';
   }).join('');
 
