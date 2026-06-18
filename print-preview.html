@@ -202,17 +202,36 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 
   document.getElementById('pages-wrap').innerHTML = html || '<p style="text-align:center;padding:3rem;color:#fff;">物件がありません</p>';
 
-  // 備考セルの文字を欄内に収まるよう自動縮小
-  requestAnimationFrame(() => {
+  // 画像読み込み完了後に備考セルのフォントを自動縮小
+  function shrinkNotes() {
     document.querySelectorAll('.note-val').forEach(cell => {
       let fontSize = 8;
       cell.style.fontSize = fontSize + 'px';
-      while (cell.scrollHeight > cell.clientHeight && fontSize > 4) {
-        fontSize -= 0.5;
+      cell.style.lineHeight = '1.4';
+      // セルの高さが固定されているので scrollHeight > clientHeight で判定
+      let tries = 0;
+      while (cell.scrollHeight > cell.clientHeight + 1 && fontSize > 4 && tries < 30) {
+        fontSize -= 0.3;
         cell.style.fontSize = fontSize + 'px';
+        tries++;
       }
     });
-  });
+  }
+
+  // 画像が全部読み込まれてから実行
+  const imgs = document.querySelectorAll('.pages-wrap img');
+  if (imgs.length === 0) {
+    setTimeout(shrinkNotes, 100);
+  } else {
+    let loaded = 0;
+    const onLoad = () => { loaded++; if (loaded >= imgs.length) setTimeout(shrinkNotes, 50); };
+    imgs.forEach(img => {
+      if (img.complete) onLoad();
+      else { img.addEventListener('load', onLoad); img.addEventListener('error', onLoad); }
+    });
+    // 最大3秒待ってタイムアウト
+    setTimeout(shrinkNotes, 3000);
+  }
 })();
 </script>
 </body>
