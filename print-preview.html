@@ -153,13 +153,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const valFontPx = Math.max(5.5, Math.min(9, normalH * 1.7));
     const lblFontPx = Math.max(5, Math.min(8, normalH * 1.5));
     const nameFontPx = Math.max(7, Math.min(12, normalH * 2.2)); // 物件名：通常行より大きめ
-    // 備考フォント：各物件ごとに自分の行数でセルいっぱいに計算
-    const noteHpx = noteH * 3.78; // mm→px（1mm≈3.78px）
-    const noteLineHeightRatio = 1.4;
-    const getNoteFont = (note) => {
-      const lines = (note||'').split('\n').filter(Boolean).length || 1;
-      return Math.max(5, Math.min(8, noteHpx / (lines * noteLineHeightRatio)));
-    };
+    const noteFontPx = 6; // 備考：固定6px（overflow:hiddenで切り捨て）
 
     const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:' + lblFontPx + 'px;">物件名</td>' +
       page.map(p => '<td class="name-cell" style="font-size:' + (p.name.length > 12 ? nameFontPx * 0.8 : nameFontPx) + 'px;">' + esc(p.name) + '</td>').join('') +
@@ -190,8 +184,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
           tr += '<td class="img-cell" style="height:' + imgH + 'mm;">' + imgHtml + stamp + '</td>';
         } else if (row.type === 'note') {
           const notes = (p.note || '').split('\n').filter(Boolean);
-          const nf = getNoteFont(p.note);
-          tr += '<td class="note-val" style="font-size:' + nf + 'px;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
+          tr += '<td class="note-val" style="font-size:' + noteFontPx + 'px;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
         } else if (row.type === 'll') {
           tr += '<td class="val" style="font-size:' + cellFont + 'px;text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
         } else {
@@ -206,7 +199,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
       '<div class="phdr">' +
         '<div class="phdr-logo"><span class="phdr-lmark">LDY</span><span class="phdr-co">株式会社LDY</span></div>' +
         '<div class="phdr-ttl">' + esc(title) + '</div>' +
-        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br><span style="font-size:7px;color:#777;">作成日：' + dateStr + '</span></div>' +
+        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br>作成日：' + dateStr + '</div>' +
       '</div>' +
       '<div class="pgold"></div>' +
       '<table class="ptable"><colgroup><col style="width:54px;">' + page.map(() => '<col style="width:' + colW + 'mm;">').join('') + '</colgroup>' +
