@@ -177,7 +177,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
           tr += '<td class="img-cell" style="height:' + imgH + 'mm;">' + imgHtml + stamp + '</td>';
         } else if (row.type === 'note') {
           const notes = (p.note || '').split('\n').filter(Boolean);
-          tr += '<td class="note-val"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
+          tr += '<td class="note-val" style="max-height:' + noteH + 'mm;height:' + noteH + 'mm;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
         } else if (row.type === 'll') {
           tr += '<td class="val" style="text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
         } else {
@@ -205,13 +205,14 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   // 画像読み込み完了後に備考セルのフォントを自動縮小
   function shrinkNotes() {
     document.querySelectorAll('.note-val').forEach(cell => {
+      const maxH = cell.getBoundingClientRect().height;
+      if (maxH === 0) return;
       let fontSize = 8;
       cell.style.fontSize = fontSize + 'px';
       cell.style.lineHeight = '1.4';
-      // セルの高さが固定されているので scrollHeight > clientHeight で判定
       let tries = 0;
-      while (cell.scrollHeight > cell.clientHeight + 1 && fontSize > 4 && tries < 30) {
-        fontSize -= 0.3;
+      while (cell.scrollHeight > maxH + 2 && fontSize > 3.5 && tries < 50) {
+        fontSize -= 0.2;
         cell.style.fontSize = fontSize + 'px';
         tries++;
       }
