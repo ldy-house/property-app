@@ -119,6 +119,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   const yyyymmdd = today.getFullYear().toString() +
     String(today.getMonth()+1).padStart(2,'0') +
     String(today.getDate()).padStart(2,'0');
+  const dateStr = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
   const pageTitle = 'LDY物件一覧_' + yyyymmdd;
   document.getElementById('pp-title').textContent = title + ' 印刷プレビュー';
   document.title = pageTitle;
@@ -147,13 +148,14 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const usedByFixed = imgH + noteH;
     const normalH = normalCount > 0 ? Math.max(3, (available - usedByFixed) / normalCount) : 4;
 
-    // フォントサイズ：行の高さに比例（normalH 4mm→7px, 6mm→9px 程度）
+    // フォントサイズ：行の高さに比例
     const valFontPx = Math.max(5.5, Math.min(9, normalH * 1.7));
     const lblFontPx = Math.max(5, Math.min(8, normalH * 1.5));
-    const noteFontPx = 6; // 備考は固定
+    const nameFontPx = Math.max(7, Math.min(12, normalH * 2.2)); // 物件名：通常行より大きめ
+    const noteFontPx = Math.max(5.5, Math.min(8, normalH * 1.6)); // 備考：通常行と同比率
 
-    const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:6px;">物件名</td>' +
-      page.map(p => '<td class="name-cell" style="font-size:' + (p.name.length > 12 ? '7' : '9') + 'px;">' + esc(p.name) + '</td>').join('') +
+    const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:' + lblFontPx + 'px;">物件名</td>' +
+      page.map(p => '<td class="name-cell" style="font-size:' + (p.name.length > 12 ? nameFontPx * 0.8 : nameFontPx) + 'px;">' + esc(p.name) + '</td>').join('') +
       '</tr>';
 
     const dataRows = rows.map(row => {
@@ -196,7 +198,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
       '<div class="phdr">' +
         '<div class="phdr-logo"><span class="phdr-lmark">LDY</span><span class="phdr-co">株式会社LDY</span></div>' +
         '<div class="phdr-ttl">' + esc(title) + '</div>' +
-        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812</div>' +
+        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br><span style="font-size:8px;font-weight:700;color:var(--navy);">作成日：' + dateStr + '</span></div>' +
       '</div>' +
       '<div class="pgold"></div>' +
       '<table class="ptable"><colgroup><col style="width:54px;">' + page.map(() => '<col style="width:' + colW + 'mm;">').join('') + '</colgroup>' +
