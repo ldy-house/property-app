@@ -43,18 +43,18 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .phdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.7;}
 .pgold{height:2px;background:var(--gold);margin-bottom:3px;}
 
-table.ptable{width:100%;border-collapse:collapse;font-size:8px;table-layout:fixed;}
+table.ptable{width:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;}
 table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;line-height:1.4;}
 
 
 
-.lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:7px;white-space:nowrap;}
-.lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:7px;white-space:nowrap;}
-.lbl-ll{background:#F0FFF4;color:var(--green);font-weight:700;text-align:center;width:54px;font-size:7px;white-space:nowrap;}
+.lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
+.lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
+.lbl-ll{background:#F0FFF4;color:var(--green);font-weight:700;text-align:center;width:54px;font-size:6px;white-space:nowrap;}
 
 .name-cell{background-color:#1B2A6B;color:#ffffff;font-weight:700;font-size:9px;text-align:center;padding:4px;}
 
-.price-cell{font-size:12px;font-weight:900;color:var(--red);text-align:center;background:#fff;}
+.price-cell{font-size:10px;font-weight:900;color:var(--red);text-align:center;background:#fff;}
 
 .img-cell{padding:2px;text-align:center;position:relative;background:#fff;}
 .img-cell img{width:100%;height:100%;object-fit:contain;display:block;}
@@ -65,9 +65,9 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 .pst-applied{color:#c07000;border-color:#c07000;}
 .pst-contract{color:#6A1B9A;border-color:#6A1B9A;}
 
-.val{font-size:8px;color:#222;text-align:center;background:#fff;word-break:break-all;}
-.val-int{font-size:8px;color:#800;text-align:center;font-weight:600;background:#fff;word-break:break-all;}
-.note-val{font-size:8px;color:#333;text-align:left;vertical-align:top;padding:2px 4px;background:#fff;word-break:break-all;overflow:hidden;line-height:1.5;}
+.val{font-size:6.5px;color:#222;text-align:center;background:#fff;word-break:break-all;}
+.val-int{font-size:6.5px;color:#800;text-align:center;font-weight:600;background:#fff;word-break:break-all;}
+.note-val{font-size:6px;color:#333;text-align:left;vertical-align:top;padding:2px 4px;background:#fff;word-break:break-all;overflow:hidden;line-height:1.4;}
 .empty-cell{background:#fff;}
 
 /* 印刷時 */
@@ -177,7 +177,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
           tr += '<td class="img-cell" style="height:' + imgH + 'mm;">' + imgHtml + stamp + '</td>';
         } else if (row.type === 'note') {
           const notes = (p.note || '').split('\n').filter(Boolean);
-          tr += '<td class="note-val" style="max-height:' + noteH + 'mm;height:' + noteH + 'mm;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
+          tr += '<td class="note-val"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
         } else if (row.type === 'll') {
           tr += '<td class="val" style="text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
         } else {
@@ -201,38 +201,6 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   }).join('');
 
   document.getElementById('pages-wrap').innerHTML = html || '<p style="text-align:center;padding:3rem;color:#fff;">物件がありません</p>';
-
-  // 画像読み込み完了後に備考セルのフォントを自動縮小
-  function shrinkNotes() {
-    document.querySelectorAll('.note-val').forEach(cell => {
-      const maxH = cell.getBoundingClientRect().height;
-      if (maxH === 0) return;
-      let fontSize = 8;
-      cell.style.fontSize = fontSize + 'px';
-      cell.style.lineHeight = '1.4';
-      let tries = 0;
-      while (cell.scrollHeight > maxH + 2 && fontSize > 3.5 && tries < 50) {
-        fontSize -= 0.2;
-        cell.style.fontSize = fontSize + 'px';
-        tries++;
-      }
-    });
-  }
-
-  // 画像が全部読み込まれてから実行
-  const imgs = document.querySelectorAll('.pages-wrap img');
-  if (imgs.length === 0) {
-    setTimeout(shrinkNotes, 100);
-  } else {
-    let loaded = 0;
-    const onLoad = () => { loaded++; if (loaded >= imgs.length) setTimeout(shrinkNotes, 50); };
-    imgs.forEach(img => {
-      if (img.complete) onLoad();
-      else { img.addEventListener('load', onLoad); img.addEventListener('error', onLoad); }
-    });
-    // 最大3秒待ってタイムアウト
-    setTimeout(shrinkNotes, 3000);
-  }
 })();
 </script>
 </body>
