@@ -75,6 +75,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   body{background:#fff;}
   .toolbar{display:none !important;}
   .pages-wrap{padding:0;margin:0;}
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .ppage{
     width:291mm;
     height:204mm;
@@ -139,14 +140,14 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const hasNote = rows.some(r => r.type === 'note');
     const dataRowCount = rows.length;
 
-    // 固定行
-    const imgH = hasImg ? 30 : 0;    // 外観：固定30mm
-    const noteH = hasNote ? 28 : 0;  // 備考：固定28mm（仲介・銀行共通）
-
-    // 通常行：残りを均等割り
+    // 通常行・固定行・備考の高さ計算
     const normalCount = dataRowCount - (hasImg ? 1 : 0) - (hasNote ? 1 : 0);
+    const imgH = hasImg ? 30 : 0;
+    // 行数が多い（銀行向け）ほど備考を小さく調整
+    const maxNoteH = normalCount > 15 ? 20 : normalCount > 10 ? 24 : 28;
+    const noteH = hasNote ? maxNoteH : 0;
     const usedByFixed = imgH + noteH;
-    const normalH = normalCount > 0 ? Math.max(3, (available - usedByFixed) / normalCount) : 4;
+    const normalH = normalCount > 0 ? Math.max(2.5, (available - usedByFixed) / normalCount) : 4;
 
     // フォントサイズ：行の高さに比例
     const valFontPx = Math.max(5.5, Math.min(9, normalH * 1.7));
@@ -205,7 +206,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
       '<div class="phdr">' +
         '<div class="phdr-logo"><span class="phdr-lmark">LDY</span><span class="phdr-co">株式会社LDY</span></div>' +
         '<div class="phdr-ttl">' + esc(title) + '</div>' +
-        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br><span style="font-size:8px;font-weight:700;color:var(--navy);">作成日：' + dateStr + '</span></div>' +
+        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br><span style="font-size:7px;color:#777;">作成日：' + dateStr + '</span></div>' +
       '</div>' +
       '<div class="pgold"></div>' +
       '<table class="ptable"><colgroup><col style="width:54px;">' + page.map(() => '<col style="width:' + colW + 'mm;">').join('') + '</colgroup>' +
