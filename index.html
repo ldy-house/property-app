@@ -471,9 +471,22 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     <div class="pc-body">
       <div style="background:#EEF2FF;border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--navy);font-weight:600;" id="pc-type-label"></div>
       <div class="pc-sec">
-        <div class="pc-sec-title">出力する物件を選択</div>
-        <span class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</span>　<span class="pc-select-all" onclick="toggleAllProps(false)">すべて解除</span>
-        <div class="pc-prop-list" id="pc-prop-list"></div>
+        <div class="pc-sec-title">出力する物件を選択 <span id="pc-selected-count" style="font-size:11px;color:var(--gold);font-weight:700;"></span></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+          <span class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</span>
+          <span class="pc-select-all" onclick="toggleAllProps(false)">すべて解除</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11px;color:var(--sub);">並び替え：</span>
+            <select id="pc-sort" onchange="renderPropList()" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:3px;outline:none;">
+              <option value="default">登録順</option>
+              <option value="status">販売状況順</option>
+              <option value="price-desc">価格：高い順</option>
+              <option value="price-asc">価格：安い順</option>
+              <option value="name">物件名順</option>
+            </select>
+          </div>
+        </div>
+        <div class="pc-prop-list" id="pc-prop-list" style="max-height:260px;"></div>
       </div>
       <div class="pc-sec">
         <div class="pc-sec-title">販売済・契約済の価格表示</div>
@@ -962,17 +975,54 @@ const BANK_ROWS=[
 ];
 
 let currentPrintType='broker';
+const STATUS_BADGE_COLOR={'販売中':'#1B2A6B','非公開販売中':'#4A4A4A','申込あり':'#E65100','契約済':'#6A1B9A','販売済':'#555'};
+const STATUS_ORDER2={'販売中':0,'非公開販売中':1,'申込あり':2,'契約済':3,'販売済':4};
+
 window.openPrintConfig=function(type){
   currentPrintType=type;
   document.getElementById('pc-title').textContent=type==='broker'?'仲介向け印刷設定':'銀行向け印刷設定';
   document.getElementById('pc-type-label').textContent=type==='broker'?'仲介向け（在庫一覧表）':'銀行向け（実績一覧表）';
-  document.getElementById('pc-prop-list').innerHTML=props.map(p=>'<label class="pc-prop-item"><input type="checkbox" class="pc-prop-check" value="'+p.id+'" checked/>'+p.name+'<span style="font-size:10px;color:#999;margin-left:6px;">'+(p.saleStatus||'')+'</span></label>').join('');
+  if(document.getElementById('pc-sort'))document.getElementById('pc-sort').value='default';
+  renderPropList();
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
   document.getElementById('pc-row-checks').innerHTML=rows.map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('');
   document.getElementById('print-config').classList.add('open');
 };
+
+window.renderPropList=function(){
+  const sortVal=document.getElementById('pc-sort')?.value||'default';
+  let sorted=[...props];
+  if(sortVal==='status')sorted.sort((a,b)=>(STATUS_ORDER2[a.saleStatus]??9)-(STATUS_ORDER2[b.saleStatus]??9));
+  else if(sortVal==='price-desc')sorted.sort((a,b)=>(b.price||0)-(a.price||0));
+  else if(sortVal==='price-asc')sorted.sort((a,b)=>{if(!a.price&&!b.price)return 0;if(!a.price)return 1;if(!b.price)return -1;return a.price-b.price;});
+  else if(sortVal==='name')sorted.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
+
+  // 既存のチェック状態を保持
+  const checked=new Set([...document.querySelectorAll('.pc-prop-check:checked')].map(c=>c.value));
+  const isFirst=checked.size===0;
+
+  document.getElementById('pc-prop-list').innerHTML=sorted.map(p=>{
+    const isChecked=isFirst||checked.has(p.id);
+    const badgeColor=STATUS_BADGE_COLOR[p.saleStatus]||'#777';
+    const price=p.price?p.price.toLocaleString()+'万円':'価格応相談';
+    return '<label class="pc-prop-item" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;border-bottom:1px solid #f0f0f0;">'+
+      '<input type="checkbox" class="pc-prop-check" value="'+p.id+'"'+(isChecked?' checked':'')+' onchange="updatePropCount()"/>'+
+      '<span style="background:'+badgeColor+';color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;flex-shrink:0;">'+( p.saleStatus||'—')+'</span>'+
+      '<span style="font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+( p.name||'—')+'</span>'+
+      '<span style="font-size:11px;color:var(--sub);flex-shrink:0;">'+price+'</span>'+
+    '</label>';
+  }).join('');
+  updatePropCount();
+};
+
+window.updatePropCount=function(){
+  const total=document.querySelectorAll('.pc-prop-check').length;
+  const checked=document.querySelectorAll('.pc-prop-check:checked').length;
+  const el=document.getElementById('pc-selected-count');
+  if(el)el.textContent=checked+' / '+total+' 件選択中';
+};
 window.closePrintConfig=function(){document.getElementById('print-config').classList.remove('open');};
-window.toggleAllProps=function(v){document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v);};
+window.toggleAllProps=function(v){document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v);updatePropCount();};
 
 window.generatePrint=function(){
   const selectedIds=new Set([...document.querySelectorAll('.pc-prop-check:checked')].map(c=>c.value));
