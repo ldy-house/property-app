@@ -472,12 +472,15 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div style="background:#EEF2FF;border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--navy);font-weight:600;" id="pc-type-label"></div>
       <div class="pc-sec">
         <div class="pc-sec-title">出力する物件を選択 <span id="pc-selected-count" style="font-size:11px;color:var(--gold);font-weight:700;"></span></div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
           <span class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</span>
           <span class="pc-select-all" onclick="toggleAllProps(false)">すべて解除</span>
-          <span class="pc-select-all" onclick="toggleByStatus('販売中')">販売中のみ</span>
-          <span class="pc-select-all" onclick="toggleByStatus('申込あり')">申込ありのみ</span>
-          <span class="pc-select-all" onclick="toggleByStatus('契約済','販売済')">契約済・販売済のみ</span>
+          <span style="font-size:11px;color:var(--sub);margin-left:4px;">状況で絞込：</span>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-sale" onchange="filterByStatus()" checked/><span style="background:#1B2A6B;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">販売中</span></label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-private" onchange="filterByStatus()" checked/><span style="background:#4A4A4A;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">非公開</span></label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-applied" onchange="filterByStatus()" checked/><span style="background:#E65100;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">申込あり</span></label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-contract" onchange="filterByStatus()" checked/><span style="background:#6A1B9A;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">契約済</span></label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-done" onchange="filterByStatus()" checked/><span style="background:#555;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">販売済</span></label>
           <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
             <span style="font-size:11px;color:var(--sub);">並び替え：</span>
             <select id="pc-sort" onchange="renderPropList()" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:3px;outline:none;">
@@ -1030,6 +1033,19 @@ window.toggleByStatus=function(...statuses){
   document.querySelectorAll('.pc-prop-check').forEach(c=>{
     const p=props.find(x=>x.id===c.value);
     if(p&&statuses.includes(p.saleStatus))c.checked=true;
+  });
+  updatePropCount();
+};
+window.filterByStatus=function(){
+  const allowed=new Set();
+  if(document.getElementById('fs-sale')?.checked)allowed.add('販売中');
+  if(document.getElementById('fs-private')?.checked)allowed.add('非公開販売中');
+  if(document.getElementById('fs-applied')?.checked)allowed.add('申込あり');
+  if(document.getElementById('fs-contract')?.checked)allowed.add('契約済');
+  if(document.getElementById('fs-done')?.checked)allowed.add('販売済');
+  document.querySelectorAll('.pc-prop-check').forEach(c=>{
+    const p=props.find(x=>x.id===c.value);
+    if(p)c.checked=allowed.has(p.saleStatus);
   });
   updatePropCount();
 };
