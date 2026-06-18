@@ -75,7 +75,6 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
   body{background:#fff;}
   .toolbar{display:none !important;}
   .pages-wrap{padding:0;margin:0;}
-  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   .ppage{
     width:291mm;
     height:204mm;
@@ -140,20 +139,20 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const hasNote = rows.some(r => r.type === 'note');
     const dataRowCount = rows.length;
 
-    // 通常行・固定行・備考の高さ計算
+    // 固定行
+    const imgH = hasImg ? 30 : 0;    // 外観：固定30mm
+    const noteH = hasNote ? 28 : 0;  // 備考：固定28mm（仲介・銀行共通）
+
+    // 通常行：残りを均等割り
     const normalCount = dataRowCount - (hasImg ? 1 : 0) - (hasNote ? 1 : 0);
-    const imgH = hasImg ? 30 : 0;
-    // 行数が多い（銀行向け）ほど備考を小さく調整
-    const maxNoteH = normalCount > 15 ? 20 : normalCount > 10 ? 24 : 28;
-    const noteH = hasNote ? maxNoteH : 0;
     const usedByFixed = imgH + noteH;
-    const normalH = normalCount > 0 ? Math.max(2.5, (available - usedByFixed) / normalCount) : 4;
+    const normalH = normalCount > 0 ? Math.max(3, (available - usedByFixed) / normalCount) : 4;
 
     // フォントサイズ：行の高さに比例
     const valFontPx = Math.max(5.5, Math.min(9, normalH * 1.7));
     const lblFontPx = Math.max(5, Math.min(8, normalH * 1.5));
     const nameFontPx = Math.max(7, Math.min(12, normalH * 2.2)); // 物件名：通常行より大きめ
-    const noteFontPx = 6; // 備考：固定6px（overflow:hiddenで切り捨て）
+    const noteFontPx = Math.max(5, Math.min(6.5, noteH * 0.22)); // 備考：固定28mmに収まるサイズ
 
     const nameRow = '<tr style="height:8mm;"><td class="lbl" style="font-size:' + lblFontPx + 'px;">物件名</td>' +
       page.map(p => '<td class="name-cell" style="font-size:' + (p.name.length > 12 ? nameFontPx * 0.8 : nameFontPx) + 'px;">' + esc(p.name) + '</td>').join('') +
@@ -163,7 +162,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
       const isImg = row.type === 'img';
       const isNote = row.type === 'note';
       const rowH = (isImg ? imgH : isNote ? noteH : normalH) + 'mm';
-      const cellFont = valFontPx;
+      const cellFont = isNote ? noteFontPx : valFontPx;
       let tr = '<tr style="height:' + rowH + ';">' +
         '<td class="' + (row.internal ? 'lbl-int' : row.type === 'll' ? 'lbl-ll' : 'lbl') + '" style="font-size:' + lblFontPx + 'px;">' + esc(row.label) + '</td>';
       for (let c = 0; c < page.length; c++) {
@@ -185,7 +184,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         } else if (row.type === 'note') {
           const notes = (p.note || '').split('\n').filter(Boolean);
           tr += '<td class="note-val" style="font-size:' + noteFontPx + 'px;"><ol style="padding-left:8px;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
-          tr += '<td class="note-val" style="font-size:6px;overflow:hidden;max-height:' + noteH + 'mm;"><ol style="padding-left:8px;overflow:hidden;">' + notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ol></td>';
+        } else if (row.type === 'll') {
           tr += '<td class="val" style="font-size:' + cellFont + 'px;text-align:left;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
         } else {
           tr += '<td class="' + (row.internal ? 'val-int' : 'val') + '" style="font-size:' + cellFont + 'px;">' + esc(row.valueMap ? row.valueMap[p.id] : '—') + '</td>';
@@ -199,13 +198,11 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
       '<div class="phdr">' +
         '<div class="phdr-logo"><span class="phdr-lmark">LDY</span><span class="phdr-co">株式会社LDY</span></div>' +
         '<div class="phdr-ttl">' + esc(title) + '</div>' +
-        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br>作成日：' + dateStr + '</div>' +
+        '<div class="phdr-addr">〒104-0061 東京都中央区銀座8-15-2 ACN銀座ビル9F<br>TEL：03-6260-6811　FAX：03-6260-6812<br><span style="font-size:8px;font-weight:700;color:var(--navy);">作成日：' + dateStr + '</span></div>' +
       '</div>' +
       '<div class="pgold"></div>' +
-      '<div style="overflow:hidden;height:' + (available) + 'mm;">' +
       '<table class="ptable"><colgroup><col style="width:54px;">' + page.map(() => '<col style="width:' + colW + 'mm;">').join('') + '</colgroup>' +
       '<tbody>' + nameRow + dataRows + '</tbody></table>' +
-      '</div>' +
     '</div>';
   }).join('');
 
