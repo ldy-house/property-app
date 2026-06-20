@@ -101,7 +101,42 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     const vf  = Math.max(5.5,Math.min(9,   normalH*1.6)); // 値
     const nf  = Math.max(7,  Math.min(11,  normalH*2.0)); // 物件名
     const pf  = Math.max(8,  Math.min(13,  normalH*2.2)); // 価格
-    const notef = 6; // 備考は固定
+    // 備考：最も行数が多い物件に合わせてフォントを段階的に縮小し、必ず枠内に収める
+    let notef = 6;
+    if(hasNote){
+      const noteColW = colW; // mm（1物件あたりの列幅）
+      const lineHeightRatio = 1.35;
+      const cellPaddingMm = 1.6; // 左右padding(3px*2)の概算
+      const usableWidthMm = Math.max(10, noteColW - cellPaddingMm);
+
+      // フォントサイズ毎の「全角1文字あたりの実測幅(px換算前のmm)」係数。
+      // 6px時に46mm幅でおよそ19〜20全角文字/行という実測（半角は概ね0.55倍）に基づく。
+      function widthMm(text, fontPx){
+        const mmPerFullWidthAtFont = fontPx * 0.23; // 実測キャリブレーション値
+        let mm = 0;
+        for(const ch of text){
+          mm += (ch.charCodeAt(0) > 255 ? 1 : 0.6) * mmPerFullWidthAtFont;
+        }
+        return mm;
+      }
+      function totalLines(fontPx){
+        return page.reduce((max,p)=>{
+          const items = (p.note||'').split('\n').filter(Boolean);
+          const lines = items.reduce((sum,item)=>{
+            const w = widthMm(item, fontPx);
+            return sum + Math.max(1, Math.ceil(w/usableWidthMm));
+          },0);
+          return Math.max(max, lines);
+        },1);
+      }
+
+      const candidates = [6,5.5,5,4.5,4.2,3.8];
+      notef = candidates[candidates.length-1];
+      for(const fp of candidates){
+        const maxLines = Math.floor((noteH*3.78) / (fp*lineHeightRatio)) - 6; // 実測との誤差吸収のため安全マージン
+        if(totalLines(fp) <= maxLines){ notef = fp; break; }
+      }
+    }
 
     // ── nameRow ───────────────────────────────
     const nameRow =
@@ -141,7 +176,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
         }else if(isNote){
           const notes=(p.note||'').split('\n').filter(Boolean);
-          tr+='<td class="note-val" style="font-size:'+notef+'px;height:'+noteH+'mm;max-height:'+noteH+'mm;overflow:hidden;"><ol style="padding-left:8px;">'+
+          tr+='<td class="note-val" style="font-size:'+notef+'px;line-height:1.35;height:'+noteH+'mm;max-height:'+noteH+'mm;overflow:hidden;"><ol style="padding-left:8px;margin:0;">'+
             notes.map(n=>'<li>'+esc(n)+'</li>').join('')+
           '</ol></td>';
 
