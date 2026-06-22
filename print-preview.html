@@ -92,7 +92,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
     // 外観・備考は固定、残りを通常行で均等割り
     const imgH  = hasImg  ? 32 : 0;
-    const noteH = hasNote ? 26 : 0;
+    const noteH = hasNote ? 30 : 0;
     const remaining = tableH - imgH - noteH;
     const normalH = normalCount > 0 ? Math.max(2.5, remaining/normalCount) : 4;
 
@@ -133,7 +133,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       const candidates = [6,5.5,5,4.5,4.2,3.8];
       notef = candidates[candidates.length-1];
       for(const fp of candidates){
-        const maxLines = Math.floor((noteH*3.78) / (fp*lineHeightRatio)) - 6; // 実測との誤差吸収のため安全マージン
+        // 列幅が狭いほど折り返しが増えるため安全マージンを大きくとる
+        // colW>=46mm: -4, colW>=38mm: -5, colW<38mm: -6
+        const margin = colW >= 46 ? 4 : colW >= 38 ? 5 : 6;
+        const maxLines = Math.floor((noteH*3.78) / (fp*lineHeightRatio)) - margin;
         if(totalLines(fp) <= maxLines){ notef = fp; break; }
       }
     }
