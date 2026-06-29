@@ -23,8 +23,9 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .phdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.7;}
 .pgold{height:2px;background:var(--gold);margin-bottom:3px;}
 .ptable{width:100%;border-collapse:collapse;table-layout:fixed;}
-.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;overflow:hidden;max-height:0;}
-.ptable td.note-val{padding:0;vertical-align:top;}
+.ptable td{border:0.5px solid #bbb;padding:0;vertical-align:middle;overflow:hidden;}
+.ptable td.note-val{vertical-align:top;}
+.cell-inner{padding:2px 3px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;}
 .lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;white-space:nowrap;}
 .lbl-ll{background:#F0FFF4;color:var(--green);font-weight:700;text-align:center;white-space:nowrap;}
@@ -143,8 +144,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     // ── nameRow ───────────────────────────────
     const nameRow =
       '<tr style="height:8mm;">'+
-        '<td class="lbl" style="font-size:'+lf+'px;width:54px;">物件名</td>'+
-        page.map(p=>'<td class="name-cell" style="font-size:'+(p.name.length>10?nf*0.82:nf)+'px;">'+esc(p.name)+'</td>').join('')+
+        '<td class="lbl" style="width:54px;"><div class="cell-inner" style="height:8mm;font-size:'+lf+'px;">物件名</div></td>'+
+        page.map(p=>'<td class="name-cell"><div class="cell-inner" style="height:8mm;font-size:'+(p.name.length>10?nf*0.82:nf)+'px;">'+esc(p.name)+'</div></td>').join('')+
       '</tr>';
 
     // ── dataRows ──────────────────────────────
@@ -156,7 +157,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       const lblClass = row.internal?'lbl-int':row.type==='ll'?'lbl-ll':'lbl';
 
       let tr='<tr style="height:'+rh+';">'+
-        '<td class="'+lblClass+'" style="font-size:'+lf+'px;width:54px;">'+esc(row.label)+'</td>';
+        '<td class="'+lblClass+'"><div class="cell-inner" style="height:'+rh+';font-size:'+lf+'px;">'+esc(row.label)+'</div></td>';
 
       page.forEach(p=>{
         const intData = (internalMap&&internalMap[p.id])||{};
@@ -164,7 +165,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
         if(isPrice){
           const pv = p.price?p.price.toLocaleString()+'万円':'—';
-          tr+='<td class="price-cell" style="font-size:'+pf+'px;">'+(isDone&&maskDone?'＊＊＊＊万円':pv)+'</td>';
+          tr+='<td class="price-cell"><div class="cell-inner" style="height:'+rh+';font-size:'+pf+'px;">'+(isDone&&maskDone?'＊＊＊＊万円':pv)+'</div></td>';
 
         }else if(isImg){
           const photos=(p.photos&&p.photos.length)?p.photos:(p.img?[{url:p.img}]:[]);
@@ -178,14 +179,15 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
         }else if(isNote){
           const notes=(p.note||'').split('\n').filter(Boolean);
-          tr+='<td class="note-val" style="font-size:'+notef+'px;line-height:1.15;height:'+noteH+'mm;max-height:'+noteH+'mm;overflow:hidden;padding:0 2px;"><ol style="padding-left:6px;margin:0;list-style-position:inside;">'+
+          tr+='<td class="note-val" style="font-size:'+notef+'px;line-height:1.15;height:'+noteH+'mm;overflow:hidden;padding:0 2px;"><ol style="padding-left:6px;margin:0;list-style-position:inside;">'+
             notes.map(n=>'<li style="margin:0;padding:0;">'+esc(n)+'</li>').join('')+
           '</ol></td>';
 
         }else{
           const val=row.valueMap?esc(row.valueMap[p.id]||'—'):'—';
           const cls=row.internal?'val-int':'val';
-          tr+='<td class="'+cls+'" style="font-size:'+vf+'px;height:'+normalH+'mm;max-height:'+normalH+'mm;overflow:hidden;">'+val+'</td>';
+          // 固定高さのdivで包む。テキストが折り返してもtrの高さを守る
+          tr+='<td class="'+cls+'"><div class="cell-inner" style="height:'+rh+';font-size:'+vf+'px;word-break:break-all;align-items:center;white-space:normal;overflow:hidden;">'+val+'</div></td>';
         }
       });
 
