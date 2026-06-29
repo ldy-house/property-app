@@ -23,7 +23,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .phdr-addr{font-size:7px;color:#555;text-align:right;line-height:1.7;}
 .pgold{height:2px;background:var(--gold);margin-bottom:3px;}
 .ptable{width:100%;border-collapse:collapse;table-layout:fixed;}
-.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;overflow:hidden;}
+.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;overflow:hidden;max-height:0;}
+.ptable td.note-val{padding:0;vertical-align:top;}
 .lbl{background:#F0F2F8;color:var(--navy);font-weight:700;text-align:center;white-space:nowrap;}
 .lbl-int{background:#FFF0F0;color:#900;font-weight:700;text-align:center;white-space:nowrap;}
 .lbl-ll{background:#F0FFF4;color:var(--green);font-weight:700;text-align:center;white-space:nowrap;}
@@ -105,7 +106,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     let notef = 6;
     if(hasNote){
       const noteColW = colW; // mm（1物件あたりの列幅）
-      const lineHeightRatio = 1.2;
+      const lineHeightRatio = 1.15;
       const cellPaddingMm = 1.6; // 左右padding(3px*2)の概算
       const usableWidthMm = Math.max(10, noteColW - cellPaddingMm);
 
@@ -177,14 +178,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
         }else if(isNote){
           const notes=(p.note||'').split('\n').filter(Boolean);
-          tr+='<td class="note-val" style="font-size:'+notef+'px;line-height:1.2;height:'+noteH+'mm;max-height:'+noteH+'mm;overflow:hidden;"><ol style="padding-left:6px;margin:0;">'+
-            notes.map(n=>'<li style="margin:0;">'+esc(n)+'</li>').join('')+
+          tr+='<td class="note-val" style="font-size:'+notef+'px;line-height:1.15;height:'+noteH+'mm;max-height:'+noteH+'mm;overflow:hidden;padding:0 2px;"><ol style="padding-left:6px;margin:0;list-style-position:inside;">'+
+            notes.map(n=>'<li style="margin:0;padding:0;">'+esc(n)+'</li>').join('')+
           '</ol></td>';
 
         }else{
           const val=row.valueMap?esc(row.valueMap[p.id]||'—'):'—';
           const cls=row.internal?'val-int':'val';
-          tr+='<td class="'+cls+'" style="font-size:'+vf+'px;">'+val+'</td>';
+          tr+='<td class="'+cls+'" style="font-size:'+vf+'px;height:'+normalH+'mm;max-height:'+normalH+'mm;overflow:hidden;">'+val+'</td>';
         }
       });
 
