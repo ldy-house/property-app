@@ -156,7 +156,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-prop-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 6px;border-radius:3px;cursor:pointer;}
 .pc-prop-item:hover{background:#f0f0f0;}
 .pc-prop-item input{cursor:pointer;width:14px;height:14px;}
-.pc-select-all{font-size:11px;color:var(--navy);cursor:pointer;text-decoration:underline;margin-bottom:6px;display:inline-block;}
+.pc-select-all{font-size:11px;font-weight:700;color:var(--navy);background:#fff;border:1.5px solid var(--navy);padding:5px 14px;border-radius:20px;cursor:pointer;transition:all 0.15s;font-family:inherit;}
+.pc-select-all:hover{background:var(--navy);color:#fff;}
+.pc-select-none{color:#888;border-color:#ccc;}
+.pc-select-none:hover{background:#888;color:#fff;border-color:#888;}
 .pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;}
 </style>
 </head>
@@ -473,8 +476,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div class="pc-sec">
         <div class="pc-sec-title">出力する物件を選択 <span id="pc-selected-count" style="font-size:11px;color:var(--gold);font-weight:700;"></span></div>
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
-          <span class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</span>
-          <span class="pc-select-all" onclick="toggleAllProps(false)">すべて解除</span>
+          <button type="button" class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</button>
+          <button type="button" class="pc-select-all pc-select-none" onclick="toggleAllProps(false)">すべて解除</button>
           <span style="font-size:11px;color:var(--sub);margin-left:4px;">状況で絞込：</span>
           <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-sale" onchange="filterByStatus()" checked/><span style="background:#1B2A6B;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">販売中</span></label>
           <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-private" onchange="filterByStatus()" checked/><span style="background:#4A4A4A;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">非公開</span></label>
@@ -1027,7 +1030,14 @@ window.updatePropCount=function(){
   if(el)el.textContent=checked+' / '+total+' 件選択中';
 };
 window.closePrintConfig=function(){document.getElementById('print-config').classList.remove('open');};
-window.toggleAllProps=function(v){document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v);updatePropCount();};
+window.toggleAllProps=function(v){
+  document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v);
+  ['fs-sale','fs-private','fs-applied','fs-contract','fs-done'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.checked=v;
+  });
+  updatePropCount();
+};
 window.toggleByStatus=function(...statuses){
   document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=false);
   document.querySelectorAll('.pc-prop-check').forEach(c=>{
