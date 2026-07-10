@@ -129,6 +129,17 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     return String(s);
   }
 
+  // Cloudinaryの画像URLに変換パラメータを差し込み、印刷に必要なだけの
+  // 小さい・圧縮済みの画像を読み込むようにする（元画像はそのまま・表示だけ軽量化）
+  function cldOptimize(url, width){
+    if (!url || typeof url !== 'string') return url;
+    const marker = '/upload/';
+    const idx = url.indexOf(marker);
+    if (idx === -1) return url; // Cloudinary以外のURLはそのまま
+    const transform = 'f_auto,q_auto:good,c_limit,w_' + width;
+    return url.slice(0, idx + marker.length) + transform + '/' + url.slice(idx + marker.length);
+  }
+
   const html = pages.map(page => {
     const cols = page.length;
     const colW = Math.floor(232 / cols);
@@ -175,7 +186,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         } else if (row.type === 'img') {
           const photos = (p.photos && p.photos.length) ? p.photos : (p.img ? [{ url: p.img }] : []);
           const imgHtml = photos.length
-            ? '<img src="' + esc(photos[0].url) + '" style="height:' + imgH + 'mm;"/>'
+            ? '<img src="' + esc(cldOptimize(photos[0].url, 500)) + '" style="height:' + imgH + 'mm;"/>'
             : '<div class="no-img-ph" style="height:' + imgH + 'mm;">写真なし</div>';
           const stamp = p.saleStatus === '販売済' ? '<div class="pstamp pst-done">済</div>'
             : p.saleStatus === '申込あり' ? '<div class="pstamp pst-applied">申込</div>'
