@@ -131,12 +131,13 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 
   // Cloudinaryの画像URLに変換パラメータを差し込み、印刷に必要なだけの
   // 小さい・圧縮済みの画像を読み込むようにする（元画像はそのまま・表示だけ軽量化）
-  function cldOptimize(url, width){
+  // w,h は「実際にそのセルが印刷される物理サイズ」から逆算したピクセル数を渡す
+  function cldOptimize(url, wPx, hPx){
     if (!url || typeof url !== 'string') return url;
     const marker = '/upload/';
     const idx = url.indexOf(marker);
     if (idx === -1) return url; // Cloudinary以外のURLはそのまま
-    const transform = 'f_auto,q_auto:good,c_limit,w_' + width;
+    const transform = 'f_jpg,q_auto:eco,c_limit,w_' + wPx + ',h_' + hPx;
     return url.slice(0, idx + marker.length) + transform + '/' + url.slice(idx + marker.length);
   }
 
@@ -185,8 +186,12 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
           tr += '<td class="price-cell" style="font-size:' + Math.max(8, valFontPx * 1.3) + 'px;">' + (isDone && maskDone ? '＊＊＊＊万円' : pv) + '</td>';
         } else if (row.type === 'img') {
           const photos = (p.photos && p.photos.length) ? p.photos : (p.img ? [{ url: p.img }] : []);
+          // セルの物理サイズ(mm)を印刷解像度(150dpi想定)でpx換算し、必要最小限の画像サイズにする
+          const printDPI = 150;
+          const imgPxW = Math.min(650, Math.max(160, Math.round(colW * printDPI / 25.4)));
+          const imgPxH = Math.min(500, Math.max(120, Math.round(imgH * printDPI / 25.4)));
           const imgHtml = photos.length
-            ? '<img src="' + esc(cldOptimize(photos[0].url, 500)) + '" style="height:' + imgH + 'mm;"/>'
+            ? '<img src="' + esc(cldOptimize(photos[0].url, imgPxW, imgPxH)) + '" style="height:' + imgH + 'mm;"/>'
             : '<div class="no-img-ph" style="height:' + imgH + 'mm;">写真なし</div>';
           const stamp = p.saleStatus === '販売済' ? '<div class="pstamp pst-done">済</div>'
             : p.saleStatus === '申込あり' ? '<div class="pstamp pst-applied">申込</div>'
