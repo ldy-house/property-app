@@ -137,7 +137,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const marker = '/upload/';
     const idx = url.indexOf(marker);
     if (idx === -1) return url; // Cloudinary以外のURLはそのまま
-    const transform = 'f_jpg,q_auto:eco,c_limit,w_' + wPx + ',h_' + hPx;
+    const transform = 'f_jpg,q_auto:good,c_limit,w_' + wPx + ',h_' + hPx;
     return url.slice(0, idx + marker.length) + transform + '/' + url.slice(idx + marker.length);
   }
 
@@ -187,9 +187,9 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
         } else if (row.type === 'img') {
           const photos = (p.photos && p.photos.length) ? p.photos : (p.img ? [{ url: p.img }] : []);
           // セルの物理サイズ(mm)を印刷解像度(150dpi想定)でpx換算し、必要最小限の画像サイズにする
-          const printDPI = 150;
-          const imgPxW = Math.min(650, Math.max(160, Math.round(colW * printDPI / 25.4)));
-          const imgPxH = Math.min(500, Math.max(120, Math.round(imgH * printDPI / 25.4)));
+          const printDPI = 220;
+          const imgPxW = Math.min(800, Math.max(220, Math.round(colW * printDPI / 25.4)));
+          const imgPxH = Math.min(600, Math.max(160, Math.round(imgH * printDPI / 25.4)));
           const imgHtml = photos.length
             ? '<img src="' + esc(cldOptimize(photos[0].url, imgPxW, imgPxH)) + '" style="height:' + imgH + 'mm;"/>'
             : '<div class="no-img-ph" style="height:' + imgH + 'mm;">写真なし</div>';
