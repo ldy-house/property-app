@@ -855,13 +855,6 @@ function jimuHtml(jm){
     return'<span style="background:#F5F5F5;color:#bbb;font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid #EEE;">未確認</span>';
   };
   const rows=[];
-  // 契約・決済スケジュール（一般社員にも公開）
-  if(jm.buyContract||jm.buySettle||jm.sellContract||jm.sellSettle){
-    rows.push('<div class="jimu-row"><span class="jimu-lbl">仕入契約日</span><span class="jimu-val">'+(jm.buyContract||'—')+'</span></div>');
-    rows.push('<div class="jimu-row"><span class="jimu-lbl">仕入決済日</span><span class="jimu-val">'+(jm.buySettle||'—')+'</span></div>');
-    rows.push('<div class="jimu-row"><span class="jimu-lbl">再販契約日</span><span class="jimu-val">'+(jm.sellContract||'—')+'</span></div>');
-    rows.push('<div class="jimu-row"><span class="jimu-lbl">再販決済日</span><span class="jimu-val">'+(jm.sellSettle||'—')+'</span></div>');
-  }
   // 水道
   const wm=(jm.water?.meters||[]);
   if(wm.length){
@@ -982,20 +975,24 @@ window.renderCards=function(){
     const jm=jimuMap[p.id];
     const int=currentRole==='admin'?(internalMap[p.id]||{}):null;
     const days=int?(int.daysHeld!=null?int.daysHeld:calcDays(int.buySettle,int.sellSettle)):null;
-    const intSection=int?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+
-      '<div class="internal-row"><span class="internal-lbl">仕入金額</span><span class="internal-val">'+(int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">仕入先</span><span class="internal-val">'+(int.buyFrom||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">仕入契約日</span><span class="internal-val">'+(int.buyContract||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">仕入決済日</span><span class="internal-val">'+(int.buySettle||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">'+(int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">'+(int.loanBank||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">'+(int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">'+(int.sellTo||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">再販契約日</span><span class="internal-val">'+(int.sellContract||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">再販決済日</span><span class="internal-val">'+(int.sellSettle||'—')+'</span></div>'+
-      (days!=null?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">保有日数</span><span class="internal-val"><span class="days-badge">'+days+'日</span></span></div>':'')+
-      (int.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+int.internalMemo+'</span></div>':'')+
-    '</div></div>':'';
+    const scheduleRows=(jm&&(jm.buyContract||jm.buySettle||jm.sellContract||jm.sellSettle))?[
+      '<div class="internal-row"><span class="internal-lbl">仕入契約日</span><span class="internal-val">'+(jm.buyContract||'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">仕入決済日</span><span class="internal-val">'+(jm.buySettle||'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">再販契約日</span><span class="internal-val">'+(jm.sellContract||'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">再販決済日</span><span class="internal-val">'+(jm.sellSettle||'—')+'</span></div>',
+    ]:[];
+    const adminRows=int?[
+      '<div class="internal-row"><span class="internal-lbl">仕入金額</span><span class="internal-val">'+(int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">仕入先</span><span class="internal-val">'+(int.buyFrom||'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">'+(int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">'+(int.loanBank||'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">'+(int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—')+'</span></div>',
+      '<div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">'+(int.sellTo||'—')+'</span></div>',
+      (days!=null?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">保有日数</span><span class="internal-val"><span class="days-badge">'+days+'日</span></span></div>':''),
+      (int.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+int.internalMemo+'</span></div>':''),
+    ]:[];
+    const allInternalRows=[...scheduleRows,...adminRows].filter(Boolean);
+    const intSection=allInternalRows.length?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+allInternalRows.join('')+'</div></div>':'';
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+photoArea+'<span class="sale-badge '+getBadgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span></div>'+
       '<div class="card-body">'+
