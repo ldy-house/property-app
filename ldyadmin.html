@@ -235,8 +235,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <option>一棟もの</option><option>一戸建て</option><option>土地</option><option>区分マンション</option>
     </select>
     <select id="f-sort" onchange="renderCards()">
-      <option value="price-desc">価格：高い順</option>
-      <option value="price-asc">価格：安い順</option>
+      <option value="price-desc">販売価格：高い順</option>
+      <option value="price-asc">販売価格：安い順</option>
       <option value="buy-desc">仕入決済日：新しい順</option>
       <option value="buy-asc">仕入決済日：古い順</option>
       <option value="sell-desc">再販決済日：新しい順</option>
@@ -354,14 +354,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div class="fs admin-only" id="internal-fields" style="background:#FFF5F5;border:1px solid #FFD0D0;border-radius:6px;padding:14px;display:none;">
         <div class="fs-title-int">社内専用（管理者のみ）</div>
         <div style="margin-bottom:12px;">
-          <div style="font-size:10px;font-weight:700;color:#900;margin-bottom:8px;">仕入れ情報</div>
+          <div style="font-size:10px;font-weight:700;color:#900;margin-bottom:8px;">仕入情報</div>
           <div class="fg">
-            <div class="fr fr-int"><label>仕入れ金額（万円）</label><input id="f-buy-price" type="number"/></div>
-            <div class="fr fr-int"><label>仕入れ先</label><input id="f-buy-from"/></div>
+            <div class="fr fr-int"><label>仕入金額（万円）</label><input id="f-buy-price" type="number"/></div>
+            <div class="fr fr-int"><label>仕入先</label><input id="f-buy-from"/></div>
           </div>
           <div class="fg">
-            <div class="fr fr-int"><label>仕入れ契約日</label><input id="f-buy-contract" type="date"/></div>
-            <div class="fr fr-int"><label>仕入れ決済日</label><input id="f-buy-settle" type="date"/></div>
+            <div class="fr fr-int"><label>仕入契約日</label><input id="f-buy-contract" type="date"/></div>
+            <div class="fr fr-int"><label>仕入決済日</label><input id="f-buy-settle" type="date"/></div>
           </div>
         </div>
         <div style="margin-bottom:12px;">
@@ -513,8 +513,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             <span style="font-size:11px;color:var(--sub);white-space:nowrap;">並び替え：</span>
             <select id="pc-sort" onchange="renderPropList()">
               <option value="status">販売状況順</option>
-              <option value="price-desc">価格：高い順</option>
-              <option value="price-asc">価格：安い順</option>
+              <option value="price-desc">販売価格：高い順</option>
+              <option value="price-asc">販売価格：安い順</option>
               <option value="name">物件名順</option>
               <option value="buy-desc">仕入決済日：新しい順</option>
               <option value="buy-asc">仕入決済日：古い順</option>
@@ -608,7 +608,7 @@ function startSync(){
 }
 
 function calcDays(d1,d2){if(!d1||!d2)return null;const diff=new Date(d2)-new Date(d1);return diff>=0?Math.round(diff/86400000):null;}
-function updateDaysDisplay(){const bs=document.getElementById('f-buy-settle').value,ss=document.getElementById('f-sell-settle').value,d=calcDays(bs,ss);const el=document.getElementById('days-auto-display');if(el)el.innerHTML=d!==null?'仕入れ決済→再販決済：<span>'+d+'日</span>':'';}
+function updateDaysDisplay(){const bs=document.getElementById('f-buy-settle').value,ss=document.getElementById('f-sell-settle').value,d=calcDays(bs,ss);const el=document.getElementById('days-auto-display');if(el)el.innerHTML=d!==null?'仕入決済日→再販決済日：<span>'+d+'日</span>':'';}
 ['f-buy-settle','f-sell-settle'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',updateDaysDisplay);});
 
 // UI toggle helpers
@@ -965,16 +965,16 @@ window.renderCards=function(){
     const int=currentRole==='admin'?(internalMap[p.id]||{}):null;
     const days=int?(int.daysHeld!=null?int.daysHeld:calcDays(int.buySettle,int.sellSettle)):null;
     const intSection=int?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+
-      '<div class="internal-row"><span class="internal-lbl">仕入れ金額</span><span class="internal-val">'+(int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">仕入れ先</span><span class="internal-val">'+(int.buyFrom||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">仕入れ契約日</span><span class="internal-val">'+(int.buyContract||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">仕入れ決済</span><span class="internal-val">'+(int.buySettle||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">仕入金額</span><span class="internal-val">'+(int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">仕入先</span><span class="internal-val">'+(int.buyFrom||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">仕入契約日</span><span class="internal-val">'+(int.buyContract||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">仕入決済日</span><span class="internal-val">'+(int.buySettle||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">'+(int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">'+(int.loanBank||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">'+(int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">'+(int.sellTo||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販契約日</span><span class="internal-val">'+(int.sellContract||'—')+'</span></div>'+
-      '<div class="internal-row"><span class="internal-lbl">再販決済</span><span class="internal-val">'+(int.sellSettle||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">再販決済日</span><span class="internal-val">'+(int.sellSettle||'—')+'</span></div>'+
       (days!=null?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">保有日数</span><span class="internal-val"><span class="days-badge">'+days+'日</span></span></div>':'')+
       (int.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+int.internalMemo+'</span></div>':'')+
     '</div></div>':'';
@@ -1007,7 +1007,7 @@ window.cardNav=function(e,id,photos,dir){e.stopPropagation();if(!cardPhotoIdx[id
 
 // Print
 const BROKER_ROWS=[
-  {key:'price',label:'価格',type:'price',cat:'price'},
+  {key:'price',label:'販売価格',type:'price',cat:'price'},
   {key:'img',label:'外観',type:'img',cat:'price'},
   {key:'loc',label:'所在地',fmt:p=>p.loc||'—',cat:'location'},
   {key:'sta',label:'最寄り駅',fmt:p=>p.sta||'—',cat:'location'},
@@ -1026,20 +1026,20 @@ const BROKER_ROWS=[
   {key:'propStatus',label:'現状',fmt:p=>p.propStatus||'—',cat:'sales'},
   {key:'delivery',label:'引渡可能日',fmt:p=>p.delivery||'相談',cat:'sales'},
   {key:'baitai',label:'取引業態',fmt:p=>p.baitai||'—',cat:'sales'},
+  {key:'buyContract',label:'仕入契約日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.buyContract||'—';},cat:'sales'},
+  {key:'buySettle',label:'仕入決済日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.buySettle||'—';},cat:'sales'},
+  {key:'sellContract',label:'再販契約日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.sellContract||'—';},cat:'sales'},
+  {key:'sellSettle',label:'再販決済日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.sellSettle||'—';},cat:'sales'},
   {key:'note',label:'備考',type:'note',cat:'sales'},
 ];
 const BANK_ROWS=[
   ...BROKER_ROWS.filter(r=>r.key!=='note'),
-  {key:'buyPrice',label:'仕入れ金額',fmt:(p,i)=>i?.buyPrice?i.buyPrice.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
-  {key:'buyFrom',label:'仕入れ先',fmt:(p,i)=>i?.buyFrom||'—',internal:true,defaultChecked:false,cat:'internal'},
-  {key:'buyContract',label:'仕入れ契約日',fmt:(p,i)=>i?.buyContract||'—',internal:true,cat:'internal'},
-  {key:'buySettle',label:'仕入れ決済日',fmt:(p,i)=>i?.buySettle||'—',internal:true,cat:'internal'},
+  {key:'buyPrice',label:'仕入金額',fmt:(p,i)=>i?.buyPrice?i.buyPrice.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
+  {key:'buyFrom',label:'仕入先',fmt:(p,i)=>i?.buyFrom||'—',internal:true,defaultChecked:false,cat:'internal'},
   {key:'loanAmt',label:'融資金額',fmt:(p,i)=>i?.loanAmt?i.loanAmt.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
   {key:'loanBank',label:'融資先',fmt:(p,i)=>i?.loanBank||'—',internal:true,defaultChecked:false,cat:'internal'},
   {key:'sellPrice',label:'再販価格',fmt:(p,i)=>i?.sellPrice?i.sellPrice.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
   {key:'sellTo',label:'販売先',fmt:(p,i)=>i?.sellTo||'—',internal:true,defaultChecked:false,cat:'internal'},
-  {key:'sellContract',label:'再販契約日',fmt:(p,i)=>i?.sellContract||'—',internal:true,cat:'internal'},
-  {key:'sellSettle',label:'再販決済日',fmt:(p,i)=>i?.sellSettle||'—',internal:true,cat:'internal'},
   {key:'daysHeld',label:'保有日数',fmt:(p,i)=>{const d=i?.daysHeld!=null?i.daysHeld:calcDays(i?.buySettle,i?.sellSettle);return d!=null?d+'日':'—';},internal:true,cat:'internal'},
   {key:'note',label:'備考',type:'note',cat:'sales'},
 ];
