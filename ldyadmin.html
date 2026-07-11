@@ -160,6 +160,33 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-select-all:hover{background:var(--navy);color:#fff;}
 .pc-select-none{color:#888;border-color:#ccc;}
 .pc-select-none:hover{background:#888;color:#fff;border-color:#888;}
+.pc-section-card{background:#F8F9FC;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px;}
+.pc-section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.pc-step-num{width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pc-section-title2{font-size:12px;font-weight:700;color:var(--navy);letter-spacing:0.3px;}
+.pc-toolbar-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.pc-search{flex:1;min-width:150px;font-size:12px;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;outline:none;background:#fff;}
+.pc-search:focus{border-color:var(--navy);}
+.pc-chip{font-size:11px;font-weight:700;padding:5px 11px;border-radius:14px;cursor:pointer;border:1.5px solid transparent;display:inline-flex;align-items:center;gap:5px;transition:all .15s;opacity:0.38;color:#fff;user-select:none;}
+.pc-chip.active{opacity:1;box-shadow:0 1px 4px rgba(0,0,0,0.18);}
+.pc-chip input{display:none;}
+.pc-sort-wrap{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.pc-sort-wrap select{font-size:11px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;outline:none;background:#fff;}
+.pc-count-badge{background:var(--gold);color:var(--navy-dark);font-weight:700;font-size:11px;padding:3px 10px;border-radius:12px;}
+.pc-prop-list2{max-height:250px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:#fff;}
+.pc-prop-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f2f2f5;cursor:pointer;transition:background .12s;border-left:4px solid transparent;}
+.pc-prop-row:last-child{border-bottom:none;}
+.pc-prop-row:hover{background:#F5F7FF;}
+.pc-prop-row.is-checked{background:#F0F4FF;}
+.pc-prop-row input{width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.pc-price-toggle{display:flex;gap:8px;}
+.pc-price-card{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:12px;font-weight:700;text-align:center;color:#777;transition:all .15s;background:#fff;}
+.pc-price-card:hover{border-color:var(--gold);}
+.pc-price-card.active{border-color:var(--navy);background:#EEF2FF;color:var(--navy);}
+.pc-rows-cat{margin-bottom:12px;}
+.pc-rows-cat:last-child{margin-bottom:0;}
+.pc-rows-cat-title{font-size:9.5px;font-weight:700;color:var(--sub);letter-spacing:1px;margin-bottom:6px;}
+.pc-empty-msg{padding:20px;text-align:center;color:#999;font-size:12px;}
 .pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;}
 </style>
 </head>
@@ -472,38 +499,63 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   <div class="pc-box">
     <div class="pc-head"><span id="pc-title">印刷設定</span><button class="modal-close" onclick="closePrintConfig()">✕</button></div>
     <div class="pc-body">
-      <div style="background:#EEF2FF;border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--navy);font-weight:600;" id="pc-type-label"></div>
-      <div class="pc-sec">
-        <div class="pc-sec-title">出力する物件を選択 <span id="pc-selected-count" style="font-size:11px;color:var(--gold);font-weight:700;"></span></div>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+      <div style="background:#EEF2FF;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--navy);font-weight:700;" id="pc-type-label"></div>
+
+      <div class="pc-section-card">
+        <div class="pc-section-head">
+          <span class="pc-step-num">1</span>
+          <span class="pc-section-title2">出力する物件を選択</span>
+          <span class="pc-count-badge" id="pc-selected-count"></span>
+        </div>
+        <div class="pc-toolbar-row">
           <button type="button" class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</button>
           <button type="button" class="pc-select-all pc-select-none" onclick="toggleAllProps(false)">すべて解除</button>
-          <span style="font-size:11px;color:var(--sub);margin-left:4px;">状況で絞込：</span>
-          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-sale" onchange="filterByStatus()" checked/><span style="background:#1B2A6B;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">販売中</span></label>
-          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-private" onchange="filterByStatus()" checked/><span style="background:#4A4A4A;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">非公開</span></label>
-          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-applied" onchange="filterByStatus()" checked/><span style="background:#E65100;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">申込あり</span></label>
-          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-contract" onchange="filterByStatus()" checked/><span style="background:#6A1B9A;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">契約済</span></label>
-          <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;"><input type="checkbox" id="fs-done" onchange="filterByStatus()" checked/><span style="background:#555;color:#fff;font-size:9px;padding:1px 6px;border-radius:2px;">販売済</span></label>
-          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
-            <span style="font-size:11px;color:var(--sub);">並び替え：</span>
-            <select id="pc-sort" onchange="renderPropList()" style="font-size:11px;padding:3px 6px;border:1px solid #ccc;border-radius:3px;outline:none;">
+          <input type="text" class="pc-search" id="pc-search" placeholder="🔍 物件名で絞り込み..." oninput="renderPropList()"/>
+          <div class="pc-sort-wrap">
+            <span style="font-size:11px;color:var(--sub);white-space:nowrap;">並び替え：</span>
+            <select id="pc-sort" onchange="renderPropList()">
               <option value="status">販売状況順</option>
               <option value="price-desc">価格：高い順</option>
               <option value="price-asc">価格：安い順</option>
               <option value="name">物件名順</option>
+              <option value="buy-desc">仕入決済日：新しい順</option>
+              <option value="buy-asc">仕入決済日：古い順</option>
+              <option value="sell-desc">再販決済日：新しい順</option>
+              <option value="sell-asc">再販決済日：古い順</option>
             </select>
           </div>
         </div>
-        <div class="pc-prop-list" id="pc-prop-list" style="max-height:260px;"></div>
-      </div>
-      <div class="pc-sec">
-        <div class="pc-sec-title">販売済・契約済の価格表示</div>
-        <div class="pc-opts">
-          <label class="pc-opt"><input type="radio" name="price-mask" value="show" checked/> 実額を表示</label>
-          <label class="pc-opt"><input type="radio" name="price-mask" value="mask"/> ＊＊＊＊万円に隠す</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="font-size:11px;color:var(--sub);align-self:center;">状況で絞込：</span>
+          <label class="pc-chip active" id="chip-fs-sale" style="background:#1B2A6B;"><input type="checkbox" id="fs-sale" checked onchange="onChipToggle('fs-sale')"/>販売中</label>
+          <label class="pc-chip active" id="chip-fs-private" style="background:#4A4A4A;"><input type="checkbox" id="fs-private" checked onchange="onChipToggle('fs-private')"/>非公開</label>
+          <label class="pc-chip active" id="chip-fs-applied" style="background:#E65100;"><input type="checkbox" id="fs-applied" checked onchange="onChipToggle('fs-applied')"/>申込あり</label>
+          <label class="pc-chip active" id="chip-fs-contract" style="background:#6A1B9A;"><input type="checkbox" id="fs-contract" checked onchange="onChipToggle('fs-contract')"/>契約済</label>
+          <label class="pc-chip active" id="chip-fs-done" style="background:#555;"><input type="checkbox" id="fs-done" checked onchange="onChipToggle('fs-done')"/>販売済</label>
         </div>
+        <div class="pc-prop-list2" id="pc-prop-list"></div>
       </div>
-      <div class="pc-sec"><div class="pc-sec-title" id="pc-rows-label">表示する項目</div><div class="pc-grid" id="pc-row-checks"></div></div>
+
+      <div class="pc-section-card">
+        <div class="pc-section-head">
+          <span class="pc-step-num">2</span>
+          <span class="pc-section-title2">販売済・契約済の価格表示</span>
+        </div>
+        <div class="pc-price-toggle">
+          <div class="pc-price-card active" id="price-card-show" onclick="setPriceMask('show')">実額を表示</div>
+          <div class="pc-price-card" id="price-card-mask" onclick="setPriceMask('mask')">＊＊＊＊万円に隠す</div>
+        </div>
+        <input type="radio" name="price-mask" value="show" checked style="display:none;" id="price-radio-show"/>
+        <input type="radio" name="price-mask" value="mask" style="display:none;" id="price-radio-mask"/>
+      </div>
+
+      <div class="pc-section-card">
+        <div class="pc-section-head">
+          <span class="pc-step-num">3</span>
+          <span class="pc-section-title2" id="pc-rows-label">表示する項目</span>
+        </div>
+        <div id="pc-row-checks"></div>
+      </div>
     </div>
     <div class="pc-foot">
       <button class="btn" onclick="closePrintConfig()">キャンセル</button>
@@ -643,7 +695,10 @@ window.doSave=async function(){
     if(editId){await updateDoc(doc(db,'properties',editId),pubObj);}
     else{pubObj.createdAt=serverTimestamp();const ref=await addDoc(collection(db,'properties'),pubObj);propId=ref.id;}
     await setDoc(doc(db,'properties_lifeline',propId),jimuObj,{merge:true});
-    if(currentRole==='admin'){const bs=document.getElementById('f-buy-settle').value,ss=document.getElementById('f-sell-settle').value;await setDoc(doc(db,'properties_internal',propId),{buyPrice:parseInt(document.getElementById('f-buy-price').value)||null,buyFrom:document.getElementById('f-buy-from').value.trim(),buyContract:document.getElementById('f-buy-contract').value,buySettle:bs,loanAmt:parseInt(document.getElementById('f-loan-amt').value)||null,loanBank:document.getElementById('f-loan-bank').value.trim(),sellPrice:parseInt(document.getElementById('f-sell-price').value)||null,sellTo:document.getElementById('f-sell-to').value.trim(),sellContract:document.getElementById('f-sell-contract').value,sellSettle:ss,daysHeld:calcDays(bs,ss),internalMemo:document.getElementById('f-internal-memo').value.trim(),updatedAt:serverTimestamp()},{merge:true});}
+    if(currentRole==='admin'){const bs=document.getElementById('f-buy-settle').value,ss=document.getElementById('f-sell-settle').value;await setDoc(doc(db,'properties_internal',propId),{buyPrice:parseInt(document.getElementById('f-buy-price').value)||null,buyFrom:document.getElementById('f-buy-from').value.trim(),buyContract:document.getElementById('f-buy-contract').value,buySettle:bs,loanAmt:parseInt(document.getElementById('f-loan-amt').value)||null,loanBank:document.getElementById('f-loan-bank').value.trim(),sellPrice:parseInt(document.getElementById('f-sell-price').value)||null,sellTo:document.getElementById('f-sell-to').value.trim(),sellContract:document.getElementById('f-sell-contract').value,sellSettle:ss,daysHeld:calcDays(bs,ss),internalMemo:document.getElementById('f-internal-memo').value.trim(),updatedAt:serverTimestamp()},{merge:true});
+      // 契約日・決済日のみ、一般社員も閲覧できるよう事務(lifeline)データにも複製保存
+      await setDoc(doc(db,'properties_lifeline',propId),{buyContract:document.getElementById('f-buy-contract').value,buySettle:bs,sellContract:document.getElementById('f-sell-contract').value,sellSettle:ss},{merge:true});
+    }
     closeModal();
   }catch(e){alert('保存失敗: '+e.message);console.error(e);}
   showLoading(false);};
@@ -784,6 +839,13 @@ function jimuHtml(jm){
     return'<span style="background:#F5F5F5;color:#bbb;font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid #EEE;">未確認</span>';
   };
   const rows=[];
+  // 契約・決済スケジュール（一般社員にも公開）
+  if(jm.buyContract||jm.buySettle||jm.sellContract||jm.sellSettle){
+    rows.push('<div class="jimu-row"><span class="jimu-lbl">仕入契約日</span><span class="jimu-val">'+(jm.buyContract||'—')+'</span></div>');
+    rows.push('<div class="jimu-row"><span class="jimu-lbl">仕入決済日</span><span class="jimu-val">'+(jm.buySettle||'—')+'</span></div>');
+    rows.push('<div class="jimu-row"><span class="jimu-lbl">再販契約日</span><span class="jimu-val">'+(jm.sellContract||'—')+'</span></div>');
+    rows.push('<div class="jimu-row"><span class="jimu-lbl">再販決済日</span><span class="jimu-val">'+(jm.sellSettle||'—')+'</span></div>');
+  }
   // 水道
   const wm=(jm.water?.meters||[]);
   if(wm.length){
@@ -907,11 +969,13 @@ window.renderCards=function(){
     const intSection=int?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ金額</span><span class="internal-val">'+(int.buyPrice?int.buyPrice.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ先</span><span class="internal-val">'+(int.buyFrom||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">仕入れ契約日</span><span class="internal-val">'+(int.buyContract||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">仕入れ決済</span><span class="internal-val">'+(int.buySettle||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資金額</span><span class="internal-val">'+(int.loanAmt?int.loanAmt.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">融資先</span><span class="internal-val">'+(int.loanBank||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販価格</span><span class="internal-val">'+(int.sellPrice?int.sellPrice.toLocaleString()+'万円':'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">販売先</span><span class="internal-val">'+(int.sellTo||'—')+'</span></div>'+
+      '<div class="internal-row"><span class="internal-lbl">再販契約日</span><span class="internal-val">'+(int.sellContract||'—')+'</span></div>'+
       '<div class="internal-row"><span class="internal-lbl">再販決済</span><span class="internal-val">'+(int.sellSettle||'—')+'</span></div>'+
       (days!=null?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">保有日数</span><span class="internal-val"><span class="days-badge">'+days+'日</span></span></div>':'')+
       (int.internalMemo?'<div class="internal-row" style="grid-column:1/-1;"><span class="internal-lbl">メモ</span><span class="internal-val">'+int.internalMemo+'</span></div>':'')+
@@ -945,44 +1009,47 @@ window.cardNav=function(e,id,photos,dir){e.stopPropagation();if(!cardPhotoIdx[id
 
 // Print
 const BROKER_ROWS=[
-  {key:'price',label:'価格',type:'price'},
-  {key:'img',label:'外観',type:'img'},
-  {key:'loc',label:'所在地',fmt:p=>p.loc||'—'},
-  {key:'sta',label:'最寄り駅',fmt:p=>p.sta||'—'},
-  {key:'uso',label:'用途',fmt:p=>p.uso||'—'},
-  {key:'land',label:'土地面積',fmt:p=>p.land?p.land+'㎡':'—'},
-  {key:'floor',label:'延床面積',fmt:p=>p.floor?p.floor+'㎡':'—'},
-  {key:'layout',label:'間取り',fmt:p=>p.layout||'—'},
-  {key:'built',label:'築年月',fmt:p=>p.built||'—'},
-  {key:'struct',label:'構造',fmt:p=>p.struct||'—'},
-  {key:'road',label:'接道',fmt:p=>p.road||'—'},
-  {key:'right',label:'権利',fmt:p=>p.right||'所有権'},
-  {key:'kenpei_yoseki',label:'建蔽率/容積率',fmt:p=>{const zb=p.zoneBlocks&&p.zoneBlocks.length?p.zoneBlocks:[];return zb.length?zb.map(b=>(b.kenpei?b.kenpei+'%':'—')+'/'+(b.yoseki?b.yoseki+'%':'—')).join(','):(p.kenpei?p.kenpei+'%':'—')+'/'+(p.yoseki?p.yoseki+'%':'—');}},
-  {key:'zone',label:'用途地域',fmt:p=>{const zb=p.zoneBlocks&&p.zoneBlocks.length?p.zoneBlocks:[];return zb.length?zb.map(b=>b.zone||'').filter(v=>v).join(','):(p.zones&&p.zones.length?p.zones.join(','):p.zone||'—');}},
-  {key:'bouka',label:'防火指定',fmt:p=>{const zb=p.zoneBlocks&&p.zoneBlocks.length?p.zoneBlocks:[];return zb.length?zb.map(b=>b.bouka||'').filter(v=>v).join(','):(p.boukas&&p.boukas.length?p.boukas.join(','):p.bouka||'—');}},
-  {key:'toshi',label:'都市計画/備考',fmt:p=>p.toshi||'—'},
-  {key:'propStatus',label:'現状',fmt:p=>p.propStatus||'—'},
-  {key:'delivery',label:'引渡可能日',fmt:p=>p.delivery||'相談'},
-  {key:'baitai',label:'取引業態',fmt:p=>p.baitai||'—'},
-  {key:'note',label:'備考',type:'note'},
+  {key:'price',label:'価格',type:'price',cat:'price'},
+  {key:'img',label:'外観',type:'img',cat:'price'},
+  {key:'loc',label:'所在地',fmt:p=>p.loc||'—',cat:'location'},
+  {key:'sta',label:'最寄り駅',fmt:p=>p.sta||'—',cat:'location'},
+  {key:'uso',label:'用途',fmt:p=>p.uso||'—',cat:'building'},
+  {key:'land',label:'土地面積',fmt:p=>p.land?p.land+'㎡':'—',cat:'building'},
+  {key:'floor',label:'延床面積',fmt:p=>p.floor?p.floor+'㎡':'—',cat:'building'},
+  {key:'layout',label:'間取り',fmt:p=>p.layout||'—',cat:'building'},
+  {key:'built',label:'築年月',fmt:p=>p.built||'—',cat:'building'},
+  {key:'struct',label:'構造',fmt:p=>p.struct||'—',cat:'building'},
+  {key:'road',label:'接道',fmt:p=>p.road||'—',cat:'building'},
+  {key:'right',label:'権利',fmt:p=>p.right||'所有権',cat:'legal'},
+  {key:'kenpei_yoseki',label:'建蔽率/容積率',fmt:p=>{const zb=p.zoneBlocks&&p.zoneBlocks.length?p.zoneBlocks:[];return zb.length?zb.map(b=>(b.kenpei?b.kenpei+'%':'—')+'/'+(b.yoseki?b.yoseki+'%':'—')).join(','):(p.kenpei?p.kenpei+'%':'—')+'/'+(p.yoseki?p.yoseki+'%':'—');},cat:'legal'},
+  {key:'zone',label:'用途地域',fmt:p=>{const zb=p.zoneBlocks&&p.zoneBlocks.length?p.zoneBlocks:[];return zb.length?zb.map(b=>b.zone||'').filter(v=>v).join(','):(p.zones&&p.zones.length?p.zones.join(','):p.zone||'—');},cat:'legal'},
+  {key:'bouka',label:'防火指定',fmt:p=>{const zb=p.zoneBlocks&&p.zoneBlocks.length?p.zoneBlocks:[];return zb.length?zb.map(b=>b.bouka||'').filter(v=>v).join(','):(p.boukas&&p.boukas.length?p.boukas.join(','):p.bouka||'—');},cat:'legal'},
+  {key:'toshi',label:'都市計画/備考',fmt:p=>p.toshi||'—',cat:'legal'},
+  {key:'propStatus',label:'現状',fmt:p=>p.propStatus||'—',cat:'sales'},
+  {key:'delivery',label:'引渡可能日',fmt:p=>p.delivery||'相談',cat:'sales'},
+  {key:'baitai',label:'取引業態',fmt:p=>p.baitai||'—',cat:'sales'},
+  {key:'note',label:'備考',type:'note',cat:'sales'},
 ];
 const BANK_ROWS=[
   ...BROKER_ROWS.filter(r=>r.key!=='note'),
-  {key:'buyPrice',label:'仕入れ金額',fmt:(p,i)=>i?.buyPrice?i.buyPrice.toLocaleString()+'万円':'—',internal:true},
-  {key:'buyFrom',label:'仕入れ先',fmt:(p,i)=>i?.buyFrom||'—',internal:true,defaultChecked:false},
-  {key:'buyContract',label:'仕入れ契約日',fmt:(p,i)=>i?.buyContract||'—',internal:true},
-  {key:'buySettle',label:'仕入れ決済日',fmt:(p,i)=>i?.buySettle||'—',internal:true},
-  {key:'loanAmt',label:'融資金額',fmt:(p,i)=>i?.loanAmt?i.loanAmt.toLocaleString()+'万円':'—',internal:true},
-  {key:'loanBank',label:'融資先',fmt:(p,i)=>i?.loanBank||'—',internal:true,defaultChecked:false},
-  {key:'sellPrice',label:'再販価格',fmt:(p,i)=>i?.sellPrice?i.sellPrice.toLocaleString()+'万円':'—',internal:true},
-  {key:'sellTo',label:'販売先',fmt:(p,i)=>i?.sellTo||'—',internal:true,defaultChecked:false},
-  {key:'sellContract',label:'再販契約日',fmt:(p,i)=>i?.sellContract||'—',internal:true},
-  {key:'sellSettle',label:'再販決済日',fmt:(p,i)=>i?.sellSettle||'—',internal:true},
-  {key:'daysHeld',label:'保有日数',fmt:(p,i)=>{const d=i?.daysHeld!=null?i.daysHeld:calcDays(i?.buySettle,i?.sellSettle);return d!=null?d+'日':'—';},internal:true},
-  {key:'note',label:'備考',type:'note'},
+  {key:'buyPrice',label:'仕入れ金額',fmt:(p,i)=>i?.buyPrice?i.buyPrice.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
+  {key:'buyFrom',label:'仕入れ先',fmt:(p,i)=>i?.buyFrom||'—',internal:true,defaultChecked:false,cat:'internal'},
+  {key:'buyContract',label:'仕入れ契約日',fmt:(p,i)=>i?.buyContract||'—',internal:true,cat:'internal'},
+  {key:'buySettle',label:'仕入れ決済日',fmt:(p,i)=>i?.buySettle||'—',internal:true,cat:'internal'},
+  {key:'loanAmt',label:'融資金額',fmt:(p,i)=>i?.loanAmt?i.loanAmt.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
+  {key:'loanBank',label:'融資先',fmt:(p,i)=>i?.loanBank||'—',internal:true,defaultChecked:false,cat:'internal'},
+  {key:'sellPrice',label:'再販価格',fmt:(p,i)=>i?.sellPrice?i.sellPrice.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
+  {key:'sellTo',label:'販売先',fmt:(p,i)=>i?.sellTo||'—',internal:true,defaultChecked:false,cat:'internal'},
+  {key:'sellContract',label:'再販契約日',fmt:(p,i)=>i?.sellContract||'—',internal:true,cat:'internal'},
+  {key:'sellSettle',label:'再販決済日',fmt:(p,i)=>i?.sellSettle||'—',internal:true,cat:'internal'},
+  {key:'daysHeld',label:'保有日数',fmt:(p,i)=>{const d=i?.daysHeld!=null?i.daysHeld:calcDays(i?.buySettle,i?.sellSettle);return d!=null?d+'日':'—';},internal:true,cat:'internal'},
+  {key:'note',label:'備考',type:'note',cat:'sales'},
 ];
+const CAT_LABELS={price:'価格・写真',location:'所在地・アクセス',building:'建物・面積',legal:'権利・法規',sales:'販売情報',internal:'社内情報（金額・日付）'};
+const CAT_ORDER=['price','location','building','legal','sales','internal'];
 
 let currentPrintType='broker';
+let pcSelectedIds=new Set();
 const STATUS_BADGE_COLOR={'販売中':'#1B2A6B','非公開販売中':'#4A4A4A','申込あり':'#E65100','契約済':'#6A1B9A','販売済':'#555'};
 const STATUS_ORDER2={'販売中':0,'非公開販売中':1,'申込あり':2,'契約済':3,'販売済':4};
 
@@ -990,61 +1057,106 @@ window.openPrintConfig=function(type){
   currentPrintType=type;
   document.getElementById('pc-title').textContent=type==='broker'?'仲介向け印刷設定':'銀行向け印刷設定';
   document.getElementById('pc-type-label').textContent=type==='broker'?'仲介向け（在庫一覧表）':'銀行向け（実績一覧表）';
+  // 状態リセット
+  pcSelectedIds=new Set(props.map(p=>p.id));
+  if(document.getElementById('pc-search'))document.getElementById('pc-search').value='';
   if(document.getElementById('pc-sort'))document.getElementById('pc-sort').value='status';
+  ['fs-sale','fs-private','fs-applied','fs-contract','fs-done'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.checked=true;
+    const chip=document.getElementById('chip-'+id);if(chip)chip.classList.add('active');
+  });
+  setPriceMask('show');
   renderPropList();
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
-  document.getElementById('pc-row-checks').innerHTML=rows.map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('');
+  const grouped={};
+  rows.forEach(r=>{(grouped[r.cat]=grouped[r.cat]||[]).push(r);});
+  document.getElementById('pc-row-checks').innerHTML=CAT_ORDER.filter(c=>grouped[c]&&grouped[c].length).map(cat=>
+    '<div class="pc-rows-cat"><div class="pc-rows-cat-title">'+CAT_LABELS[cat]+'</div><div class="pc-grid">'+
+      grouped[cat].map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('')+
+    '</div></div>'
+  ).join('');
   document.getElementById('print-config').classList.add('open');
 };
 
 window.renderPropList=function(){
   const sortVal=document.getElementById('pc-sort')?.value||'status';
+  const kw=(document.getElementById('pc-search')?.value||'').trim().toLowerCase();
   let sorted=[...props];
+  if(kw)sorted=sorted.filter(p=>(p.name||'').toLowerCase().includes(kw));
   if(sortVal==='status')sorted.sort((a,b)=>(STATUS_ORDER2[a.saleStatus]??9)-(STATUS_ORDER2[b.saleStatus]??9));
   else if(sortVal==='price-desc')sorted.sort((a,b)=>(b.price||0)-(a.price||0));
   else if(sortVal==='price-asc')sorted.sort((a,b)=>{if(!a.price&&!b.price)return 0;if(!a.price)return 1;if(!b.price)return -1;return a.price-b.price;});
   else if(sortVal==='name')sorted.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
+  else if(sortVal==='buy-desc'||sortVal==='buy-asc'){
+    sorted.sort((a,b)=>{
+      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const da=ia.buySettle||ia.buyContract||'',db=ib.buySettle||ib.buyContract||'';
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
+      return sortVal==='buy-desc'?db.localeCompare(da):da.localeCompare(db);
+    });
+  }else if(sortVal==='sell-desc'||sortVal==='sell-asc'){
+    sorted.sort((a,b)=>{
+      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const da=ia.sellSettle||ia.sellContract||'',db=ib.sellSettle||ib.sellContract||'';
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
+      return sortVal==='sell-desc'?db.localeCompare(da):da.localeCompare(db);
+    });
+  }
 
-  // 既存のチェック状態を保持
-  const checked=new Set([...document.querySelectorAll('.pc-prop-check:checked')].map(c=>c.value));
-  const isFirst=checked.size===0;
+  const listEl=document.getElementById('pc-prop-list');
+  if(!sorted.length){listEl.innerHTML='<div class="pc-empty-msg">該当する物件がありません</div>';updatePropCount();return;}
 
-  document.getElementById('pc-prop-list').innerHTML=sorted.map(p=>{
-    const isChecked=isFirst||checked.has(p.id);
+  listEl.innerHTML=sorted.map(p=>{
+    const isChecked=pcSelectedIds.has(p.id);
     const badgeColor=STATUS_BADGE_COLOR[p.saleStatus]||'#777';
     const price=p.price?p.price.toLocaleString()+'万円':'価格応相談';
-    return '<label class="pc-prop-item" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;border-bottom:1px solid #f0f0f0;">'+
-      '<input type="checkbox" class="pc-prop-check" value="'+p.id+'"'+(isChecked?' checked':'')+' onchange="updatePropCount()"/>'+
-      '<span style="background:'+badgeColor+';color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;flex-shrink:0;">'+( p.saleStatus||'—')+'</span>'+
-      '<span style="font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+( p.name||'—')+'</span>'+
+    return '<label class="pc-prop-row'+(isChecked?' is-checked':'')+'" id="pcrow-'+p.id+'" style="border-left-color:'+badgeColor+';">'+
+      '<input type="checkbox" class="pc-prop-check" value="'+p.id+'"'+(isChecked?' checked':'')+' onchange="onPropCheckToggle(\''+p.id+'\',this.checked)"/>'+
+      '<span style="background:'+badgeColor+';color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;flex-shrink:0;">'+(p.saleStatus||'—')+'</span>'+
+      '<span style="font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(p.name||'—')+'</span>'+
       '<span style="font-size:11px;color:var(--sub);flex-shrink:0;">'+price+'</span>'+
     '</label>';
   }).join('');
   updatePropCount();
 };
 
+window.onPropCheckToggle=function(id,checked){
+  if(checked)pcSelectedIds.add(id);else pcSelectedIds.delete(id);
+  const row=document.getElementById('pcrow-'+id);
+  if(row)row.classList.toggle('is-checked',checked);
+  updatePropCount();
+};
+
+window.onChipToggle=function(id){
+  const cb=document.getElementById(id);
+  const chip=document.getElementById('chip-'+id);
+  if(chip)chip.classList.toggle('active',cb.checked);
+  filterByStatus();
+};
+
+window.setPriceMask=function(v){
+  const showRadio=document.getElementById('price-radio-show'),maskRadio=document.getElementById('price-radio-mask');
+  if(v==='mask'){maskRadio.checked=true;}else{showRadio.checked=true;}
+  document.getElementById('price-card-show').classList.toggle('active',v==='show');
+  document.getElementById('price-card-mask').classList.toggle('active',v==='mask');
+};
+
 window.updatePropCount=function(){
-  const total=document.querySelectorAll('.pc-prop-check').length;
-  const checked=document.querySelectorAll('.pc-prop-check:checked').length;
+  const total=props.length;
+  const selected=pcSelectedIds.size;
   const el=document.getElementById('pc-selected-count');
-  if(el)el.textContent=checked+' / '+total+' 件選択中';
+  if(el)el.textContent=selected+' / '+total+' 件選択中';
 };
 window.closePrintConfig=function(){document.getElementById('print-config').classList.remove('open');};
 window.toggleAllProps=function(v){
-  document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=v);
+  pcSelectedIds=v?new Set(props.map(p=>p.id)):new Set();
   ['fs-sale','fs-private','fs-applied','fs-contract','fs-done'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.checked=v;
+    const chip=document.getElementById('chip-'+id);
+    if(chip)chip.classList.toggle('active',v);
   });
-  updatePropCount();
-};
-window.toggleByStatus=function(...statuses){
-  document.querySelectorAll('.pc-prop-check').forEach(c=>c.checked=false);
-  document.querySelectorAll('.pc-prop-check').forEach(c=>{
-    const p=props.find(x=>x.id===c.value);
-    if(p&&statuses.includes(p.saleStatus))c.checked=true;
-  });
-  updatePropCount();
+  renderPropList();
 };
 window.filterByStatus=function(){
   const allowed=new Set();
@@ -1053,15 +1165,14 @@ window.filterByStatus=function(){
   if(document.getElementById('fs-applied')?.checked)allowed.add('申込あり');
   if(document.getElementById('fs-contract')?.checked)allowed.add('契約済');
   if(document.getElementById('fs-done')?.checked)allowed.add('販売済');
-  document.querySelectorAll('.pc-prop-check').forEach(c=>{
-    const p=props.find(x=>x.id===c.value);
-    if(p)c.checked=allowed.has(p.saleStatus);
+  props.forEach(p=>{
+    if(allowed.has(p.saleStatus))pcSelectedIds.add(p.id);else pcSelectedIds.delete(p.id);
   });
-  updatePropCount();
+  renderPropList();
 };
 
 window.generatePrint=function(){
-  const selectedIds=new Set([...document.querySelectorAll('.pc-prop-check:checked')].map(c=>c.value));
+  const selectedIds=pcSelectedIds;
   const selectedRows=new Set([...document.querySelectorAll('.pc-row-check:checked')].map(c=>c.value));
   const maskDone=document.querySelector('input[name="price-mask"]:checked')?.value==='mask';
   const selectedProps=props.filter(p=>selectedIds.has(p.id));
