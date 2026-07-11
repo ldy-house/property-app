@@ -140,10 +140,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .lb-counter{position:absolute;top:14px;left:18px;color:rgba(255,255,255,0.55);font-size:11px;}
 .pc-bg{display:none;position:fixed;inset:0;background:rgba(10,15,40,0.65);z-index:300;align-items:center;justify-content:center;}
 .pc-bg.open{display:flex;}
-.pc-box{background:#fff;border-radius:8px;width:680px;max-width:96%;max-height:93vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
-.pc-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;}
+.pc-box{background:#fff;border-radius:8px;width:680px;max-width:96%;max-height:93vh;box-shadow:0 20px 60px rgba(0,0,0,0.3);display:flex;flex-direction:column;overflow:hidden;}
+.pc-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;flex-shrink:0;}
 .pc-head span{font-size:14px;font-weight:700;color:#fff;}
-.pc-body{padding:18px;}
+.pc-body{padding:18px;overflow-y:auto;flex:1;}
 .pc-sec{margin-bottom:14px;}
 .pc-sec-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;}
 .pc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
@@ -167,7 +167,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-toolbar-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
 .pc-search{flex:1;min-width:150px;font-size:12px;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;outline:none;background:#fff;}
 .pc-search:focus{border-color:var(--navy);}
-.pc-chip{font-size:11px;font-weight:700;padding:5px 11px;border-radius:14px;cursor:pointer;border:1.5px solid transparent;display:inline-flex;align-items:center;gap:5px;transition:all .15s;opacity:0.38;color:#fff;user-select:none;}
+.pc-chip{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;cursor:pointer;border:1.5px solid transparent;display:inline-flex;align-items:center;gap:5px;transition:all .15s;opacity:0.38;color:#fff;user-select:none;}
 .pc-chip.active{opacity:1;box-shadow:0 1px 4px rgba(0,0,0,0.18);}
 .pc-chip input{display:none;}
 .pc-sort-wrap{display:flex;align-items:center;gap:6px;margin-left:auto;}
@@ -183,11 +183,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-price-card{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:12px;font-weight:700;text-align:center;color:#777;transition:all .15s;background:#fff;}
 .pc-price-card:hover{border-color:var(--gold);}
 .pc-price-card.active{border-color:var(--navy);background:#EEF2FF;color:var(--navy);}
-.pc-rows-cat{margin-bottom:12px;}
+.pc-rows-cat{margin-bottom:6px;}
 .pc-rows-cat:last-child{margin-bottom:0;}
-.pc-rows-cat-title{font-size:9.5px;font-weight:700;color:var(--sub);letter-spacing:1px;margin-bottom:6px;}
+.pc-rows-cat-sep{border-top:1px dashed var(--border);padding-top:8px;margin-top:2px;}
 .pc-empty-msg{padding:20px;text-align:center;color:#999;font-size:12px;}
-.pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;}
+.pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -499,8 +499,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   <div class="pc-box">
     <div class="pc-head"><span id="pc-title">印刷設定</span><button class="modal-close" onclick="closePrintConfig()">✕</button></div>
     <div class="pc-body">
-      <div style="background:#EEF2FF;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--navy);font-weight:700;" id="pc-type-label"></div>
-
       <div class="pc-section-card">
         <div class="pc-section-head">
           <span class="pc-step-num">1</span>
@@ -525,8 +523,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             </select>
           </div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-          <span style="font-size:11px;color:var(--sub);align-self:center;">状況で絞込：</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
+          <span style="font-size:10px;color:var(--sub);">絞込：</span>
           <label class="pc-chip active" id="chip-fs-sale" style="background:#1B2A6B;"><input type="checkbox" id="fs-sale" checked onchange="onChipToggle('fs-sale')"/>販売中</label>
           <label class="pc-chip active" id="chip-fs-private" style="background:#4A4A4A;"><input type="checkbox" id="fs-private" checked onchange="onChipToggle('fs-private')"/>非公開</label>
           <label class="pc-chip active" id="chip-fs-applied" style="background:#E65100;"><input type="checkbox" id="fs-applied" checked onchange="onChipToggle('fs-applied')"/>申込あり</label>
@@ -1056,7 +1054,6 @@ const STATUS_ORDER2={'販売中':0,'非公開販売中':1,'申込あり':2,'契�
 window.openPrintConfig=function(type){
   currentPrintType=type;
   document.getElementById('pc-title').textContent=type==='broker'?'仲介向け印刷設定':'銀行向け印刷設定';
-  document.getElementById('pc-type-label').textContent=type==='broker'?'仲介向け（在庫一覧表）':'銀行向け（実績一覧表）';
   // 状態リセット
   pcSelectedIds=new Set(props.map(p=>p.id));
   if(document.getElementById('pc-search'))document.getElementById('pc-search').value='';
@@ -1068,9 +1065,13 @@ window.openPrintConfig=function(type){
   setPriceMask('show');
   renderPropList();
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
-  document.getElementById('pc-row-checks').innerHTML='<div class="pc-grid">'+
-    rows.map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('')+
-  '</div>';
+  const grouped={};
+  rows.forEach(r=>{(grouped[r.cat]=grouped[r.cat]||[]).push(r);});
+  document.getElementById('pc-row-checks').innerHTML=CAT_ORDER.filter(c=>grouped[c]&&grouped[c].length).map((cat,idx)=>
+    '<div class="pc-rows-cat'+(idx>0?' pc-rows-cat-sep':'')+'"><div class="pc-grid">'+
+      grouped[cat].map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('')+
+    '</div></div>'
+  ).join('');
   document.getElementById('print-config').classList.add('open');
 };
 
