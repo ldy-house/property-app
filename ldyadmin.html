@@ -146,7 +146,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-body{padding:18px;}
 .pc-sec{margin-bottom:14px;}
 .pc-sec-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;}
-.pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.pc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
 .pc-check{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:4px 6px;border-radius:3px;}
 .pc-check:hover{background:#f0f0f0;}
 .pc-check input{cursor:pointer;width:14px;height:14px;}
@@ -1068,13 +1068,9 @@ window.openPrintConfig=function(type){
   setPriceMask('show');
   renderPropList();
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
-  const grouped={};
-  rows.forEach(r=>{(grouped[r.cat]=grouped[r.cat]||[]).push(r);});
-  document.getElementById('pc-row-checks').innerHTML=CAT_ORDER.filter(c=>grouped[c]&&grouped[c].length).map(cat=>
-    '<div class="pc-rows-cat"><div class="pc-rows-cat-title">'+CAT_LABELS[cat]+'</div><div class="pc-grid">'+
-      grouped[cat].map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('')+
-    '</div></div>'
-  ).join('');
+  document.getElementById('pc-row-checks').innerHTML='<div class="pc-grid">'+
+    rows.map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('')+
+  '</div>';
   document.getElementById('print-config').classList.add('open');
 };
 
