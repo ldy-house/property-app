@@ -582,7 +582,7 @@ onAuthStateChanged(auth,async user=>{
     const printBtns=document.getElementById('print-btns');
     if(currentRole==='admin'){
       badge.textContent='管理者';badge.className='role-badge role-admin';
-      if(printBtns)printBtns.innerHTML='<button class="btn btn-sm" onclick="syncScheduleDates()" title="既存物件の仕入・再販の契約日/決済日を、スタッフも見られる事務データにコピーします">契約日を同期</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">仲介向け印刷</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'bank\')">銀行向け印刷</button>';
+      if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">仲介向け印刷</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'bank\')">銀行向け印刷</button>';
     }else{
       badge.textContent='スタッフ';badge.className='role-badge role-staff';
       if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">印刷プレビュー</button>';
@@ -702,24 +702,6 @@ window.doSave=async function(){
   showLoading(false);};
 
 window._firebaseDelete=async function(id){if(!confirm('削除しますか？'))return;await deleteDoc(doc(db,'properties',id));try{await deleteDoc(doc(db,'properties_internal',id));}catch(e){}try{await deleteDoc(doc(db,'properties_lifeline',id));}catch(e){}};
-
-window.syncScheduleDates=async function(){
-  if(currentRole!=='admin')return;
-  if(!confirm('既存の全物件について、仕入・再販の契約日/決済日を事務データ（スタッフも閲覧可能な領域）にコピーします。よろしいですか？'))return;
-  showLoading(true);
-  let count=0;
-  try{
-    for(const p of props){
-      const int=internalMap[p.id];
-      if(!int)continue;
-      if(!int.buyContract&&!int.buySettle&&!int.sellContract&&!int.sellSettle)continue;
-      await setDoc(doc(db,'properties_lifeline',p.id),{buyContract:int.buyContract||'',buySettle:int.buySettle||'',sellContract:int.sellContract||'',sellSettle:int.sellSettle||''},{merge:true});
-      count++;
-    }
-    alert(count+'件の物件を同期しました。');
-  }catch(e){alert('同期中にエラーが発生しました: '+e.message);console.error(e);}
-  showLoading(false);
-};
 
 // Cloudinary
 const CLD='dujllruro',CLD_P='ldy-property';
