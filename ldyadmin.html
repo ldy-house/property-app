@@ -582,7 +582,7 @@ onAuthStateChanged(auth,async user=>{
     const printBtns=document.getElementById('print-btns');
     if(currentRole==='admin'){
       badge.textContent='管理者';badge.className='role-badge role-admin';
-      if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">仲介向け印刷</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'bank\')">銀行向け印刷</button>';
+      if(printBtns)printBtns.innerHTML='<button class="btn btn-sm" onclick="syncScheduleDates()" title="既存物件の仕入・再販の契約日/決済日を、スタッフも見られる事務データにコピーします">契約日を同期</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">仲介向け印刷</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'bank\')">銀行向け印刷</button>';
     }else{
       badge.textContent='スタッフ';badge.className='role-badge role-staff';
       if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">印刷プレビュー</button>';
@@ -702,6 +702,24 @@ window.doSave=async function(){
   showLoading(false);};
 
 window._firebaseDelete=async function(id){if(!confirm('削除しますか？'))return;await deleteDoc(doc(db,'properties',id));try{await deleteDoc(doc(db,'properties_internal',id));}catch(e){}try{await deleteDoc(doc(db,'properties_lifeline',id));}catch(e){}};
+
+window.syncScheduleDates=async function(){
+  if(currentRole!=='admin')return;
+  if(!confirm('既存の全物件について、仕入・再販の契約日/決済日を事務データ（スタッフも閲覧可能な領域）にコピーします。よろしいですか？'))return;
+  showLoading(true);
+  let count=0;
+  try{
+    for(const p of props){
+      const int=internalMap[p.id];
+      if(!int)continue;
+      if(!int.buyContract&&!int.buySettle&&!int.sellContract&&!int.sellSettle)continue;
+      await setDoc(doc(db,'properties_lifeline',p.id),{buyContract:int.buyContract||'',buySettle:int.buySettle||'',sellContract:int.sellContract||'',sellSettle:int.sellSettle||''},{merge:true});
+      count++;
+    }
+    alert(count+'件の物件を同期しました。');
+  }catch(e){alert('同期中にエラーが発生しました: '+e.message);console.error(e);}
+  showLoading(false);
+};
 
 // Cloudinary
 const CLD='dujllruro',CLD_P='ldy-property';
@@ -1026,20 +1044,20 @@ const BROKER_ROWS=[
   {key:'propStatus',label:'現状',fmt:p=>p.propStatus||'—',cat:'sales'},
   {key:'delivery',label:'引渡可能日',fmt:p=>p.delivery||'相談',cat:'sales'},
   {key:'baitai',label:'取引業態',fmt:p=>p.baitai||'—',cat:'sales'},
-  {key:'buyContract',label:'仕入契約日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.buyContract||'—';},cat:'sales'},
-  {key:'buySettle',label:'仕入決済日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.buySettle||'—';},cat:'sales'},
-  {key:'sellContract',label:'再販契約日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.sellContract||'—';},cat:'sales'},
-  {key:'sellSettle',label:'再販決済日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.sellSettle||'—';},cat:'sales'},
   {key:'note',label:'備考',type:'note',cat:'sales'},
 ];
 const BANK_ROWS=[
   ...BROKER_ROWS.filter(r=>r.key!=='note'),
   {key:'buyPrice',label:'仕入金額',fmt:(p,i)=>i?.buyPrice?i.buyPrice.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
   {key:'buyFrom',label:'仕入先',fmt:(p,i)=>i?.buyFrom||'—',internal:true,defaultChecked:false,cat:'internal'},
+  {key:'buyContract',label:'仕入契約日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.buyContract||'—';},internal:true,cat:'internal'},
+  {key:'buySettle',label:'仕入決済日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.buySettle||'—';},internal:true,cat:'internal'},
   {key:'loanAmt',label:'融資金額',fmt:(p,i)=>i?.loanAmt?i.loanAmt.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
   {key:'loanBank',label:'融資先',fmt:(p,i)=>i?.loanBank||'—',internal:true,defaultChecked:false,cat:'internal'},
   {key:'sellPrice',label:'再販価格',fmt:(p,i)=>i?.sellPrice?i.sellPrice.toLocaleString()+'万円':'—',internal:true,cat:'internal'},
   {key:'sellTo',label:'販売先',fmt:(p,i)=>i?.sellTo||'—',internal:true,defaultChecked:false,cat:'internal'},
+  {key:'sellContract',label:'再販契約日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.sellContract||'—';},internal:true,cat:'internal'},
+  {key:'sellSettle',label:'再販決済日',fmt:p=>{const jm=jimuMap[p.id]||{};return jm.sellSettle||'—';},internal:true,cat:'internal'},
   {key:'daysHeld',label:'保有日数',fmt:(p,i)=>{const d=i?.daysHeld!=null?i.daysHeld:calcDays(i?.buySettle,i?.sellSettle);return d!=null?d+'日':'—';},internal:true,cat:'internal'},
   {key:'note',label:'備考',type:'note',cat:'sales'},
 ];
