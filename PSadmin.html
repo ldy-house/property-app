@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>編集画面 | プレステージ・浅草 Ⅰ/Ⅱ</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --panel-bg:#211f1c; --panel-line:#3a3630; --panel-text:#e9e3d6;
+    --panel-sub:#9a9284; --accent:#c9a15b; --field-bg:#2a2722;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; height:100%; font-family:'Noto Sans JP', sans-serif; background:#141312;}
+  .admin-wrap{display:flex; height:100vh;}
+  .panel{width:440px; min-width:360px; max-width:480px; background:var(--panel-bg); color:var(--panel-text); overflow-y:auto; height:100vh; border-right:1px solid var(--panel-line);}
+  .panel-header{position:sticky; top:0; z-index:5; background:var(--panel-bg); padding:20px 22px 16px; border-bottom:1px solid var(--panel-line);}
+  .panel-header h1{font-family:'Shippori Mincho', serif; font-size:16px; font-weight:600; margin:0 0 4px; color:#f2ede1;}
+  .panel-header p{font-size:11px; color:var(--panel-sub); margin:0;}
+  .btn-row{display:flex; gap:8px; margin-top:14px;}
+  button{font-family:'Noto Sans JP', sans-serif; cursor:pointer; border:none; border-radius:3px; font-size:12.5px; letter-spacing:0.03em; padding:10px 14px;}
+  .btn-primary{background:var(--accent); color:#1c1a17; font-weight:600; flex:1;}
+  .btn-secondary{background:transparent; color:var(--panel-sub); border:1px solid var(--panel-line);}
+  .btn-primary:hover{background:#d8b06c;}
+  .btn-secondary:hover{border-color:var(--accent); color:var(--accent);}
+  .status-msg{font-size:11px; color:var(--accent); margin-top:8px; min-height:14px;}
+
+  details.group{border-bottom:1px solid var(--panel-line);}
+  details.group summary{padding:15px 22px; cursor:pointer; font-size:12.5px; font-weight:600; letter-spacing:0.04em; color:var(--accent); list-style:none; display:flex; align-items:center; justify-content:space-between;}
+  details.group summary::-webkit-details-marker{display:none;}
+  details.group summary::after{content:"+"; color:var(--panel-sub); font-size:16px;}
+  details.group[open] summary::after{content:"−";}
+  .group-body{padding:2px 22px 20px;}
+
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:10.5px; color:var(--panel-sub); letter-spacing:0.03em; margin-bottom:6px;}
+  .field input[type=text], .field textarea{width:100%; background:var(--field-bg); border:1px solid var(--panel-line); color:#f2ede1; padding:8px 10px; font-size:12.5px; border-radius:3px; font-family:'Noto Sans JP', sans-serif;}
+  .field textarea{resize:vertical; min-height:52px; line-height:1.6;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .subhead{font-size:11px; color:#f2ede1; font-weight:600; margin:16px 0 8px; padding-top:12px; border-top:1px dashed var(--panel-line); letter-spacing:0.03em;}
+  .subhead:first-child{border-top:none; margin-top:2px; padding-top:0;}
+  .item-card{border:1px solid var(--panel-line); border-radius:4px; padding:13px; margin-bottom:12px; background:rgba(255,255,255,0.015);}
+  .item-card .item-title{font-size:10.5px; color:#c9a15b; font-weight:600; margin-bottom:9px; letter-spacing:0.05em;}
+
+  .img-slot{
+    width:100%; aspect-ratio:4/3; border:1.5px dashed var(--panel-line); border-radius:4px;
+    background:var(--field-bg); display:flex; align-items:center; justify-content:center; position:relative;
+    overflow:hidden; margin-bottom:8px; cursor:pointer;
+  }
+  .img-slot img{width:100%; height:100%; object-fit:cover; display:block;}
+  .img-slot .placeholder{font-size:10.5px; color:var(--panel-sub); text-align:center; padding:8px;}
+  .img-slot input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer;}
+  .img-slot .filename{
+    position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.6); color:#fff;
+    font-size:9.5px; padding:3px 6px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  .preview{flex:1; background:#0c0b0a; position:relative;}
+  .preview iframe{width:100%; height:100%; border:none; background:#15130f;}
+  .preview-badge{
+    position:absolute; bottom:16px; right:16px; z-index:5; background:rgba(0,0,0,0.55); color:#c9a15b;
+    font-size:11px; padding:6px 12px; border-radius:20px; letter-spacing:0.04em; font-family:'EB Garamond', serif;
+    font-style:italic; pointer-events:none;
+  }
+  @media (max-width: 900px){
+    .admin-wrap{flex-direction:column;}
+    .panel{width:100%; max-width:none; height:46vh;}
+    .preview{height:54vh;}
+  }
+</style>
+</head>
+<body>
+<div class="admin-wrap">
+  <aside class="panel">
+    <div class="panel-header">
+      <h1>プレステージ・浅草 編集画面</h1>
+      <p>文章と画像を編集すると、右にその場で反映されます。</p>
+      <div class="btn-row">
+        <button class="btn-primary" id="downloadBtn">ZIPで書き出す</button>
+        <button class="btn-secondary" id="resetBtn">初期状態に戻す</button>
+      </div>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+    <details class="group" open>
+      <summary>ヒーロー</summary>
+      <div class="group-body">
+        <div class="field"><label>画像</label><div class="img-slot" id="slot-hero"><span class="placeholder">クリックして画像をアップロード</span><input type="file" accept="image/*" data-imgkey="hero"></div></div>
+        <div class="field"><label>左上ラベル</label><input type="text" data-path="hero.kicker"></div>
+        <div class="field"><label>見出し 1行目</label><input type="text" data-path="hero.line1"></div>
+        <div class="field"><label>見出し 2行目</label><input type="text" data-path="hero.line2"></div>
+        <div class="subhead">アクセス帯（3項目）</div>
+        <div class="field"><label>項目1</label><input type="text" data-path="hero.facts.0"></div>
+        <div class="field"><label>項目2</label><input type="text" data-path="hero.facts.1"></div>
+        <div class="field"><label>項目3</label><input type="text" data-path="hero.facts.2"></div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary>室内ギャラリー</summary>
+      <div class="group-body" id="galleryForm"></div>
+    </details>
+
+    <details class="group">
+      <summary>リード文</summary>
+      <div class="group-body">
+        <div class="field"><label>一行目コピー</label><input type="text" data-path="intro.pullLine1"></div>
+        <div class="field"><label>二行目コピー</label><input type="text" data-path="intro.pullLine2"></div>
+        <div class="field"><label>説明文</label><textarea data-path="intro.paragraph"></textarea></div>
+        <div class="subhead">バッジ（4つ）</div>
+        <div class="field"><label>バッジ1</label><input type="text" data-path="intro.badges.0"></div>
+        <div class="field"><label>バッジ2</label><input type="text" data-path="intro.badges.1"></div>
+        <div class="field"><label>バッジ3</label><input type="text" data-path="intro.badges.2"></div>
+        <div class="field"><label>バッジ4</label><input type="text" data-path="intro.badges.3"></div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary>Panasonic Homes 標準仕様</summary>
+      <div class="group-body">
+        <div class="field"><label>見出し</label><input type="text" data-path="tech.headline"></div>
+        <div class="field"><label>リード文</label><textarea data-path="tech.lead"></textarea></div>
+        <div id="techForm"></div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary>物件概要（Ⅰ・Ⅱ）</summary>
+      <div class="group-body" id="towersForm"></div>
+    </details>
+
+    <details class="group">
+      <summary>アクセス</summary>
+      <div class="group-body">
+        <div class="field"><label>見出し 1行目</label><input type="text" data-path="access.headline1"></div>
+        <div class="field"><label>見出し 2行目</label><input type="text" data-path="access.headline2"></div>
+        <div id="routeForm"></div>
+        <div class="field"><label>所在地</label><input type="text" data-path="access.address"></div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary>価格・お問い合わせ</summary>
+      <div class="group-body">
+        <div class="field"><label>見出し 1行目</label><input type="text" data-path="contact.headline1"></div>
+        <div class="field"><label>見出し 2行目</label><input type="text" data-path="contact.headline2"></div>
+        <div class="field"><label>本文</label><textarea data-path="contact.blurb"></textarea></div>
+        <div class="subhead">価格</div>
+        <div class="field-row">
+          <div class="field"><label>Ⅰ 名称</label><input type="text" data-path="contact.priceILabel"></div>
+          <div class="field"><label>Ⅰ 価格</label><input type="text" data-path="contact.priceIValue"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Ⅱ 名称</label><input type="text" data-path="contact.priceIILabel"></div>
+          <div class="field"><label>Ⅱ 価格</label><input type="text" data-path="contact.priceIIValue"></div>
+        </div>
+        <div class="subhead">会社情報</div>
+        <div class="field"><label>会社名</label><input type="text" data-path="contact.company.name"></div>
+        <div class="field"><label>住所</label><input type="text" data-path="contact.company.address"></div>
+        <div class="field"><label>免許番号</label><input type="text" data-path="contact.company.license"></div>
+        <div class="field"><label>取引態様など</label><input type="text" data-path="contact.company.terms"></div>
+        <div class="field-row">
+          <div class="field"><label>電話番号</label><input type="text" data-path="contact.company.tel"></div>
+          <div class="field"><label>FAX</label><input type="text" data-path="contact.company.fax"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>メール</label><input type="text" data-path="contact.company.mail"></div>
+          <div class="field"><label>HP</label><input type="text" data-path="contact.company.hp"></div>
+        </div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary>フッター・会社バー</summary>
+      <div class="group-body">
+        <div class="field"><label>会社名（上部バー）</label><input type="text" data-path="topbar.logo"></div>
+        <div class="field"><label>電話・営業時間（上部バー）</label><input type="text" data-path="topbar.tel"></div>
+        <div class="field"><label>コピーライト</label><input type="text" data-path="footer.copyright"></div>
+        <div class="field"><label>注意書き</label><textarea data-path="footer.disclaimer"></textarea></div>
+      </div>
+    </details>
+  </aside>
+
+  <main class="preview">
+    <iframe id="previewFrame" title="プレビュー"></iframe>
+    <div class="preview-badge">Live Preview</div>
+  </main>
+</div>
+
+<script>
+const DEFAULT_STATE = {
+  topbar: { logo: "株式会社 LDY", tel: "TEL 03-6260-6811　9:00–18:00（水・日休）" },
+  hero: {
+    kicker: "Prestage Asakusa Ⅰ・Ⅱ",
+    line1: "静けさは、",
+    line2: "浅草の贅沢。",
+    facts: ["浅草寺まで徒歩8分", "千束通りまで徒歩1分", "2026年8月 竣工予定"]
+  },
+  gallery: {
+    lead: "完成イメージパースより抜粋。実際の色柄・仕様とは多少異なる場合があります。",
+    buildings: [
+      { title: "プレステージ・浅草 Ⅰ", captions: ["洋室","洋室","洋室","洋室"] },
+      { title: "プレステージ・浅草 Ⅱ", captions: ["洋室","洋室","和室","和室"] }
+    ]
+  },
+  intro: {
+    pullLine1: "その静けさに、",
+    pullLine2: "二つの選択肢。",
+    paragraph: "浅草寺と千束通りにほど近い場所に建つ、性格の異なる二つの住まい。「プレステージ・浅草 Ⅰ」は洋室で統一した簡潔な佇まい、「プレステージ・浅草 Ⅱ」は和室と洋室を組み合わせた趣きのある構成です。ともに重量鉄骨造・地上4階建、施工はパナソニック ホームズ「ビューノ」。確かな造りで、この街に長く佇みます。",
+    badges: ["所有権", "重量鉄骨造 地上4階建", "Panasonic Homes 施工", "2026.08 竣工予定"]
+  },
+  tech: {
+    headline: "細部にまで、妥協はない。",
+    lead: "パナソニック ホームズ「ビューノ」が標準採用する、7つの仕様です。",
+    items: [
+      { key:"kiratech", hasImage:true, title:"光触媒タイル「キラテック」", desc:"雨が汚れを洗い流すセルフクリーニング効果で、外壁の美観が長く続きます。" },
+      { key:"tmd", hasImage:true, title:"TMD制振装置", desc:"建物の揺れと逆方向に重りを動かし、交通振動などによる日常の揺れを低減します。" },
+      { key:"floor", hasImage:true, title:"床遮音複合システム「QON-A」", desc:"ALCパネルに制振シートを重ねた構造で、上下階の生活音を伝わりにくくします。" },
+      { key:"wall", hasImage:true, title:"外壁ダブルウォール（220mm）", desc:"断熱材を含む二重構造の外壁で、遮音・断熱性能と重厚な佇まいを両立します。" },
+      { key:"insulation", hasImage:false, title:"ハイグレード断熱仕様", desc:"フェノールフォーム50mm＋ポリスチレンフォーム20mm。冷暖房負荷を抑え、快適な室内環境を保ちます。" },
+      { key:"curtainwall", hasImage:false, title:"カーテンウォール工法", desc:"工場生産の外壁パネルを現場で組み付ける工法。地震の横揺れやねじれにも柔軟に追従します。" },
+      { key:"solar", hasImage:true, title:"太陽光発電システム", desc:"長州産業 CS-243B91をフラット屋根に搭載（3.16kW）。クリーンな電力を自家消費できます。" }
+    ]
+  },
+  towers: {
+    rows: [
+      { label:"権利", i:"所有権", ii:"所有権" },
+      { label:"地積面積", i:"77.63㎡", ii:"70.99㎡" },
+      { label:"延床面積", i:"210.06㎡", ii:"188.35㎡" },
+      { label:"部屋数", i:"8部屋（うち1室 事務所）", ii:"8部屋" },
+      { label:"部屋タイプ", i:"1R・洋室×8", ii:"1R・和室×4／洋室×4" },
+      { label:"構造", i:"重量鉄骨造 地上4階建", ii:"重量鉄骨造 地上4階建" },
+      { label:"竣工", i:"2026年8月 予定", ii:"2026年8月 予定" },
+      { label:"施工", i:"パナソニック ホームズ株式会社", ii:"パナソニック ホームズ株式会社" }
+    ],
+    tagI: "単身の暮らしに寄り添う、簡潔な佇まいです。",
+    tagII: "和室4戸・洋室4戸。浅草らしい趣きを添えた構成です。"
+  },
+  access: {
+    headline1: "浅草寺まで徒歩8分、",
+    headline2: "千束通りまで徒歩1分。",
+    rows: [
+      { place:"浅草寺", small:"雷門・仲見世通り", time:"8", unit:"分" },
+      { place:"千束通り", small:"生活動線・商店街", time:"1", unit:"分" },
+      { place:"つくばエクスプレス線「浅草」駅", small:"", time:"10", unit:"分" },
+      { place:"東武スカイツリーライン「浅草」駅", small:"", time:"13", unit:"分" },
+      { place:"東京スカイツリー", small:"眺望目安", time:"20", unit:"分" }
+    ],
+    address: "所在地：東京都台東区浅草5丁目21-7"
+  },
+  contact: {
+    headline1: "物件資料のご請求、",
+    headline2: "現地のご案内も承ります。",
+    blurb: "いずれも自社が売主となる建売物件です。販売済みの場合は予めご了承ください。詳細資料のご請求・現地のご案内は、下記までお気軽にお問い合わせください。",
+    priceILabel: "プレステージ・浅草 Ⅰ", priceIValue: "34,800万円（税込）",
+    priceIILabel: "プレステージ・浅草 Ⅱ", priceIIValue: "31,800万円（税込）",
+    company: {
+      name: "株式会社 LDY",
+      address: "〒104-0061　東京都中央区銀座8丁目15-2ACN銀座ビル9階",
+      license: "東京都知事免許（1）第111183号",
+      terms: "取引態様：売主　広告：要相談　手数料：3％",
+      tel: "03-6260-6811", fax: "03-6260-6812",
+      mail: "info@ldy-house.com", hp: "https://ldy-house.com"
+    }
+  },
+  footer: {
+    copyright: "© 株式会社LDY",
+    disclaimer: "掲載の写真・パースはイメージです。実物とは多少色柄が異なる場合があります。家具・照明・カーテン等は含まれません。"
+  }
+};
+
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+// images[key] = { file: File, url: objectURL }
+let images = {
+  hero: null,
+  galleryI: [null,null,null,null],
+  galleryII: [null,null,null,null],
+  tech: { kiratech:null, tmd:null, floor:null, wall:null, solar:null }
+};
+
+function esc(v){ return String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function getPath(obj, path){ return path.split(".").reduce((o,k)=> (o==null? o : o[k]), obj); }
+function setPath(obj, path, value){
+  const keys = path.split(".");
+  let cur = obj;
+  for(let i=0;i<keys.length-1;i++){ cur = cur[keys[i]]; }
+  cur[keys[keys.length-1]] = value;
+}
+
+function imgTag(url, alt, cls){
+  if(!url) return `<div style="width:100%;height:100%;background:#3a362f;display:flex;align-items:center;justify-content:center;color:#8a8478;font-size:11px;">画像未設定</div>`;
+  return `<img src="${url}" alt="${esc(alt)}" class="${cls||''}">`;
+}
+
+const SITE_CSS = `
+  :root{
+    --ink:#15130f; --ink-soft:#231f18;
+    --paper:#f7f4ec; --paper-2:#efe8d8;
+    --gold:#a8823f; --gold-soft:#c7a668; --gold-dim:#8a6b34;
+    --sub:#6e6a5c;
+    --line:rgba(21,19,15,0.14); --line-on-dark:rgba(199,166,104,0.28);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper); color:var(--ink); font-family:'Noto Sans JP',sans-serif; font-weight:300; line-height:1.95; -webkit-font-smoothing:antialiased;}
+  img{display:block; max-width:100%; height:auto;}
+  a{color:inherit;}
+  h1,h2,h3,.mincho{font-family:'Shippori Mincho', serif;}
+  .kicker{font-family:'EB Garamond', serif; font-style:italic; letter-spacing:0.26em; text-transform:uppercase; font-size:12px; color:var(--gold);}
+  .wrap{max-width:1160px; margin:0 auto; padding:0 44px;}
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding:22px 44px; border-bottom:1px solid var(--line);}
+  .topbar .logo{font-family:'Shippori Mincho'; font-weight:600; font-size:15px; letter-spacing:0.14em;}
+  .topbar .tel{font-size:12px; color:var(--sub); letter-spacing:0.02em;}
+  .hero{position:relative; background:var(--ink);}
+  .hero-media{position:relative; line-height:0; min-height:200px;}
+  .hero-media img{width:100%; height:auto; display:block;}
+  .hero-media::after{content:""; position:absolute; left:0; right:0; bottom:0; height:30%; background:linear-gradient(180deg, rgba(15,13,10,0) 0%, rgba(15,13,10,0.18) 45%, rgba(15,13,10,0.94) 100%); pointer-events:none;}
+  .hero-topleft{position:absolute; top:28px; left:0; right:0; z-index:2; padding:0 44px; max-width:1160px; margin:0 auto; width:100%; box-sizing:border-box;}
+  .hero-topleft .kicker{text-shadow:0 1px 10px rgba(0,0,0,0.5);}
+  .hero-caption{position:absolute; left:0; right:0; bottom:0; z-index:2; padding:0 44px 10px; max-width:1160px; margin:0 auto; width:100%; box-sizing:border-box; color:#f4efe2;}
+  .hero-caption h1{font-size:clamp(28px, 4.6vw, 52px); font-weight:600; letter-spacing:0.03em; line-height:1.5; margin-bottom:0; text-shadow:0 2px 20px rgba(0,0,0,0.55);}
+  .hero-facts-bar{background:var(--ink); padding:8px 0 16px;}
+  .hero-facts{display:flex; flex-wrap:wrap; gap:10px 0; font-size:13px; letter-spacing:0.03em; color:#d8cfb8;}
+  .hero-facts span{padding:0 18px; border-right:1px solid var(--line-on-dark);}
+  .hero-facts span:first-child{padding-left:0;}
+  .hero-facts span:last-child{border-right:none;}
+  section{padding:110px 0;}
+  .sec-head{margin-bottom:56px;}
+  .sec-head .kicker{display:block; margin-bottom:16px;}
+  .sec-head h2{font-size:clamp(24px,3vw,36px); font-weight:600; line-height:1.6; letter-spacing:0.02em;}
+  .sec-head p.lead{margin-top:18px; max-width:600px; font-size:14.5px; color:var(--sub);}
+  .intro{background:var(--paper);}
+  .intro-single{max-width:720px;}
+  .intro-single p{font-size:14.5px; color:var(--sub); margin-bottom:24px;}
+  .intro-single .pull-line{font-family:'Shippori Mincho'; font-size:clamp(22px,2.4vw,30px); font-weight:600; line-height:1.75; color:var(--ink); margin-bottom:32px;}
+  .badge-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;}
+  .badge{font-family:'EB Garamond'; font-style:italic; font-size:11.5px; letter-spacing:0.08em; border:1px solid var(--gold-soft); color:var(--gold-dim); padding:7px 16px; border-radius:1px;}
+  .towers{background:var(--paper-2);}
+  .spec-scroll{overflow-x:auto;}
+  table.spec-table{width:100%; border-collapse:collapse; min-width:640px;}
+  .spec-table thead th{text-align:left; font-family:'Shippori Mincho'; font-weight:600; font-size:19px; padding:0 22px 20px; border-bottom:2px solid var(--gold);}
+  .spec-table thead th .num{font-family:'EB Garamond'; font-style:italic; font-weight:400; color:var(--gold); font-size:13px; display:block; margin-bottom:8px; letter-spacing:0.06em;}
+  .spec-table thead th:first-child{width:110px;}
+  .spec-table tbody td{padding:16px 22px; border-bottom:1px solid var(--line); font-size:13.6px;}
+  .spec-table tbody td.rowlabel{color:var(--gold-dim); font-size:12px; letter-spacing:0.06em; white-space:nowrap;}
+  .spec-table tbody tr:last-child td{border-bottom:none;}
+  .tower-tags{margin-top:30px; display:flex; gap:44px; flex-wrap:wrap;}
+  .tower-tag{font-size:13px; color:var(--sub); max-width:320px;}
+  .tower-tag b{color:var(--ink); font-weight:600; display:block; margin-bottom:6px; font-family:'Shippori Mincho'; font-size:14.5px;}
+  .gallery{background:var(--paper);}
+  .gallery-building{margin-bottom:48px;}
+  .gallery-building:last-child{margin-bottom:0;}
+  .gallery-building h3{font-family:'Shippori Mincho'; font-size:16px; font-weight:600; color:var(--gold-dim); margin-bottom:18px; letter-spacing:0.03em;}
+  .gal-grid-4{display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;}
+  .gal-grid-4 img{width:100%; display:block; filter:saturate(0.96) contrast(1.02); aspect-ratio:3/4; object-fit:cover;}
+  .gal-grid-4 .ph{width:100%; aspect-ratio:3/4;}
+  .gal-grid-4 figcaption{font-size:11px; letter-spacing:0.08em; color:var(--sub); margin-top:9px;}
+  @media (max-width:680px){ .gal-grid-4{grid-template-columns:repeat(2,1fr);} }
+  .tech{background:var(--ink); color:#efe8d8;}
+  .tech .sec-head h2{color:#f4efe2;}
+  .tech .sec-head p.lead{color:#a89c81;}
+  .tech .kicker{color:var(--gold-soft);}
+  .tech-list{border-top:1px solid var(--line-on-dark);}
+  .tech-row{display:grid; grid-template-columns:150px 1fr; gap:32px; padding:34px 0; border-bottom:1px solid var(--line-on-dark); align-items:center;}
+  .tech-row .frame{width:150px; height:106px; overflow:hidden; border:1px solid var(--line-on-dark); background:var(--ink-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .tech-row .frame img{width:100%; height:100%; object-fit:cover;}
+  .tech-row .frame svg{width:40px; height:40px; color:var(--gold-soft);}
+  .tech-row h4{font-family:'Shippori Mincho'; font-size:17.5px; font-weight:600; margin-bottom:8px; color:#f4efe2;}
+  .tech-row p{font-size:13px; color:#a89c81; max-width:560px;}
+  @media (max-width:680px){ .tech-row{grid-template-columns:1fr; gap:14px;} .tech-row .frame{width:100%; height:auto; aspect-ratio:16/10;} }
+  .access{background:var(--paper-2);}
+  .route{border-top:1px solid var(--gold); max-width:720px;}
+  .route-row{display:flex; justify-content:space-between; align-items:baseline; padding:20px 0; border-bottom:1px solid var(--line); gap:16px;}
+  .route-row .place{font-size:14.5px; font-weight:400;}
+  .route-row .place small{display:block; font-size:11.5px; color:var(--sub); margin-top:3px;}
+  .route-row .time{font-family:'Shippori Mincho'; font-weight:600; font-size:20px; color:var(--gold-dim); white-space:nowrap;}
+  .route-row .time span{font-size:11.5px; color:var(--sub); font-family:'Noto Sans JP'; margin-left:2px;}
+  .access-address{margin-top:24px; font-size:12.5px; color:var(--sub);}
+  .contact{background:var(--paper);}
+  .price-boxes{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--gold-soft); margin-bottom:52px;}
+  .price-box{background:var(--paper); padding:28px 30px;}
+  .price-box .pname{font-family:'Shippori Mincho'; font-size:13.5px; color:var(--sub); margin-bottom:10px;}
+  .price-box .pval{font-family:'Shippori Mincho'; font-weight:600; font-size:26px; color:var(--ink);}
+  .contact-grid{display:grid; grid-template-columns:1.2fr 1fr; gap:64px; padding-top:8px; border-top:1px solid var(--line);}
+  .contact-detail{font-size:13.5px; color:var(--sub); line-height:2.1;}
+  .company-card{font-size:13px; color:var(--sub); line-height:2.05;}
+  .company-card .name{font-family:'Shippori Mincho'; font-weight:600; font-size:18px; color:var(--ink); margin-bottom:14px;}
+  .company-card .tel-big{font-family:'Shippori Mincho'; font-weight:600; font-size:23px; color:var(--gold-dim); margin:10px 0 4px;}
+  footer{padding:32px 0; font-size:11px; color:var(--sub); border-top:1px solid var(--line); background:var(--paper);}
+  footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  @media (max-width:820px){
+    section{padding:76px 0;} .wrap{padding:0 24px;}
+    .topbar{padding:18px 24px;} .hero-caption{padding:0 24px 8px;} .hero-topleft{padding:0 24px; top:20px;}
+    .contact-grid, .price-boxes{grid-template-columns:1fr;}
+  }
+`;
+
+const TECH_ICONS = {
+  insulation: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20 Q10 10 16 20 T28 20 T36 20" /><path d="M4 28 Q10 18 16 28 T28 28 T36 28" opacity="0.5"/></svg>`,
+  curtainwall: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="6" y="4" width="10" height="32"/><rect x="18" y="4" width="10" height="32"/><path d="M31 4 L36 4 L36 36 L31 36" opacity="0.6"/></svg>`
+};
+
+function buildSite(s, useExportPaths){
+  const src = (key) => {
+    if(useExportPaths) return `images/${key}.jpg`;
+    const map = {
+      hero: images.hero,
+      "gallery-1-1": images.galleryI[0], "gallery-1-2": images.galleryI[1], "gallery-1-3": images.galleryI[2], "gallery-1-4": images.galleryI[3],
+      "gallery-2-1": images.galleryII[0], "gallery-2-2": images.galleryII[1], "gallery-2-3": images.galleryII[2], "gallery-2-4": images.galleryII[3],
+      "tech-kiratech": images.tech.kiratech, "tech-tmd": images.tech.tmd, "tech-floor": images.tech.floor, "tech-wall": images.tech.wall, "tech-solar": images.tech.solar
+    };
+    const f = map[key];
+    return f ? f.url : null;
+  };
+  const heroImgUrl = src("hero");
+  const heroImgTag = heroImgUrl ? `<img src="${heroImgUrl}" alt="外観">` : `<div style="width:100%;aspect-ratio:16/9;background:#2a2722;display:flex;align-items:center;justify-content:center;color:#8a8478;font-size:13px;">外観画像未設定</div>`;
+
+  const galleryHTML = (buildingIdx, building) => {
+    const imgs = [1,2,3,4].map(n=>{
+      const key = `gallery-${buildingIdx}-${n}`;
+      const url = src(key);
+      const cap = building.captions[n-1] || "";
+      if(url){
+        return `<figure><img src="${url}" alt="${esc(cap)}"><figcaption>${esc(cap)}</figcaption></figure>`;
+      }
+      return `<figure><div class="ph" style="background:#e6ded0;display:flex;align-items:center;justify-content:center;color:#a49a86;font-size:11px;">未設定</div><figcaption>${esc(cap)}</figcaption></figure>`;
+    }).join("");
+    return `<div class="gallery-building"><h3>${esc(building.title)}</h3><div class="gal-grid-4">${imgs}</div></div>`;
+  };
+
+  const techHTML = s.tech.items.map(item=>{
+    let inner;
+    if(item.hasImage){
+      const url = src(`tech-${item.key}`);
+      inner = url ? `<img src="${url}" alt="${esc(item.title)}">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#8a8478;font-size:10px;">未設定</div>`;
+    } else {
+      inner = TECH_ICONS[item.key] || "";
+    }
+    return `<div class="tech-row"><div class="frame">${inner}</div><div><h4>${esc(item.title)}</h4><p>${esc(item.desc)}</p></div></div>`;
+  }).join("");
+
+  const towerRowsHTML = s.towers.rows.map(r=>`<tr><td class="rowlabel">${esc(r.label)}</td><td>${esc(r.i)}</td><td>${esc(r.ii)}</td></tr>`).join("");
+
+  const routeHTML = s.access.rows.map(r=>`<div class="route-row"><div class="place">${esc(r.place)}${r.small?`<small>${esc(r.small)}</small>`:""}</div><div class="time">${esc(r.time)}<span>${esc(r.unit||"分")}</span></div></div>`).join("");
+
+  const badgesHTML = s.intro.badges.map(b=>`<span class="badge">${esc(b)}</span>`).join("");
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プレステージ・浅草 Ⅰ・Ⅱ | ${esc(s.contact.company.name)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>${SITE_CSS}</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">${esc(s.topbar.logo)}</div>
+  <div class="tel">${esc(s.topbar.tel)}</div>
+</div>
+
+<div class="hero">
+  <div class="hero-media">
+    ${heroImgTag}
+    <div class="hero-topleft"><span class="kicker">${esc(s.hero.kicker)}</span></div>
+    <div class="hero-caption"><h1>${esc(s.hero.line1)}<br>${esc(s.hero.line2)}</h1></div>
+  </div>
+  <div class="hero-facts-bar"><div class="wrap"><div class="hero-facts">${s.hero.facts.map(f=>`<span>${esc(f)}</span>`).join("")}</div></div></div>
+</div>
+
+<section class="gallery">
+  <div class="wrap">
+    <div class="sec-head"><span class="kicker">Interior</span><h2>室内イメージ。</h2><p class="lead">${esc(s.gallery.lead)}</p></div>
+    ${galleryHTML(1, s.gallery.buildings[0])}
+    ${galleryHTML(2, s.gallery.buildings[1])}
+  </div>
+</section>
+
+<section class="intro">
+  <div class="wrap">
+    <div class="intro-single">
+      <p class="pull-line">${esc(s.intro.pullLine1)}<br>${esc(s.intro.pullLine2)}</p>
+      <p>${esc(s.intro.paragraph)}</p>
+      <div class="badge-row">${badgesHTML}</div>
+    </div>
+  </div>
+</section>
+
+<section class="tech" id="tech">
+  <div class="wrap">
+    <div class="sec-head"><span class="kicker">Panasonic Homes ／ Vieuno</span><h2>${esc(s.tech.headline)}</h2><p class="lead">${esc(s.tech.lead)}</p></div>
+    <div class="tech-list">${techHTML}</div>
+  </div>
+</section>
+
+<section class="towers" id="spec">
+  <div class="wrap">
+    <div class="sec-head"><span class="kicker">Building Ⅰ ／ Ⅱ</span><h2>二棟、それぞれの構成。</h2></div>
+    <div class="spec-scroll">
+      <table class="spec-table">
+        <thead><tr><th></th><th><span class="num">壱</span>プレステージ・浅草 Ⅰ</th><th><span class="num">弐</span>プレステージ・浅草 Ⅱ</th></tr></thead>
+        <tbody>${towerRowsHTML}</tbody>
+      </table>
+    </div>
+    <div class="tower-tags">
+      <div class="tower-tag"><b>Ⅰ ｜ 全戸洋室</b>${esc(s.towers.tagI)}</div>
+      <div class="tower-tag"><b>Ⅱ ｜ 和洋の趣き</b>${esc(s.towers.tagII)}</div>
+    </div>
+  </div>
+</section>
+
+<section class="access">
+  <div class="wrap">
+    <div class="sec-head"><span class="kicker">Access</span><h2>${esc(s.access.headline1)}<br>${esc(s.access.headline2)}</h2></div>
+    <div class="route">${routeHTML}</div>
+    <p class="access-address">${esc(s.access.address)}</p>
+  </div>
+</section>
+
+<section class="contact">
+  <div class="wrap">
+    <div class="sec-head"><span class="kicker">Inquiry</span><h2>${esc(s.contact.headline1)}<br>${esc(s.contact.headline2)}</h2></div>
+    <div class="price-boxes">
+      <div class="price-box"><div class="pname">${esc(s.contact.priceILabel)}</div><div class="pval">${esc(s.contact.priceIValue)}</div></div>
+      <div class="price-box"><div class="pname">${esc(s.contact.priceIILabel)}</div><div class="pval">${esc(s.contact.priceIIValue)}</div></div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-detail">${esc(s.contact.blurb)}</div>
+      <div class="company-card">
+        <div class="name">${esc(s.contact.company.name)}</div>
+        ${esc(s.contact.company.address)}<br>
+        ${esc(s.contact.company.license)}<br>
+        ${esc(s.contact.company.terms)}
+        <div class="tel-big">${esc(s.contact.company.tel)}</div>
+        <div>FAX ${esc(s.contact.company.fax)}　MAIL ${esc(s.contact.company.mail)}　HP ${esc(s.contact.company.hp)}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>${esc(s.footer.copyright)}</span><span>${esc(s.footer.disclaimer)}</span></div></footer>
+
+</body>
+</html>`;
+}
+
+function render(){
+  document.getElementById('previewFrame').srcdoc = buildSite(state, false);
+}
+
+function makeImgSlot(key, file){
+  const url = file ? file.url : null;
+  return `<div class="img-slot" data-slot="${key}">
+    ${url ? `<img src="${url}">` : `<span class="placeholder">クリックして画像をアップロード</span>`}
+    <input type="file" accept="image/*" data-imgkey="${key}">
+    ${file ? `<span class="filename">${esc(file.file.name)}</span>` : ""}
+  </div>`;
+}
+
+function buildGalleryForm(){
+  let html = "";
+  ["I","II"].forEach((label, bi)=>{
+    const arr = bi===0 ? images.galleryI : images.galleryII;
+    const building = state.gallery.buildings[bi];
+    html += `<div class="subhead">プレステージ・浅草 ${label}</div>
+      <div class="field"><label>棟名</label><input type="text" data-path="gallery.buildings.${bi}.title"></div>`;
+    for(let n=0;n<4;n++){
+      const key = bi===0 ? `galleryI-${n}` : `galleryII-${n}`;
+      html += `<div class="item-card">
+        <div class="item-title">写真 ${n+1}</div>
+        ${makeImgSlot(key, arr[n])}
+        <div class="field"><label>キャプション</label><input type="text" data-path="gallery.buildings.${bi}.captions.${n}"></div>
+      </div>`;
+    }
+  });
+  document.getElementById('galleryForm').innerHTML = html;
+}
+
+function buildTechForm(){
+  let html = `<div class="subhead">仕様項目（7項目）</div>`;
+  state.tech.items.forEach((item, i)=>{
+    html += `<div class="item-card">
+      <div class="item-title">${i+1}. ${item.hasImage ? "写真あり" : "アイコンのみ"}</div>
+      ${item.hasImage ? makeImgSlot(`tech-${item.key}`, images.tech[item.key]) : ""}
+      <div class="field"><label>タイトル</label><input type="text" data-path="tech.items.${i}.title"></div>
+      <div class="field"><label>説明文</label><textarea data-path="tech.items.${i}.desc"></textarea></div>
+    </div>`;
+  });
+  document.getElementById('techForm').innerHTML = html;
+}
+
+function buildTowersForm(){
+  let html = `<div class="subhead">表の各行</div>`;
+  state.towers.rows.forEach((r,i)=>{
+    html += `<div class="item-card">
+      <div class="item-title">${r.label}</div>
+      <div class="field-row">
+        <div class="field"><label>Ⅰ</label><input type="text" data-path="towers.rows.${i}.i"></div>
+        <div class="field"><label>Ⅱ</label><input type="text" data-path="towers.rows.${i}.ii"></div>
+      </div>
+    </div>`;
+  });
+  html += `<div class="subhead">補足コメント</div>
+    <div class="field"><label>Ⅰ</label><textarea data-path="towers.tagI"></textarea></div>
+    <div class="field"><label>Ⅱ</label><textarea data-path="towers.tagII"></textarea></div>`;
+  document.getElementById('towersForm').innerHTML = html;
+}
+
+function buildRouteForm(){
+  let html = `<div class="subhead">アクセス項目（5件）</div>`;
+  state.access.rows.forEach((r,i)=>{
+    html += `<div class="item-card">
+      <div class="item-title">項目 ${i+1}</div>
+      <div class="field"><label>場所名</label><input type="text" data-path="access.rows.${i}.place"></div>
+      <div class="field-row">
+        <div class="field"><label>補足</label><input type="text" data-path="access.rows.${i}.small"></div>
+        <div class="field"><label>徒歩分数</label><input type="text" data-path="access.rows.${i}.time"></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('routeForm').innerHTML = html;
+}
+
+function fillStaticInputs(){
+  document.querySelectorAll('[data-path]').forEach(el=>{
+    const path = el.getAttribute('data-path');
+    const v = getPath(state, path);
+    if(v !== undefined) el.value = v;
+  });
+}
+
+function buildAllForms(){
+  buildGalleryForm();
+  buildTechForm();
+  buildTowersForm();
+  buildRouteForm();
+  fillStaticInputs();
+}
+
+document.addEventListener('input', (e)=>{
+  const el = e.target;
+  if(el.matches('[data-path]')){
+    setPath(state, el.getAttribute('data-path'), el.value);
+    render();
+  }
+});
+
+function readFileAsImage(file, cb){
+  const url = URL.createObjectURL(file);
+  cb({ file, url });
+}
+
+document.addEventListener('change', (e)=>{
+  const el = e.target;
+  if(el.matches('[data-imgkey]') && el.files && el.files[0]){
+    const key = el.getAttribute('data-imgkey');
+    const file = el.files[0];
+    readFileAsImage(file, (imgObj)=>{
+      if(key === 'hero'){
+        images.hero = imgObj;
+      } else if(key.startsWith('galleryI-')){
+        images.galleryI[parseInt(key.split('-')[1])] = imgObj;
+      } else if(key.startsWith('galleryII-')){
+        images.galleryII[parseInt(key.split('-')[1])] = imgObj;
+      } else if(key.startsWith('tech-')){
+        images.tech[key.replace('tech-','')] = imgObj;
+      }
+      buildAllForms();
+      const heroSlot = document.getElementById('slot-hero');
+      if(key === 'hero' && heroSlot){
+        heroSlot.innerHTML = `<img src="${imgObj.url}"><input type="file" accept="image/*" data-imgkey="hero"><span class="filename">${esc(file.name)}</span>`;
+      }
+      render();
+    });
+  }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', async ()=>{
+  const statusEl = document.getElementById('statusMsg');
+  statusEl.textContent = "ZIPを作成しています…";
+  try{
+    const zip = new JSZip();
+    const html = buildSite(state, true);
+    zip.file("index.html", html);
+    const imgFolder = zip.folder("images");
+
+    const addImg = async (name, imgObj) => {
+      if(!imgObj) return;
+      const buf = await imgObj.file.arrayBuffer();
+      imgFolder.file(`${name}.jpg`, buf);
+    };
+
+    await addImg("hero", images.hero);
+    for(let n=0;n<4;n++){ await addImg(`gallery-1-${n+1}`, images.galleryI[n]); }
+    for(let n=0;n<4;n++){ await addImg(`gallery-2-${n+1}`, images.galleryII[n]); }
+    for(const k of ["kiratech","tmd","floor","wall","solar"]){ await addImg(`tech-${k}`, images.tech[k]); }
+
+    const blob = await zip.generateAsync({type:"blob"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = "prestage-asakusa-site.zip";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    statusEl.textContent = "ダウンロードが始まりました。";
+  } catch(err){
+    statusEl.textContent = "エラーが発生しました: " + err.message;
+    console.error(err);
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('編集内容と画像をすべて破棄して初期状態に戻しますか？')){
+    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    images = { hero:null, galleryI:[null,null,null,null], galleryII:[null,null,null,null], tech:{kiratech:null,tmd:null,floor:null,wall:null,solar:null} };
+    const heroSlot = document.getElementById('slot-hero');
+    if(heroSlot) heroSlot.innerHTML = `<span class="placeholder">クリックして画像をアップロード</span><input type="file" accept="image/*" data-imgkey="hero">`;
+    buildAllForms();
+    render();
+  }
+});
+
+buildAllForms();
+render();
+</script>
+</body>
+</html>
