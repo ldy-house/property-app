@@ -220,8 +220,8 @@ const DEFAULT_STATE = {
       { key:"tmd", hasImage:true, title:"TMD制振装置", desc:"建物の揺れと逆方向に重りを動かし、交通振動などによる日常の揺れを低減します。" },
       { key:"floor", hasImage:true, title:"床遮音複合システム「QON-A」", desc:"ALCパネルに制振シートを重ねた構造で、上下階の生活音を伝わりにくくします。" },
       { key:"wall", hasImage:true, title:"外壁ダブルウォール（220mm）", desc:"断熱材を含む二重構造の外壁で、遮音・断熱性能と重厚な佇まいを両立します。" },
-      { key:"insulation", hasImage:false, title:"ハイグレード断熱仕様", desc:"フェノールフォーム50mm＋ポリスチレンフォーム20mm。冷暖房負荷を抑え、快適な室内環境を保ちます。" },
-      { key:"curtainwall", hasImage:false, title:"カーテンウォール工法", desc:"工場生産の外壁パネルを現場で組み付ける工法。地震の横揺れやねじれにも柔軟に追従します。" },
+      { key:"insulation", hasImage:true, title:"ハイグレード断熱仕様", desc:"フェノールフォーム50mm＋ポリスチレンフォーム20mm。冷暖房負荷を抑え、快適な室内環境を保ちます。" },
+      { key:"curtainwall", hasImage:true, title:"カーテンウォール工法", desc:"工場生産の外壁パネルを現場で組み付ける工法。地震の横揺れやねじれにも柔軟に追従します。" },
       { key:"solar", hasImage:true, title:"太陽光発電システム", desc:"長州産業 CS-243B91をフラット屋根に搭載（3.16kW）。クリーンな電力を自家消費できます。" }
     ]
   },
@@ -355,11 +355,11 @@ const SITE_CSS = `
   .gallery-building{margin-bottom:48px;}
   .gallery-building:last-child{margin-bottom:0;}
   .gallery-building h3{font-family:'Shippori Mincho'; font-size:16px; font-weight:600; color:var(--gold-dim); margin-bottom:18px; letter-spacing:0.03em;}
-  .gal-grid-4{display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;}
-  .gal-grid-4 img{width:100%; display:block; filter:saturate(0.96) contrast(1.02); aspect-ratio:3/4; object-fit:cover;}
-  .gal-grid-4 .ph{width:100%; aspect-ratio:3/4;}
+  .gal-grid-4{display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;}
+  .gal-grid-4 img{width:100%; display:block; filter:saturate(0.96) contrast(1.02); aspect-ratio:4/3; object-fit:cover;}
+  .gal-grid-4 .ph{width:100%; aspect-ratio:4/3;}
   .gal-grid-4 figcaption{font-size:11px; letter-spacing:0.08em; color:var(--sub); margin-top:9px;}
-  @media (max-width:680px){ .gal-grid-4{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .gal-grid-4{grid-template-columns:1fr;} }
   .tech{background:var(--ink); color:#efe8d8;}
   .tech .sec-head h2{color:#f4efe2;}
   .tech .sec-head p.lead{color:#a89c81;}
