@@ -415,7 +415,7 @@ function buildSite(s, useExportPaths){
       "tech-insulation": images.tech.insulation, "tech-curtainwall": images.tech.curtainwall
     };
     const f = map[key];
-    return f ? f.url : null;
+    return f ? f.dataUrl : null;
   };
   const heroImgUrl = src("hero");
   const heroImgTag = heroImgUrl ? `<img src="${heroImgUrl}" alt="外観">` : `<div style="width:100%;aspect-ratio:16/9;background:#2a2722;display:flex;align-items:center;justify-content:center;color:#8a8478;font-size:13px;">外観画像未設定</div>`;
@@ -558,11 +558,11 @@ function render(){
 }
 
 function makeImgSlot(key, file){
-  const url = file ? file.url : null;
+  const url = file ? file.dataUrl : null;
   return `<div class="img-slot" data-slot="${key}">
     ${url ? `<img src="${url}">` : `<span class="placeholder">クリックして画像をアップロード</span>`}
     <input type="file" accept="image/*" data-imgkey="${key}">
-    ${file ? `<span class="filename">${esc(file.file.name)}</span>` : ""}
+    ${file ? `<span class="filename">${esc(file.name)}</span>` : ""}
   </div>`;
 }
 
@@ -651,12 +651,17 @@ document.addEventListener('input', (e)=>{
   if(el.matches('[data-path]')){
     setPath(state, el.getAttribute('data-path'), el.value);
     render();
+    scheduleSave();
   }
 });
 
-function readFileAsImage(file, cb){
-  const url = URL.createObjectURL(file);
-  cb({ file, url });
+function fileToDataUrl(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 document.addEventListener('change', (e)=>{
@@ -664,7 +669,8 @@ document.addEventListener('change', (e)=>{
   if(el.matches('[data-imgkey]') && el.files && el.files[0]){
     const key = el.getAttribute('data-imgkey');
     const file = el.files[0];
-    readFileAsImage(file, (imgObj)=>{
+    fileToDataUrl(file).then((dataUrl)=>{
+      const imgObj = { dataUrl, name: file.name };
       if(key === 'hero'){
         images.hero = imgObj;
       } else if(key.startsWith('galleryI-')){
@@ -677,9 +683,10 @@ document.addEventListener('change', (e)=>{
       buildAllForms();
       const heroSlot = document.getElementById('slot-hero');
       if(key === 'hero' && heroSlot){
-        heroSlot.innerHTML = `<img src="${imgObj.url}"><input type="file" accept="image/*" data-imgkey="hero"><span class="filename">${esc(file.name)}</span>`;
+        heroSlot.innerHTML = `<img src="${imgObj.dataUrl}"><input type="file" accept="image/*" data-imgkey="hero"><span class="filename">${esc(file.name)}</span>`;
       }
       render();
+      scheduleSave();
     });
   }
 });
@@ -693,16 +700,16 @@ document.getElementById('downloadBtn').addEventListener('click', async ()=>{
     zip.file("index.html", html);
     const imgFolder = zip.folder("images");
 
-    const addImg = async (name, imgObj) => {
+    const addImg = (name, imgObj) => {
       if(!imgObj) return;
-      const buf = await imgObj.file.arrayBuffer();
-      imgFolder.file(`${name}.jpg`, buf);
+      const base64 = imgObj.dataUrl.split(",")[1];
+      imgFolder.file(`${name}.jpg`, base64, {base64:true});
     };
 
-    await addImg("hero", images.hero);
-    for(let n=0;n<4;n++){ await addImg(`gallery-1-${n+1}`, images.galleryI[n]); }
-    for(let n=0;n<4;n++){ await addImg(`gallery-2-${n+1}`, images.galleryII[n]); }
-    for(const k of ["kiratech","tmd","floor","wall","solar","insulation","curtainwall"]){ await addImg(`tech-${k}`, images.tech[k]); }
+    addImg("hero", images.hero);
+    for(let n=0;n<4;n++){ addImg(`gallery-1-${n+1}`, images.galleryI[n]); }
+    for(let n=0;n<4;n++){ addImg(`gallery-2-${n+1}`, images.galleryII[n]); }
+    for(const k of ["kiratech","tmd","floor","wall","solar","insulation","curtainwall"]){ addImg(`tech-${k}`, images.tech[k]); }
 
     const blob = await zip.generateAsync({type:"blob"});
     const url = URL.createObjectURL(blob);
@@ -725,11 +732,67 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
     if(heroSlot) heroSlot.innerHTML = `<span class="placeholder">クリックして画像をアップロード</span><input type="file" accept="image/*" data-imgkey="hero">`;
     buildAllForms();
     render();
+    saveDraft();
   }
 });
 
-buildAllForms();
-render();
+const STORAGE_KEY = "prestage-asakusa-draft";
+let saveTimer = null;
+let storageAvailable = true;
+
+function setStatus(msg){
+  const el = document.getElementById('statusMsg');
+  if(el) el.textContent = msg;
+}
+
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDraft, 900);
+}
+
+async function saveDraft(){
+  if(!storageAvailable || typeof window.storage === 'undefined'){ storageAvailable = false; return; }
+  try{
+    const payload = JSON.stringify({ state, images });
+    await window.storage.set(STORAGE_KEY, payload, false);
+    setStatus("下書きを自動保存しました（" + new Date().toLocaleTimeString('ja-JP') + "）");
+  } catch(err){
+    storageAvailable = false;
+    setStatus("この環境では自動保存に対応していません。区切りの良いところでZIP書き出しを行ってください。");
+    console.warn("draft save failed", err);
+  }
+}
+
+async function loadDraft(){
+  if(typeof window.storage === 'undefined'){ storageAvailable = false; return false; }
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      if(parsed.state) state = parsed.state;
+      if(parsed.images) images = parsed.images;
+      return true;
+    }
+  } catch(err){
+    console.warn("draft load failed", err);
+  }
+  return false;
+}
+
+(async function init(){
+  const restored = await loadDraft();
+  const heroSlot = document.getElementById('slot-hero');
+  if(restored && images.hero && heroSlot){
+    heroSlot.innerHTML = `<img src="${images.hero.dataUrl}"><input type="file" accept="image/*" data-imgkey="hero"><span class="filename">${esc(images.hero.name||'')}</span>`;
+  }
+  buildAllForms();
+  render();
+  if(restored){
+    setStatus("前回の続きを自動で復元しました。");
+  } else if(!storageAvailable){
+    setStatus("この環境では自動保存に対応していません。区切りの良いところでZIP書き出しを行ってください。");
+  }
+})();
 </script>
 </body>
 </html>
