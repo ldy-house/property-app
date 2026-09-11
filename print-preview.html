@@ -45,6 +45,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 table.ptable{width:100%;border-collapse:collapse;font-size:7px;table-layout:fixed;}
 table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;line-height:1.4;}
+.pfootnote{font-size:6px;color:#666;margin-top:2px;line-height:1.4;}
 
 
 
@@ -63,7 +64,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
 .pstamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:18px;font-weight:900;border:3px solid;border-radius:4px;padding:1px 6px;opacity:0.85;white-space:nowrap;letter-spacing:2px;}
 .pst-done{color:#C00;border-color:#C00;}
 .pst-applied{color:#c07000;border-color:#c07000;}
-.pst-contract{color:#6A1B9A;border-color:#6A1B9A;}
+.pst-contract{color:#B8860B;border-color:#B8860B;}
 
 .val{font-size:6.5px;color:#222;text-align:center;background:#fff;word-break:break-all;}
 .val-int{font-size:6.5px;color:#800;text-align:center;font-weight:600;background:#fff;word-break:break-all;}
@@ -146,7 +147,8 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
     const colW = Math.floor(232 / cols);
 
     // 使用可能高さ：204mm - ヘッダー15mm - padding8mm - 名前行8mm - 余白3mm = 170mm
-    const available = 170;
+    const hasDaysHeldNote = rows.some(r => r.label === '保有日数');
+    const available = 170 - (hasDaysHeldNote ? 5 : 0); // 注記を出す場合はその分を差し引く
     const hasImg = rows.some(r => r.type === 'img');
     const hasNote = rows.some(r => r.type === 'note');
     const dataRowCount = rows.length;
@@ -219,6 +221,7 @@ table.ptable td{border:0.5px solid #bbb;padding:2px 3px;vertical-align:middle;li
       '<div class="pgold"></div>' +
       '<table class="ptable"><colgroup><col style="width:54px;">' + page.map(() => '<col style="width:' + colW + 'mm;">').join('') + '</colgroup>' +
       '<tbody>' + nameRow + dataRows + '</tbody></table>' +
+      (hasDaysHeldNote ? '<div class="pfootnote">※保有期間は仕入決済日から再販決済日の日数。（建売のものは土地仕入決済日より計算）</div>' : '') +
     '</div>';
   }).join('');
 
