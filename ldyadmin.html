@@ -515,6 +515,19 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
     <div class="pc-body">
       <div class="pc-section-card">
         <div class="pc-section-head">
+          <span class="pc-step-num">0</span>
+          <span class="pc-section-title2">書類タイトル</span>
+        </div>
+        <input type="text" id="pc-doc-title" class="pc-search" style="width:100%;margin-bottom:8px;" placeholder="例：在庫一覧表"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-sm" onclick="setDocTitle('在庫一覧表')">在庫一覧表</button>
+          <button type="button" class="btn btn-sm" onclick="setDocTitle('保有物件一覧表')">保有物件一覧表</button>
+          <button type="button" class="btn btn-sm" onclick="setDocTitle('実績一覧表')">実績一覧表</button>
+          <button type="button" class="btn btn-sm" onclick="setDocTitle('物件一覧表')">物件一覧表</button>
+        </div>
+      </div>
+      <div class="pc-section-card">
+        <div class="pc-section-head">
           <span class="pc-step-num">1</span>
           <span class="pc-section-title2">出力する物件を選択</span>
           <span class="pc-count-badge" id="pc-selected-count"></span>
@@ -1068,6 +1081,7 @@ const STATUS_ORDER2={'販売中':0,'非公開販売中':1,'申込あり':2,'契�
 window.openPrintConfig=function(type){
   currentPrintType=type;
   document.getElementById('pc-title').textContent=type==='broker'?'仲介向け印刷設定':'銀行向け印刷設定';
+  document.getElementById('pc-doc-title').value=type==='broker'?'在庫一覧表':'実績一覧表';
   // 状態リセット
   pcSelectedIds=new Set(props.map(p=>p.id));
   if(document.getElementById('pc-search'))document.getElementById('pc-search').value='';
@@ -1083,6 +1097,11 @@ window.openPrintConfig=function(type){
   pcCheckedRowKeys=new Set(rows.filter(r=>r.defaultChecked!==false).map(r=>r.key));
   renderRowChecks();
   document.getElementById('print-config').classList.add('open');
+};
+
+window.setDocTitle=function(v){
+  const el=document.getElementById('pc-doc-title');
+  if(el)el.value=v;
 };
 
 window.renderRowChecks=function(){
@@ -1220,7 +1239,7 @@ window.generatePrint=function(){
   const selectedProps=pcSortedIds.filter(id=>selectedIds.has(id)).map(id=>props.find(p=>p.id===id)).filter(Boolean);
   if(!selectedProps.length){alert('物件を1件以上選択してください');return;}
   const rowDefs=pcRowOrder.filter(k=>pcCheckedRowKeys.has(k)).map(k=>rowMap[k]).filter(Boolean);
-  const title=currentPrintType==='broker'?'在庫一覧表':'実績一覧表';
+  const title=(document.getElementById('pc-doc-title')?.value||'').trim()||(currentPrintType==='broker'?'在庫一覧表':'実績一覧表');
 
   // ページ分割（6件ごと）
   const pages=[];
