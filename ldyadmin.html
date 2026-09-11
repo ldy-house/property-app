@@ -1061,6 +1061,7 @@ let currentPrintType='broker';
 let pcSelectedIds=new Set();
 let pcRowOrder=[];
 let pcCheckedRowKeys=new Set();
+let pcSortedIds=[];
 const STATUS_BADGE_COLOR={'販売中':'#1B2A6B','非公開販売中':'#4A4A4A','申込あり':'#E65100','契約済':'#6A1B9A','販売済':'#555'};
 const STATUS_ORDER2={'販売中':0,'非公開販売中':1,'申込あり':2,'契約済':3,'販売済':4};
 
@@ -1118,27 +1119,30 @@ window.toggleRowChecked=function(key,checked){
 window.renderPropList=function(){
   const sortVal=document.getElementById('pc-sort')?.value||'status';
   const kw=(document.getElementById('pc-search')?.value||'').trim().toLowerCase();
-  let sorted=[...props];
-  if(kw)sorted=sorted.filter(p=>(p.name||'').toLowerCase().includes(kw));
-  if(sortVal==='status')sorted.sort((a,b)=>(STATUS_ORDER2[a.saleStatus]??9)-(STATUS_ORDER2[b.saleStatus]??9));
-  else if(sortVal==='price-desc')sorted.sort((a,b)=>(b.price||0)-(a.price||0));
-  else if(sortVal==='price-asc')sorted.sort((a,b)=>{if(!a.price&&!b.price)return 0;if(!a.price)return 1;if(!b.price)return -1;return a.price-b.price;});
-  else if(sortVal==='name')sorted.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
-  else if(sortVal==='buy-desc'||sortVal==='buy-asc'){
-    sorted.sort((a,b)=>{
+  const cmp=(a,b)=>{
+    if(sortVal==='status')return(STATUS_ORDER2[a.saleStatus]??9)-(STATUS_ORDER2[b.saleStatus]??9);
+    if(sortVal==='price-desc')return(b.price||0)-(a.price||0);
+    if(sortVal==='price-asc'){if(!a.price&&!b.price)return 0;if(!a.price)return 1;if(!b.price)return -1;return a.price-b.price;}
+    if(sortVal==='name')return(a.name||'').localeCompare(b.name||'','ja');
+    if(sortVal==='buy-desc'||sortVal==='buy-asc'){
       const ia=jimuMap[a.id]||{},ib=jimuMap[b.id]||{};
       const da=ia.buySettle||ia.buyContract||'',db=ib.buySettle||ib.buyContract||'';
       if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
       return sortVal==='buy-desc'?db.localeCompare(da):da.localeCompare(db);
-    });
-  }else if(sortVal==='sell-desc'||sortVal==='sell-asc'){
-    sorted.sort((a,b)=>{
+    }
+    if(sortVal==='sell-desc'||sortVal==='sell-asc'){
       const ia=jimuMap[a.id]||{},ib=jimuMap[b.id]||{};
       const da=ia.sellSettle||ia.sellContract||'',db=ib.sellSettle||ib.sellContract||'';
       if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
       return sortVal==='sell-desc'?db.localeCompare(da):da.localeCompare(db);
-    });
-  }
+    }
+    return 0;
+  };
+  // 検索の有無に関わらず「全物件」の並び順をpcSortedIdsとして保持（印刷はこの順で出力される）
+  const fullSorted=[...props].sort(cmp);
+  pcSortedIds=fullSorted.map(p=>p.id);
+  // 画面表示用リストだけ、検索キーワードで絞り込む
+  const sorted=kw?fullSorted.filter(p=>(p.name||'').toLowerCase().includes(kw)):fullSorted;
 
   const listEl=document.getElementById('pc-prop-list');
   if(!sorted.length){listEl.innerHTML='<div class="pc-empty-msg">該当する物件がありません</div>';updatePropCount();return;}
@@ -1213,7 +1217,7 @@ window.generatePrint=function(){
   const rowsAll=currentPrintType==='bank'?BANK_ROWS:BROKER_ROWS;
   const rowMap={};rowsAll.forEach(r=>{rowMap[r.key]=r;});
   const maskDone=document.querySelector('input[name="price-mask"]:checked')?.value==='mask';
-  const selectedProps=props.filter(p=>selectedIds.has(p.id));
+  const selectedProps=pcSortedIds.filter(id=>selectedIds.has(id)).map(id=>props.find(p=>p.id===id)).filter(Boolean);
   if(!selectedProps.length){alert('物件を1件以上選択してください');return;}
   const rowDefs=pcRowOrder.filter(k=>pcCheckedRowKeys.has(k)).map(k=>rowMap[k]).filter(Boolean);
   const title=currentPrintType==='broker'?'在庫一覧表':'実績一覧表';
