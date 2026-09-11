@@ -10,6 +10,11 @@
 <style>
 :root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;--red:#C62828;--orange:#E65100;--purple:#6A1B9A;--green:#2E7D32;}
 *{box-sizing:border-box;margin:0;padding:0;}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(17,28,78,0.55);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-overlay.show{display:flex;}
+.spinner{width:36px;height:36px;border:4px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:ldy-spin 0.8s linear infinite;}
+.loading-text{color:#fff;font-size:13px;font-weight:600;}
+@keyframes ldy-spin{to{transform:rotate(360deg);}}
 body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy-dark),var(--navy));}
 .login-box{background:#fff;border-radius:12px;padding:40px 36px;width:380px;max-width:95%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
@@ -188,6 +193,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-rows-cat:last-child{margin-bottom:0;}
 .pc-rows-cat-sep{border-top:1px dashed var(--border);padding-top:8px;margin-top:2px;}
 .pc-empty-msg{padding:20px;text-align:center;color:#999;font-size:12px;}
+.pc-row-list{display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:4px;background:#fff;}
+.pc-row-item{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;}
+.pc-row-item:hover{background:#f5f7ff;}
+.pc-row-move-wrap{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
+.pc-row-move{width:18px;height:13px;line-height:11px;font-size:8px;padding:0;border:1px solid #ddd;background:#fff;border-radius:2px;cursor:pointer;color:var(--sub);}
+.pc-row-move:hover:not(:disabled){background:var(--navy);color:#fff;border-color:var(--navy);}
+.pc-row-move:disabled{opacity:0.25;cursor:default;}
+.pc-row-item .pc-check{flex:1;padding:2px 4px;}
 .pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;flex-shrink:0;}
 </style>
 </head>
@@ -923,13 +936,13 @@ window.renderCards=function(){
     if(sortVal==='price-desc')return(b.price||0)-(a.price||0);
     if(sortVal==='price-asc'){if(!a.price&&!b.price)return 0;if(!a.price)return 1;if(!b.price)return -1;return a.price-b.price;}
     if(sortVal==='buy-desc'||sortVal==='buy-asc'){
-      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const ia=jimuMap[a.id]||{},ib=jimuMap[b.id]||{};
       const da=ia.buySettle||ia.buyContract||'',db=ib.buySettle||ib.buyContract||'';
       if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
       return sortVal==='buy-desc'?db.localeCompare(da):da.localeCompare(db);
     }
     if(sortVal==='sell-desc'||sortVal==='sell-asc'){
-      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const ia=jimuMap[a.id]||{},ib=jimuMap[b.id]||{};
       const da=ia.sellSettle||ia.sellContract||'',db=ib.sellSettle||ib.sellContract||'';
       if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
       return sortVal==='sell-desc'?db.localeCompare(da):da.localeCompare(db);
@@ -1046,6 +1059,8 @@ const CAT_ORDER=['price','location','building','legal','sales','internal'];
 
 let currentPrintType='broker';
 let pcSelectedIds=new Set();
+let pcRowOrder=[];
+let pcCheckedRowKeys=new Set();
 const STATUS_BADGE_COLOR={'販売中':'#1B2A6B','非公開販売中':'#4A4A4A','申込あり':'#E65100','契約済':'#6A1B9A','販売済':'#555'};
 const STATUS_ORDER2={'販売中':0,'非公開販売中':1,'申込あり':2,'契約済':3,'販売済':4};
 
@@ -1063,15 +1078,42 @@ window.openPrintConfig=function(type){
   setPriceMask('show');
   renderPropList();
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
-  const grouped={};
-  rows.forEach(r=>{(grouped[r.cat]=grouped[r.cat]||[]).push(r);});
-  document.getElementById('pc-row-checks').innerHTML=CAT_ORDER.filter(c=>grouped[c]&&grouped[c].length).map((cat,idx)=>
-    '<div class="pc-rows-cat'+(idx>0?' pc-rows-cat-sep':'')+'"><div class="pc-grid">'+
-      grouped[cat].map(r=>'<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+r.key+'"'+(r.defaultChecked===false?'':' checked')+'/>'+r.label+'</label>').join('')+
-    '</div></div>'
-  ).join('');
+  pcRowOrder=rows.map(r=>r.key);
+  pcCheckedRowKeys=new Set(rows.filter(r=>r.defaultChecked!==false).map(r=>r.key));
+  renderRowChecks();
   document.getElementById('print-config').classList.add('open');
 };
+
+window.renderRowChecks=function(){
+  const rows=currentPrintType==='bank'?BANK_ROWS:BROKER_ROWS;
+  const rowMap={};rows.forEach(r=>{rowMap[r.key]=r;});
+  const container=document.getElementById('pc-row-checks');
+  container.innerHTML='<div class="pc-row-list">'+pcRowOrder.map((key,idx)=>{
+    const r=rowMap[key];
+    if(!r)return'';
+    const checked=pcCheckedRowKeys.has(key);
+    return '<div class="pc-row-item">'+
+      '<span class="pc-row-move-wrap">'+
+        '<button type="button" class="pc-row-move" onclick="moveRow(\''+key+'\',-1)"'+(idx===0?' disabled':'')+' title="上に移動">▲</button>'+
+        '<button type="button" class="pc-row-move" onclick="moveRow(\''+key+'\',1)"'+(idx===pcRowOrder.length-1?' disabled':'')+' title="下に移動">▼</button>'+
+      '</span>'+
+      '<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+key+'"'+(checked?' checked':'')+' onchange="toggleRowChecked(\''+key+'\',this.checked)"/>'+r.label+'</label>'+
+    '</div>';
+  }).join('')+'</div>';
+};
+
+window.moveRow=function(key,dir){
+  const idx=pcRowOrder.indexOf(key);
+  const newIdx=idx+dir;
+  if(idx<0||newIdx<0||newIdx>=pcRowOrder.length)return;
+  [pcRowOrder[idx],pcRowOrder[newIdx]]=[pcRowOrder[newIdx],pcRowOrder[idx]];
+  renderRowChecks();
+};
+
+window.toggleRowChecked=function(key,checked){
+  if(checked)pcCheckedRowKeys.add(key);else pcCheckedRowKeys.delete(key);
+};
+
 
 window.renderPropList=function(){
   const sortVal=document.getElementById('pc-sort')?.value||'status';
@@ -1084,14 +1126,14 @@ window.renderPropList=function(){
   else if(sortVal==='name')sorted.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
   else if(sortVal==='buy-desc'||sortVal==='buy-asc'){
     sorted.sort((a,b)=>{
-      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const ia=jimuMap[a.id]||{},ib=jimuMap[b.id]||{};
       const da=ia.buySettle||ia.buyContract||'',db=ib.buySettle||ib.buyContract||'';
       if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
       return sortVal==='buy-desc'?db.localeCompare(da):da.localeCompare(db);
     });
   }else if(sortVal==='sell-desc'||sortVal==='sell-asc'){
     sorted.sort((a,b)=>{
-      const ia=internalMap[a.id]||{},ib=internalMap[b.id]||{};
+      const ia=jimuMap[a.id]||{},ib=jimuMap[b.id]||{};
       const da=ia.sellSettle||ia.sellContract||'',db=ib.sellSettle||ib.sellContract||'';
       if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
       return sortVal==='sell-desc'?db.localeCompare(da):da.localeCompare(db);
@@ -1168,11 +1210,12 @@ window.filterByStatus=function(){
 
 window.generatePrint=function(){
   const selectedIds=pcSelectedIds;
-  const selectedRows=new Set([...document.querySelectorAll('.pc-row-check:checked')].map(c=>c.value));
+  const rowsAll=currentPrintType==='bank'?BANK_ROWS:BROKER_ROWS;
+  const rowMap={};rowsAll.forEach(r=>{rowMap[r.key]=r;});
   const maskDone=document.querySelector('input[name="price-mask"]:checked')?.value==='mask';
   const selectedProps=props.filter(p=>selectedIds.has(p.id));
   if(!selectedProps.length){alert('物件を1件以上選択してください');return;}
-  const rowDefs=(currentPrintType==='bank'?BANK_ROWS:BROKER_ROWS).filter(r=>selectedRows.has(r.key));
+  const rowDefs=pcRowOrder.filter(k=>pcCheckedRowKeys.has(k)).map(k=>rowMap[k]).filter(Boolean);
   const title=currentPrintType==='broker'?'在庫一覧表':'実績一覧表';
 
   // ページ分割（6件ごと）
