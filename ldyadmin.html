@@ -1364,8 +1364,7 @@ window.generatePrint=function(){
 
   sessionStorage.setItem('ldy_print_data', JSON.stringify(printData));
   window.open('print-preview.html', '_blank');
-
-  document.getElementById('print-config').classList.remove('open');
+  // プレビューは別タブで開くだけなので、設定画面はそのまま残す（閉じるとまた最初からやり直しになるため）
 };
 
 function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
