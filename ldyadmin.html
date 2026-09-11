@@ -180,11 +180,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-sort-wrap select{font-size:11px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;outline:none;background:#fff;}
 .pc-count-badge{background:var(--gold);color:var(--navy-dark);font-weight:700;font-size:11px;padding:3px 10px;border-radius:12px;}
 .pc-prop-list2{max-height:250px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:#fff;}
-.pc-prop-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f2f2f5;cursor:pointer;transition:background .12s;border-left:4px solid transparent;}
+.pc-prop-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #f2f2f5;border-radius:6px;transition:background .12s,box-shadow .15s,border-color .15s;border-left:4px solid transparent;}
 .pc-prop-row:last-child{border-bottom:none;}
 .pc-prop-row:hover{background:#F5F7FF;}
 .pc-prop-row.is-checked{background:#F0F4FF;}
+.pc-prop-row.dragging{opacity:0.35;}
+.pc-prop-row.drag-over{box-shadow:0 0 0 2px rgba(27,42,107,0.15) inset;background:#EEF2FF;}
 .pc-prop-row input{width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.pc-prop-label{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer;}
 .pc-price-toggle{display:flex;gap:8px;}
 .pc-price-card{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:12px;font-weight:700;text-align:center;color:#777;transition:all .15s;background:#fff;}
 .pc-price-card:hover{border-color:var(--gold);}
@@ -193,13 +196,14 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-rows-cat:last-child{margin-bottom:0;}
 .pc-rows-cat-sep{border-top:1px dashed var(--border);padding-top:8px;margin-top:2px;}
 .pc-empty-msg{padding:20px;text-align:center;color:#999;font-size:12px;}
-.pc-row-list{display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:4px;background:#fff;}
-.pc-row-item{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;}
-.pc-row-item:hover{background:#f5f7ff;}
-.pc-row-move-wrap{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
-.pc-row-move{width:18px;height:13px;line-height:11px;font-size:8px;padding:0;border:1px solid #ddd;background:#fff;border-radius:2px;cursor:pointer;color:var(--sub);}
-.pc-row-move:hover:not(:disabled){background:var(--navy);color:#fff;border-color:var(--navy);}
-.pc-row-move:disabled{opacity:0.25;cursor:default;}
+.pc-row-list{display:flex;flex-direction:column;gap:3px;max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;background:#fff;}
+.pc-row-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;border:1px solid transparent;background:#fff;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,background .15s ease;}
+.pc-row-item:hover{background:#F7F8FC;}
+.pc-row-item.dragging{opacity:0.35;}
+.pc-row-item.drag-over{border-color:var(--navy);box-shadow:0 0 0 2px rgba(27,42,107,0.12) inset;background:#EEF2FF;}
+.pc-drag-handle{cursor:grab;color:#c4c8d8;font-size:13px;line-height:1;letter-spacing:-2px;flex-shrink:0;user-select:none;padding:0 3px;transform:scaleY(1.4);}
+.pc-drag-handle:hover{color:var(--navy);}
+.pc-row-item.dragging .pc-drag-handle{cursor:grabbing;}
 .pc-row-item .pc-check{flex:1;padding:2px 4px;}
 .pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;flex-shrink:0;}
 </style>
@@ -535,10 +539,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         <div class="pc-toolbar-row">
           <button type="button" class="pc-select-all" onclick="toggleAllProps(true)">すべて選択</button>
           <button type="button" class="pc-select-all pc-select-none" onclick="toggleAllProps(false)">すべて解除</button>
-          <input type="text" class="pc-search" id="pc-search" placeholder="🔍 物件名で絞り込み..." oninput="renderPropList()"/>
+          <input type="text" class="pc-search" id="pc-search" placeholder="🔍 物件名で絞り込み..." oninput="renderPropListDOM()"/>
           <div class="pc-sort-wrap">
             <span style="font-size:11px;color:var(--sub);white-space:nowrap;">並び替え：</span>
-            <select id="pc-sort" onchange="renderPropList()">
+            <select id="pc-sort" onchange="recomputePropOrder()">
               <option value="status">販売状況順</option>
               <option value="price-desc">販売価格：高い順</option>
               <option value="price-asc">販売価格：安い順</option>
@@ -1091,7 +1095,7 @@ window.openPrintConfig=function(type){
     const chip=document.getElementById('chip-'+id);if(chip)chip.classList.add('active');
   });
   setPriceMask('show');
-  renderPropList();
+  recomputePropOrder();
   const rows=type==='bank'?BANK_ROWS:BROKER_ROWS;
   pcRowOrder=rows.map(r=>r.key);
   pcCheckedRowKeys=new Set(rows.filter(r=>r.defaultChecked!==false).map(r=>r.key));
@@ -1108,26 +1112,49 @@ window.renderRowChecks=function(){
   const rows=currentPrintType==='bank'?BANK_ROWS:BROKER_ROWS;
   const rowMap={};rows.forEach(r=>{rowMap[r.key]=r;});
   const container=document.getElementById('pc-row-checks');
-  container.innerHTML='<div class="pc-row-list">'+pcRowOrder.map((key,idx)=>{
+  container.innerHTML='<div class="pc-row-list">'+pcRowOrder.map((key)=>{
     const r=rowMap[key];
     if(!r)return'';
     const checked=pcCheckedRowKeys.has(key);
-    return '<div class="pc-row-item">'+
-      '<span class="pc-row-move-wrap">'+
-        '<button type="button" class="pc-row-move" onclick="moveRow(\''+key+'\',-1)"'+(idx===0?' disabled':'')+' title="上に移動">▲</button>'+
-        '<button type="button" class="pc-row-move" onclick="moveRow(\''+key+'\',1)"'+(idx===pcRowOrder.length-1?' disabled':'')+' title="下に移動">▼</button>'+
-      '</span>'+
+    return '<div class="pc-row-item" draggable="true" data-key="'+key+'"'+
+        ' ondragstart="onRowDragStart(event,\''+key+'\')"'+
+        ' ondragover="onRowDragOver(event,\''+key+'\')"'+
+        ' ondragleave="this.classList.remove(\'drag-over\')"'+
+        ' ondrop="onRowDrop(event,\''+key+'\')"'+
+        ' ondragend="onRowDragEnd(event)">'+
+      '<span class="pc-drag-handle">⋮⋮</span>'+
       '<label class="pc-check"><input type="checkbox" class="pc-row-check" value="'+key+'"'+(checked?' checked':'')+' onchange="toggleRowChecked(\''+key+'\',this.checked)"/>'+r.label+'</label>'+
     '</div>';
   }).join('')+'</div>';
 };
 
-window.moveRow=function(key,dir){
-  const idx=pcRowOrder.indexOf(key);
-  const newIdx=idx+dir;
-  if(idx<0||newIdx<0||newIdx>=pcRowOrder.length)return;
-  [pcRowOrder[idx],pcRowOrder[newIdx]]=[pcRowOrder[newIdx],pcRowOrder[idx]];
+let pcDragRowKey=null;
+window.onRowDragStart=function(e,key){
+  pcDragRowKey=key;
+  e.dataTransfer.effectAllowed='move';
+  try{e.dataTransfer.setData('text/plain',key);}catch(err){}
+  e.currentTarget.classList.add('dragging');
+};
+window.onRowDragOver=function(e,key){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  if(pcDragRowKey&&pcDragRowKey!==key)e.currentTarget.classList.add('drag-over');
+};
+window.onRowDrop=function(e,key){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!pcDragRowKey||pcDragRowKey===key)return;
+  const from=pcRowOrder.indexOf(pcDragRowKey);
+  const to=pcRowOrder.indexOf(key);
+  if(from<0||to<0)return;
+  pcRowOrder.splice(from,1);
+  pcRowOrder.splice(to,0,pcDragRowKey);
+  pcDragRowKey=null;
   renderRowChecks();
+};
+window.onRowDragEnd=function(){
+  pcDragRowKey=null;
+  document.querySelectorAll('.pc-row-item.dragging,.pc-row-item.drag-over').forEach(x=>x.classList.remove('dragging','drag-over'));
 };
 
 window.toggleRowChecked=function(key,checked){
@@ -1135,9 +1162,9 @@ window.toggleRowChecked=function(key,checked){
 };
 
 
-window.renderPropList=function(){
+// ソート条件が変わった時だけ呼ぶ：全物件の並び順を再計算してpcSortedIdsにセット
+window.recomputePropOrder=function(){
   const sortVal=document.getElementById('pc-sort')?.value||'status';
-  const kw=(document.getElementById('pc-search')?.value||'').trim().toLowerCase();
   const cmp=(a,b)=>{
     if(sortVal==='status')return(STATUS_ORDER2[a.saleStatus]??9)-(STATUS_ORDER2[b.saleStatus]??9);
     if(sortVal==='price-desc')return(b.price||0)-(a.price||0);
@@ -1157,27 +1184,72 @@ window.renderPropList=function(){
     }
     return 0;
   };
-  // 検索の有無に関わらず「全物件」の並び順をpcSortedIdsとして保持（印刷はこの順で出力される）
-  const fullSorted=[...props].sort(cmp);
-  pcSortedIds=fullSorted.map(p=>p.id);
-  // 画面表示用リストだけ、検索キーワードで絞り込む
-  const sorted=kw?fullSorted.filter(p=>(p.name||'').toLowerCase().includes(kw)):fullSorted;
+  pcSortedIds=[...props].sort(cmp).map(p=>p.id);
+  renderPropListDOM();
+};
+// 互換用（すべて選択/解除・状況フィルターなど、並び順はそのままでDOMだけ更新したい箇所から呼ばれる）
+window.renderPropList=function(){ renderPropListDOM(); };
+
+// 現在のpcSortedIds（自動ソート＋ドラッグでの手動調整後の順）を元にリストを描画
+window.renderPropListDOM=function(){
+  const kw=(document.getElementById('pc-search')?.value||'').trim().toLowerCase();
+  const propMap={};props.forEach(p=>{propMap[p.id]=p;});
+  const orderedIds=pcSortedIds.filter(id=>propMap[id]);
+  const displayIds=kw?orderedIds.filter(id=>(propMap[id].name||'').toLowerCase().includes(kw)):orderedIds;
 
   const listEl=document.getElementById('pc-prop-list');
-  if(!sorted.length){listEl.innerHTML='<div class="pc-empty-msg">該当する物件がありません</div>';updatePropCount();return;}
+  if(!displayIds.length){listEl.innerHTML='<div class="pc-empty-msg">該当する物件がありません</div>';updatePropCount();return;}
 
-  listEl.innerHTML=sorted.map(p=>{
-    const isChecked=pcSelectedIds.has(p.id);
+  listEl.innerHTML=displayIds.map(id=>{
+    const p=propMap[id];
+    const isChecked=pcSelectedIds.has(id);
     const badgeColor=STATUS_BADGE_COLOR[p.saleStatus]||'#777';
     const price=p.price?p.price.toLocaleString()+'万円':'価格応相談';
-    return '<label class="pc-prop-row'+(isChecked?' is-checked':'')+'" id="pcrow-'+p.id+'" style="border-left-color:'+badgeColor+';">'+
-      '<input type="checkbox" class="pc-prop-check" value="'+p.id+'"'+(isChecked?' checked':'')+' onchange="onPropCheckToggle(\''+p.id+'\',this.checked)"/>'+
-      '<span style="background:'+badgeColor+';color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;flex-shrink:0;">'+(p.saleStatus||'—')+'</span>'+
-      '<span style="font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(p.name||'—')+'</span>'+
-      '<span style="font-size:11px;color:var(--sub);flex-shrink:0;">'+price+'</span>'+
-    '</label>';
+    return '<div class="pc-prop-row'+(isChecked?' is-checked':'')+'" id="pcrow-'+id+'" style="border-left-color:'+badgeColor+';" draggable="true"'+
+        ' ondragstart="onPropDragStart(event,\''+id+'\')"'+
+        ' ondragover="onPropDragOver(event,\''+id+'\')"'+
+        ' ondragleave="this.classList.remove(\'drag-over\')"'+
+        ' ondrop="onPropDrop(event,\''+id+'\')"'+
+        ' ondragend="onPropDragEnd(event)">'+
+      '<span class="pc-drag-handle">⋮⋮</span>'+
+      '<label class="pc-prop-label">'+
+        '<input type="checkbox" class="pc-prop-check" value="'+id+'"'+(isChecked?' checked':'')+' onchange="onPropCheckToggle(\''+id+'\',this.checked)"/>'+
+        '<span style="background:'+badgeColor+';color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;flex-shrink:0;">'+(p.saleStatus||'—')+'</span>'+
+        '<span style="font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(p.name||'—')+'</span>'+
+        '<span style="font-size:11px;color:var(--sub);flex-shrink:0;">'+price+'</span>'+
+      '</label>'+
+    '</div>';
   }).join('');
   updatePropCount();
+};
+
+let pcDragPropId=null;
+window.onPropDragStart=function(e,id){
+  pcDragPropId=id;
+  e.dataTransfer.effectAllowed='move';
+  try{e.dataTransfer.setData('text/plain',id);}catch(err){}
+  e.currentTarget.classList.add('dragging');
+};
+window.onPropDragOver=function(e,id){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  if(pcDragPropId&&pcDragPropId!==id)e.currentTarget.classList.add('drag-over');
+};
+window.onPropDrop=function(e,id){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!pcDragPropId||pcDragPropId===id)return;
+  const from=pcSortedIds.indexOf(pcDragPropId);
+  const to=pcSortedIds.indexOf(id);
+  if(from<0||to<0)return;
+  pcSortedIds.splice(from,1);
+  pcSortedIds.splice(to,0,pcDragPropId);
+  pcDragPropId=null;
+  renderPropListDOM();
+};
+window.onPropDragEnd=function(){
+  pcDragPropId=null;
+  document.querySelectorAll('.pc-prop-row.dragging,.pc-prop-row.drag-over').forEach(x=>x.classList.remove('dragging','drag-over'));
 };
 
 window.onPropCheckToggle=function(id,checked){
