@@ -227,7 +227,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 <div id="main-app" style="display:none;">
   <div class="header">
     <div class="hdr-left"><span class="hdr-lmark">LDY</span><span class="hdr-title">管理画面</span><span class="role-badge" id="role-badge"></span></div>
-    <div class="hdr-right"><a href="pjadmin.html" class="btn-back">← 開発管理画面へ</a><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
+    <div class="hdr-right"><a href="kanri.html" class="btn-back">管理委託物件へ →</a><a href="pjadmin.html" class="btn-back">← 開発管理画面へ</a><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="s-total">0</div><div class="stat-label">総物件数</div></div>
@@ -600,7 +600,7 @@ import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,setDoc,getDoc,onSn
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
 const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
-let props=[],internalMap={},jimuMap={},editId=null,currentPhotos=[],currentRole='staff';
+let props=[],internalMap={},jimuMap={},managedBuildings=[],editId=null,currentPhotos=[],currentRole='staff';
 let llMeters={water:[],elec:[],gas:[]},llPhotos={water:[],elec:[],gas:[]};
 
 onAuthStateChanged(auth,async user=>{
@@ -635,6 +635,7 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 function startSync(){
   onSnapshot(collection(db,'properties'),snap=>{props=snap.docs.map(d=>({id:d.id,...d.data()}));props.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));renderCards();});
   onSnapshot(collection(db,'properties_lifeline'),snap=>{jimuMap={};snap.docs.forEach(d=>{jimuMap[d.id]=d.data();});renderCards();});
+  onSnapshot(collection(db,'managed_buildings'),snap=>{managedBuildings=snap.docs.map(d=>({id:d.id,...d.data()}));renderCards();});
   if(currentRole==='admin'){onSnapshot(collection(db,'properties_internal'),snap=>{internalMap={};snap.docs.forEach(d=>{internalMap[d.id]=d.data();});renderCards();});}
 }
 
@@ -1006,10 +1007,11 @@ window.renderCards=function(){
     ]:[];
     const allInternalRows=[...scheduleRows,...adminRows].filter(Boolean);
     const intSection=allInternalRows.length?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+allInternalRows.join('')+'</div></div>':'';
+    const linkedBld=managedBuildings.find(b=>b.linkedPropertyId===p.id);
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+photoArea+'<span class="sale-badge '+getBadgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span></div>'+
       '<div class="card-body">'+
-        '<div class="card-name">'+(p.name||'')+'</div>'+
+        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="kanri.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">🔗管理委託あり</a>':'')+'</div>'+
         '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'</div>'+
         '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus||'')+'</span></div>'+
         '<div class="card-sta">'+(p.sta||'—')+'</div>'+
