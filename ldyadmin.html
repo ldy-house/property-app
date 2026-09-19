@@ -635,7 +635,7 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 function startSync(){
   onSnapshot(collection(db,'properties'),snap=>{props=snap.docs.map(d=>({id:d.id,...d.data()}));props.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));renderCards();});
   onSnapshot(collection(db,'properties_lifeline'),snap=>{jimuMap={};snap.docs.forEach(d=>{jimuMap[d.id]=d.data();});renderCards();});
-  onSnapshot(collection(db,'managed_buildings'),snap=>{managedBuildings=snap.docs.map(d=>({id:d.id,...d.data()}));renderCards();});
+  onSnapshot(collection(db,'managed_buildings'),snap=>{managedBuildings=snap.docs.map(d=>({id:d.id,...d.data()}));renderCards();},()=>{managedBuildings=[];});
   if(currentRole==='admin'){onSnapshot(collection(db,'properties_internal'),snap=>{internalMap={};snap.docs.forEach(d=>{internalMap[d.id]=d.data();});renderCards();});}
 }
 
