@@ -232,7 +232,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         <div class="fs-title">在庫物件との関連付け（任意）</div>
         <div class="fr">
           <label>元は在庫物件（買取再販）だった場合、対象を選択</label>
-          <select id="b-linked-property" onchange="updateLinkedPropertyHint()"><option value="">関連なし（管理委託のみ）</option></select>
+          <select id="b-linked-property" onchange="onLinkedPropertyChange()"><option value="">関連なし（管理委託のみ）</option></select>
         </div>
         <div class="hint" id="b-linked-property-hint"></div>
       </div>
@@ -773,6 +773,22 @@ window.updateLinkedPropertyHint=function(){
   if(!sel||!hint)return;
   const p=properties.find(x=>x.id===sel.value);
   hint.textContent=p?('現在の状態：'+(p.saleStatus||'—')+'／価格：'+(p.price?p.price.toLocaleString()+'万円':'—')):'';
+};
+window.onLinkedPropertyChange=function(){
+  updateLinkedPropertyHint();
+  const sel=document.getElementById('b-linked-property');
+  const p=properties.find(x=>x.id===sel.value);
+  if(!p)return;
+  // 既に入力済みの欄は上書きせず、空欄のところだけ在庫物件の情報で埋める
+  const fillIfEmpty=(id,v)=>{const el=document.getElementById(id);if(el&&!el.value.trim()&&v)el.value=v;};
+  fillIfEmpty('b-name',p.name);
+  fillIfEmpty('b-addr',p.loc);
+  fillIfEmpty('b-struct',p.struct);
+  fillIfEmpty('b-built',p.built);
+  if(currentBldPhotos.length===0&&p.photos&&p.photos.length){
+    currentBldPhotos=JSON.parse(JSON.stringify(p.photos));
+    renderBldImgList();
+  }
 };
 function updateBldDays(){
   const d=daysUntil(document.getElementById('b-end').value);
