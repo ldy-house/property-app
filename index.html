@@ -166,6 +166,18 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   </div>
 </div>
 
+<div id="no-access-screen" style="display:none;">
+  <div class="login-wrap">
+    <div class="login-box" style="text-align:center;">
+      <div class="login-logo"><div class="login-lmark">LDY</div><div class="login-lsub">株式会社LDY</div></div>
+      <div style="font-size:32px;margin-bottom:12px;">🔒</div>
+      <div class="login-title">この画面へのアクセス権限がありません</div>
+      <div style="font-size:12px;color:var(--sub);line-height:1.7;margin-bottom:20px;">管理委託物件の情報は、許可されたメンバーのみ閲覧できます。<br>必要な場合は管理者にお問い合わせください。</div>
+      <button class="login-btn" onclick="doLogout()">ログアウト</button>
+    </div>
+  </div>
+</div>
+
 <div id="main-app" style="display:none;">
   <div class="header">
     <div class="hdr-left"><span class="hdr-lmark">LDY</span><span class="hdr-title">管理委託物件</span><span class="role-badge" id="role-badge"></span></div>
@@ -217,6 +229,15 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       </div>
 
       <div class="fs">
+        <div class="fs-title">在庫物件との関連付け（任意）</div>
+        <div class="fr">
+          <label>元は在庫物件（買取再販）だった場合、対象を選択</label>
+          <select id="b-linked-property" onchange="updateLinkedPropertyHint()"><option value="">関連なし（管理委託のみ）</option></select>
+        </div>
+        <div class="hint" id="b-linked-property-hint"></div>
+      </div>
+
+      <div class="fs">
         <div class="fs-title">建物情報</div>
         <div class="fr"><label>ビル名 *</label><input id="b-name" placeholder="例：太平1丁目ビル"/></div>
         <div class="fr"><label>所在地</label><input id="b-addr" placeholder="例：江東区扇橋3丁目1-4"/></div>
@@ -247,7 +268,6 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             <div class="fr"><label>担当者電話番号</label><input id="b-owner-contact-tel"/></div>
           </div>
         </div>
-        <div class="fr"><label>振込先口座</label><input id="b-owner-bank" placeholder="例：○○銀行 ○○支店 普通 1234567"/></div>
       </div>
 
       <div class="fs">
@@ -257,18 +277,23 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>契約終期</label><input id="b-end" type="date"/></div>
         </div>
         <div class="days-auto" id="b-days-display"></div>
-        <div class="fg" style="margin-top:8px;">
-          <div class="fr"><label>管理料</label><input id="b-fee" placeholder="例：賃料の5%／月額22,000円"/></div>
-          <div class="fr"><label>管理料の課税</label>
-            <select id="b-fee-tax"><option value="">未設定</option><option>税込</option><option>税別</option></select>
-          </div>
-        </div>
-        <div class="fr"><label>業務範囲</label><input id="b-scope" placeholder="例：集金代行・入居者対応・清掃手配"/></div>
+        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="b-scope" placeholder="例：集金代行・入居者対応・清掃手配"/></div>
         <div class="fg">
           <div class="fr"><label>自動更新</label>
             <select id="b-auto-renew"><option value="">未設定</option><option>有</option><option>無</option></select>
           </div>
           <div class="fr"><label>解約予告</label><input id="b-notice" placeholder="例：3ヶ月前"/></div>
+        </div>
+      </div>
+
+      <div class="fs">
+        <div class="fs-title">管理料・資金フロー</div>
+        <div class="fr"><label>振込先口座</label><input id="b-owner-bank" placeholder="例：○○銀行 ○○支店 普通 1234567"/></div>
+        <div class="fg">
+          <div class="fr"><label>管理料</label><input id="b-fee" placeholder="例：賃料の5%／月額22,000円"/></div>
+          <div class="fr"><label>管理料の課税</label>
+            <select id="b-fee-tax"><option value="">未設定</option><option>税込</option><option>税別</option></select>
+          </div>
         </div>
         <div class="fr"><label>資金フロー</label>
           <select id="b-cashflow" onchange="toggleCashflow()">
@@ -286,17 +311,16 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>支払期限</label><input id="b-invoice-due" placeholder="例：請求書発行から14日以内"/></div>
         </div>
         <div class="fr"><label>備考</label><textarea id="b-memo" placeholder="1行1項目で入力"></textarea></div>
-      </div>
-
-      <div class="fs">
-        <div class="fs-title">管理料 請求・支払チェック（月次）</div>
-        <div class="pay-year-nav">
-          <button type="button" onclick="feePayYearMove(-1)">◀</button>
-          <span class="pay-year-label" id="fee-pay-year-label"></span>
-          <button type="button" onclick="feePayYearMove(1)">▶</button>
-          <span style="font-size:10px;color:var(--sub);">クリックで支払済/未払を切替</span>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料 請求・支払チェック（月次）</div>
+          <div class="pay-year-nav">
+            <button type="button" onclick="feePayYearMove(-1)">◀</button>
+            <span class="pay-year-label" id="fee-pay-year-label"></span>
+            <button type="button" onclick="feePayYearMove(1)">▶</button>
+            <span style="font-size:10px;color:var(--sub);">クリックで支払済/未払を切替</span>
+          </div>
+          <div class="pay-grid" id="fee-pay-grid"></div>
         </div>
-        <div class="pay-grid" id="fee-pay-grid"></div>
       </div>
 
       <div class="fs">
@@ -496,21 +520,32 @@ import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,getDoc,
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
 const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
-let blds=[],units=[],currentRole='staff';
+let blds=[],units=[],properties=[],currentRole='staff';
 let editBldId=null,editUnitId=null,unitParentBldId=null;
 let openBlds=new Set();
 
 onAuthStateChanged(auth,async user=>{
   if(user){
-    try{const rd=await getDoc(doc(db,'user_roles',user.email));currentRole=rd.exists()?(rd.data().role||'staff'):'staff';}catch(e){currentRole='staff';}
+    let kanriAccess=false;
+    try{
+      const rd=await getDoc(doc(db,'user_roles',user.email));
+      currentRole=rd.exists()?(rd.data().role||'staff'):'staff';
+      kanriAccess=rd.exists()?(rd.data().kanriAccess===true):false;
+    }catch(e){currentRole='staff';kanriAccess=false;}
     document.getElementById('login-screen').style.display='none';
-    document.getElementById('main-app').style.display='block';
     document.getElementById('user-email').textContent=user.email;
+    if(!kanriAccess){
+      document.getElementById('main-app').style.display='none';
+      document.getElementById('no-access-screen').style.display='flex';
+      return;
+    }
+    document.getElementById('no-access-screen').style.display='none';
+    document.getElementById('main-app').style.display='block';
     const badge=document.getElementById('role-badge');
     if(currentRole==='admin'){badge.textContent='管理者';badge.className='role-badge role-admin';}
     else{badge.textContent='スタッフ';badge.className='role-badge role-staff';}
     setTimeout(()=>startSync(),0);
-  }else{document.getElementById('login-screen').style.display='flex';document.getElementById('main-app').style.display='none';}
+  }else{document.getElementById('login-screen').style.display='flex';document.getElementById('main-app').style.display='none';document.getElementById('no-access-screen').style.display='none';}
 });
 
 window.doLogin=async function(){
@@ -529,6 +564,9 @@ function startSync(){
   });
   onSnapshot(collection(db,'managed_units'),snap=>{
     units=snap.docs.map(d=>({id:d.id,...d.data()}));render();
+  });
+  onSnapshot(collection(db,'properties'),snap=>{
+    properties=snap.docs.map(d=>({id:d.id,...d.data()}));render();
   });
 }
 
@@ -665,6 +703,7 @@ window.openBldModal=function(id=null){
   document.getElementById('b-days-display').innerHTML='';
   toggleOwnerType();toggleCashflow();renderEquipBlocks();renderBldImgList();
   renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');
+  renderLinkedPropertyOptions('');
   if(id){
     const b=blds.find(x=>x.id===id);if(!b)return;
     setV('b-name',b.name);setV('b-addr',b.addr);setV('b-struct',b.struct);setV('b-built',b.built);
@@ -679,6 +718,7 @@ window.openBldModal=function(id=null){
     feePayments=b.feePayments?JSON.parse(JSON.stringify(b.feePayments)):{};
     currentBldPhotos=b.photos?JSON.parse(JSON.stringify(b.photos)):[];
     renderBldImgList();
+    renderLinkedPropertyOptions(b.linkedPropertyId||'');
     updateBldDays();toggleOwnerType();toggleCashflow();renderEquipBlocks();
     renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');
   }
@@ -720,6 +760,20 @@ function renderEquipBlocks(){
     '</div>'
   ).join('');
 }
+function renderLinkedPropertyOptions(selectedId){
+  const sel=document.getElementById('b-linked-property');if(!sel)return;
+  const sorted=[...properties].sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
+  sel.innerHTML='<option value="">関連なし（管理委託のみ）</option>'+
+    sorted.map(p=>'<option value="'+p.id+'"'+(p.id===selectedId?' selected':'')+'>'+esc(p.name||'（名称未設定）')+'（'+esc(p.saleStatus||'—')+'）</option>').join('');
+  updateLinkedPropertyHint();
+}
+window.updateLinkedPropertyHint=function(){
+  const sel=document.getElementById('b-linked-property');
+  const hint=document.getElementById('b-linked-property-hint');
+  if(!sel||!hint)return;
+  const p=properties.find(x=>x.id===sel.value);
+  hint.textContent=p?('現在の状態：'+(p.saleStatus||'—')+'／価格：'+(p.price?p.price.toLocaleString()+'万円':'—')):'';
+};
 function updateBldDays(){
   const d=daysUntil(document.getElementById('b-end').value);
   const el=document.getElementById('b-days-display');
@@ -744,6 +798,7 @@ window.saveBld=async function(){
     invoiceFreq:g('b-invoice-freq'),invoiceDue:g('b-invoice-due'),
     equip:equipBlocks.filter(e=>e.name),
     photos:currentBldPhotos,
+    linkedPropertyId:document.getElementById('b-linked-property').value||null,
     feePayments,
     memo:g('b-memo'),updatedAt:serverTimestamp()};
   try{
@@ -934,11 +989,12 @@ window.render=function(){
     const bmemos=(b.memo||'').split('\n').filter(Boolean);
     const bPhotos=b.photos&&b.photos.length?b.photos:[];
     const bPhotosJson=JSON.stringify(bPhotos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+    const linkedProp=b.linkedPropertyId?properties.find(p=>p.id===b.linkedPropertyId):null;
     return '<div class="bld'+(isOpen?' open':'')+'">'+
       '<div class="bld-head" onclick="toggleBld(\''+b.id+'\')">'+
         '<span class="bld-toggle">▶</span>'+
         (bPhotos.length?'<img class="bld-thumb" src="'+esc(bPhotos[0].url)+'" alt=""/>':'<div class="bld-thumb-empty">🏢</div>')+
-        '<div><div class="bld-name">'+esc(b.name||'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
+        '<div><div class="bld-name">'+esc(b.name||'')+(linkedProp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">🔗元在庫物件</span>':'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
         '<div class="bld-meta">'+
           '<span class="bld-chip">区分 '+us.length+'件</span>'+
           '<span class="bld-chip">稼働 '+activeN+'/'+us.length+'</span>'+
@@ -946,6 +1002,15 @@ window.render=function(){
         '</div>'+
       '</div>'+
       '<div class="bld-detail">'+
+        (linkedProp?'<div class="osec" style="border-color:var(--gold);background:#FFFBF0;">'+
+          '<div class="osec-t" style="color:#8A6D00;">🔗 在庫物件（買取再販）としての履歴</div>'+
+          '<div class="kn-grid">'+
+            '<div class="kn-row"><span class="kn-lbl">物件名</span><span class="kn-val">'+esc(linkedProp.name||'—')+'</span></div>'+
+            '<div class="kn-row"><span class="kn-lbl">現在の状態</span><span class="kn-val">'+esc(linkedProp.saleStatus||'—')+'</span></div>'+
+            '<div class="kn-row"><span class="kn-lbl">価格</span><span class="kn-val">'+(linkedProp.price?linkedProp.price.toLocaleString()+'万円':'—')+'</span></div>'+
+          '</div>'+
+          '<a href="index.html" class="btn btn-sm" style="display:inline-block;margin-top:8px;text-decoration:none;">在庫物件管理で見る →</a>'+
+        '</div>':'')+
         (bPhotos.length?'<div class="card-photo-strip">'+bPhotos.map((p,i)=>'<img class="card-photo-thumb" src="'+esc(p.url)+'" onclick="openLB('+bPhotosJson+','+i+')"/>').join('')+'</div>':'')+
         '<div class="osec">'+
           '<div class="osec-t">建物・所有者</div>'+
