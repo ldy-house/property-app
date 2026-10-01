@@ -53,8 +53,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .btn-red:hover{background:#fff0f0;}
 .btn-sm{font-size:11px;padding:4px 10px;}
 .bld-wrap{padding:14px 20px;display:flex;flex-direction:column;gap:14px;}
-.bld{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(27,42,107,0.07);}
-.bld-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.bld{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(27,42,107,0.07);transition:box-shadow .15s;}
+.bld:hover{box-shadow:0 4px 16px rgba(27,42,107,0.12);}
+.bld-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:filter .12s;}
+.bld-head:hover{filter:brightness(1.08);}
 .bld-toggle{color:var(--gold);font-size:12px;width:14px;flex-shrink:0;transition:transform .2s;}
 .bld.open .bld-toggle{transform:rotate(90deg);}
 .bld-name{font-size:15px;font-weight:700;color:#fff;}
@@ -90,7 +92,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .kn-val{color:var(--text);font-weight:600;word-break:break-all;}
 .units-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .units-t{font-size:11px;font-weight:700;color:var(--teal);}
-.unit{border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:6px;padding:10px 12px;margin-bottom:8px;background:#fff;}
+.unit{border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:#fff;transition:box-shadow .12s;}
+.unit:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 .unit:last-child{margin-bottom:0;}
 .unit-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
 .unit-name{font-size:13px;font-weight:700;color:var(--navy);}
@@ -137,10 +140,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .img-item:hover .img-del{display:flex;}
 .img-del{position:absolute;top:3px;right:3px;background:rgba(200,0,0,0.8);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;}
 .img-uploading{font-size:12px;color:var(--navy);margin-top:5px;display:none;font-weight:600;}
-.bld-thumb{width:44px;height:44px;border-radius:5px;object-fit:cover;flex-shrink:0;background:rgba(255,255,255,0.1);}
-.bld-thumb-empty{width:44px;height:44px;border-radius:5px;background:rgba(255,255,255,0.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:16px;}
-.card-photo-strip{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
-.card-photo-thumb{width:64px;height:64px;border-radius:5px;object-fit:cover;cursor:pointer;border:1px solid var(--border);}
+.bld-thumb{width:76px;height:60px;border-radius:6px;object-fit:cover;flex-shrink:0;background:rgba(255,255,255,0.1);cursor:pointer;transition:opacity .15s;}
+.bld-thumb:hover{opacity:0.85;}
+.bld-thumb-empty{width:76px;height:60px;border-radius:6px;background:rgba(255,255,255,0.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:22px;}
+.bld-photo-count{position:relative;}
+.bld-photo-count-badge{position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:6px;}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.open{display:flex;}
 .lb-img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:3px;display:block;background:#111;}
@@ -400,11 +404,13 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div class="fs">
         <div class="fs-title">賃料・一時金</div>
         <div class="fg">
-          <div class="fr"><label>現在の賃料（月額・円）</label><input id="u-rent" type="number" placeholder="242000"/></div>
           <div class="fr"><label>管理費（月額・円）</label><input id="u-kanri" type="number" placeholder="0"/></div>
+          <div class="fr"></div>
         </div>
         <div>
-          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料改定履歴（値上げ・値下げがあった場合）</label>
+          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料改定履歴（1件目＝契約時の賃料、以降＝値上げ・値下げの都度追加）</label>
+          <input type="hidden" id="u-rent"/>
+          <div class="days-auto" id="u-current-rent-display" style="margin-bottom:8px;"></div>
           <div id="rent-history-blocks"></div>
           <button type="button" class="btn btn-sm btn-navy" onclick="addRentHistory()">＋ 改定履歴を追加</button>
         </div>
@@ -487,6 +493,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="days-auto" id="u-key-display"></div>
         </div>
         <div class="fr"><label>鍵に関する備考</label><input id="u-key-note" placeholder="例：予備1本は事務所保管／入居中受託のため本数不明"/></div>
+      </div>
+
+      <div class="fs">
+        <div class="fs-title">賃借人とのやり取り</div>
+        <div id="contact-log-blocks"></div>
+        <button type="button" class="btn btn-sm btn-navy" onclick="addContactLog()">＋ やり取りを記録</button>
       </div>
 
       <div class="fs">
@@ -648,6 +660,7 @@ let equipBlocks=[];
 let feePayments={};let feePayYear=new Date().getFullYear();
 let rentPayments={};let rentPayYear=new Date().getFullYear();
 let rentHistory=[];
+let contactLog=[];
 
 function monthKey(y,m){return y+'-'+String(m).padStart(2,'0');}
 function renderPayGrid(gridElId,yearLabelElId,paymentsObj,year,toggleFnName){
@@ -666,20 +679,54 @@ window.toggleRentPay=function(k){rentPayments[k]=!rentPayments[k];renderPayGrid(
 
 window.addRentHistory=function(){rentHistory.push({date:'',rent:'',note:''});renderRentHistory();};
 window.removeRentHistory=function(i){rentHistory.splice(i,1);renderRentHistory();};
-window.updateRentHistory=function(i,f,v){if(rentHistory[i])rentHistory[i][f]=v;};
+window.updateRentHistory=function(i,f,v){if(rentHistory[i]){rentHistory[i][f]=v;updateCurrentRentDisplay();}};
+function currentRentFromHistory(){
+  const withDates=rentHistory.filter(r=>r.date&&r.rent);
+  if(!withDates.length)return null;
+  return withDates.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop().rent;
+}
+function updateCurrentRentDisplay(){
+  const v=currentRentFromHistory();
+  const rentInput=document.getElementById('u-rent');
+  if(rentInput)rentInput.value=v||'';
+  const el=document.getElementById('u-current-rent-display');
+  if(!el)return;
+  el.innerHTML=v?('現在の賃料：<span>'+Number(v).toLocaleString()+'円</span>'):'<span style="color:var(--sub);font-weight:400;">下に契約時の賃料を追加してください</span>';
+}
 function renderRentHistory(){
   const el=document.getElementById('rent-history-blocks');if(!el)return;
   el.innerHTML=rentHistory.map((r,i)=>
     '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'+
-        '<span style="font-size:10px;font-weight:700;color:var(--navy);">改定 '+(i+1)+'</span>'+
+        '<span style="font-size:10px;font-weight:700;color:var(--navy);">'+(i===0?'契約時賃料':'改定 '+i)+'</span>'+
         '<button type="button" class="btn btn-sm btn-red" onclick="removeRentHistory('+i+')">削除</button>'+
       '</div>'+
       '<div class="fg">'+
-        '<div class="fr"><label>改定日</label><input type="date" value="'+esc(r.date||'')+'" oninput="updateRentHistory('+i+',\'date\',this.value)"/></div>'+
-        '<div class="fr"><label>改定後の賃料（円）</label><input type="number" value="'+esc(r.rent||'')+'" oninput="updateRentHistory('+i+',\'rent\',this.value)"/></div>'+
+        '<div class="fr"><label>'+(i===0?'契約日':'改定日')+'</label><input type="date" value="'+esc(r.date||'')+'" oninput="updateRentHistory('+i+',\'date\',this.value)"/></div>'+
+        '<div class="fr"><label>'+(i===0?'契約時の賃料（円）':'改定後の賃料（円）')+'</label><input type="number" value="'+esc(r.rent||'')+'" oninput="updateRentHistory('+i+',\'rent\',this.value)"/></div>'+
       '</div>'+
       '<div class="fr"><label>備考</label><input value="'+esc(r.note||'')+'" placeholder="例：更新に伴う値上げ" oninput="updateRentHistory('+i+',\'note\',this.value)"/></div>'+
+    '</div>'
+  ).join('');
+  updateCurrentRentDisplay();
+}
+
+window.addContactLog=function(){contactLog.unshift({date:new Date().toISOString().slice(0,10),method:'',content:''});renderContactLog();};
+window.removeContactLog=function(i){contactLog.splice(i,1);renderContactLog();};
+window.updateContactLog=function(i,f,v){if(contactLog[i])contactLog[i][f]=v;};
+function renderContactLog(){
+  const el=document.getElementById('contact-log-blocks');if(!el)return;
+  el.innerHTML=contactLog.map((c,i)=>
+    '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'+
+        '<span style="font-size:10px;font-weight:700;color:var(--navy);">記録 '+(i+1)+'</span>'+
+        '<button type="button" class="btn btn-sm btn-red" onclick="removeContactLog('+i+')">削除</button>'+
+      '</div>'+
+      '<div class="fg">'+
+        '<div class="fr"><label>日付</label><input type="date" value="'+esc(c.date||'')+'" oninput="updateContactLog('+i+',\'date\',this.value)"/></div>'+
+        '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="例：電話／メール／訪問" oninput="updateContactLog('+i+',\'method\',this.value)"/></div>'+
+      '</div>'+
+      '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="例：エアコン不調の連絡あり。業者手配済み" oninput="updateContactLog('+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
     '</div>'
   ).join('');
 }
@@ -847,7 +894,7 @@ window.toggleAll=function(v){
 
 // ===== 区分 =====
 window.openUnitModal=function(bldId,unitId=null){
-  unitParentBldId=bldId;editUnitId=unitId;rentHistory=[];rentPayments={};rentPayYear=new Date().getFullYear();
+  unitParentBldId=bldId;editUnitId=unitId;rentHistory=[];rentPayments={};rentPayYear=new Date().getFullYear();contactLog=[];
   const b=blds.find(x=>x.id===bldId);
   document.getElementById('unit-modal-title').textContent=unitId?'区分を編集':'区分を追加';
   document.getElementById('unit-modal-sub').textContent=b?b.name:'';
@@ -863,7 +910,9 @@ window.openUnitModal=function(bldId,unitId=null){
   setV('u-tenant-type','個人');setV('u-kasai-status','');setV('u-key-status','');
   document.getElementById('u-days-display').innerHTML='';
   document.getElementById('u-key-display').innerHTML='';
-  toggleTenantType();toggleKeyStatus();renderRentHistory();
+  toggleTenantType();toggleKeyStatus();
+  if(!unitId)rentHistory.push({date:'',rent:'',note:''});
+  renderRentHistory();renderContactLog();
   renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');
   if(unitId){
     const u=units.find(x=>x.id===unitId);if(!u)return;
@@ -885,9 +934,10 @@ window.openUnitModal=function(bldId,unitId=null){
     setV('u-reform-start',u.reformStart);setV('u-reform-end',u.reformEnd);setV('u-reform-note',u.reformNote);
     setV('u-key-received',u.keyReceived);setV('u-key-handed',u.keyHanded);setV('u-key-note',u.keyNote);setV('u-key-status',u.keyStatus);
     setV('u-memo',u.memo);
-    rentHistory=u.rentHistory?JSON.parse(JSON.stringify(u.rentHistory)):[];
+    rentHistory=(u.rentHistory&&u.rentHistory.length)?JSON.parse(JSON.stringify(u.rentHistory)):(u.rent?[{date:u.start||'',rent:u.rent,note:'（旧データから自動移行）'}]:[]);
     rentPayments=u.rentPayments?JSON.parse(JSON.stringify(u.rentPayments)):{};
-    updateUnitDays();updateKeyDisplay();toggleTenantType();toggleKeyStatus();renderRentHistory();
+    contactLog=u.contactLog?JSON.parse(JSON.stringify(u.contactLog)):[];
+    updateUnitDays();updateKeyDisplay();toggleTenantType();toggleKeyStatus();renderRentHistory();renderContactLog();
     renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');
   }
   document.getElementById('unit-modal').classList.add('open');
@@ -934,6 +984,7 @@ window.saveUnit=async function(){
     noticeLessor:g('u-notice-lessor'),noticeLessee:g('u-notice-lessee'),noticeMethod:g('u-notice-method'),
     rent:n('u-rent'),kanri:n('u-kanri'),
     rentHistory:rentHistory.filter(r=>r.date||r.rent),
+    contactLog:contactLog.filter(c=>c.date||c.method||c.content),
     rentPayments,
     shikikin:n('u-shikikin'),shikikinNote:g('u-shikikin-note'),
     shikikinHolder:document.getElementById('u-shikikin-holder').value,
@@ -1009,7 +1060,7 @@ window.render=function(){
     return '<div class="bld'+(isOpen?' open':'')+'">'+
       '<div class="bld-head" onclick="toggleBld(\''+b.id+'\')">'+
         '<span class="bld-toggle">▶</span>'+
-        (bPhotos.length?'<img class="bld-thumb" src="'+esc(bPhotos[0].url)+'" alt=""/>':'<div class="bld-thumb-empty">🏢</div>')+
+        (bPhotos.length?'<span class="bld-photo-count" onclick="event.stopPropagation();openLB('+bPhotosJson+',0)"><img class="bld-thumb" src="'+esc(bPhotos[0].url)+'" alt=""/>'+(bPhotos.length>1?'<span class="bld-photo-count-badge">'+bPhotos.length+'枚</span>':'')+'</span>':'<div class="bld-thumb-empty">🏢</div>')+
         '<div><div class="bld-name">'+esc(b.name||'')+(linkedProp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">🔗元在庫物件</span>':'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
         '<div class="bld-meta">'+
           '<span class="bld-chip">区分 '+us.length+'件</span>'+
@@ -1025,9 +1076,7 @@ window.render=function(){
             '<div class="kn-row"><span class="kn-lbl">現在の状態</span><span class="kn-val">'+esc(linkedProp.saleStatus||'—')+'</span></div>'+
             '<div class="kn-row"><span class="kn-lbl">価格</span><span class="kn-val">'+(linkedProp.price?linkedProp.price.toLocaleString()+'万円':'—')+'</span></div>'+
           '</div>'+
-          '<a href="index.html" class="btn btn-sm" style="display:inline-block;margin-top:8px;text-decoration:none;">在庫物件管理で見る →</a>'+
-        '</div>':'')+
-        (bPhotos.length?'<div class="card-photo-strip">'+bPhotos.map((p,i)=>'<img class="card-photo-thumb" src="'+esc(p.url)+'" onclick="openLB('+bPhotosJson+','+i+')"/>').join('')+'</div>':'')+
+          '</div>':'')+
         '<div class="osec">'+
           '<div class="osec-t">建物・所有者</div>'+
           '<div class="kn-grid">'+
@@ -1179,6 +1228,16 @@ function unitHtml(u){
           '<div class="kn-row"><span class="kn-lbl">期間</span><span class="kn-val">'+(esc(u.reformStart||'—')+' 〜 '+esc(u.reformEnd||'—'))+'</span></div>'+
           (u.reformNote?'<div class="kn-row"><span class="kn-lbl">備考</span><span class="kn-val">'+esc(u.reformNote)+'</span></div>':'')+
         '</div>'+
+      '</div>':'')+
+      ((u.contactLog&&u.contactLog.length)?'<div class="unit-sub" style="grid-column:1/-1;">'+
+        '<div class="unit-sub-t">賃借人とのやり取り（直近5件）</div>'+
+        u.contactLog.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5).map(c=>
+          '<div style="font-size:10.5px;padding:4px 0;border-bottom:1px dashed #eee;">'+
+            '<span style="font-weight:700;color:var(--text);">'+esc(c.date||'—')+'</span>'+
+            (c.method?' <span style="color:var(--teal);">['+esc(c.method)+']</span>':'')+
+            (c.content?' '+esc(c.content):'')+
+          '</div>'
+        ).join('')+
       '</div>':'')+
     '</div>'+
     (memos.length?'<div style="font-size:11px;color:#777;margin-top:8px;"><ul style="padding-left:14px;line-height:1.7;">'+memos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
