@@ -3,190 +3,385 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>開発管理｜株式会社LDY</title>
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<title>開発プロジェクト管理｜株式会社LDY</title>
 <style>
-:root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--bg:#F5F4F0;--white:#FAFAF8;--text:#1a1a2e;--sub:#6B6560;--line:rgba(27,42,107,.12);}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
-.nav{background:var(--navy-dark);display:flex;gap:4px;padding:0 20px;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:50;overflow-x:auto}
-.nav a{color:rgba(255,255,255,.65);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;padding:15px 18px;border-bottom:3px solid transparent;margin-bottom:-3px;white-space:nowrap}
-.nav a:hover{color:#fff}
-.nav a.on{color:var(--gold);border-bottom-color:var(--gold)}
-.wrap{max-width:960px;margin:0 auto;padding:24px 16px 120px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-.tab{padding:8px 16px;border:1px solid var(--line);background:var(--white);border-radius:20px;cursor:pointer;font-size:13px;font-weight:700;color:var(--navy)}
-.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.box{background:var(--white);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:16px}
-label{display:block;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;margin:10px 0 4px}
-input[type=text],select,textarea{width:100%;padding:9px 10px;border:1px solid #d6d3cb;border-radius:4px;font:inherit;background:#fff}
-textarea{min-height:64px;resize:vertical}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.step{border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px;background:#fff;transition:.15s}
-.step.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.2)}
-.step.over{background:#fffbe9;border-color:var(--gold)}
-.step-head{display:grid;grid-template-columns:1fr 130px auto;gap:8px;align-items:center}
-.btn{border:none;border-radius:4px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
-.btn-p{background:var(--navy);color:#fff}.btn-g{background:var(--gold);color:var(--navy-dark)}
-.btn-s{background:#eee;color:#555;padding:7px 10px;font-size:12px}
-.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
-.ph{position:relative;aspect-ratio:4/3;border-radius:4px;overflow:hidden;background:#ddd;cursor:grab;border:2px solid transparent}
-.ph.drop{border-color:var(--gold)}.ph.drag{opacity:.35}
-.ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
-.ph .n{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:1px 6px;border-radius:8px}
-.ph .x{position:absolute;right:4px;top:4px;background:rgba(0,0,0,.6);color:#fff;border:none;width:22px;height:22px;border-radius:50%;cursor:pointer}
-.ph input{position:absolute;left:0;right:0;bottom:0;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:10px;padding:3px 5px;width:100%}
-.ph.up{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--sub)}
-.hint{font-size:11px;color:var(--sub);margin-top:8px}
-.bar{position:fixed;left:0;right:0;bottom:0;background:var(--white);border-top:1px solid var(--line);padding:12px 20px;display:flex;justify-content:flex-end;align-items:center;gap:14px;z-index:40}
-#msg{font-size:12px;color:var(--sub)}
-.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;align-items:center;justify-content:center;flex-direction:column}
-.lb.open{display:flex}
-.lb img{max-width:92vw;max-height:80vh;object-fit:contain}
-.lb button{position:absolute;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:24px;padding:12px 16px;cursor:pointer;border-radius:4px}
-.lb .c{top:14px;right:16px}.lb .p{left:14px;top:50%}.lb .nx{right:14px;top:50%}
-.lb span{color:#fff;margin-top:12px;font-size:12px}
-@media(max-width:600px){.row,.step-head{grid-template-columns:1fr}}
+:root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;--red:#C62828;--green:#2E7D32;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy-dark),var(--navy));}
+.login-box{background:#fff;border-radius:12px;padding:40px 36px;width:360px;max-width:95%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-lmark{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
+.login-lsub{font-size:11px;color:var(--sub);margin-top:4px;}
+.login-title{font-size:14px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:18px;}
+.lf{margin-bottom:12px;}.lf label{display:block;font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;}
+.lf input{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:5px;font-size:14px;outline:none;}
+.lf input:focus{border-color:var(--navy);}
+.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;}
+.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
+.header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-lmark{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.hdr-title{font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:2px;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.hdr-user{font-size:11px;color:rgba(255,255,255,0.65);}
+.btn-logout{font-size:11px;padding:4px 10px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);border-radius:3px;cursor:pointer;}
+.btn-back{font-size:11px;padding:4px 12px;border:1px solid rgba(201,168,76,0.5);background:transparent;color:var(--gold);border-radius:3px;text-decoration:none;}
+.main{max-width:1000px;margin:0 auto;padding:24px 20px;}
+.page-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.page-sub{font-size:12px;color:var(--sub);margin-bottom:24px;}
+.proj-list{display:flex;flex-direction:column;gap:16px;}
+/* プロジェクトパネル */
+.proj-panel{background:#fff;border-radius:8px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(27,42,107,0.07);overflow:hidden;}
+.proj-panel-head{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.proj-panel-name{font-size:14px;font-weight:700;color:#fff;}
+.proj-panel-num{font-size:10px;color:var(--gold);letter-spacing:3px;}
+.proj-panel-body{padding:16px 20px;}
+.proj-cover{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+.proj-cover-img{width:160px;height:110px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));border-radius:4px;overflow:hidden;position:relative;flex-shrink:0;}
+.proj-cover-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.proj-cover-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:11px;}
+.proj-cover-info{flex:1;min-width:200px;}
+.fr{margin-bottom:10px;}
+.fr label{display:block;font-size:11px;color:var(--sub);margin-bottom:3px;font-weight:700;}
+.fr input,.fr select,.fr textarea{width:100%;font-size:12px;padding:7px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;font-family:inherit;}
+.fr input:focus,.fr select:focus{border-color:var(--navy);}
+.fr textarea{resize:vertical;height:60px;line-height:1.6;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.img-drop-sm{border:2px dashed #ccc;border-radius:4px;padding:10px;text-align:center;cursor:pointer;color:#999;font-size:11px;transition:all 0.2s;background:#fafafa;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-height:50px;}
+.img-drop-sm:hover,.img-drop-sm.dragover{border-color:var(--gold);background:#fffbf0;}
+.img-uploading{font-size:11px;color:var(--navy);margin-top:4px;display:none;font-weight:600;}
+/* ステップ一覧 */
+.steps-title{font-size:11px;font-weight:700;color:var(--navy);letter-spacing:1px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;}
+.step-item{background:#f8f8f8;border:1px solid #eee;border-radius:6px;padding:12px;margin-bottom:8px;}
+.step-item-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.step-status-sel{font-size:11px;padding:4px 8px;border:1px solid #ddd;border-radius:4px;outline:none;width:90px;}
+.step-text-inp{flex:1;font-size:12px;padding:6px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;}
+.step-text-inp:focus{border-color:var(--navy);}
+.step-del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;}
+.step-del-btn:hover{color:var(--red);}
+/* ステップ写真 */
+.step-photos-area{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:10px;}
+.step-photos-title{font-size:10px;font-weight:700;color:var(--sub);margin-bottom:8px;}
+.step-photo-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.step-photo-item{position:relative;width:80px;}
+.step-photo-img{width:80px;height:60px;object-fit:cover;border-radius:4px;display:block;border:1px solid #eee;}
+.step-photo-date{width:100%;font-size:9px;color:var(--sub);margin-top:2px;text-align:center;}
+.step-photo-del{position:absolute;top:2px;right:2px;background:rgba(200,0,0,0.85);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.step-photo-add{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.step-photo-add input[type="date"]{font-size:11px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;outline:none;}
+.btn{font-size:12px;padding:6px 14px;border-radius:4px;border:1px solid #ccc;background:#fff;color:var(--text);cursor:pointer;white-space:nowrap;}
+.btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);border:none;font-weight:700;}
+.btn-navy{background:var(--navy);color:#fff;border:none;font-weight:600;}
+.btn-navy:hover{background:var(--navy-dark);}
+.btn-red{color:var(--red);border-color:#f7c1c1;}
+.btn-sm{font-size:11px;padding:4px 10px;}
+.save-bar{position:sticky;bottom:0;background:rgba(255,255,255,0.95);border-top:2px solid var(--gold);padding:12px 20px;display:flex;gap:10px;justify-content:flex-end;backdrop-filter:blur(4px);}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-overlay.show{display:flex;}
+.spinner{width:36px;height:36px;border:3px solid #eee;border-top:3px solid var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;font-weight:700;color:var(--navy);}
 </style>
 </head>
 <body>
-<nav class="nav">
-  <a href="devadmin.html" class="on">開発管理</a>
-  <a href="ldyadmin.html">在庫管理</a>
-  <a href="opsadmin.html">管理委託</a>
-</nav>
-<div class="wrap">
-  <div class="tabs" id="tabs"></div>
-  <div id="editor"></div>
+<div class="loading-overlay" id="loading"><div class="spinner"></div><div class="loading-text" id="loading-text">処理中...</div></div>
+
+<div id="login-screen" style="display:flex;">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-logo"><div class="login-lmark">LDY</div><div class="login-lsub">株式会社LDY</div></div>
+      <div class="login-title">社員ログイン</div>
+      <div class="lf"><label>メールアドレス</label><input type="email" id="login-email" placeholder="example@ldy-house.com"/></div>
+      <div class="lf"><label>パスワード</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
+      <button class="login-btn" onclick="doLogin()">ログイン</button>
+      <div class="login-err" id="login-err"></div>
+    </div>
+  </div>
 </div>
-<div class="bar"><span id="msg"></span><button class="btn btn-g" onclick="saveAll()">保存する</button></div>
-<div class="lb" id="lb" onclick="if(event.target===this)closeLB()">
-  <button class="c" onclick="closeLB()">✕</button><button class="p" onclick="lbMove(-1)">‹</button><button class="nx" onclick="lbMove(1)">›</button>
-  <img id="lb-img" alt=""/><span id="lb-c"></span>
+
+<div id="main-app" style="display:none;">
+  <div class="header">
+    <div class="hdr-left">
+      <span class="hdr-lmark">LDY</span>
+      <span class="hdr-title">開発プロジェクト管理</span>
+    </div>
+    <div class="hdr-right">
+      <a href="ldyadmin.html" class="btn-back">← 管理画面へ</a>
+      <span class="hdr-user" id="user-email"></span>
+      <button class="btn-logout" onclick="doLogout()">ログアウト</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-title">開発プロジェクト管理</div>
+    <div class="page-sub">各プロジェクトの写真・進捗・現場写真を編集できます。変更はお客様向けページに即時反映されます。</div>
+    <div class="proj-list" id="proj-list">
+      <div style="text-align:center;padding:3rem;color:var(--sub);">読み込み中...</div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <span id="save-status" style="font-size:12px;color:var(--sub);padding:6px 0;"></span>
+    <button class="btn btn-gold" onclick="saveAll()">すべて保存する</button>
+  </div>
 </div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,collection,getDocs,doc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import{getStorage,ref,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import{getFirestore,collection,doc,setDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-const app=initializeApp({apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"});
-const db=getFirestore(app),st=getStorage(app);
+const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
+const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
 
-const S=(t,s)=>({text:t,status:s,photos:[]});
 const DEFAULTS=[
- {id:'p1',num:'PROJECT 01',name:'アパート・マンション開発プロジェクト',type:'集合住宅 ｜ 東京都内',status:'done',photo:'',desc:'上棟を完了し、現在は内装・設備工事を進めています。',area:'東京都内',completion:'2026年予定',steps:[S('着工・基礎工事','done'),S('躯体工事','done'),S('上棟','done'),S('内装・設備工事','current'),S('完成・引渡し','future')]},
- {id:'p2',num:'PROJECT 02',name:'プレミアム戸建て開発プロジェクト',type:'豪華戸建て ｜ 東京都内',status:'progress',photo:'',desc:'随所にこだわりを詰め込んだ豪華な一邸。基礎工事が完了し、いよいよ上棟を迎えようとしています。',area:'東京都内',completion:'2026年予定',steps:[S('着工・地縄確認','done'),S('基礎工事','done'),S('上棟','current'),S('内装・設備工事','future'),S('完成・引渡し','future')]},
- {id:'p3',num:'PROJECT 03',name:'戸建て開発プロジェクト',type:'戸建て ｜ 東京都内',status:'early',photo:'',desc:'現在、既存建物の解体工事を進めています。更地になった後は新築工事へと移行します。',area:'東京都内',completion:'2026年予定',steps:[S('解体工事','current'),S('地盤調査・基礎工事','future'),S('躯体・上棟','future'),S('内装・設備工事','future'),S('完成・引渡し','future')]}
+  {id:'p1',num:'PROJECT 01',name:'アパート・マンション開発プロジェクト',type:'集合住宅 ｜ 東京都内',status:'done',photo:'',desc:'上棟を完了。現在は内装・設備工事を進めています。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'着工・基礎工事',status:'done',photos:[]},{text:'躯体工事',status:'done',photos:[]},{text:'上棟',status:'done',photos:[]},{text:'内装・設備工事',status:'current',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
+  {id:'p2',num:'PROJECT 02',name:'プレミアム戸建て開発プロジェクト',type:'豪華戸建て ｜ 東京都内',status:'progress',photo:'',desc:'基礎工事が完了し、間もなく上棟を迎えます。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'着工・地縄確認',status:'done',photos:[]},{text:'基礎工事',status:'done',photos:[]},{text:'上棟',status:'current',photos:[]},{text:'内装・設備工事',status:'future',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
+  {id:'p3',num:'PROJECT 03',name:'戸建て開発プロジェクト',type:'戸建て ｜ 東京都内',status:'early',photo:'',desc:'既存建物の解体工事を進めています。',area:'東京都内',completion:'2026年予定',
+   steps:[{text:'解体工事',status:'current',photos:[]},{text:'地盤調査・基礎工事',status:'future',photos:[]},{text:'躯体・上棟',status:'future',photos:[]},{text:'内装・設備工事',status:'future',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
 ];
-const STAT={done:'上棟済み',progress:'間もなく上棟',early:'解体中',construction:'工事中',plan:'計画中',complete:'完成'};
-const SST={done:'完了',current:'現在',future:'未着手'};
-let P=[],cur=0,activeStep=0,drag=null,lb={list:[],i:0};
-const $=id=>document.getElementById(id);
-const msg=t=>{$('msg').textContent=t};
 
-const snap=await getDocs(collection(db,'dev_projects'));
-const saved={};snap.forEach(d=>saved[d.id]=d.data());
-P=DEFAULTS.map(d=>saved[d.id]?{...d,...saved[d.id]}:d);
-P.forEach(p=>p.steps=p.steps||[]);
-render();
+let data={}; // id → プロジェクトデータ（編集中）
+let dbData={};
 
-function render(){
-  $('tabs').innerHTML=P.map((p,i)=>`<div class="tab ${i===cur?'on':''}" onclick="selP(${i})">${p.num}</div>`).join('');
-  const p=P[cur];
-  $('editor').innerHTML=`<div class="box">
-    <label>プロジェクト名</label><input type="text" value="${esc(p.name)}" oninput="P[cur].name=this.value">
-    <div class="row"><div><label>ステータス</label><select onchange="P[cur].status=this.value">${Object.entries(STAT).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v}</option>`).join('')}</select></div>
-    <div><label>完成予定</label><input type="text" value="${esc(p.completion||'')}" oninput="P[cur].completion=this.value"></div></div>
-    <label>説明</label><textarea oninput="P[cur].desc=this.value">${esc(p.desc||'')}</textarea></div>
-    ${p.steps.map((s,si)=>stepHtml(s,si)).join('')}
-    <button class="btn btn-s" onclick="addStep()">＋ 工程を追加</button>
-    <p class="hint">写真は工程ごとに、ドラッグ＆ドロップ／クリップボードからの貼り付け（Ctrl+V）／枠クリックで追加できます（HEIC対応）。貼り付けは選択中（金枠）の工程に入ります。写真はドラッグで並べ替え、クリックで拡大できます。</p>`;
-}
-function stepHtml(s,si){
-  return `<div class="step ${si===activeStep?'active':''}" data-si="${si}" onclick="activeStep=${si};markActive()"
-   ondragover="stepOver(event,${si})" ondragleave="this.classList.remove('over')" ondrop="stepDrop(event,${si})">
-   <div class="step-head"><input type="text" value="${esc(s.text)}" oninput="P[cur].steps[${si}].text=this.value">
-   <select onchange="P[cur].steps[${si}].status=this.value">${Object.entries(SST).map(([k,v])=>`<option value="${k}" ${s.status===k?'selected':''}>${v}</option>`).join('')}</select>
-   <button class="btn btn-s" onclick="delStep(${si})">削除</button></div>
-   <div class="photos">${(s.photos||[]).map((ph,pi)=>`<div class="ph" draggable="true" data-pi="${pi}"
-     ondragstart="dStart(event,${si},${pi})" ondragend="this.classList.remove('drag')" ondragover="pOver(event,this)" ondragleave="this.classList.remove('drop')" ondrop="pDrop(event,${si},${pi})">
-     <img src="${ph.url}" alt="" onclick="openLB(${si},${pi})"><span class="n">${pi+1}</span>
-     <button class="x" onclick="delPh(event,${si},${pi})">✕</button>
-     <input type="text" placeholder="日付 例 2026.10.3" value="${esc(ph.date||'')}" oninput="P[cur].steps[${si}].photos[${pi}].date=this.value" onclick="event.stopPropagation()"></div>`).join('')}
-     <div class="ph up" style="cursor:pointer" onclick="pick(${si})">＋ 追加</div></div></div>`;
-}
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-
-// ---- 画像処理 ----
-async function toJpeg(file){
-  let blob=file;
-  if(/hei[cf]/i.test(file.type)||/\.hei[cf]$/i.test(file.name)){
-    const r=await heic2any({blob:file,toType:'image/jpeg',quality:.9});blob=Array.isArray(r)?r[0]:r;
+onAuthStateChanged(auth,user=>{
+  if(user){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('main-app').style.display='block';
+    document.getElementById('user-email').textContent=user.email;
+    setTimeout(()=>{
+      onSnapshot(collection(db,'dev_projects'),snap=>{
+        dbData={};
+        snap.docs.forEach(d=>{dbData[d.id]={id:d.id,...d.data()};});
+        // 初回のみdataを初期化
+        DEFAULTS.forEach(def=>{
+          if(!data[def.id]){
+            data[def.id]=JSON.parse(JSON.stringify(dbData[def.id]||def));
+          }
+        });
+        renderAll();
+      });
+    },0);
+  }else{
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('main-app').style.display='none';
   }
-  const bmp=await createImageBitmap(blob);
-  const k=Math.min(1,1800/Math.max(bmp.width,bmp.height));
-  const c=document.createElement('canvas');c.width=bmp.width*k;c.height=bmp.height*k;
-  c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
-  return new Promise(r=>c.toBlob(r,'image/jpeg',.85));
+});
+
+window.doLogin=async function(){
+  const email=document.getElementById('login-email').value.trim(),pass=document.getElementById('login-pass').value;
+  document.getElementById('login-err').textContent='';
+  if(!email||!pass){document.getElementById('login-err').textContent='入力してください';return;}
+  try{showLoading(true,'ログイン中...');await signInWithEmailAndPassword(auth,email,pass);}
+  catch(e){let m='ログイン失敗';if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password')m='メールアドレスまたはパスワードが違います';else m='エラー: '+e.code;document.getElementById('login-err').textContent=m;}
+  showLoading(false);
+};
+window.doLogout=async function(){await signOut(auth);};
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin();});
+
+// Cloudinary
+const CLD='dujllruro',CLD_P='ldy-property';
+async function uploadFile(file){
+  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLD_P);
+  const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});
+  const d=await r.json();if(d.secure_url)return d.secure_url;throw new Error(d.error?.message||'失敗');
 }
-async function addFiles(files,si){
-  const imgs=[...files].filter(f=>/^image\//.test(f.type)||/\.(hei[cf]|jpe?g|png|webp|gif)$/i.test(f.name));
-  if(!imgs.length)return;
-  const p=P[cur],step=p.steps[si],d=new Date(),date=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
-  let n=0;
-  for(const f of imgs){
-    msg(`アップロード中 ${++n}/${imgs.length}…`);
+
+function statusLabel(s){return{done:'上棟済み',progress:'間もなく上棟',early:'解体中',construction:'工事中',plan:'計画中',complete:'完成'}[s]||s;}
+
+function renderAll(){
+  const list=document.getElementById('proj-list');
+  list.innerHTML=DEFAULTS.map(def=>{
+    const p=data[def.id]||def;
+    const steps=(p.steps||[]);
+    return `<div class="proj-panel" id="panel-${p.id}">
+      <div class="proj-panel-head">
+        <div>
+          <div class="proj-panel-num">${p.num||''}</div>
+          <div class="proj-panel-name">${p.name||''}</div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);">ステップ数：${steps.length}</div>
+      </div>
+      <div class="proj-panel-body">
+        <!-- カバー写真・基本情報 -->
+        <div class="proj-cover">
+          <div>
+            <div class="proj-cover-img" id="cover-img-${p.id}">
+              ${p.photo?`<img src="${p.photo}" alt=""/>`: '<div class="proj-cover-img-placeholder">写真なし</div>'}
+            </div>
+            <div style="margin-top:6px;">
+              <div class="img-drop-sm" onclick="document.getElementById('cover-input-${p.id}').click()">
+                <div>&#128247;</div><div>カバー写真を変更</div>
+              </div>
+              <div class="img-uploading" id="cover-uploading-${p.id}">アップロード中...</div>
+              <input type="file" id="cover-input-${p.id}" accept="image/*" style="display:none;" onchange="handleCover(event,'${p.id}')"/>
+            </div>
+          </div>
+          <div class="proj-cover-info">
+            <div class="fr"><label>ステータス</label>
+              <select id="status-${p.id}" onchange="updateField('${p.id}','status',this.value)">
+                <option value="done" ${p.status==='done'?'selected':''}>上棟済み</option>
+                <option value="progress" ${p.status==='progress'?'selected':''}>間もなく上棟</option>
+                <option value="early" ${p.status==='early'?'selected':''}>解体中</option>
+                <option value="construction" ${p.status==='construction'?'selected':''}>工事中</option>
+                <option value="plan" ${p.status==='plan'?'selected':''}>計画中</option>
+                <option value="complete" ${p.status==='complete'?'selected':''}>完成</option>
+              </select>
+            </div>
+            <div class="fr"><label>概要説明</label>
+              <textarea id="desc-${p.id}" oninput="updateField('${p.id}','desc',this.value)">${p.desc||''}</textarea>
+            </div>
+            <div class="fg">
+              <div class="fr"><label>エリア</label><input id="area-${p.id}" value="${p.area||''}" oninput="updateField('${p.id}','area',this.value)"/></div>
+              <div class="fr"><label>完成予定</label><input id="comp-${p.id}" value="${p.completion||''}" oninput="updateField('${p.id}','completion',this.value)"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ステップ一覧 -->
+        <div class="steps-title">
+          <span>工事ステップ・現場写真</span>
+          <button class="btn btn-sm btn-navy" onclick="addStep('${p.id}')">＋ ステップ追加</button>
+        </div>
+        <div id="steps-${p.id}">
+          ${steps.map((s,si)=>renderStep(p.id,si,s)).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderStep(pid,si,s){
+  const photos=(s.photos||[]);
+  const photoListHtml=photos.map((ph,pi)=>
+    `<div class="step-photo-item">
+      <img class="step-photo-img" src="${ph.url}" alt=""/>
+      <div class="step-photo-date">${ph.date||''}</div>
+      <button class="step-photo-del" onclick="removeStepPhoto('${pid}',${si},${pi})">✕</button>
+    </div>`
+  ).join('');
+
+  return `<div class="step-item" id="step-${pid}-${si}">
+    <div class="step-item-head">
+      <select class="step-status-sel" onchange="updateStep('${pid}',${si},'status',this.value)">
+        <option value="done" ${s.status==='done'?'selected':''}>✓ 完了</option>
+        <option value="current" ${s.status==='current'?'selected':''}>→ 現在</option>
+        <option value="future" ${s.status==='future'?'selected':''}>○ 予定</option>
+      </select>
+      <input class="step-text-inp" value="${s.text||''}" placeholder="ステップ名" oninput="updateStep('${pid}',${si},'text',this.value)"/>
+      <button class="step-del-btn" onclick="removeStep('${pid}',${si})">✕</button>
+    </div>
+    <div class="step-photos-area">
+      <div class="step-photos-title">現場写真</div>
+      <div class="step-photo-list" id="step-photos-${pid}-${si}">${photoListHtml}</div>
+      <div class="step-photo-add">
+        <input type="date" id="step-date-${pid}-${si}" style="font-size:11px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;outline:none;"/>
+        <button class="btn btn-sm" onclick="document.getElementById('step-photo-input-${pid}-${si}').click()">＋ 写真を追加</button>
+        <span class="img-uploading" id="step-uploading-${pid}-${si}">アップロード中...</span>
+        <input type="file" id="step-photo-input-${pid}-${si}" accept="image/*" multiple style="display:none;" onchange="handleStepPhoto(event,'${pid}',${si})"/>
+      </div>
+    </div>
+  </div>`;
+}
+
+// フィールド更新
+window.updateField=function(pid,field,val){if(data[pid])data[pid][field]=val;};
+window.updateStep=function(pid,si,field,val){if(data[pid]&&data[pid].steps[si])data[pid].steps[si][field]=val;};
+
+// カバー写真
+window.handleCover=async function(e,pid){
+  const file=e.target.files[0];if(!file)return;
+  document.getElementById('cover-uploading-'+pid).style.display='block';
+  try{
+    const url=await uploadFile(file);
+    data[pid].photo=url;
+    const wrap=document.getElementById('cover-img-'+pid);
+    wrap.innerHTML=`<img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/>`;
+  }catch(err){alert('失敗: '+err.message);}
+  document.getElementById('cover-uploading-'+pid).style.display='none';
+  e.target.value='';
+};
+
+// ステップ写真
+window.handleStepPhoto=async function(e,pid,si){
+  const files=Array.from(e.target.files);if(!files.length)return;
+  const uploadEl=document.getElementById('step-uploading-'+pid+'-'+si);
+  uploadEl.style.display='inline';
+  const dateEl=document.getElementById('step-date-'+pid+'-'+si);
+  const date=dateEl.value||'';
+  for(const file of files){
     try{
-      const b=await toJpeg(f);
-      const r=ref(st,`dev_projects/${p.id}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`);
-      await uploadBytes(r,b);
-      step.photos.push({url:await getDownloadURL(r),date});
-      render();
-    }catch(e){console.error(e);msg('失敗: '+f.name+'（'+e.message+'）');return;}
+      const url=await uploadFile(file);
+      if(!data[pid].steps[si].photos)data[pid].steps[si].photos=[];
+      data[pid].steps[si].photos.push({url,date});
+      // 写真リストを再描画
+      const listEl=document.getElementById('step-photos-'+pid+'-'+si);
+      listEl.innerHTML=data[pid].steps[si].photos.map((ph,pi)=>
+        `<div class="step-photo-item">
+          <img class="step-photo-img" src="${ph.url}" alt=""/>
+          <div class="step-photo-date">${ph.date||''}</div>
+          <button class="step-photo-del" onclick="removeStepPhoto('${pid}',${si},${pi})">✕</button>
+        </div>`
+      ).join('');
+    }catch(err){alert('失敗: '+err.message);}
   }
-  msg('アップロード完了。「保存する」で確定します');
-}
-// ---- 操作 ----
-Object.assign(window,{P_:P,esc,
- selP(i){cur=i;activeStep=0;render()},
- markActive(){document.querySelectorAll('.step').forEach(e=>e.classList.toggle('active',+e.dataset.si===activeStep))},
- addStep(){P[cur].steps.push(S('新しい工程','future'));activeStep=P[cur].steps.length-1;render()},
- delStep(si){if(confirm('この工程を削除しますか？')){P[cur].steps.splice(si,1);activeStep=0;render()}},
- delPh(e,si,pi){e.stopPropagation();P[cur].steps[si].photos.splice(pi,1);render()},
- pick(si){const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='image/*,.heic,.heif';i.onchange=()=>addFiles(i.files,si);i.click()},
- stepOver(e,si){e.preventDefault();if(e.dataTransfer.types.includes('Files'))e.currentTarget.classList.add('over')},
- stepDrop(e,si){e.preventDefault();e.currentTarget.classList.remove('over');if(e.dataTransfer.files.length){activeStep=si;addFiles(e.dataTransfer.files,si)}},
- dStart(e,si,pi){drag={si,pi};e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','');e.currentTarget.classList.add('drag')},
- pOver(e,el){if(drag){e.preventDefault();e.stopPropagation();el.classList.add('drop')}},
- pDrop(e,si,pi){
-   if(!drag||e.dataTransfer.files.length)return;
-   e.preventDefault();e.stopPropagation();
-   if(drag.si===si){const a=P[cur].steps[si].photos,[m]=a.splice(drag.pi,1);a.splice(pi,0,m);}
-   drag=null;render();
- },
- openLB(si,pi){lb={list:P[cur].steps[si].photos,i:pi};showLB();$('lb').classList.add('open')},
- closeLB(){$('lb').classList.remove('open')},
- lbMove(d){lb.i=(lb.i+d+lb.list.length)%lb.list.length;showLB()},
- async saveAll(){
-   msg('保存中…');
-   try{const p=P[cur];await setDoc(doc(db,'dev_projects',p.id),JSON.parse(JSON.stringify(p)),{merge:true});msg('保存しました（'+p.num+'）')}
-   catch(e){console.error(e);msg('保存失敗: '+e.message)}
- }
-});
-window.P=P;Object.defineProperty(window,'cur',{get:()=>cur,set:v=>cur=v});Object.defineProperty(window,'activeStep',{get:()=>activeStep,set:v=>activeStep=v});
-function showLB(){$('lb-img').src=lb.list[lb.i].url;$('lb-c').textContent=`${lb.i+1} / ${lb.list.length}`}
+  uploadEl.style.display='none';
+  e.target.value='';
+};
 
-document.addEventListener('paste',e=>{
-  if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)&&!e.clipboardData.files.length)return;
-  const fs=[...e.clipboardData.files];if(fs.length){e.preventDefault();addFiles(fs,activeStep)}
-});
-// ページ全体へのドロップでブラウザが画像を開くのを防止
-['dragover','drop'].forEach(t=>window.addEventListener(t,e=>{if(e.dataTransfer?.types.includes('Files'))e.preventDefault()}));
-document.addEventListener('keydown',e=>{
-  if(!$('lb').classList.contains('open'))return;
-  if(e.key==='ArrowLeft')lbMove(-1);if(e.key==='ArrowRight')lbMove(1);if(e.key==='Escape')closeLB();
-});
+window.removeStepPhoto=function(pid,si,pi){
+  data[pid].steps[si].photos.splice(pi,1);
+  const listEl=document.getElementById('step-photos-'+pid+'-'+si);
+  listEl.innerHTML=data[pid].steps[si].photos.map((ph,pi2)=>
+    `<div class="step-photo-item">
+      <img class="step-photo-img" src="${ph.url}" alt=""/>
+      <div class="step-photo-date">${ph.date||''}</div>
+      <button class="step-photo-del" onclick="removeStepPhoto('${pid}',${si},${pi2})">✕</button>
+    </div>`
+  ).join('');
+};
+
+window.addStep=function(pid){
+  if(!data[pid].steps)data[pid].steps=[];
+  const si=data[pid].steps.length;
+  data[pid].steps.push({text:'',status:'future',photos:[]});
+  const container=document.getElementById('steps-'+pid);
+  const div=document.createElement('div');
+  div.innerHTML=renderStep(pid,si,data[pid].steps[si]);
+  container.appendChild(div.firstElementChild);
+};
+
+window.removeStep=function(pid,si){
+  data[pid].steps.splice(si,1);
+  const container=document.getElementById('steps-'+pid);
+  container.innerHTML=data[pid].steps.map((s,i)=>renderStep(pid,i,s)).join('');
+};
+
+// 保存
+window.saveAll=async function(){
+  showLoading(true,'保存中...');
+  const statusEl=document.getElementById('save-status');
+  try{
+    for(const pid of Object.keys(data)){
+      const def=DEFAULTS.find(d=>d.id===pid)||{};
+      await setDoc(doc(db,'dev_projects',pid),{...data[pid],num:def.num||pid});
+    }
+    statusEl.textContent='✓ 保存しました';
+    setTimeout(()=>{statusEl.textContent='';},3000);
+  }catch(e){
+    alert('保存失敗: '+e.message);
+    console.error(e);
+  }
+  showLoading(false);
+};
+
+function showLoading(v,txt='処理中...'){
+  document.getElementById('loading').className='loading-overlay'+(v?' show':'');
+  document.getElementById('loading-text').textContent=txt;
+}
 </script>
 </body>
 </html>
