@@ -220,6 +220,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ll-photo-cell .ll-photo-item{width:96px;height:72px}
 .ll-photo-cap{width:100%;font-size:10px;padding:3px 5px;margin-top:3px;border:1px solid #C8E6C9;border-radius:3px;outline:none;font-family:inherit}
 .ll-photo-cap:focus{border-color:var(--green)}
+body.is-staff button[onclick*="_firebaseDelete"]{display:none!important}
 </style>
 </head>
 <body>
@@ -638,10 +639,10 @@ onAuthStateChanged(auth,async user=>{
     const badge=document.getElementById('role-badge');
     const printBtns=document.getElementById('print-btns');
     if(currentRole==='admin'){
-      badge.textContent='管理者';badge.className='role-badge role-admin';
+      badge.textContent='管理者';badge.className='role-badge role-admin';document.body.classList.remove('is-staff');
       if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">仲介向け印刷</button><button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'bank\')">銀行向け印刷</button>';
     }else{
-      badge.textContent='スタッフ';badge.className='role-badge role-staff';
+      badge.textContent='スタッフ';badge.className='role-badge role-staff';document.body.classList.add('is-staff');
       if(printBtns)printBtns.innerHTML='<button class="btn btn-navy btn-sm" onclick="openPrintConfig(\'broker\')">印刷プレビュー</button>';
     }
     // DOM表示後にFirebase同期開始
@@ -717,7 +718,7 @@ window.toggleTaxDate=function(type){const sel=document.getElementById('f-'+type+
 window.toggleInsuranceDate=function(){const sel=document.getElementById('f-insurance').value;document.getElementById('insurance-date-row').style.display=(sel&&sel!=='未加入')?'':'none';};
 window.toggleKeybox=function(){const sel=document.getElementById('f-keybox').value;document.getElementById('keybox-detail-row').style.display=(sel==='設置済'||sel==='回収済')?'':'none';};
 
-window.doSave=async function(){
+window.doSave=async function(){if(editId&&verOf(jimuMap[editId])!==editVer&&!confirm('開いたあとに、他の人がこの内容を更新しています。\n\nこのまま保存すると、その人の変更が消えます。\nOK＝上書きして保存　／　キャンセル＝保存しない'))return;
   const name=document.getElementById('f-name').value.trim();
   if(!name){alert('物件名は必須です');return;}
   showLoading(true);
@@ -769,6 +770,11 @@ window.doSave=async function(){
 window._firebaseDelete=async function(id){if(!confirm('削除しますか？'))return;await deleteDoc(doc(db,'properties',id));try{await deleteDoc(doc(db,'properties_internal',id));}catch(e){}try{await deleteDoc(doc(db,'properties_lifeline',id));}catch(e){}};
 
 // Cloudinary
+window.ldyOpt=function(u,w,best){
+  if(typeof u!=='string'||u.indexOf('res.cloudinary.com')<0||u.indexOf('/image/upload/')<0)return u;
+  if(/\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(u))return u;
+  return u.replace('/image/upload/','/image/upload/f_auto,q_auto'+(best?':best':':good')+',w_'+w+',c_limit/');
+};
 const CLD='dujllruro',CLD_P='ldy-property';
 const isHeicFile=f=>/hei[cf]/i.test(f.type)||/\.hei[cf]$/i.test(f.name);
 const isImgFile=f=>/^image\//.test(f.type)||/\.(hei[cf]|jpe?g|png|webp|gif)$/i.test(f.name);
@@ -788,7 +794,7 @@ window.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.types.inclu
 });
 async function uploadOne(file){file=await toJpegIfHeic(file);const fd=new FormData();fd.append('file',file,file.name||'photo.jpg');fd.append('upload_preset',CLD_P);const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});const d=await r.json();if(d.secure_url)return{url:d.secure_url,caption:''};throw new Error(d.error?.message||'失敗');}
 window.handleFiles=async function(e){const files=Array.from(e.target.files);if(!files.length)return;document.getElementById('img-uploading').style.display='block';for(const f of files){try{const p=await uploadOne(f);currentPhotos.push(p);renderImgList();}catch(err){alert('失敗: '+err.message);}}document.getElementById('img-uploading').style.display='none';e.target.value='';};
-function renderImgList(){document.getElementById('img-list').innerHTML=currentPhotos.map((p,i)=>'<div class="img-item"><img src="'+p.url+'" alt="" onclick="openLB(currentPhotosRef(),'+i+')"/><button class="img-del" onclick="removePhoto('+i+')">✕</button><input class="img-cap" value="'+(p.caption||'')+'" placeholder="キャプション..." oninput="updateCaption('+i+',this.value)"/></div>').join('');}
+function renderImgList(){document.getElementById('img-list').innerHTML=currentPhotos.map((p,i)=>'<div class="img-item"><img src="'+ldyOpt(p.url,400)+'" alt="" onclick="openLB(currentPhotosRef(),'+i+')"/><button class="img-del" onclick="removePhoto('+i+')">✕</button><input class="img-cap" value="'+(p.caption||'')+'" placeholder="キャプション..." oninput="updateCaption('+i+',this.value)"/></div>').join('');}
 window.removePhoto=function(i){currentPhotos.splice(i,1);renderImgList();};
 window.updateCaption=function(i,v){if(currentPhotos[i])currentPhotos[i].caption=v;};
 const dropEl=document.getElementById('img-drop');
@@ -802,7 +808,7 @@ window.removeLLPhoto=function(type,idx){llPhotos[type].splice(idx,1);renderLLPho
 function renderLLPhotos(type){
   const el=document.getElementById(type+'-photos');if(!el)return;
   llPhotos[type]=(llPhotos[type]||[]).map(x=>typeof x==='string'?{url:x,caption:''}:x);
-  el.innerHTML=llPhotos[type].map((ph,i)=>'<div class="ll-photo-cell"><div class="ll-photo-item"><img src="'+ph.url+'" alt="" data-t="'+type+'" data-i="'+i+'" onclick="openLLPhoto(this)"/><button type="button" class="ll-photo-del" data-t="'+type+'" data-i="'+i+'" onclick="removeLLPhoto(this.dataset.t,+this.dataset.i)">✕</button></div><input class="ll-photo-cap" data-t="'+type+'" data-i="'+i+'" value="'+(ph.caption||'').replace(/"/g,'&quot;')+'" placeholder="キャプション" oninput="updateLLCaption(this.dataset.t,+this.dataset.i,this.value)"/></div>').join('');
+  el.innerHTML=llPhotos[type].map((ph,i)=>'<div class="ll-photo-cell"><div class="ll-photo-item"><img src="'+ldyOpt(ph.url,400)+'" alt="" data-t="'+type+'" data-i="'+i+'" onclick="openLLPhoto(this)"/><button type="button" class="ll-photo-del" data-t="'+type+'" data-i="'+i+'" onclick="removeLLPhoto(this.dataset.t,+this.dataset.i)">✕</button></div><input class="ll-photo-cap" data-t="'+type+'" data-i="'+i+'" value="'+(ph.caption||'').replace(/"/g,'&quot;')+'" placeholder="キャプション" oninput="updateLLCaption(this.dataset.t,+this.dataset.i,this.value)"/></div>').join('');
 }
 window.updateLLCaption=(t,i,v)=>{if(llPhotos[t]&&llPhotos[t][i])llPhotos[t][i].caption=v;};
 window.openLLPhoto=el=>openLB(llPhotos[el.dataset.t].map(x=>typeof x==='string'?{url:x,caption:''}:x),+el.dataset.i);
@@ -842,7 +848,7 @@ let lbPhotos=[],lbIdx=0;
 window.openLB=function(photos,idx){lbPhotos=photos;lbIdx=idx;updateLB();document.getElementById('lightbox').classList.add('open');};
 window.closeLB=function(){document.getElementById('lightbox').classList.remove('open');};
 window.lbMove=function(dir){lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length;updateLB();};
-function updateLB(){const p=lbPhotos[lbIdx];document.getElementById('lb-img').src=p.url||p;document.getElementById('lb-cap').textContent=p.caption||'';document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>'<div class="lb-dot'+(i===lbIdx?' active':'')+'" onclick="lbMove('+(i-lbIdx)+')"></div>').join('');}
+function updateLB(){const p=lbPhotos[lbIdx];document.getElementById('lb-img').src=ldyOpt(p.url||p,2400,true);document.getElementById('lb-cap').textContent=p.caption||'';document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>'<div class="lb-dot'+(i===lbIdx?' active':'')+'" onclick="lbMove('+(i-lbIdx)+')"></div>').join('');}
 document.addEventListener('keydown',e=>{if(!document.getElementById('lightbox').classList.contains('open'))return;if(e.key==='ArrowLeft')lbMove(-1);if(e.key==='ArrowRight')lbMove(1);if(e.key==='Escape')closeLB();});
 
 // Stations
@@ -934,6 +940,10 @@ window.openModal=function(id=null){
   sv('f-fixed-tax-amt',jm.fixedTaxAmt);sv('f-fixed-tax-reduce',jm.fixedTaxReduce);
   sv('f-acq-tax-amt',jm.acqTaxAmt);sv('f-acq-tax-reduce',jm.acqTaxReduce);
 };
+let editVer=null;
+const verOf=o=>{const t=o&&o.updatedAt;return t&&t.seconds!=null?t.seconds+'.'+t.nanoseconds:'';};
+const _openModalV=window.openModal;
+window.openModal=function(id=null){_openModalV(id);editVer=id?verOf(jimuMap[id]):null;};
 window.closeModal=function(){document.getElementById('modal').classList.remove('open');};
 
 // Card render
@@ -1066,7 +1076,7 @@ window.renderCards=function(){
     const photos=p.photos&&p.photos.length?p.photos:(p.img?[{url:p.img,caption:''}]:[]);
     const pj=JSON.stringify(photos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
     const photoArea=photos.length
-      ?'<img src="'+photos[0].url+'" alt="" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;"/>'+
+      ?'<img src="'+ldyOpt(photos[0].url,900)+'" alt="" id="cimg-'+p.id+'" style="width:100%;height:100%;object-fit:contain;background:#f2f2f4;display:block;"/>'+
         (photos.length>1?'<button class="photo-prev" onclick="cardNav(event,\''+p.id+'\','+pj+',-1)">&#8249;</button><button class="photo-next" onclick="cardNav(event,\''+p.id+'\','+pj+',1)">&#8250;</button><span class="photo-count" id="cnt-'+p.id+'">1 / '+photos.length+'</span>':'')
       :'<div class="card-no-photo">写真なし</div>';
     const notes=(p.note||'').split('\n').filter(Boolean);
@@ -1117,7 +1127,7 @@ window.renderCards=function(){
     '</div>';
   }).join('');
 };
-window.cardNav=function(e,id,photos,dir){e.stopPropagation();if(!cardPhotoIdx[id])cardPhotoIdx[id]=0;cardPhotoIdx[id]=(cardPhotoIdx[id]+dir+photos.length)%photos.length;const img=document.getElementById('cimg-'+id);if(img)img.src=photos[cardPhotoIdx[id]].url;const cnt=document.getElementById('cnt-'+id);if(cnt)cnt.textContent=(cardPhotoIdx[id]+1)+' / '+photos.length;};
+window.cardNav=function(e,id,photos,dir){e.stopPropagation();if(!cardPhotoIdx[id])cardPhotoIdx[id]=0;cardPhotoIdx[id]=(cardPhotoIdx[id]+dir+photos.length)%photos.length;const img=document.getElementById('cimg-'+id);if(img)img.src=ldyOpt(photos[cardPhotoIdx[id]].url,900);const cnt=document.getElementById('cnt-'+id);if(cnt)cnt.textContent=(cardPhotoIdx[id]+1)+' / '+photos.length;};
 
 // Print
 const BROKER_ROWS=[
