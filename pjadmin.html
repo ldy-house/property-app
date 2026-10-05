@@ -91,6 +91,11 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .lb .c{top:14px;right:16px;}.lb .p{left:14px;top:50%;}.lb .n{right:14px;top:50%;}
 .lb span{color:rgba(255,255,255,.7);margin-top:12px;font-size:12px;}
 @media(max-width:600px){.hdr-user{display:none;}.hdr-nav a{padding:0 10px;}}
+.save-bar{display:none!important}
+.proj-save-row{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:2px solid var(--gold)}
+.proj-save-status{font-size:12px;font-weight:700;color:var(--green)}
+.dirty-badge{color:var(--gold-light);font-size:11px;font-weight:700;margin-right:14px}
+.btn-gold.dirty{box-shadow:0 0 0 3px rgba(201,168,76,0.35)}
 </style>
 </head>
 <body>
@@ -219,7 +224,7 @@ function renderAll(){
     return `<div class="proj-panel" id="panel-${p.id}">
       <div class="proj-panel-head">
         <div><div class="proj-panel-num">${p.num||''}</div><div class="proj-panel-name">${p.name||''}</div></div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);">ステップ数：${steps.length}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);"><span class="dirty-badge" id="dirty-${p.id}"></span>ステップ数：${steps.length}</div>
       </div>
       <div class="proj-panel-body">
         <div class="proj-cover">
@@ -243,6 +248,7 @@ function renderAll(){
         </div>
         <div class="steps-title"><span>工事ステップ・現場写真</span><button class="btn btn-sm btn-navy" onclick="addStep('${p.id}')">＋ ステップ追加</button></div>
         <div id="steps-${p.id}">${steps.map((s,si)=>renderStep(p.id,si,s)).join('')}</div>
+        <div class="proj-save-row"><span class="proj-save-status" id="save-status-${p.id}"></span><button class="btn btn-gold" id="save-btn-${p.id}" onclick="saveProject('${p.id}')">このプロジェクトを保存</button></div>
       </div>
     </div>`;
   }).join('');
@@ -372,6 +378,32 @@ window.removeStep=function(pid,si){
 };
 
 // ---- 保存 ----
+window.saveProject=async function(pid){
+  const p=data[pid];if(!p)return;
+  const el=document.getElementById('save-status-'+pid);
+  const def=DEFAULTS.find(d=>d.id===pid)||{};
+  const cur=dbData[pid],me=(auth.currentUser||{}).email||'';
+  if(cur&&verOf(cur)!==loadedVer[pid]&&cur.updatedBy!==me&&!confirm((p.name||pid)+'：'+'開いたあとに、他の人がこの内容を更新しています。\n\nこのまま保存すると、その人の変更が消えます。\nOK＝上書きして保存　／　キャンセル＝保存しない'))return;
+  showLoading(true,'保存中...');
+  try{
+    await setDoc(doc(db,'dev_projects',pid),{...p,num:def.num||pid,updatedAt:serverTimestamp(),updatedBy:me});
+    baseline[pid]=JSON.stringify(p);
+    if(el){el.textContent='保存しました';setTimeout(()=>{el.textContent='';},3000);}
+  }catch(e){alert('保存失敗: '+e.message);console.error(e);}
+  showLoading(false);
+};
+function updateDirty(){
+  let any=false;
+  DEFAULTS.forEach(d=>{
+    const pid=d.id,dirty=!!data[pid]&&baseline[pid]!==undefined&&JSON.stringify(data[pid])!==baseline[pid];
+    if(dirty)any=true;
+    const b=document.getElementById('dirty-'+pid);if(b)b.textContent=dirty?'未保存の変更あり':'';
+    const btn=document.getElementById('save-btn-'+pid);if(btn)btn.classList.toggle('dirty',dirty);
+  });
+  window.__anyDirty=any;
+}
+setInterval(updateDirty,500);
+window.addEventListener('beforeunload',e=>{if(window.__anyDirty){e.preventDefault();e.returnValue='';}});
 window.saveAll=async function(){
   showLoading(true,'保存中...');
   const el=$('save-status');
