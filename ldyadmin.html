@@ -7,6 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
 <title>管理画面｜株式会社LDY</title>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <style>
 :root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;--red:#C62828;--orange:#E65100;--purple:#6A1B9A;--green:#2E7D32;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -206,6 +207,15 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pc-row-item.dragging .pc-drag-handle{cursor:grabbing;}
 .pc-row-item .pc-check{flex:1;padding:2px 4px;}
 .pc-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border);background:#fafafa;border-radius:0 0 8px 8px;flex-shrink:0;}
+.hdr-left{gap:22px;height:100%;min-width:0}
+.hdr-nav{display:flex;height:100%;overflow-x:auto}
+.hdr-nav a{display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.6);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.hdr-nav a:hover{color:#fff}
+.hdr-nav a.on{color:var(--gold);border-bottom-color:var(--gold)}
+.img-item img,.ll-photo-item img{cursor:zoom-in}
+.ll-drop{border-radius:4px}
+.ll-drop.dragover{outline:2px dashed var(--gold);background:#fffbf0}
+@media(max-width:600px){.hdr-user{display:none}.hdr-nav a{padding:0 10px}}
 </style>
 </head>
 <body>
@@ -226,8 +236,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <div id="main-app" style="display:none;">
   <div class="header">
-    <div class="hdr-left"><span class="hdr-lmark">LDY</span><span class="hdr-title">管理画面</span><span class="role-badge" id="role-badge"></span></div>
-    <div class="hdr-right"><a href="kanri.html" class="btn-back">管理委託物件へ →</a><a href="pjadmin.html" class="btn-back">← 開発管理画面へ</a><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
+    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html" class="on">在庫管理</a><a href="kanri.html">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
+    <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="s-total">0</div><div class="stat-label">総物件数</div></div>
@@ -737,20 +747,36 @@ window._firebaseDelete=async function(id){if(!confirm('削除しますか？'))r
 
 // Cloudinary
 const CLD='dujllruro',CLD_P='ldy-property';
-async function uploadOne(file){const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLD_P);const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});const d=await r.json();if(d.secure_url)return{url:d.secure_url,caption:''};throw new Error(d.error?.message||'失敗');}
+const isHeicFile=f=>/hei[cf]/i.test(f.type)||/\.hei[cf]$/i.test(f.name);
+const isImgFile=f=>/^image\//.test(f.type)||/\.(hei[cf]|jpe?g|png|webp|gif)$/i.test(f.name);
+async function toJpegIfHeic(f){if(!isHeicFile(f))return f;const r=await heic2any({blob:f,toType:'image/jpeg',quality:.9});return Array.isArray(r)?r[0]:r;}
+window.currentPhotosRef=()=>currentPhotos;
+window.openLLPhoto=el=>openLB(llPhotos[el.dataset.t].map(u=>({url:u,caption:''})),+el.dataset.i);
+document.querySelectorAll('input[type=file]').forEach(i=>i.setAttribute('accept','image/*,.heic,.heif'));
+window.addEventListener('dragover',e=>{if(e.dataTransfer&&e.dataTransfer.types.includes('Files'))e.preventDefault();});
+window.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.types.includes('Files'))e.preventDefault();});
+['water','elec','gas'].forEach(t=>{
+  const list=document.getElementById(t+'-photos'),box=list&&list.parentElement;if(!box)return;
+  box.classList.add('ll-drop');
+  box.addEventListener('dragover',e=>{if(e.dataTransfer.types.includes('Files')){e.preventDefault();box.classList.add('dragover');}});
+  box.addEventListener('dragleave',()=>box.classList.remove('dragover'));
+  box.addEventListener('drop',async e=>{e.preventDefault();box.classList.remove('dragover');
+    for(const f of Array.from(e.dataTransfer.files).filter(isImgFile)){try{const p=await uploadOne(f);llPhotos[t].push(p.url);renderLLPhotos(t);}catch(err){alert('失敗: '+err.message);}}});
+});
+async function uploadOne(file){file=await toJpegIfHeic(file);const fd=new FormData();fd.append('file',file,file.name||'photo.jpg');fd.append('upload_preset',CLD_P);const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});const d=await r.json();if(d.secure_url)return{url:d.secure_url,caption:''};throw new Error(d.error?.message||'失敗');}
 window.handleFiles=async function(e){const files=Array.from(e.target.files);if(!files.length)return;document.getElementById('img-uploading').style.display='block';for(const f of files){try{const p=await uploadOne(f);currentPhotos.push(p);renderImgList();}catch(err){alert('失敗: '+err.message);}}document.getElementById('img-uploading').style.display='none';e.target.value='';};
-function renderImgList(){document.getElementById('img-list').innerHTML=currentPhotos.map((p,i)=>'<div class="img-item"><img src="'+p.url+'" alt=""/><button class="img-del" onclick="removePhoto('+i+')">✕</button><input class="img-cap" value="'+(p.caption||'')+'" placeholder="キャプション..." oninput="updateCaption('+i+',this.value)"/></div>').join('');}
+function renderImgList(){document.getElementById('img-list').innerHTML=currentPhotos.map((p,i)=>'<div class="img-item"><img src="'+p.url+'" alt="" onclick="openLB(currentPhotosRef(),'+i+')"/><button class="img-del" onclick="removePhoto('+i+')">✕</button><input class="img-cap" value="'+(p.caption||'')+'" placeholder="キャプション..." oninput="updateCaption('+i+',this.value)"/></div>').join('');}
 window.removePhoto=function(i){currentPhotos.splice(i,1);renderImgList();};
 window.updateCaption=function(i,v){if(currentPhotos[i])currentPhotos[i].caption=v;};
 const dropEl=document.getElementById('img-drop');
 dropEl.addEventListener('dragover',e=>{e.preventDefault();dropEl.classList.add('dragover');});
 dropEl.addEventListener('dragleave',()=>dropEl.classList.remove('dragover'));
-dropEl.addEventListener('drop',async e=>{e.preventDefault();dropEl.classList.remove('dragover');const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));document.getElementById('img-uploading').style.display='block';for(const f of files){try{const p=await uploadOne(f);currentPhotos.push(p);renderImgList();}catch(err){alert('失敗: '+err.message);}}document.getElementById('img-uploading').style.display='none';});
+dropEl.addEventListener('drop',async e=>{e.preventDefault();dropEl.classList.remove('dragover');const files=Array.from(e.dataTransfer.files).filter(isImgFile);document.getElementById('img-uploading').style.display='block';for(const f of files){try{const p=await uploadOne(f);currentPhotos.push(p);renderImgList();}catch(err){alert('失敗: '+err.message);}}document.getElementById('img-uploading').style.display='none';});
 
 // Lifeline photos
 window.handleLLPhoto=async function(e,type){const files=Array.from(e.target.files);if(!files.length)return;for(const f of files){try{const p=await uploadOne(f);llPhotos[type].push(p.url);renderLLPhotos(type);}catch(err){alert('失敗: '+err.message);}}e.target.value='';};
 window.removeLLPhoto=function(type,idx){llPhotos[type].splice(idx,1);renderLLPhotos(type);};
-function renderLLPhotos(type){const el=document.getElementById(type+'-photos');if(!el)return;el.innerHTML=(llPhotos[type]||[]).map((url,i)=>'<div class="ll-photo-item"><img src="'+url+'" alt=""/><button type="button" class="ll-photo-del" onclick="removeLLPhoto(\''+type+'\','+i+')">✕</button></div>').join('');}
+function renderLLPhotos(type){const el=document.getElementById(type+'-photos');if(!el)return;el.innerHTML=(llPhotos[type]||[]).map((url,i)=>'<div class="ll-photo-item"><img src="'+url+'" alt="" data-t="'+type+'" data-i="'+i+'" onclick="openLLPhoto(this)"/><button type="button" class="ll-photo-del" onclick="removeLLPhoto(\''+type+'\','+i+')">✕</button></div>').join('');}
 
 // Meters
 window.addMeter=function(type){llMeters[type].push({label:'',status:'',customerNo:'',openDate:'',cancelDate:''});renderMeterInputs(type);};
