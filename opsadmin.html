@@ -152,6 +152,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;padding:11px 15px;cursor:pointer;border-radius:4px;}
 .lb-prev{left:12px;}.lb-next{right:12px;}
 .lb-counter{position:absolute;top:14px;left:18px;color:rgba(255,255,255,0.55);font-size:11px;}
+.hdr-left{gap:22px;height:100%;min-width:0}
+.hdr-nav{display:flex;height:100%;overflow-x:auto}
+.hdr-nav a{display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.6);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.hdr-nav a:hover{color:#fff}
+.hdr-nav a.on{color:var(--gold);border-bottom-color:var(--gold)}
+@media(max-width:600px){.hdr-user{display:none}.hdr-nav a{padding:0 10px}}
 </style>
 </head>
 <body>
@@ -184,8 +190,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <div id="main-app" style="display:none;">
   <div class="header">
-    <div class="hdr-left"><span class="hdr-lmark">LDY</span><span class="hdr-title">管理委託物件</span><span class="role-badge" id="role-badge"></span></div>
-    <div class="hdr-right"><a href="ldyadmin.html" class="btn-back">← 在庫物件管理へ</a><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
+    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html">在庫管理</a><a href="opsadmin.html" class="on">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
+    <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="s-bld">0</div><div class="stat-label">管理棟数</div></div>
@@ -331,6 +337,12 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         <div class="fs-title">設備点検</div>
         <div id="equip-blocks"></div>
         <button type="button" class="btn btn-sm btn-navy" onclick="addEquip()">＋ 点検項目を追加</button>
+      </div>
+
+      <div class="fs">
+        <div class="fs-title">修繕履歴</div>
+        <div id="repair-blocks"></div>
+        <button type="button" class="btn btn-sm btn-navy" onclick="addRepair()">＋ 修繕を記録</button>
       </div>
     </div>
     <div class="modal-foot">
@@ -771,6 +783,13 @@ window.openBldModal=function(id=null){
   }
   document.getElementById('bld-modal').classList.add('open');
 };
+const _openBldBase=window.openBldModal;
+window.openBldModal=function(id=null){
+  _openBldBase(id);
+  const b=id?blds.find(x=>x.id===id):null;
+  repairBlocks=(b&&b.repairs)?JSON.parse(JSON.stringify(b.repairs)):[];
+  renderRepairBlocks();
+};
 window.closeBldModal=function(){document.getElementById('bld-modal').classList.remove('open');};
 window.toggleOwnerType=function(){
   const isCorp=document.getElementById('b-owner-type').value==='法人';
@@ -783,6 +802,31 @@ window.toggleCashflow=function(){
   document.getElementById('cashflow-remit-row').style.display=v==='remit'?'':'none';
   document.getElementById('cashflow-invoice-row').style.display=v==='invoice'?'':'none';
 };
+let repairBlocks=[];
+window.addRepair=function(){repairBlocks.unshift({date:new Date().toISOString().slice(0,10),place:'',content:'',vendor:'',cost:'',payer:'',note:''});renderRepairBlocks();};
+window.removeRepair=function(i){repairBlocks.splice(i,1);renderRepairBlocks();};
+window.updateRepair=function(i,f,v){if(repairBlocks[i])repairBlocks[i][f]=v;};
+function renderRepairBlocks(){
+  const el=document.getElementById('repair-blocks');if(!el)return;
+  const inp=(i,f,t,ph,v)=>'<input type="'+t+'" data-i="'+i+'" data-f="'+f+'" value="'+esc(v||'')+'" placeholder="'+ph+'" oninput="updateRepair(+this.dataset.i,this.dataset.f,this.value)"/>';
+  el.innerHTML=repairBlocks.map((r,i)=>
+    '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">修繕 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeRepair('+i+')">削除</button></div>'+
+      '<div class="fg"><div class="fr"><label>修繕日</label>'+inp(i,'date','date','',r.date)+'</div><div class="fr"><label>対象箇所</label>'+inp(i,'place','text','例：屋上防水／1階給湯器',r.place)+'</div></div>'+
+      '<div class="fr"><label>修繕内容</label>'+inp(i,'content','text','例：防水塗装の全面改修',r.content)+'</div>'+
+      '<div class="fg"><div class="fr"><label>施工業者</label>'+inp(i,'vendor','text','',r.vendor)+'</div><div class="fr"><label>金額（円）</label>'+inp(i,'cost','number','0',r.cost)+'</div></div>'+
+      '<div class="fg"><div class="fr"><label>費用負担</label><select data-i="'+i+'" data-f="payer" onchange="updateRepair(+this.dataset.i,this.dataset.f,this.value)">'+['','オーナー','自社（LDY）','賃借人','その他'].map(o=>'<option value="'+o+'"'+((r.payer||'')===o?' selected':'')+'>'+(o||'未設定')+'</option>').join('')+'</select></div><div class="fr"><label>備考</label>'+inp(i,'note','text','',r.note)+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+function repairHtml(b){
+  const rs=(b.repairs||[]).slice().sort((x,y)=>(y.date||'').localeCompare(x.date||''));
+  if(!rs.length)return'';
+  const total=rs.reduce((s,r)=>s+(Number(r.cost)||0),0);
+  return '<div class="osec"><div class="osec-t">修繕履歴（'+rs.length+'件'+(total?'／合計 '+yen(total):'')+'）</div><div class="equip-list">'+
+    rs.map(r=>'<div class="equip-item"><div class="equip-name">'+esc(r.date||'—')+'　'+esc(r.place||'')+(r.content?'：'+esc(r.content):'')+((r.cost!=null&&r.cost!=='')?' <span class="kn-days">'+yen(r.cost)+'</span>':'')+'</div><div class="equip-detail">'+(r.vendor?'業者 '+esc(r.vendor):'')+(r.payer?'　負担 '+esc(r.payer):'')+(r.note?'　'+esc(r.note):'')+'</div></div>').join('')+
+    '</div></div>';
+}
 window.addEquip=function(){equipBlocks.push({name:'',cycle:'',lastDate:'',nextDate:'',vendor:'',note:''});renderEquipBlocks();};
 window.removeEquip=function(i){equipBlocks.splice(i,1);renderEquipBlocks();};
 window.updateEquip=function(i,f,v){if(equipBlocks[i])equipBlocks[i][f]=v;};
@@ -860,6 +904,7 @@ window.saveBld=async function(){
     cashflow:document.getElementById('b-cashflow').value,remit:g('b-remit'),
     invoiceFreq:g('b-invoice-freq'),invoiceDue:g('b-invoice-due'),
     equip:equipBlocks.filter(e=>e.name),
+    repairs:repairBlocks.filter(r=>r.date||r.content||r.place).map(r=>({...r,cost:(r.cost===''||r.cost==null)?null:Number(r.cost)})),
     photos:currentBldPhotos,
     linkedPropertyId:document.getElementById('b-linked-property').value||null,
     feePayments,
@@ -1127,7 +1172,7 @@ window.render=function(){
           }).join('')+
           '</div>'+
         '</div>':'')+
-        '<div style="display:flex;gap:6px;">'+
+        repairHtml(b)+'<div style="display:flex;gap:6px;">'+
           '<button class="btn btn-navy btn-sm" onclick="openBldModal(\''+b.id+'\')">ビル情報を編集</button>'+
           '<button class="btn btn-red btn-sm" onclick="deleteBld(\''+b.id+'\')">ビルを削除</button>'+
         '</div>'+
