@@ -240,7 +240,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <div id="main-app" style="display:none;">
   <div class="header">
-    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html" class="on">在庫管理</a><a href="kanri.html">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
+    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html" class="on">在庫管理</a><a href="opsadmin.html">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="stats-bar">
@@ -330,6 +330,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fr"><label>駅</label><select id="f-station"><option value="">駅を選択</option></select></div>
           <div class="fr"><label>徒歩(分)</label><input id="f-walk" type="number" min="1" max="30" placeholder="5"/></div>
         </div>
+        <div id="sta-extra"></div>
+        <button type="button" class="btn btn-sm btn-navy" style="margin-bottom:10px;" onclick="addStaRow()">＋ 路線を追加</button>
         <div class="fr"><label>複数路線・補足</label><input id="f-sta-free" placeholder="例：山手線【渋谷】徒歩5分"/></div>
       </div>
 
@@ -720,7 +722,8 @@ window.doSave=async function(){
   if(!name){alert('物件名は必須です');return;}
   showLoading(true);
   const line=document.getElementById('f-line').value,station=document.getElementById('f-station').value,walk=document.getElementById('f-walk').value,staFree=document.getElementById('f-sta-free').value.trim();
-  let sta='';if(line&&station)sta=line+'【'+station+'】'+(walk?'徒歩'+walk+'分':'');if(staFree)sta=sta?sta+'　'+staFree:staFree;
+  let sta='';if(line&&station)sta=line+'【'+station+'】'+(walk?'徒歩'+walk+'分':'');document.querySelectorAll('#sta-extra .sta-row').forEach(r=>{const l=r.querySelector('.sr-line').value,s=r.querySelector('.sr-st').value,w=r.querySelector('.sr-walk').value;if(l&&s){const t=l+'【'+s+'】'+(w?'徒歩'+w+'分':'');sta=sta?sta+'　'+t:t;}});
+  if(staFree)sta=sta?sta+'　'+staFree:staFree;
   const pubObj={name,sta,kind:document.getElementById('f-kind-form').value,loc:document.getElementById('f-loc').value.trim(),land:parseFloat(document.getElementById('f-land').value)||null,floor:parseFloat(document.getElementById('f-floor').value)||null,layout:document.getElementById('f-layout').value.trim(),price:parseInt(document.getElementById('f-price-val').value)||null,built:document.getElementById('f-built').value.trim(),uso:document.getElementById('f-uso').value.trim(),struct:document.getElementById('f-struct').value.trim(),road:document.getElementById('f-road').value.trim(),
     zoneBlocks:zoneBlocks.filter(b=>b.zone||b.kenpei||b.yoseki),
     toshi:document.getElementById('f-toshi').value.trim(),saleStatus:document.getElementById('f-sale-status').value,propStatus:document.getElementById('f-prop-status').value,baitai:document.getElementById('f-baitai-form').value,delivery:document.getElementById('f-delivery').value.trim(),note:document.getElementById('f-note').value.trim(),photos:currentPhotos};
@@ -848,12 +851,27 @@ const lineEl=document.getElementById('f-line'),stEl=document.getElementById('f-s
 Object.keys(LINES).forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;lineEl.appendChild(o);});
 window.updateStations=function(){const line=lineEl.value;stEl.innerHTML='<option value="">駅を選択</option>';if(line&&LINES[line])LINES[line].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;stEl.appendChild(o);});};
 
+window.addStaRow=function(){
+  const row=document.createElement('div');
+  row.className='sta-row';
+  row.style.cssText='display:flex;gap:8px;align-items:flex-end;';
+  row.innerHTML='<div class="fg3" style="flex:1;">'+
+    '<div class="fr"><label>路線</label><select class="sr-line"><option value="">路線を選択</option>'+Object.keys(LINES).map(l=>'<option value="'+l+'">'+l+'</option>').join('')+'</select></div>'+
+    '<div class="fr"><label>駅</label><select class="sr-st"><option value="">駅を選択</option></select></div>'+
+    '<div class="fr"><label>徒歩(分)</label><input class="sr-walk" type="number" min="1" max="30" placeholder="5"/></div>'+
+  '</div><button type="button" class="btn btn-sm btn-red" style="margin-bottom:10px;" onclick="this.parentNode.remove()">削除</button>';
+  row.querySelector('.sr-line').onchange=function(){
+    row.querySelector('.sr-st').innerHTML='<option value="">駅を選択</option>'+(LINES[this.value]||[]).map(s=>'<option value="'+s+'">'+s+'</option>').join('');
+  };
+  document.getElementById('sta-extra').appendChild(row);
+};
+
 // Modal open/close
 window.openModal=function(id=null){
   editId=id;currentPhotos=[];llMeters={water:[],elec:[],gas:[]};llPhotos={water:[],elec:[],gas:[]};
   document.getElementById('modal-title').textContent=id?'物件を編集':'物件を追加';
   document.getElementById('img-list').innerHTML='';
-  lineEl.value='';stEl.innerHTML='<option value="">駅を選択</option>';
+  lineEl.value='';stEl.innerHTML='<option value="">駅を選択</option>';document.getElementById('sta-extra').innerHTML='';
   document.getElementById('days-auto-display').innerHTML='';
   document.getElementById('internal-fields').style.display=currentRole==='admin'?'block':'none';
   ['water','elec','gas'].forEach(t=>{renderMeterInputs(t);renderLLPhotos(t);});
@@ -1077,7 +1095,7 @@ window.renderCards=function(){
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+photoArea+'<span class="sale-badge '+getBadgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span></div>'+
       '<div class="card-body">'+
-        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="kanri.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">🔗管理委託あり</a>':'')+'</div>'+
+        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="opsadmin.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">🔗管理委託あり</a>':'')+'</div>'+
         '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'</div>'+
         '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus||'')+'</span></div>'+
         '<div class="card-sta">'+(p.sta||'—')+'</div>'+
