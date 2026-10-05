@@ -1106,7 +1106,7 @@ window.render=function(){
       '<div class="bld-head" onclick="toggleBld(\''+b.id+'\')">'+
         '<span class="bld-toggle">▶</span>'+
         (bPhotos.length?'<span class="bld-photo-count" onclick="event.stopPropagation();openLB('+bPhotosJson+',0)"><img class="bld-thumb" src="'+esc(bPhotos[0].url)+'" alt=""/>'+(bPhotos.length>1?'<span class="bld-photo-count-badge">'+bPhotos.length+'枚</span>':'')+'</span>':'<div class="bld-thumb-empty">🏢</div>')+
-        '<div><div class="bld-name">'+esc(b.name||'')+(linkedProp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">🔗元在庫物件</span>':'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
+        '<div><div class="bld-name">'+esc(b.name||'')+(linkedProp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">元在庫物件</span>':'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
         '<div class="bld-meta">'+
           '<span class="bld-chip">区分 '+us.length+'件</span>'+
           '<span class="bld-chip">稼働 '+activeN+'/'+us.length+'</span>'+
