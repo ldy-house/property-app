@@ -12,7 +12,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 .page-header{border-bottom:3px solid var(--gold);}
 
-.cards-wrap{max-width:1060px;margin:0 auto;padding:40px 20px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.cards-wrap{max-width:1060px;margin:0 auto;padding:40px 20px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
 
 .proj-card{background:var(--white);border-radius:6px;overflow:hidden;border:1px solid rgba(27,42,107,0.08);box-shadow:0 2px 16px rgba(27,42,107,0.07);cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;}
 .proj-card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(27,42,107,0.14);}
@@ -35,8 +35,26 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .proj-num{font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:6px;}
 .proj-name{font-size:16px;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:6px;}
 .proj-type{font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:10px;}
-.proj-desc{font-size:12px;line-height:1.9;color:var(--sub);flex:1;margin-bottom:10px;}
-.proj-current{display:inline-block;font-size:10px;font-weight:700;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);padding:4px 12px;border-radius:3px;margin-bottom:10px;}
+.proj-desc{font-size:12px;line-height:1.9;color:var(--sub);margin-bottom:12px;}
+
+/* ── 進捗バー ── */
+.pbar{display:flex;gap:4px;}
+.seg{flex:1;height:6px;border-radius:3px;background:#e4e1d6;}
+.seg.done{background:var(--gold);}
+.seg.current{background:var(--gold-light);box-shadow:0 0 0 2px rgba(201,168,76,0.35);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.45;}}
+
+/* ── カード内：現在の工事 ── */
+.proj-progress{background:#fff;border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:12px;}
+.pp-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.pp-label{font-size:9px;font-weight:700;letter-spacing:3px;color:var(--gold);}
+.pp-step{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:1px;}
+.pp-now{font-size:15px;font-weight:700;color:var(--navy);margin:8px 0 2px;line-height:1.4;}
+.pp-upd{font-size:10px;color:var(--sub);}
+.proj-latest{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);}
+.proj-latest img{width:64px;height:48px;object-fit:cover;border-radius:3px;border:1px solid var(--border);flex-shrink:0;}
+.pl-1{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;}
+.pl-2{font-size:11px;color:var(--text);margin-top:2px;line-height:1.5;}
 .proj-cta{font-size:11px;letter-spacing:2px;color:var(--gold);display:flex;align-items:center;gap:6px;border-top:1px solid var(--border);padding-top:12px;margin-top:auto;}
 .proj-cta::after{content:'›';font-size:16px;transition:transform 0.2s;}
 .proj-card:hover .proj-cta::after{transform:translateX(4px);}
@@ -46,7 +64,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 /* ── プロジェクトモーダル ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(10,15,40,0.75);z-index:400;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;backdrop-filter:blur(4px);}
 .modal-bg.open{display:flex;}
-.modal{background:var(--white);border-radius:8px;width:100%;max-width:600px;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);}
+.modal{background:var(--white);border-radius:8px;width:100%;max-width:640px;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);}
 .modal-img{height:240px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));position:relative;overflow:hidden;border-radius:8px 8px 0 0;}
 .modal-img img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.85);}
 .modal-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:rgba(255,255,255,0.2);}
@@ -61,12 +79,32 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .modal-type{font-size:11px;color:var(--sub);letter-spacing:1px;margin-bottom:16px;}
 .modal-desc{font-size:13px;line-height:2;color:var(--sub);margin-bottom:20px;}
 
+/* ── モーダル：現在の工事状況 ── */
+.now-panel{background:#fff;border:1.5px solid var(--gold);border-radius:8px;padding:16px 16px 14px;margin-bottom:24px;box-shadow:0 2px 12px rgba(201,168,76,0.12);}
+.now-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;}
+.now-label{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--gold);}
+.now-upd{font-size:11px;color:var(--sub);}
+.now-step{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:10px;line-height:1.4;}
+.now-step small{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:1px;margin-left:8px;}
+.now-sub{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--sub);margin:14px 0 8px;}
+.now-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.now-item{cursor:pointer;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#fff;transition:box-shadow 0.15s,transform 0.15s;}
+.now-item:hover{box-shadow:0 4px 14px rgba(27,42,107,0.18);transform:translateY(-2px);}
+.now-item img{width:100%;height:84px;object-fit:cover;display:block;}
+.now-cap{padding:5px 7px;font-size:10px;line-height:1.5;}
+.now-cap b{display:block;color:var(--navy);}
+.now-cap span{color:var(--sub);}
+.now-all{display:block;width:100%;margin-top:12px;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:inherit;}
+.now-all:hover{background:var(--navy-dark);}
+.now-empty{font-size:12px;color:var(--sub);padding:6px 0;}
+
 /* ステップリスト */
 .steps-label{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
 .step-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(27,42,107,0.06);cursor:pointer;transition:background 0.15s;border-radius:4px;padding-left:8px;padding-right:8px;}
 .step-row:last-child{border-bottom:none;}
 .step-row:hover{background:rgba(201,168,76,0.06);}
 .step-row.has-photos:hover .step-row-arrow{transform:translateX(3px);}
+.step-row.is-current{background:rgba(201,168,76,0.08);}
 .step-dot-col{display:flex;flex-direction:column;align-items:center;padding-top:3px;flex-shrink:0;}
 .step-dot{width:12px;height:12px;border-radius:50%;}
 .dot-done{background:var(--gold);}
@@ -92,25 +130,26 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .btn-tel:hover{background:var(--navy-dark);}
 .btn-mail{flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);font-weight:700;font-size:12px;padding:11px;border-radius:4px;text-decoration:none;}
 
-/* ── 写真ライトボックス ── */
+/* ── 写真ライトボックス（全工程をまたいで順に見られる）── */
 .lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;flex-direction:column;align-items:center;justify-content:center;}
 .lb.open{display:flex;}
 .lb-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:0.7;z-index:10;}
 .lb-close:hover{opacity:1;}
-.lb-step-name{position:absolute;top:16px;left:20px;font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:2px;}
-.lb-counter{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,0.55);}
-.lb-img-wrap{max-width:90vw;max-height:75vh;display:flex;align-items:center;justify-content:center;}
-.lb-img{max-width:100%;max-height:75vh;object-fit:contain;border-radius:4px;display:block;}
-.lb-date{color:rgba(255,255,255,0.6);font-size:13px;margin-top:14px;letter-spacing:1px;}
+.lb-top{position:absolute;top:16px;left:20px;right:70px;display:flex;flex-direction:column;gap:4px;}
+.lb-step-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:1px;}
+.lb-counter{font-size:12px;color:rgba(255,255,255,0.55);}
+.lb-img-wrap{max-width:90vw;max-height:66vh;display:flex;align-items:center;justify-content:center;margin-top:30px;}
+.lb-img{max-width:100%;max-height:66vh;object-fit:contain;border-radius:4px;display:block;}
+.lb-date{color:rgba(255,255,255,0.75);font-size:13px;margin-top:12px;letter-spacing:1px;min-height:18px;}
 .lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:24px;padding:14px 18px;cursor:pointer;border-radius:4px;transition:background 0.15s;}
 .lb-prev:hover,.lb-next:hover{background:rgba(255,255,255,0.25);}
 .lb-prev{left:16px;}.lb-next{right:16px;}
-.lb-dots{display:flex;gap:6px;margin-top:14px;}
-.lb-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;}
-.lb-dot.active{background:#fff;}
-/* サムネイル一覧 */
-.lb-thumbs{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;justify-content:center;max-width:90vw;}
-.lb-thumb{width:48px;height:36px;object-fit:cover;border-radius:3px;cursor:pointer;opacity:0.5;border:2px solid transparent;transition:all 0.15s;}
+.lb-steps{display:flex;gap:6px;margin-top:12px;overflow-x:auto;max-width:92vw;padding-bottom:2px;}
+.lb-chip{flex-shrink:0;font-size:11px;font-weight:700;color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.25);border-radius:14px;padding:4px 12px;cursor:pointer;white-space:nowrap;background:none;font-family:inherit;}
+.lb-chip.active{background:var(--gold);border-color:var(--gold);color:var(--navy-dark);}
+.lb-chip.cur::before{content:'● ';font-size:8px;}
+.lb-thumbs{display:flex;gap:6px;margin-top:10px;overflow-x:auto;max-width:92vw;padding-bottom:4px;}
+.lb-thumb{width:52px;height:38px;object-fit:cover;border-radius:3px;cursor:pointer;opacity:0.45;border:2px solid transparent;transition:all 0.15s;flex-shrink:0;}
 .lb-thumb.active{opacity:1;border-color:#fff;}
 
 .loading-state{text-align:center;padding:4rem;color:var(--sub);grid-column:1/-1;}
@@ -121,7 +160,9 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   .cards-wrap{grid-template-columns:1fr;padding:24px 16px 48px;}
   .proj-img,.modal-img{height:200px;}
   .modal-contact{flex-direction:column;}
-  .lb-prev{left:8px;}.lb-next{right:8px;}
+  .lb-prev{left:6px;}.lb-next{right:6px;}
+  .lb-prev,.lb-next{padding:12px 13px;}
+  .now-step{font-size:16px;}
 }
 </style>
 </head>
@@ -149,6 +190,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div class="modal-name" id="modal-name"></div>
       <div class="modal-type" id="modal-type"></div>
       <div class="modal-desc" id="modal-desc"></div>
+      <div id="modal-now"></div>
       <div class="steps-label">工事の進捗状況</div>
       <div id="modal-steps"></div>
       <div class="modal-specs" id="modal-specs"></div>
@@ -163,15 +205,17 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 <!-- 写真ライトボックス -->
 <div class="lb" id="lb" onclick="closeLBOutside(event)">
   <button class="lb-close" onclick="closeLB()">✕</button>
-  <span class="lb-step-name" id="lb-step-name"></span>
-  <span class="lb-counter" id="lb-counter"></span>
+  <div class="lb-top">
+    <span class="lb-step-name" id="lb-step-name"></span>
+    <span class="lb-counter" id="lb-counter"></span>
+  </div>
   <button class="lb-prev" onclick="lbMove(-1)">&#8249;</button>
-  <div class="lb-img-wrap">
+  <div class="lb-img-wrap" id="lb-img-wrap">
     <img class="lb-img" id="lb-img" src="" alt=""/>
   </div>
   <button class="lb-next" onclick="lbMove(1)">&#8250;</button>
   <div class="lb-date" id="lb-date"></div>
-  <div class="lb-dots" id="lb-dots"></div>
+  <div class="lb-steps" id="lb-steps"></div>
   <div class="lb-thumbs" id="lb-thumbs"></div>
 </div>
 
@@ -191,6 +235,14 @@ const DEFAULTS=[
    steps:[{text:'解体工事',status:'current',photos:[]},{text:'地盤調査・基礎工事',status:'future',photos:[]},{text:'躯体・上棟',status:'future',photos:[]},{text:'内装・設備工事',status:'future',photos:[]},{text:'完成・引渡し',status:'future',photos:[]}]},
 ];
 
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// 写真の軽量化（表示時のみCloudinaryの変換指定を足す。元画像はそのまま）
+window.ldyOpt=function(u,w,best){
+  if(typeof u!=='string'||u.indexOf('res.cloudinary.com')<0||u.indexOf('/image/upload/')<0)return u;
+  if(/\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(u))return u;
+  return u.replace('/image/upload/','/image/upload/f_auto,q_auto'+(best?':best':':good')+',w_'+w+',c_limit/');
+};
+
 let dbData={},allProjects=[];
 
 onSnapshot(collection(db,'dev_projects'),snap=>{
@@ -203,24 +255,54 @@ onSnapshot(collection(db,'dev_projects'),snap=>{
 function statusLabel(s){return{done:'上棟済み',progress:'間もなく上棟',early:'解体中',construction:'工事中',plan:'計画中',complete:'完成'}[s]||s;}
 function statusBadgeClass(s){return{done:'badge-done',progress:'badge-progress',early:'badge-early',construction:'badge-construction',plan:'badge-plan',complete:'badge-complete'}[s]||'badge-early';}
 
+// ---- 写真・進捗の集計 ----
+const dKey=s=>{const m=String(s||'').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?(+m[1])*10000+(+m[2])*100+(+m[3]):0;};
+const fmtDate=s=>{const m=String(s||'').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?m[1]+'.'+(+m[2])+'.'+(+m[3]):(s||'');};
+// 全工程の写真を、工程の順に並べた一覧（ライトボックスの順番）
+function allPhotos(p){
+  const out=[];
+  (p.steps||[]).forEach((s,si)=>(s.photos||[]).forEach((ph,pi)=>{
+    out.push({url:ph.url,date:ph.date||'',stepIdx:si,stepName:s.text||'',stepStatus:s.status||'future',pi,key:dKey(ph.date),ord:out.length});
+  }));
+  return out;
+}
+// 新しい順（日付が同じ・無い場合は、後の工程・後の写真を新しいとみなす）
+function latestPhotos(p,n){return allPhotos(p).sort((a,b)=>b.key-a.key||b.ord-a.ord).slice(0,n);}
+function lastUpdate(p){const k=allPhotos(p).filter(x=>x.key>0).sort((a,b)=>b.key-a.key)[0];return k?fmtDate(k.date):'';}
+function progInfo(p){
+  const steps=p.steps||[],curIdx=steps.findIndex(s=>s.status==='current'),doneN=steps.filter(s=>s.status==='done').length;
+  const pos=curIdx>=0?curIdx+1:doneN,total=steps.length;
+  const now=curIdx>=0?steps[curIdx].text:(total&&doneN===total?'全工程が完了しました':'着工準備中');
+  return{steps,curIdx,pos,total,now};
+}
+const barHtml=steps=>'<div class="pbar">'+steps.map(s=>'<span class="seg '+esc(s.status||'future')+'"></span>').join('')+'</div>';
+
 function renderCards(){
   const wrap=document.getElementById('cards-wrap');if(!wrap)return;
   wrap.innerHTML=allProjects.map(p=>{
-    const steps=p.steps||[];
-    const current=steps.find(s=>s.status==='current');
-    const imgArea=p.photo?`<img src="${p.photo}" alt="${p.name}"/>`:'<div class="proj-placeholder"><div class="proj-placeholder-icon">&#127968;</div><span>外観写真</span></div>';
+    const info=progInfo(p),lat=latestPhotos(p,1)[0],upd=lastUpdate(p);
+    const imgArea=p.photo?`<img src="${esc(ldyOpt(p.photo,900))}" alt="${esc(p.name)}"/>`:'<div class="proj-placeholder"><div class="proj-placeholder-icon">&#127968;</div><span>外観写真</span></div>';
     return `<div class="proj-card" onclick="openModal('${p.id}')">
       <div class="proj-img">
         ${imgArea}
-        <span class="proj-badge ${statusBadgeClass(p.status)}">${statusLabel(p.status)}</span>
+        <span class="proj-badge ${statusBadgeClass(p.status)}">${esc(statusLabel(p.status))}</span>
         <span class="proj-hint">進捗を見る</span>
       </div>
       <div class="proj-body">
-        <div class="proj-num">${p.num||''}</div>
-        <div class="proj-name">${p.name||''}</div>
-        <div class="proj-type">${p.type||''}</div>
-        <div class="proj-desc">${p.desc||''}</div>
-        ${current?`<div class="proj-current">現在：${current.text}</div>`:''}
+        <div class="proj-num">${esc(p.num||'')}</div>
+        <div class="proj-name">${esc(p.name||'')}</div>
+        <div class="proj-type">${esc(p.type||'')}</div>
+        <div class="proj-desc">${esc(p.desc||'')}</div>
+        <div class="proj-progress">
+          <div class="pp-top"><span class="pp-label">現在の工事</span>${info.total?`<span class="pp-step">STEP ${info.pos} / ${info.total}</span>`:''}</div>
+          ${barHtml(info.steps)}
+          <div class="pp-now">${esc(info.now)}</div>
+          ${upd?`<div class="pp-upd">最終更新 ${esc(upd)}</div>`:''}
+          ${lat?`<div class="proj-latest" onclick="event.stopPropagation();openLBSeq('${p.id}',${lat.ord})">
+            <img src="${esc(ldyOpt(lat.url,200))}" alt=""/>
+            <div><div class="pl-1">最新の現場写真</div><div class="pl-2">${esc(fmtDate(lat.date))}${lat.date?'　':''}${esc(lat.stepName)}</div></div>
+          </div>`:''}
+        </div>
         <div class="proj-cta">工事の進捗を見る</div>
       </div>
     </div>`;
@@ -232,7 +314,7 @@ window.openModal=function(id){
   // 画像
   const imgWrap=document.getElementById('modal-img-wrap');
   imgWrap.innerHTML='<button class="modal-close" onclick="closeModal()">✕</button>';
-  if(p.photo){const img=document.createElement('img');img.src=p.photo;img.alt=p.name||'';imgWrap.insertBefore(img,imgWrap.firstChild);}
+  if(p.photo){const img=document.createElement('img');img.src=ldyOpt(p.photo,1200);img.alt=p.name||'';imgWrap.insertBefore(img,imgWrap.firstChild);}
   else{const ph=document.createElement('div');ph.className='modal-img-placeholder';ph.innerHTML='<div class="modal-img-ph-icon">&#127968;</div>';imgWrap.insertBefore(ph,imgWrap.firstChild);}
   // バッジ
   const badge=document.getElementById('modal-badge');
@@ -241,32 +323,47 @@ window.openModal=function(id){
   document.getElementById('modal-name').textContent=p.name||'';
   document.getElementById('modal-type').textContent=p.type||'';
   document.getElementById('modal-desc').textContent=p.desc||'';
+
+  // 現在の工事状況
+  const info=progInfo(p),photos=allPhotos(p),lat=latestPhotos(p,4),upd=lastUpdate(p);
+  document.getElementById('modal-now').innerHTML=`<div class="now-panel">
+    <div class="now-head"><span class="now-label">現在の工事状況</span>${upd?`<span class="now-upd">最終更新 ${esc(upd)}</span>`:''}</div>
+    <div class="now-step">${esc(info.now)}${info.total?`<small>STEP ${info.pos} / ${info.total}</small>`:''}</div>
+    ${barHtml(info.steps)}
+    ${lat.length?`<div class="now-sub">最新の現場写真</div>
+      <div class="now-grid">${lat.map(x=>`<div class="now-item" onclick="openLBSeq('${id}',${x.ord})"><img src="${esc(ldyOpt(x.url,360))}" alt=""/><div class="now-cap"><b>${esc(fmtDate(x.date)||'—')}</b><span>${esc(x.stepName)}</span></div></div>`).join('')}</div>
+      <button class="now-all" onclick="openLBSeq('${id}',0)">現場写真をすべて見る（${photos.length}枚）</button>`
+      :'<div class="now-sub">最新の現場写真</div><div class="now-empty">現場写真は準備中です。</div>'}
+  </div>`;
+
   // ステップ
   const steps=p.steps||[];
   document.getElementById('modal-steps').innerHTML=steps.map((s,i)=>{
-    const photos=s.photos||[];
-    const hasPhotos=photos.length>0;
+    const ph=s.photos||[];
+    const hasPhotos=ph.length>0;
     const isLast=i===steps.length-1;
     const dotClass='dot-'+(s.status||'future');
     const nameClass=s.status==='current'?'current':s.status==='future'?'future':'';
-    const thumbsHtml=hasPhotos?photos.slice(0,4).map(ph=>`<img class="step-thumb" src="${ph.url}" alt=""/>`).join('')+(photos.length>4?`<span class="step-photo-count">+${photos.length-4}</span>`:''):'';
-    return `<div class="step-row ${hasPhotos?'has-photos':'no-photos'}" onclick="${hasPhotos?`openLB('${id}',${i})`:'void(0)'}">
+    const keys=ph.map(x=>dKey(x.date)).filter(Boolean);
+    const stepUpd=keys.length?fmtDate(ph.find(x=>dKey(x.date)===Math.max(...keys)).date):'';
+    const thumbsHtml=hasPhotos?ph.slice(0,4).map(x=>`<img class="step-thumb" src="${esc(ldyOpt(x.url,200))}" alt=""/>`).join('')+(ph.length>4?`<span class="step-photo-count">+${ph.length-4}</span>`:''):'';
+    return `<div class="step-row ${hasPhotos?'has-photos':'no-photos'} ${s.status==='current'?'is-current':''}" onclick="${hasPhotos?`openLBStep('${id}',${i})`:'void(0)'}">
       <div class="step-dot-col">
         <div class="step-dot ${dotClass}"></div>
         ${!isLast?'<div class="step-vline"></div>':''}
       </div>
       <div class="step-row-content">
-        <div class="step-row-name ${nameClass}">${s.text||''}${s.status==='current'?'<span class="step-now-badge">現在</span>':''}</div>
+        <div class="step-row-name ${nameClass}">${esc(s.text||'')}${s.status==='current'?'<span class="step-now-badge">現在</span>':''}</div>
         ${thumbsHtml?`<div class="step-row-photos">${thumbsHtml}</div>`:''}
-        ${hasPhotos?`<div style="font-size:10px;color:var(--gold);margin-top:4px;">${photos.length}枚の現場写真</div>`:''}
+        ${hasPhotos?`<div style="font-size:10px;color:var(--gold);margin-top:4px;">${ph.length}枚の現場写真${stepUpd?'　最終更新 '+esc(stepUpd):''}</div>`:''}
       </div>
       <div class="step-row-arrow">${hasPhotos?'›':''}</div>
     </div>`;
   }).join('');
   // 詳細
   document.getElementById('modal-specs').innerHTML=
-    `<div class="ms-item"><div class="ms-label">エリア</div><div class="ms-val">${p.area||'東京都内'}</div></div>`+
-    `<div class="ms-item"><div class="ms-label">完成予定</div><div class="ms-val">${p.completion||'—'}</div></div>`;
+    `<div class="ms-item"><div class="ms-label">エリア</div><div class="ms-val">${esc(p.area||'東京都内')}</div></div>`+
+    `<div class="ms-item"><div class="ms-label">完成予定</div><div class="ms-val">${esc(p.completion||'—')}</div></div>`;
   document.getElementById('modal-bg').classList.add('open');
   document.body.style.overflow='hidden';
 };
@@ -277,36 +374,51 @@ window.closeModal=function(){
 };
 window.closeModalOutside=function(e){if(e.target===document.getElementById('modal-bg'))closeModal();};
 
-// ライトボックス
-let lbPhotos=[],lbIdx=0;
-window.openLB=function(pid,stepIdx){
+// ---- ライトボックス：全工程の写真を、工程の順に続けて見られる ----
+let seq=[],lbIdx=0;
+window.openLBSeq=function(pid,idx){
   const p=allProjects.find(x=>x.id===pid);if(!p)return;
-  const step=p.steps[stepIdx];if(!step)return;
-  lbPhotos=step.photos||[];
-  if(!lbPhotos.length)return;
-  lbIdx=0;
-  document.getElementById('lb-step-name').textContent=step.text||'';
+  seq=allPhotos(p);if(!seq.length)return;
+  lbIdx=Math.max(0,Math.min(idx,seq.length-1));
   updateLB();
   document.getElementById('lb').classList.add('open');
   document.body.style.overflow='hidden';
 };
+// 工程の行から開く：その工程の最初の写真から始まり、次の工程へそのまま進める
+window.openLBStep=function(pid,stepIdx){
+  const p=allProjects.find(x=>x.id===pid);if(!p)return;
+  const i=allPhotos(p).findIndex(x=>x.stepIdx===stepIdx);
+  openLBSeq(pid,i<0?0:i);
+};
 window.closeLB=function(){
   document.getElementById('lb').classList.remove('open');
+  if(!document.getElementById('modal-bg').classList.contains('open'))document.body.style.overflow='';
 };
 window.closeLBOutside=function(e){if(e.target===document.getElementById('lb'))closeLB();};
-window.lbMove=function(dir){
-  lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length;
-  updateLB();
-};
-function updateLB(){
-  const ph=lbPhotos[lbIdx];
-  document.getElementById('lb-img').src=ph.url;
-  document.getElementById('lb-date').textContent=ph.date?''+ph.date:'';
-  document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;
-  document.getElementById('lb-dots').innerHTML=lbPhotos.map((_,i)=>`<div class="lb-dot${i===lbIdx?' active':''}" onclick="lbGoTo(${i})"></div>`).join('');
-  document.getElementById('lb-thumbs').innerHTML=lbPhotos.map((p2,i)=>`<img class="lb-thumb${i===lbIdx?' active':''}" src="${p2.url}" onclick="lbGoTo(${i})" alt=""/>`).join('');
-}
+window.lbMove=function(dir){lbIdx=(lbIdx+dir+seq.length)%seq.length;updateLB();};
 window.lbGoTo=function(i){lbIdx=i;updateLB();};
+window.lbJumpStep=function(si){const i=seq.findIndex(x=>x.stepIdx===si);if(i>=0){lbIdx=i;updateLB();}};
+function updateLB(){
+  const ph=seq[lbIdx];if(!ph)return;
+  document.getElementById('lb-img').src=ldyOpt(ph.url,2400,true);
+  document.getElementById('lb-step-name').textContent=ph.stepName+(ph.stepStatus==='current'?'（現在の工程）':'');
+  document.getElementById('lb-date').textContent=fmtDate(ph.date);
+  document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+seq.length;
+  // 工程ごとのジャンプ
+  const seen=[];seq.forEach(x=>{if(!seen.some(s=>s.stepIdx===x.stepIdx))seen.push({stepIdx:x.stepIdx,name:x.stepName,cur:x.stepStatus==='current'});});
+  document.getElementById('lb-steps').innerHTML=seen.map(s=>`<button class="lb-chip${s.stepIdx===ph.stepIdx?' active':''}${s.cur?' cur':''}" onclick="lbJumpStep(${s.stepIdx})">${esc(s.name)}</button>`).join('');
+  document.getElementById('lb-thumbs').innerHTML=seq.map((x,i)=>`<img class="lb-thumb${i===lbIdx?' active':''}" src="${esc(ldyOpt(x.url,200))}" onclick="lbGoTo(${i})" alt=""/>`).join('');
+  const a=document.querySelector('.lb-thumb.active');if(a&&a.scrollIntoView)a.scrollIntoView({inline:'center',block:'nearest'});
+  const ac=document.querySelector('.lb-chip.active');if(ac&&ac.scrollIntoView)ac.scrollIntoView({inline:'center',block:'nearest'});
+  // 次の写真を先読み
+  if(seq.length>1){const n=new Image();n.src=ldyOpt(seq[(lbIdx+1)%seq.length].url,2400,true);}
+}
+// スマホのスワイプ
+(function(){
+  const w=document.getElementById('lb-img-wrap');let x0=null;
+  w.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+  w.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)lbMove(dx<0?1:-1);},{passive:true});
+})();
 document.addEventListener('keydown',e=>{
   if(document.getElementById('lb').classList.contains('open')){
     if(e.key==='ArrowLeft')lbMove(-1);
