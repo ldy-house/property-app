@@ -158,6 +158,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .hdr-nav a:hover{color:#fff}
 .hdr-nav a.on{color:var(--gold);border-bottom-color:var(--gold)}
 @media(max-width:600px){.hdr-user{display:none}.hdr-nav a{padding:0 10px}}
+body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="deleteUnit"]{display:none!important}
 </style>
 </head>
 <body>
@@ -566,8 +567,8 @@ onAuthStateChanged(auth,async user=>{
     document.getElementById('no-access-screen').style.display='none';
     document.getElementById('main-app').style.display='block';
     const badge=document.getElementById('role-badge');
-    if(currentRole==='admin'){badge.textContent='管理者';badge.className='role-badge role-admin';}
-    else{badge.textContent='スタッフ';badge.className='role-badge role-staff';}
+    if(currentRole==='admin'){badge.textContent='管理者';badge.className='role-badge role-admin';document.body.classList.remove('is-staff');}
+    else{badge.textContent='スタッフ';badge.className='role-badge role-staff';document.body.classList.add('is-staff');}
     setTimeout(()=>startSync(),0);
   }else{document.getElementById('login-screen').style.display='flex';document.getElementById('main-app').style.display='none';document.getElementById('no-access-screen').style.display='none';}
 });
@@ -621,6 +622,11 @@ function unitsOf(bldId){return units.filter(u=>u.bldId===bldId);}
 
 // ===== ビル =====
 // Cloudinary（写真アップロード）
+window.ldyOpt=function(u,w,best){
+  if(typeof u!=='string'||u.indexOf('res.cloudinary.com')<0||u.indexOf('/image/upload/')<0)return u;
+  if(/\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(u))return u;
+  return u.replace('/image/upload/','/image/upload/f_auto,q_auto'+(best?':best':':good')+',w_'+w+',c_limit/');
+};
 const CLD='dujllruro',CLD_P='ldy-property';
 async function uploadOne(file){
   const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLD_P);
@@ -639,7 +645,7 @@ window.handleBldFiles=async function(e){
 };
 function renderBldImgList(){
   const el=document.getElementById('b-img-list');if(!el)return;
-  el.innerHTML=currentBldPhotos.map((p,i)=>'<div class="img-item"><img src="'+esc(p.url)+'" alt=""/><button class="img-del" onclick="removeBldPhoto('+i+')">✕</button></div>').join('');
+  el.innerHTML=currentBldPhotos.map((p,i)=>'<div class="img-item"><img src="'+esc(ldyOpt(p.url,400))+'" alt=""/><button class="img-del" onclick="removeBldPhoto('+i+')">✕</button></div>').join('');
 }
 window.removeBldPhoto=function(i){currentBldPhotos.splice(i,1);renderBldImgList();};
 const bImgDrop=document.getElementById('b-img-drop');
@@ -660,7 +666,7 @@ window.closeLB=function(){document.getElementById('lightbox').classList.remove('
 window.lbMove=function(dir){lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length;updateLB();};
 function updateLB(){
   const p=lbPhotos[lbIdx];
-  document.getElementById('lb-img').src=p.url||p;
+  document.getElementById('lb-img').src=ldyOpt(p.url||p,2400,true);
   document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;
 }
 document.addEventListener('keydown',e=>{
@@ -790,6 +796,10 @@ window.openBldModal=function(id=null){
   repairBlocks=(b&&b.repairs)?JSON.parse(JSON.stringify(b.repairs)):[];
   renderRepairBlocks();
 };
+let editBldVer=null;
+const verOf=o=>{const t=o&&o.updatedAt;return t&&t.seconds!=null?t.seconds+'.'+t.nanoseconds:'';};
+const _openBldV=window.openBldModal;
+window.openBldModal=function(id=null){_openBldV(id);editBldVer=id?verOf(blds.find(x=>x.id===id)):null;};
 window.closeBldModal=function(){document.getElementById('bld-modal').classList.remove('open');};
 window.toggleOwnerType=function(){
   const isCorp=document.getElementById('b-owner-type').value==='法人';
@@ -889,7 +899,7 @@ function updateBldDays(){
 }
 document.getElementById('b-end').addEventListener('change',updateBldDays);
 
-window.saveBld=async function(){
+window.saveBld=async function(){if(editBldId&&verOf(blds.find(x=>x.id===editBldId))!==editBldVer&&!confirm('開いたあとに、他の人がこの内容を更新しています。\n\nこのまま保存すると、その人の変更が消えます。\nOK＝上書きして保存　／　キャンセル＝保存しない'))return;
   const name=document.getElementById('b-name').value.trim();
   if(!name){alert('ビル名は必須です');return;}
   showLoading(true);
@@ -987,6 +997,9 @@ window.openUnitModal=function(bldId,unitId=null){
   }
   document.getElementById('unit-modal').classList.add('open');
 };
+let editUnitVer=null;
+const _openUnitV=window.openUnitModal;
+window.openUnitModal=function(b,u=null){_openUnitV(b,u);editUnitVer=u?verOf(units.find(x=>x.id===u)):null;};
 window.closeUnitModal=function(){document.getElementById('unit-modal').classList.remove('open');};
 function updateUnitDays(){
   const d=daysUntil(document.getElementById('u-end').value);
@@ -1013,7 +1026,7 @@ window.toggleKeyStatus=function(){
   document.getElementById('u-key-count-row').style.display=v==='inherited'?'none':'';
 };
 
-window.saveUnit=async function(){
+window.saveUnit=async function(){if(editUnitId&&verOf(units.find(x=>x.id===editUnitId))!==editUnitVer&&!confirm('開いたあとに、他の人がこの内容を更新しています。\n\nこのまま保存すると、その人の変更が消えます。\nOK＝上書きして保存　／　キャンセル＝保存しない'))return;
   const name=document.getElementById('u-name').value.trim();
   if(!name){alert('区画名は必須です');return;}
   if(!unitParentBldId){alert('対象のビルが不明です');return;}
@@ -1105,7 +1118,7 @@ window.render=function(){
     return '<div class="bld'+(isOpen?' open':'')+'">'+
       '<div class="bld-head" onclick="toggleBld(\''+b.id+'\')">'+
         '<span class="bld-toggle">▶</span>'+
-        (bPhotos.length?'<span class="bld-photo-count" onclick="event.stopPropagation();openLB('+bPhotosJson+',0)"><img class="bld-thumb" src="'+esc(bPhotos[0].url)+'" alt=""/>'+(bPhotos.length>1?'<span class="bld-photo-count-badge">'+bPhotos.length+'枚</span>':'')+'</span>':'<div class="bld-thumb-empty">🏢</div>')+
+        (bPhotos.length?'<span class="bld-photo-count" onclick="event.stopPropagation();openLB('+bPhotosJson+',0)"><img class="bld-thumb" src="'+esc(ldyOpt(bPhotos[0].url,300))+'" alt=""/>'+(bPhotos.length>1?'<span class="bld-photo-count-badge">'+bPhotos.length+'枚</span>':'')+'</span>':'<div class="bld-thumb-empty">🏢</div>')+
         '<div><div class="bld-name">'+esc(b.name||'')+(linkedProp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">元在庫物件</span>':'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
         '<div class="bld-meta">'+
           '<span class="bld-chip">区分 '+us.length+'件</span>'+
