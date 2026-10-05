@@ -236,7 +236,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <div id="main-app" style="display:none;">
   <div class="header">
-    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html" class="on">在庫管理</a><a href="kanri.html">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
+    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html" class="on">在庫管理</a><a href="opsadmin.html">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="stats-bar">
@@ -1037,7 +1037,7 @@ window.renderCards=function(){
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+photoArea+'<span class="sale-badge '+getBadgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span></div>'+
       '<div class="card-body">'+
-        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="kanri.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">🔗管理委託あり</a>':'')+'</div>'+
+        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="opsadmin.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">🔗管理委託あり</a>':'')+'</div>'+
         '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'</div>'+
         '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus||'')+'</span></div>'+
         '<div class="card-sta">'+(p.sta||'—')+'</div>'+
