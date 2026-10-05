@@ -216,6 +216,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ll-drop{border-radius:4px}
 .ll-drop.dragover{outline:2px dashed var(--gold);background:#fffbf0}
 @media(max-width:600px){.hdr-user{display:none}.hdr-nav a{padding:0 10px}}
+.ll-photo-cell{width:96px}
+.ll-photo-cell .ll-photo-item{width:96px;height:72px}
+.ll-photo-cap{width:100%;font-size:10px;padding:3px 5px;margin-top:3px;border:1px solid #C8E6C9;border-radius:3px;outline:none;font-family:inherit}
+.ll-photo-cap:focus{border-color:var(--green)}
 </style>
 </head>
 <body>
@@ -236,7 +240,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <div id="main-app" style="display:none;">
   <div class="header">
-    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html" class="on">在庫管理</a><a href="opsadmin.html">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
+    <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html" class="on">在庫管理</a><a href="kanri.html">管理委託</a></nav><span class="role-badge" id="role-badge"></span></div>
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="stats-bar">
@@ -474,6 +478,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             <div class="fr"><label>通知日</label><input id="f-fixed-tax-notify" type="date" class="fr-jimu"/></div>
             <div class="fr"><label>支払日</label><input id="f-fixed-tax-date" type="date" class="fr-jimu"/></div>
           </div>
+          <div class="fg">
+            <div class="fr"><label>固定資産税 金額（円）</label><input id="f-fixed-tax-amt" type="number" class="fr-jimu" placeholder="例：120000"/></div>
+            <div class="fr"><label>固定資産税 減免申請</label><select id="f-fixed-tax-reduce" class="fr-jimu"><option value="">未設定</option><option>申請なし</option><option>申請予定</option><option>申請済</option><option>減免決定</option></select></div>
+          </div>
           <!-- 不動産取得税 -->
           <div class="fr"><label>不動産取得税</label>
             <select id="f-acq-tax" class="fr-jimu" onchange="toggleTaxDate('acq')"><option value="">未設定</option><option>未通知</option><option>通知あり未払</option><option>支払済</option></select>
@@ -481,6 +489,10 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
           <div class="fg" id="acq-tax-date-row" style="display:none;">
             <div class="fr"><label>通知日</label><input id="f-acq-tax-notify" type="date" class="fr-jimu"/></div>
             <div class="fr"><label>支払日</label><input id="f-acq-tax-date" type="date" class="fr-jimu"/></div>
+          </div>
+          <div class="fg">
+            <div class="fr"><label>不動産取得税 金額（円）</label><input id="f-acq-tax-amt" type="number" class="fr-jimu" placeholder="例：300000"/></div>
+            <div class="fr"><label>不動産取得税 減免申請</label><select id="f-acq-tax-reduce" class="fr-jimu"><option value="">未設定</option><option>申請なし</option><option>申請予定</option><option>申請済</option><option>減免決定</option></select></div>
           </div>
           <!-- 火災保険 -->
           <div class="fr"><label>火災保険</label>
@@ -491,6 +503,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
             <div class="fr"><label>解約日</label><input id="f-insurance-date" type="date" class="fr-jimu"/></div>
           </div>
           <div class="fr"><label>保険証書番号</label><input id="f-insurance-no" class="fr-jimu" placeholder="例：ABC-12345678"/></div>
+          <div class="fr"><label>内見方法</label><select id="f-viewing" class="fr-jimu"><option value="">未設定</option><option>現地対応</option><option>立会</option><option>かぎ取り</option></select></div>
+          <div class="fr"><label>内見コメント</label><input id="f-viewing-note" class="fr-jimu" placeholder="例：事前に管理会社へ連絡、鍵は〇〇で受取"/></div>
           <!-- キーボックス -->
           <div class="fr"><label>キーボックス設置</label>
             <select id="f-keybox" class="fr-jimu" onchange="toggleKeybox()"><option value="">未設定</option><option>なし</option><option>設置済</option><option>回収済</option></select>
@@ -712,6 +726,12 @@ window.doSave=async function(){
     toshi:document.getElementById('f-toshi').value.trim(),saleStatus:document.getElementById('f-sale-status').value,propStatus:document.getElementById('f-prop-status').value,baitai:document.getElementById('f-baitai-form').value,delivery:document.getElementById('f-delivery').value.trim(),note:document.getElementById('f-note').value.trim(),photos:currentPhotos};
   const jimuObj={water:{meters:llMeters.water,photos:llPhotos.water},elec:{customerNo:document.getElementById('f-elec-customer-no').value.trim(),meters:llMeters.elec,photos:llPhotos.elec},gas:{customerNo:document.getElementById('f-gas-customer-no').value.trim(),meters:llMeters.gas,photos:llPhotos.gas},
     adStatus:document.getElementById('f-ad-status').value,
+    viewing:document.getElementById('f-viewing').value,
+    viewingNote:document.getElementById('f-viewing-note').value.trim(),
+    fixedTaxAmt:parseInt(document.getElementById('f-fixed-tax-amt').value)||null,
+    fixedTaxReduce:document.getElementById('f-fixed-tax-reduce').value,
+    acqTaxAmt:parseInt(document.getElementById('f-acq-tax-amt').value)||null,
+    acqTaxReduce:document.getElementById('f-acq-tax-reduce').value,
     fixedTax:document.getElementById('f-fixed-tax').value,
     fixedTaxNotify:document.getElementById('f-fixed-tax-notify').value,
     fixedTaxDate:document.getElementById('f-fixed-tax-date').value,
@@ -761,7 +781,7 @@ window.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.types.inclu
   box.addEventListener('dragover',e=>{if(e.dataTransfer.types.includes('Files')){e.preventDefault();box.classList.add('dragover');}});
   box.addEventListener('dragleave',()=>box.classList.remove('dragover'));
   box.addEventListener('drop',async e=>{e.preventDefault();box.classList.remove('dragover');
-    for(const f of Array.from(e.dataTransfer.files).filter(isImgFile)){try{const p=await uploadOne(f);llPhotos[t].push(p.url);renderLLPhotos(t);}catch(err){alert('失敗: '+err.message);}}});
+    for(const f of Array.from(e.dataTransfer.files).filter(isImgFile)){try{const p=await uploadOne(f);llPhotos[t].push({url:p.url,caption:''});renderLLPhotos(t);}catch(err){alert('失敗: '+err.message);}}});
 });
 async function uploadOne(file){file=await toJpegIfHeic(file);const fd=new FormData();fd.append('file',file,file.name||'photo.jpg');fd.append('upload_preset',CLD_P);const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});const d=await r.json();if(d.secure_url)return{url:d.secure_url,caption:''};throw new Error(d.error?.message||'失敗');}
 window.handleFiles=async function(e){const files=Array.from(e.target.files);if(!files.length)return;document.getElementById('img-uploading').style.display='block';for(const f of files){try{const p=await uploadOne(f);currentPhotos.push(p);renderImgList();}catch(err){alert('失敗: '+err.message);}}document.getElementById('img-uploading').style.display='none';e.target.value='';};
@@ -774,9 +794,17 @@ dropEl.addEventListener('dragleave',()=>dropEl.classList.remove('dragover'));
 dropEl.addEventListener('drop',async e=>{e.preventDefault();dropEl.classList.remove('dragover');const files=Array.from(e.dataTransfer.files).filter(isImgFile);document.getElementById('img-uploading').style.display='block';for(const f of files){try{const p=await uploadOne(f);currentPhotos.push(p);renderImgList();}catch(err){alert('失敗: '+err.message);}}document.getElementById('img-uploading').style.display='none';});
 
 // Lifeline photos
-window.handleLLPhoto=async function(e,type){const files=Array.from(e.target.files);if(!files.length)return;for(const f of files){try{const p=await uploadOne(f);llPhotos[type].push(p.url);renderLLPhotos(type);}catch(err){alert('失敗: '+err.message);}}e.target.value='';};
+window.handleLLPhoto=async function(e,type){const files=Array.from(e.target.files);if(!files.length)return;for(const f of files){try{const p=await uploadOne(f);llPhotos[type].push({url:p.url,caption:''});renderLLPhotos(type);}catch(err){alert('失敗: '+err.message);}}e.target.value='';};
 window.removeLLPhoto=function(type,idx){llPhotos[type].splice(idx,1);renderLLPhotos(type);};
-function renderLLPhotos(type){const el=document.getElementById(type+'-photos');if(!el)return;el.innerHTML=(llPhotos[type]||[]).map((url,i)=>'<div class="ll-photo-item"><img src="'+url+'" alt="" data-t="'+type+'" data-i="'+i+'" onclick="openLLPhoto(this)"/><button type="button" class="ll-photo-del" onclick="removeLLPhoto(\''+type+'\','+i+')">✕</button></div>').join('');}
+function renderLLPhotos(type){
+  const el=document.getElementById(type+'-photos');if(!el)return;
+  llPhotos[type]=(llPhotos[type]||[]).map(x=>typeof x==='string'?{url:x,caption:''}:x);
+  el.innerHTML=llPhotos[type].map((ph,i)=>'<div class="ll-photo-cell"><div class="ll-photo-item"><img src="'+ph.url+'" alt="" data-t="'+type+'" data-i="'+i+'" onclick="openLLPhoto(this)"/><button type="button" class="ll-photo-del" data-t="'+type+'" data-i="'+i+'" onclick="removeLLPhoto(this.dataset.t,+this.dataset.i)">✕</button></div><input class="ll-photo-cap" data-t="'+type+'" data-i="'+i+'" value="'+(ph.caption||'').replace(/"/g,'&quot;')+'" placeholder="名前・注釈" oninput="updateLLCaption(this.dataset.t,+this.dataset.i,this.value)"/></div>').join('');
+}
+window.updateLLCaption=(t,i,v)=>{if(llPhotos[t]&&llPhotos[t][i])llPhotos[t][i].caption=v;};
+window.openLLPhoto=el=>openLB(llPhotos[el.dataset.t].map(x=>typeof x==='string'?{url:x,caption:''}:x),+el.dataset.i);
+{const s=document.getElementById('f-sort');if(s)s.value='buy-desc';}
+function renderLLPhotosOld(type){const el=document.getElementById(type+'-photos');if(!el)return;el.innerHTML=(llPhotos[type]||[]).map((url,i)=>'<div class="ll-photo-item"><img src="'+url+'" alt="" data-t="'+type+'" data-i="'+i+'" onclick="openLLPhoto(this)"/><button type="button" class="ll-photo-del" onclick="removeLLPhoto(\''+type+'\','+i+')">✕</button></div>').join('');}
 
 // Meters
 window.addMeter=function(type){llMeters[type].push({label:'',status:'',customerNo:'',openDate:'',cancelDate:''});renderMeterInputs(type);};
@@ -879,6 +907,15 @@ window.openModal=function(id=null){
   }else{setV('f-kind-form','一棟もの');setV('f-sale-status','販売中');setV('f-prop-status','空室');setV('f-baitai-form','売主');}
   document.getElementById('modal').classList.add('open');
 };
+const _openModalBase=window.openModal;
+window.openModal=function(id=null){
+  _openModalBase(id);
+  const jm=(id&&jimuMap[id])||{};
+  const sv=(k,v)=>{const el=document.getElementById(k);if(el)el.value=(v==null?'':v);};
+  sv('f-viewing',jm.viewing);sv('f-viewing-note',jm.viewingNote);
+  sv('f-fixed-tax-amt',jm.fixedTaxAmt);sv('f-fixed-tax-reduce',jm.fixedTaxReduce);
+  sv('f-acq-tax-amt',jm.acqTaxAmt);sv('f-acq-tax-reduce',jm.acqTaxReduce);
+};
 window.closeModal=function(){document.getElementById('modal').classList.remove('open');};
 
 // Card render
@@ -954,8 +991,11 @@ function jimuHtml(jm){
   // 各種事務
   if(jm.adStatus)rows.push('<div class="jimu-row"><span class="jimu-lbl">広告掲載</span><span class="jimu-val">'+jm.adStatus+'</span></div>');
   if(jm.fixedTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">固定資産税</span><span class="jimu-val">'+jm.fixedTax+(jm.fixedTaxNotify?'　通知:'+jm.fixedTaxNotify:'')+(jm.fixedTaxDate?'　支払:'+jm.fixedTaxDate:'')+'</span></div>');
+  if(jm.fixedTaxAmt||jm.fixedTaxReduce)rows.push('<div class="jimu-row"><span class="jimu-lbl">固定資産税額</span><span class="jimu-val">'+(jm.fixedTaxAmt?Number(jm.fixedTaxAmt).toLocaleString()+'円':'—')+(jm.fixedTaxReduce?'　減免:'+jm.fixedTaxReduce:'')+'</span></div>');
   if(jm.acqTax)rows.push('<div class="jimu-row"><span class="jimu-lbl">不動産取得税</span><span class="jimu-val">'+jm.acqTax+(jm.acqTaxNotify?'　通知:'+jm.acqTaxNotify:'')+(jm.acqTaxDate?'　支払:'+jm.acqTaxDate:'')+'</span></div>');
+  if(jm.acqTaxAmt||jm.acqTaxReduce)rows.push('<div class="jimu-row"><span class="jimu-lbl">取得税額</span><span class="jimu-val">'+(jm.acqTaxAmt?Number(jm.acqTaxAmt).toLocaleString()+'円':'—')+(jm.acqTaxReduce?'　減免:'+jm.acqTaxReduce:'')+'</span></div>');
   if(jm.insurance)rows.push('<div class="jimu-row"><span class="jimu-lbl">火災保険</span><span class="jimu-val">'+jm.insurance+(jm.insuranceStart?'　加入:'+jm.insuranceStart:'')+(jm.insuranceDate?'　解約:'+jm.insuranceDate:'')+(jm.insuranceNo?'　証書番号:'+jm.insuranceNo:'')+'</span></div>');
+  if(jm.viewing||jm.viewingNote)rows.push('<div class="jimu-row"><span class="jimu-lbl">内見方法</span><span class="jimu-val">'+(jm.viewing||'—')+(jm.viewingNote?'　'+jm.viewingNote:'')+'</span></div>');
   if(jm.keybox)rows.push('<div class="jimu-row"><span class="jimu-lbl">キーボックス</span><span class="jimu-val">'+jm.keybox+(jm.keyboxLocation?'　場所:'+jm.keyboxLocation:'')+(jm.keyboxCode?'　番号:'+jm.keyboxCode:'')+(jm.keyboxSetDate?'　設置:'+jm.keyboxSetDate:'')+(jm.keyboxCollectDate?'　回収:'+jm.keyboxCollectDate:'')+'</span></div>');
   if(jm.rightsDoc)rows.push('<div class="jimu-row"><span class="jimu-lbl">識別権利書</span><span class="jimu-val">'+jm.rightsDoc+'</span></div>');
   if(jm.jimuMemo)rows.push('<div class="jimu-row" style="grid-column:1/-1;"><span class="jimu-lbl">メモ</span><span class="jimu-val">'+jm.jimuMemo+'</span></div>');
@@ -1037,7 +1077,7 @@ window.renderCards=function(){
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+photoArea+'<span class="sale-badge '+getBadgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span></div>'+
       '<div class="card-body">'+
-        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="opsadmin.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">🔗管理委託あり</a>':'')+'</div>'+
+        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="kanri.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">🔗管理委託あり</a>':'')+'</div>'+
         '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'</div>'+
         '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus||'')+'</span></div>'+
         '<div class="card-sta">'+(p.sta||'—')+'</div>'+
