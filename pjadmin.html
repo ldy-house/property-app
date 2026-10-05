@@ -144,7 +144,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,collection,doc,setDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,doc,setDoc,onSnapshot,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
@@ -158,6 +158,13 @@ const DEFAULTS=[
 ];
 
 let data={},dbData={},act=null,drag=null,lb={list:[],i:0};
+const loadedVer={},baseline={};
+const verOf=o=>{const t=o&&o.updatedAt;return t&&t.seconds!=null?t.seconds+'.'+t.nanoseconds:'';};
+window.ldyOpt=function(u,w,best){
+  if(typeof u!=='string'||u.indexOf('res.cloudinary.com')<0||u.indexOf('/image/upload/')<0)return u;
+  if(/\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(u))return u;
+  return u.replace('/image/upload/','/image/upload/f_auto,q_auto'+(best?':best':':good')+',w_'+w+',c_limit/');
+};
 const $=id=>document.getElementById(id);
 window.$pick=function(multi,cb){const i=document.createElement('input');i.type='file';i.multiple=multi;i.accept='image/*,.heic,.heif';i.onchange=()=>cb(Array.from(i.files));i.click();};
 
@@ -170,7 +177,7 @@ onAuthStateChanged(auth,user=>{
       onSnapshot(collection(db,'dev_projects'),snap=>{
         dbData={};
         snap.docs.forEach(d=>{dbData[d.id]={id:d.id,...d.data()};});
-        DEFAULTS.forEach(def=>{if(!data[def.id])data[def.id]=JSON.parse(JSON.stringify(dbData[def.id]||def));});
+        DEFAULTS.forEach(def=>{if(!data[def.id]){data[def.id]=JSON.parse(JSON.stringify(dbData[def.id]||def));loadedVer[def.id]=verOf(dbData[def.id]);baseline[def.id]=JSON.stringify(data[def.id]);}});
         renderAll();
       });
     },0);
@@ -204,7 +211,7 @@ async function uploadFile(file){
 }
 
 function statusLabel(s){return{done:'上棟済み',progress:'間もなく上棟',early:'解体中',construction:'工事中',plan:'計画中',complete:'完成'}[s]||s;}
-const coverInner=p=>p.photo?`<img src="${p.photo}" alt="" onclick="openLB('${p.id}',-1,0)"/>`:'<div class="proj-cover-img-placeholder">写真なし</div>';
+const coverInner=p=>p.photo?`<img src="${ldyOpt(p.photo,600)}" alt="" onclick="openLB('${p.id}',-1,0)"/>`:'<div class="proj-cover-img-placeholder">写真なし</div>';
 
 function renderAll(){
   $('proj-list').innerHTML=DEFAULTS.map(def=>{
@@ -245,7 +252,7 @@ function photosHtml(pid,si){
   return (data[pid].steps[si].photos||[]).map((ph,pi)=>
     `<div class="step-photo-item" draggable="true" ondragstart="pStart(event,'${pid}',${si},${pi})" ondragend="this.classList.remove('dragging')"
       ondragover="pOver(event,this)" ondragleave="this.classList.remove('drop-t')" ondrop="pDrop(event,'${pid}',${si},${pi})">
-      <img class="step-photo-img" src="${ph.url}" alt="" onclick="openLB('${pid}',${si},${pi})"/>
+      <img class="step-photo-img" src="${ldyOpt(ph.url,300)}" alt="" onclick="openLB('${pid}',${si},${pi})"/>
       <span class="step-photo-no">${pi+1}</span>
       <div class="step-photo-date">${ph.date||''}</div>
       <button class="step-photo-del" onclick="removeStepPhoto('${pid}',${si},${pi})">✕</button>
@@ -344,7 +351,7 @@ window.openLB=function(pid,si,pi){
 };
 window.closeLB=()=>$('lb').classList.remove('open');
 window.lbMove=d=>{lb.i=(lb.i+d+lb.list.length)%lb.list.length;showLB();};
-function showLB(){$('lb-img').src=lb.list[lb.i].url;$('lb-c').textContent=lb.list.length>1?`${lb.i+1} / ${lb.list.length}`:'';}
+function showLB(){$('lb-img').src=ldyOpt(lb.list[lb.i].url,2400,true);$('lb-c').textContent=lb.list.length>1?`${lb.i+1} / ${lb.list.length}`:'';}
 document.addEventListener('keydown',e=>{
   if(!$('lb').classList.contains('open'))return;
   if(e.key==='ArrowLeft')lbMove(-1);if(e.key==='ArrowRight')lbMove(1);if(e.key==='Escape')closeLB();
@@ -371,7 +378,11 @@ window.saveAll=async function(){
   try{
     for(const pid of Object.keys(data)){
       const def=DEFAULTS.find(d=>d.id===pid)||{};
-      await setDoc(doc(db,'dev_projects',pid),{...data[pid],num:def.num||pid});
+      if(JSON.stringify(data[pid])===baseline[pid])continue;
+      const cur=dbData[pid],me=(auth.currentUser||{}).email||'';
+      if(cur&&verOf(cur)!==loadedVer[pid]&&cur.updatedBy!==me&&!confirm((data[pid].name||pid)+'：'+'開いたあとに、他の人がこの内容を更新しています。\n\nこのまま保存すると、その人の変更が消えます。\nOK＝上書きして保存　／　キャンセル＝保存しない'))continue;
+      await setDoc(doc(db,'dev_projects',pid),{...data[pid],num:def.num||pid,updatedAt:serverTimestamp(),updatedBy:me});
+      baseline[pid]=JSON.stringify(data[pid]);
     }
     el.textContent='保存しました';
     setTimeout(()=>{el.textContent='';},3000);
