@@ -194,7 +194,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",
@@ -208,6 +208,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let allProps = [], archiveProps = [];
+function esc(s){
+  if(s==null)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 
 // 住所を丁目までに切り詰める
 function trimAddress(addr) {
@@ -235,7 +239,7 @@ function badgeClass(s) {
   return 'badge-sale';
 }
 
-onSnapshot(collection(db, 'properties'), snap => {
+onSnapshot(query(collection(db, 'properties'), where('saleStatus', 'in', ['販売中', '申込あり', '契約済', '販売済'])), snap => {
   const all = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
   // 販売済・非公開販売中はお客様に非表示
@@ -286,7 +290,7 @@ function renderCards(list) {
 
     const notes = (p.note||'').split('\n').filter(Boolean);
     // 住所を丁目まで
-    const addrDisplay = trimAddress(p.loc);
+    const addrDisplay = esc(trimAddress(p.loc));
 
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+
@@ -294,26 +298,26 @@ function renderCards(list) {
         '<span class="sale-badge '+badgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span>'+
       '</div>'+
       '<div class="card-body">'+
-        '<div class="card-name">'+(p.name||'')+'</div>'+
+        '<div class="card-name">'+esc(p.name||'')+'</div>'+
         '<div class="card-tags">'+
-          '<span class="tag tag-kind">'+(p.kind||'')+'</span>'+
-          (p.propStatus?'<span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus)+'</span>':'')+
+          '<span class="tag tag-kind">'+esc(p.kind||'')+'</span>'+
+          (p.propStatus?'<span class="tag '+propTagClass(p.propStatus)+'">'+esc(p.propStatus)+'</span>':'')+
         '</div>'+
-        '<div class="card-sta">'+(p.sta||'—')+'</div>'+
+        '<div class="card-sta">'+esc(p.sta||'—')+'</div>'+
         '<div class="card-divider"></div>'+
         '<div class="card-specs">'+
           '<div class="spec-row"><span class="spec-label">所在地</span><span class="spec-val">'+addrDisplay+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">土地面積</span><span class="spec-val">'+(p.land?p.land+'㎡':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">延床面積</span><span class="spec-val">'+(p.floor?p.floor+'㎡':'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-label">間取り</span><span class="spec-val">'+(p.layout||'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-label">築年月</span><span class="spec-val">'+(p.built||'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-label">構造</span><span class="spec-val">'+(p.struct||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">間取り</span><span class="spec-val">'+esc(p.layout||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">築年月</span><span class="spec-val">'+esc(p.built||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">構造</span><span class="spec-val">'+esc(p.struct||'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">建蔽率</span><span class="spec-val">'+(p.kenpei?p.kenpei+'%':'—')+'</span></div>'+
           '<div class="spec-row"><span class="spec-label">容積率</span><span class="spec-val">'+(p.yoseki?p.yoseki+'%':'—')+'</span></div>'+
-          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+((p.zoneBlocks&&p.zoneBlocks.length)?p.zoneBlocks.map(b=>b.zone||'').filter(v=>v).join(','):(p.zones&&p.zones.length?p.zones.join(','):p.zone||'—'))+'</span></div>'+
-          '<div class="spec-row"><span class="spec-label">取引業態</span><span class="spec-val">'+(p.baitai||'—')+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">用途地域</span><span class="spec-val">'+esc((p.zoneBlocks&&p.zoneBlocks.length)?p.zoneBlocks.map(b=>b.zone||'').filter(v=>v).join(','):(p.zones&&p.zones.length?p.zones.join(','):p.zone||'—'))+'</span></div>'+
+          '<div class="spec-row"><span class="spec-label">取引業態</span><span class="spec-val">'+esc(p.baitai||'—')+'</span></div>'+
         '</div>'+
-        '<div class="card-notes">'+(notes.length?'<ul>'+notes.map(n=>'<li>'+n+'</li>').join('')+'</ul>':'')+'</div>'+
+        '<div class="card-notes">'+(notes.length?'<ul>'+notes.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'')+'</div>'+
         '<div class="card-contact">'+
           '<a href="tel:0362606811" class="btn-tel">電話で問い合わせる</a>'+
           '<a href="mailto:info@ldy-house.com?subject='+mailSub+'&body='+mailBody+'" class="btn-mail">メールで問い合わせる</a>'+
@@ -334,9 +338,9 @@ function renderArchive() {
   track.innerHTML = items.map(p => {
     const photos = p.photos&&p.photos.length ? p.photos : (p.img?[{url:p.img}]:[]);
     const imgHtml = photos.length
-      ? '<img src="'+photos[0].url+'" alt="'+(p.name||'')+'" style="width:100%;height:100px;object-fit:contain;background:#1a1a2e;display:block;" />'
+      ? '<img src="'+photos[0].url+'" alt="'+esc(p.name||'')+'" style="width:100%;height:100px;object-fit:contain;background:#1a1a2e;display:block;" />'
       : '<div class="archive-card-no-img">写真なし</div>';
-    return '<div class="archive-card"><div>'+imgHtml+'</div><div class="archive-card-name">'+(p.name||'')+'</div></div>';
+    return '<div class="archive-card"><div>'+imgHtml+'</div><div class="archive-card-name">'+esc(p.name||'')+'</div></div>';
   }).join('');
   // アニメーション速度を件数に応じて調整
   const speed = Math.max(20, archiveProps.length * 8);
