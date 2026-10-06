@@ -114,7 +114,6 @@ $('#csv').onclick=()=>{const t=[H].concat(rowsSum()).map(r=>r.map(x=>'"'+String(
 $('#bk').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='attendance_backup.json';a.click()};
 $('#rs').onchange=async e=>{try{S=JSON.parse(await e.target.files[0].text());save();render()}catch(x){alert('読込失敗')}};
 $('#ym').value=ym;
-}
 render();
 </script><script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
