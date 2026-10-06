@@ -17,7 +17,7 @@ td.l,th.l{text-align:left}input,select,button{font:inherit}input[type=text],inpu
 .btn{background:#2f6fed;color:#fff;border:0;border-radius:5px;padding:6px 12px;cursor:pointer}.btn.g{background:#667}
 small{color:#667}pre{background:#f0f2f6;padding:8px;border-radius:5px;max-height:160px;overflow:auto;font-size:12px}
 .we{background:#f3f3f8}.hol{background:#ffe3e3}.c-abs{background:#ffb3b3}.c-pl{background:#cdeccd}.c-late{color:#d22;font-weight:bold}.cell{cursor:pointer;min-width:44px}
-.fw,tr.fw td{background:#cfe4ff}.sw{display:inline-block;width:12px;height:12px;vertical-align:middle;border:1px solid #99a}
+.fw,tr.fw td{background:#cfe4ff}.ch{background:#2f6fed;color:#fff;border-radius:3px;font-size:11px;padding:0 3px;margin-left:2px}.fwt{background:#cfe4ff;padding:0 2px;border-radius:2px}.sw{display:inline-block;width:12px;height:12px;vertical-align:middle;border:1px solid #99a}
 tr.row{cursor:pointer}
 </style></head><body>
 <header><h1>出勤簿</h1>
@@ -45,10 +45,10 @@ tr.row{cursor:pointer}
 
 <section class="tab" id="book"><div class="card"><h2 id="bt"></h2>社員 <select id="bu"></select>
 <div class="wrap" style="margin-top:8px"><table id="bv"></table></div><p id="bs"></p>
-<small><span class="sw fw"></span> 外勤(場所を表示)　<b class="c-late">赤字</b>=遅刻・早退・打刻漏れ　行をクリックで有給・遅延証・グループ会社出勤などを編集</small></div></section>
+<small><span class="sw fw"></span> 外勤打刻(出勤・退勤を別々に表示)　<b class="c-late">赤字</b>=遅刻・早退・打刻漏れ　行をクリックで有給・遅延証・グループ会社出勤などを編集</small></div></section>
 
 <section class="tab" id="grid"><div class="card"><h2>全員一覧(上段=出勤 / 下段=退勤)</h2><div class="wrap"><table id="bg"></table></div>
-<small><span class="sw fw"></span> 外勤　<b class="c-late">赤字</b>=遅刻・早退・打刻漏れ。セルをクリックで編集。</small></div></section>
+<small><span class="sw fw"></span> 外勤打刻(上段=出勤・下段=退勤のどちらが外勤かを青と「外」で表示。場所はマウスを乗せるか、セルをクリックで確認)　<b class="c-late">赤字</b>=遅刻・早退・打刻漏れ</small></div></section>
 
 <section class="tab" id="data"><div class="card"><h2>取込データ(全項目)</h2>社員 <select id="du"></select> <small>対象月のデータをすべて表示</small>
 <h2 style="margin-top:10px">日次データ</h2><div class="wrap"><table id="dd"></table></div>
@@ -102,9 +102,11 @@ if(w){const a=tm(i1),b=tm(o1);if(a!=null&&tm(st)!=null)late=Math.max(0,a-tm(st))
  if(a==null)mc++;if(b==null&&dt<today)mc++;if(late&&S.dc[k]){ex=late;late=0}
  ot=Math.max(0,net-Math.max(0,tm(en)-tm(sc[0])-brk))}
 else if((t==='hol'||t==='rest'||t==='off')&&net>0)hot=net;
-const rs=ridx()[k]||[],f=q=>String(q[8]).includes('外勤'),fw=w&&(rs.some(f)||(String((r&&r.q1)||'')+String((r&&r.q2)||'')).includes('外勤')),
-loc=[...new Set(rs.filter(f).map(q=>q[9]).filter(Boolean))].join(' / ');
-return{t,net:(w||hot)?net:0,ot,hot,late,early,ex,mc,fw,loc,i1,o1,g,dc:!!S.dc[k],r,rs}}
+const rs=ridx()[k]||[],f=q=>String(q[8]).includes('外勤'),hm=q=>String(q[7]||'').slice(-5);
+const pi=rs.find(q=>hm(q)===i1)||null,po=rs.find(q=>hm(q)===o1)||null,rq=r||{};
+const inFw=w&&(String(rq.q1).includes('外勤')||(pi&&f(pi))),outFw=w&&((!rq.o2&&String(rq.q2).includes('外勤'))||(po&&f(po)));
+const locIn=pi&&inFw?pi[9]||'':'',locOut=po&&outFw?po[9]||'':'',note=[...new Set([pi,po].filter(q=>q&&f(q)&&q[10]).map(q=>q[10]))].join(' / ');
+return{t,net:(w||hot)?net:0,ot,hot,late,early,ex,mc,fw:inFw||outFw,inFw,outFw,locIn,locOut,note,g,dc:!!S.dc[k],i1,o1,r,rs}}
 const dim=()=>new Date(+ym.slice(0,4),+ym.slice(5),0).getDate();
 const emps=()=>Object.keys(S.emps).filter(u=>Object.keys(S.days).some(k=>k.startsWith(u+'|'+ym))||Object.keys(S.ov).some(k=>k.startsWith(u+'|'+ym))).sort((a,b)=>((S.emps[a].dept||'')+a).localeCompare((S.emps[b].dept||'')+b));
 function sumOf(u){const s={wd:0,net:0,lc:0,lm:0,dl:0,ec:0,em:0,ab:0,pl:0,mc:0,fw:0,ot:0,hot:0};
@@ -122,7 +124,7 @@ function setS(w,i,v){S.cfg.sch[w][i]=v;save();render()}
 function preset(n){const y=+ym.slice(0,4),m={GW:[y+'-04-29',y+'-05-05'],'お盆':[y+'-08-13',y+'-08-16'],'年末年始':[y+'-12-29',(y+1)+'-01-03']}[n];S.hol.push({s:m[0],e:m[1],n});srt('hol');save();render()}
 function plist(k,el){$(el).innerHTML=S[k].length?'<table>'+S[k].map((p,i)=>`<tr><td><input type=date value="${p.s}" onchange="setP('${k}',${i},'s',this.value)"></td><td>～</td><td><input type=date value="${p.e}" onchange="setP('${k}',${i},'e',this.value)"></td><td><input type=text value="${p.n||''}" placeholder="名称" onchange="setP('${k}',${i},'n',this.value)"></td><td><button class="btn g" onclick="delP('${k}',${i})">削除</button></td></tr>`).join('')+'</table>':'<small>未設定</small>'}
 
-function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt;$('#dt').textContent=nm(u)+'  '+dt;dl.querySelectorAll('button').forEach(b=>b.remove());
+function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt;const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(b[7]));$('#dt').style.whiteSpace='pre-line';$('#dt').textContent=nm(u)+'  '+dt+(rr.length?'\n打刻:\n'+rr.map(q=>String(q[7]).slice(-5)+' '+q[8]+' '+(q[9]||'')+(q[10]?' 「'+q[10]+'」':'')).join('\n'):'');dl.querySelectorAll('button').forEach(b=>b.remove());
 const mk=(l,f,c)=>{const b=document.createElement('button');b.className='btn '+(c||'g');b.style.margin='2px';b.textContent=l;b.onclick=()=>{f();save();dl.close();render()};dl.appendChild(b)};
 [['','自動(取込どおり)'],['pl','有給'],['half','半休(有給0.5)'],['abs','欠勤'],['off','休み(無給)']].forEach(([v,l])=>mk(l,()=>{if(v)S.ov[k]=v;else delete S.ov[k]}));
 dl.appendChild(document.createElement('br'));
@@ -144,10 +146,10 @@ const EL=emps(),n=dim();opts($('#bu'),EL);opts($('#du'),EL,1);$('#bu').onchange=
 $('#bt').textContent=ym.replace('-','年')+'月 出勤簿';const u=$('#bu').value;let h='';
 if(u){h='<tr><th>日</th><th>区分</th><th>出勤</th><th>退勤</th><th>実働h</th><th>遅刻/遅延</th><th>早退</th><th>打刻漏れ</th><th class=l>場所・備考</th></tr>';
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt),wk=new Date(dt).getDay(),w=i.t==='work'||i.t==='half';
-const cl=(i.fw?'fw ':'')+(i.t==='hol'?'hol ':(wk%6==0?'we':''));
+const cl=(i.t==='hol'?'hol ':(wk%6==0?'we':''));
 const lt=i.late?`<b class=c-late>遅刻 ${i.late}分</b>`:i.ex?`遅延証 ${i.ex}分`:'',er=i.early?`<b class=c-late>早退 ${i.early}分</b>`:'';
-const nt=[i.fw?'外勤: '+(i.loc||''):'',i.g?'グループ会社出勤':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||''].filter(Boolean).join(' / ');
-h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}(${WD[wk]})</td><td>${LB[i.t]||''}</td><td>${w||i.hot?(i.i1||'--'):''}</td><td>${w||i.hot?(i.o1||'--'):''}</td><td>${i.net?hh(i.net):''}</td><td>${lt}</td><td>${er}</td><td>${i.mc?'<b class=c-late>'+i.mc+'</b>':''}</td><td class=l>${nt}</td></tr>`}
+const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤(外勤): '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.g?'グループ会社出勤':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||''].filter(Boolean).join(' / ');
+h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}(${WD[wk]})</td><td>${LB[i.t]||''}</td><td class="${i.inFw?'fw':''}">${w||i.hot?(i.i1||'--'):''}${i.inFw?'<b class=ch>外勤</b>':''}</td><td class="${i.outFw?'fw':''}">${w||i.hot?(i.o1||'--'):''}${i.outFw?'<b class=ch>外勤</b>':''}</td><td>${i.net?hh(i.net):''}</td><td>${lt}</td><td>${er}</td><td>${i.mc?'<b class=c-late>'+i.mc+'</b>':''}</td><td class=l>${nt}</td></tr>`}
 const s=sumOf(u);$('#bs').innerHTML=`出勤 ${s.wd}日 / 実働 ${hh(s.net)}h / 遅刻 ${s.lc}回(${s.lm}分) / 遅延証 ${s.dl}回 / 早退 ${s.ec}回(${s.em}分) / 欠勤 ${s.ab}日 / 有給 ${s.pl}日 / 外勤 ${s.fw}日 / 残業 ${hh(s.tot)}h`}
 else $('#bs').textContent='';$('#bv').innerHTML=h;
 // 全員一覧
@@ -155,10 +157,10 @@ h='<tr><th class=l>氏名</th>';
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),w=new Date(dt).getDay();h+=`<th class="${isHol(dt)?'hol':w%6==0?'we':''}">${d}<br><small>${WD[w]}</small></th>`}
 h+='<th>出勤</th><th>実働h</th></tr>';
 EL.forEach(u=>{h+=`<tr><td class=l>${nm(u)}</td>`;for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt);let tx='',cl='cell';
-const tms=`<small>${i.i1||'--'}<br>${i.o1||'--'}</small>`;
-if(i.t==='work'){tx=tms;if(i.fw)cl+=' fw';if(i.late||i.early||i.mc)cl+=' c-late'}else if(i.t==='half'){tx='半'+tms;if(i.fw)cl+=' fw'}
+const tms=`<small><span class="${i.inFw?'fwt':''}">${i.i1||'--'}${i.inFw?'<b class=ch>外</b>':''}</span><br><span class="${i.outFw?'fwt':''}">${i.o1||'--'}${i.outFw?'<b class=ch>外</b>':''}</span></small>`;
+if(i.t==='work'){tx=tms;if(i.late||i.early||i.mc)cl+=' c-late'}else if(i.t==='half'){tx='半'+tms}
 else if(i.t==='abs'){tx='欠';cl+=' c-abs'}else if(i.t==='pl'||i.t==='bulk'){tx='有';cl+=' c-pl'}else if(i.t==='hol'){tx=i.hot?'休出'+tms:'休';cl+=' hol'}else if(i.t==='off')tx='休';else if(i.t==='rest'){tx='−';cl+=' we'}
-h+=`<td class="${cl}" title="${i.fw?'外勤: '+i.loc:''}${i.late?' 遅刻'+i.late+'分':''}${i.ex?' 遅延証'+i.ex+'分':''}${i.early?' 早退'+i.early+'分':''}" onclick="edit('${u}','${dt}')">${tx}</td>`}
+h+=`<td class="${cl}" title="${i.inFw?'出勤外勤: '+(i.locIn||'場所情報なし')+' ':''}${i.outFw?'退勤外勤: '+(i.locOut||'場所情報なし')+' ':''}${i.note?'理由: '+i.note+' ':''}${i.late?' 遅刻'+i.late+'分':''}${i.ex?' 遅延証'+i.ex+'分':''}${i.early?' 早退'+i.early+'分':''}" onclick="edit('${u}','${dt}')">${tx}</td>`}
 const s=sumOf(u);h+=`<td>${s.wd}</td><td>${hh(s.net)}</td></tr>`});$('#bg').innerHTML=h;
 // 取込データ
 const du=$('#du').value,L=du?[du]:EL;h='<tr>'+HD.map(x=>`<th>${x}</th>`).join('')+'</tr>';
