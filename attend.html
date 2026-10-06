@@ -198,7 +198,7 @@ const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const st=t=>document.getElementById('st2').textContent=t,clean=o=>JSON.parse(JSON.stringify(o));
 let t;
 async function doPush(){try{
- await setDoc(doc(db,'att_meta','main'),clean({emps:S.emps,hol:S.hol,bulk:S.bulk,wk:S.wk,gr:S.gr,dc:S.dc,pe:S.pe,cm:S.cm,ov:S.ov,cfg:S.cfg,updated:Date.now()}));
+ await setDoc(doc(db,'att_meta','main'),clean({emps:S.emps,hol:S.hol,bulk:S.bulk,wk:S.wk,gr:S.gr,dc:S.dc,pe:S.pe,cm:S.cm,ov:S.ov,cfg:Object.assign({},S.cfg,{sch:S.cfg.sch.map(a=>a.join('|'))}),updated:Date.now()}));
  for(const m of [...dirty]){const days={};for(const k in S.days)if(k.split('|')[1].startsWith(m))days[k]=S.days[k];
   await setDoc(doc(db,'att_months',m),clean({days}));
   const rows=Object.values(S.raw).filter(r=>String(r[7]).startsWith(m)).map(r=>JSON.stringify(r));
@@ -206,7 +206,7 @@ async function doPush(){try{
  st('クラウド保存済み')}catch(e){st('保存エラー: '+e.message)}}
 CL.push=()=>{clearTimeout(t);st('保存中…');t=setTimeout(doPush,800)};
 async function pull(){st('読込中…');try{const m=await getDoc(doc(db,'att_meta','main'));
- if(m.exists()){const d=m.data();S.emps=d.emps||{};S.hol=mig(d.hol);S.bulk=mig(d.bulk);if(d.wk)S.wk=d.wk;S.gr=d.gr||{};S.dc=d.dc||{};S.pe=d.pe||{};S.cm=d.cm||{};S.ov=d.ov||{};S.cfg=Object.assign(S.cfg,d.cfg||{});
+ if(m.exists()){const d=m.data();S.emps=d.emps||{};S.hol=mig(d.hol);S.bulk=mig(d.bulk);if(d.wk)S.wk=d.wk;S.gr=d.gr||{};S.dc=d.dc||{};S.pe=d.pe||{};S.cm=d.cm||{};S.ov=d.ov||{};{const c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));S.cfg=Object.assign(S.cfg,c)}
   (await getDocs(collection(db,'att_months'))).forEach(x=>Object.assign(S.days,x.data().days||{}));
   (await getDocs(collection(db,'att_raw'))).forEach(x=>(x.data().rows||[]).forEach(j=>{const r=JSON.parse(j);S.raw[r.join('|')]=r}));
   const seen=new Set(S.log.map(l=>l.ts+l.u+l.dt+l.f));(await getDocs(collection(db,'att_log'))).forEach(x=>(x.data().rows||[]).forEach(l=>{const q=l.ts+l.u+l.dt+l.f;if(!seen.has(q)){seen.add(q);S.log.push(l)}}));
