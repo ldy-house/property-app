@@ -21,7 +21,7 @@ small{color:#667}pre{background:#f0f2f6;padding:8px;border-radius:5px;max-height
 tr.row{cursor:pointer}
 </style></head><body>
 <header><h1>出勤簿</h1>
-<nav id="nav"><button data-t="imp" class="on">① 取込</button><button data-t="emp">② 社員・勤務時間</button><button data-t="cal">③ 休日・一斉有給</button><button data-t="book">④ 月次出勤簿</button><button data-t="grid">⑤ 全員一覧</button><button data-t="data">⑥ 取込データ</button><button data-t="sum">⑦ 集計・給与</button></nav>
+<nav id="nav"><button data-t="imp" class="on">① 取込</button><button data-t="emp">② 社員・勤務時間</button><button data-t="cal">③ 休日・一斉有給</button><button data-t="book">④ 月次出勤簿</button><button data-t="grid">⑤ 全員一覧</button><button data-t="data">⑥ 取込データ</button><button data-t="sum">⑦ 集計・給与</button><button data-t="log">⑧ 編集ログ</button></nav>
 <span style="margin-left:auto"><small id="st2" style="color:#9fb">未ログイン</small> <button class="btn g" id="lo">ログアウト</button> 対象月 <input type="month" id="ym"></span></header>
 <div id="login" style="position:fixed;inset:0;background:#1f2a44ee;display:flex;align-items:center;justify-content:center;z-index:9"><div class="card" style="width:280px"><h2>ログイン</h2><input type="text" id="em" placeholder="メールアドレス" style="width:100%;margin-bottom:6px;box-sizing:border-box"><input type="password" id="pw" placeholder="パスワード" style="width:100%;margin-bottom:8px;box-sizing:border-box;padding:3px 5px"><button class="btn" id="li">ログイン</button> <small id="le" style="color:#d33"></small></div></div>
 <main>
@@ -54,6 +54,8 @@ tr.row{cursor:pointer}
 <h2 style="margin-top:10px">日次データ</h2><div class="wrap"><table id="dd"></table></div>
 <h2 style="margin-top:10px">打刻ログ(場所つき)</h2><div class="wrap"><table id="dr"></table></div></div></section>
 
+<section class="tab" id="log"><div class="card"><h2>編集ログ(対象月の日付分)</h2><div class="wrap"><table id="lt"></table></div><small>打刻時刻・区分・コメントなどの手動編集が、日時と編集者つきで残ります。</small></div></section>
+
 <section class="tab" id="sum"><div class="card"><h2>月次集計</h2><button class="btn" id="csv">CSV出力(給与計算用)</button><div class="wrap" style="margin-top:8px"><table id="st"></table></div></div></section>
 </main>
 <dialog id="dlg"><div id="dt" style="margin-bottom:8px"></div></dialog>
@@ -61,18 +63,21 @@ tr.row{cursor:pointer}
 const K='ldy_att_v1',$=s=>document.querySelector(s);
 const DSCH=[0,1,2,3,4,5,6].map(w=>w===1?['08:45','18:00']:['09:00','18:00']);
 const DC={brk:60,hrs:160,rate:1.25,gs:'09:30',sch:DSCH};
-let S={days:{},emps:{},hol:[],bulk:[],wk:[0,3],ov:{},gr:{},dc:{},raw:{},cfg:Object.assign({},DC)};
+let S={days:{},emps:{},hol:[],bulk:[],wk:[0,3],ov:{},gr:{},dc:{},pe:{},cm:{},log:[],raw:{},cfg:Object.assign({},DC)};
 function load(){try{const t=localStorage.getItem(K);if(t)S=Object.assign(S,JSON.parse(t))}catch(e){}}
 const dirty=new Set();window.CL={push:null};
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}if(CL.push)CL.push()}
 load();
 const mig=a=>(a||[]).map(x=>typeof x==='string'?{s:x,e:x,n:''}:x);
-S.hol=mig(S.hol);S.bulk=mig(S.bulk);S.cfg=Object.assign({},DC,S.cfg);S.gr=S.gr||{};S.dc=S.dc||{};
+S.hol=mig(S.hol);S.bulk=mig(S.bulk);S.cfg=Object.assign({},DC,S.cfg);S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.log=S.log||[];
 let ym=new Date().toISOString().slice(0,7);
 const WD='日月火水木金土',pad=n=>String(n).padStart(2,'0'),hh=m=>(m/60).toFixed(2);
 const LB={work:'出勤',half:'半休',abs:'欠勤',pl:'有給',bulk:'一斉有給',hol:'会社休日',rest:'休み',off:'休み(無給)'};
 const HD=['氏名','部門','社員番号','役職','UserId','日付','シフト','出勤1','結果','退勤1','結果','出勤2','結果','退勤2','結果','承認申請','出勤日数','休日日数','勤務(分)','遅刻回','遅刻(分)','重度遅刻回','重度遅刻(分)','欠勤扱い遅刻日','早退回','早退(分)','出勤漏れ','退勤漏れ','欠勤日','平日残業h','休日残業h','祝日残業h'];
 const nm=u=>(S.emps[u]&&S.emps[u].name)||('ID…'+u.slice(-6));
+const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function lg(u,dt,f,a,b){a=a||'';b=b||'';if(a===b)return;S.log.push({ts:Date.now(),by:window.ME||'',u,n:nm(u),dt,f,a,b});dirty.add(dt.slice(0,7))}
+const ttl=i=>[i.inFw?'出勤外勤: '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤外勤: '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.late?'遅刻'+i.late+'分':'',i.ex?'遅延証'+i.ex+'分':'',i.early?'早退'+i.early+'分':'',i.cm?'コメント: '+i.cm:''].filter(Boolean).join(' ');
 const tm=x=>{const m=/(\d{1,2}):(\d\d)/.exec(x||'');return m?+m[1]*60+ +m[2]:null};
 const today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,#nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#'+b.dataset.t).classList.add('on');render()});
@@ -92,26 +97,26 @@ let RI=null,RN=-1;
 function ridx(){const n=Object.keys(S.raw).length;if(RN!==n){RI={};Object.values(S.raw).forEach(r=>{const m=/^(\d\d)-(\d\d)-(\d\d)/.exec(r[5]||'');if(!m)return;const k=r[4]+'|20'+m[1]+'-'+m[2]+'-'+m[3];(RI[k]=RI[k]||[]).push(r)});RN=n}return RI}
 function inP(a,dt){return a.some(p=>p.s<=dt&&dt<=(p.e||p.s))}
 function isHol(dt){return S.wk.includes(new Date(dt).getDay())||inP(S.hol,dt)}
-function info(u,dt){const k=u+'|'+dt,r=S.days[k],o=S.ov[k],g=!!S.gr[k];let t='';
+function info(u,dt){const k=u+'|'+dt,r=S.days[k],o=S.ov[k],g=!!S.gr[k],pe=S.pe[k]||{};let t='';const i1=pe.i||(r&&r.i1),o1=pe.o||(r&&(r.o2||r.o1));
 if(isHol(dt))t='hol';else if(o)t=o;else if(inP(S.bulk,dt))t='bulk';
 else if(r){if(!S.wk.length&&(r.sh||'').trim()==='休息')t='rest';else if(r.ab>0)t='abs';else if(r.att>0)t='work'}
-const brk=S.cfg.brk,wm=r?r.wm:0,net=wm>0?Math.max(0,wm-(wm>=360?brk:0)):0,w=(t==='work'||t==='half');
+if((t===''||t==='abs')&&(pe.i||pe.o))t='work';const brk=S.cfg.brk;let wm=r?r.wm:0;if(pe.i||pe.o){const a=tm(i1),b=tm(o1);if(a!=null&&b!=null&&b>a)wm=b-a}const net=wm>0?Math.max(0,wm-(wm>=360?brk:0)):0,w=(t==='work'||t==='half');
 const sc=S.cfg.sch[new Date(dt).getDay()],st=g?S.cfg.gs:sc[0],en=sc[1];
-const i1=r&&r.i1,o1=r&&(r.o2||r.o1);let late=0,early=0,mc=0,ex=0,ot=0,hot=0;
+let late=0,early=0,mc=0,ex=0,ot=0,hot=0;
 if(w){const a=tm(i1),b=tm(o1);if(a!=null&&tm(st)!=null)late=Math.max(0,a-tm(st));if(b!=null&&tm(en)!=null)early=Math.max(0,tm(en)-b);
  if(a==null)mc++;if(b==null&&dt<today)mc++;if(late&&S.dc[k]){ex=late;late=0}
  ot=Math.max(0,net-Math.max(0,tm(en)-tm(sc[0])-brk))}
 else if((t==='hol'||t==='rest'||t==='off')&&net>0)hot=net;
 const rs=ridx()[k]||[],f=q=>String(q[8]).includes('外勤'),hm=q=>String(q[7]||'').slice(-5);
 const pi=rs.find(q=>hm(q)===i1)||null,po=rs.find(q=>hm(q)===o1)||null,rq=r||{};
-const inFw=w&&(String(rq.q1).includes('外勤')||(pi&&f(pi))),outFw=w&&((!rq.o2&&String(rq.q2).includes('外勤'))||(po&&f(po)));
+const inFw=w&&!pe.i&&(String(rq.q1).includes('外勤')||(pi&&f(pi))),outFw=w&&!pe.o&&((!rq.o2&&String(rq.q2).includes('外勤'))||(po&&f(po)));
 const locIn=pi&&inFw?pi[9]||'':'',locOut=po&&outFw?po[9]||'':'',note=[...new Set([pi,po].filter(q=>q&&f(q)&&q[10]).map(q=>q[10]))].join(' / ');
-return{t,net:(w||hot)?net:0,ot,hot,late,early,ex,mc,fw:inFw||outFw,inFw,outFw,locIn,locOut,note,g,dc:!!S.dc[k],i1,o1,r,rs}}
+return{t,net:(w||hot)?net:0,ot,hot,late,early,ex,mc,fw:inFw||outFw,inFw,outFw,locIn,locOut,note,g,dc:!!S.dc[k],i1,o1,ei:!!pe.i,eo:!!pe.o,cm:S.cm[k]||'',r,rs}}
 const dim=()=>new Date(+ym.slice(0,4),+ym.slice(5),0).getDate();
 const emps=()=>Object.keys(S.emps).filter(u=>Object.keys(S.days).some(k=>k.startsWith(u+'|'+ym))||Object.keys(S.ov).some(k=>k.startsWith(u+'|'+ym))).sort((a,b)=>((S.emps[a].dept||'')+a).localeCompare((S.emps[b].dept||'')+b));
-function sumOf(u){const s={wd:0,net:0,lc:0,lm:0,dl:0,ec:0,em:0,ab:0,pl:0,mc:0,fw:0,ot:0,hot:0};
+function sumOf(u){const s={wd:0,net:0,lc:0,lm:0,dl:0,ec:0,em:0,ab:0,pl:0,mc:0,fw:0,nc:0,ot:0,hot:0};
 for(let d=1;d<=dim();d++){const i=info(u,ym+'-'+pad(d));if(i.t==='work')s.wd+=1;if(i.t==='half'){s.wd+=.5;s.pl+=.5}if(i.t==='pl'||i.t==='bulk')s.pl+=1;if(i.t==='abs')s.ab+=1;
-s.net+=i.net;if(i.late){s.lc++;s.lm+=i.late}if(i.ex)s.dl++;if(i.early){s.ec++;s.em+=i.early}s.mc+=i.mc;if(i.fw)s.fw++;s.ot+=i.ot;s.hot+=i.hot}
+s.net+=i.net;if(i.late){s.lc++;s.lm+=i.late}if(i.ex)s.dl++;if(i.early){s.ec++;s.em+=i.early}s.mc+=i.mc;if(i.fw)s.fw++;if((i.mc||i.fw)&&!i.cm)s.nc++;s.ot+=i.ot;s.hot+=i.hot}
 const e=S.emps[u];s.tot=s.ot+s.hot;s.miss=(+e.miss||0)*60;s.ex=Math.max(0,s.tot-s.miss);
 s.pay=e.sal>0?Math.round(e.sal/S.cfg.hrs*S.cfg.rate*s.ex/60):0;return s}
 
@@ -124,14 +129,20 @@ function setS(w,i,v){S.cfg.sch[w][i]=v;save();render()}
 function preset(n){const y=+ym.slice(0,4),m={GW:[y+'-04-29',y+'-05-05'],'お盆':[y+'-08-13',y+'-08-16'],'年末年始':[y+'-12-29',(y+1)+'-01-03']}[n];S.hol.push({s:m[0],e:m[1],n});srt('hol');save();render()}
 function plist(k,el){$(el).innerHTML=S[k].length?'<table>'+S[k].map((p,i)=>`<tr><td><input type=date value="${p.s}" onchange="setP('${k}',${i},'s',this.value)"></td><td>～</td><td><input type=date value="${p.e}" onchange="setP('${k}',${i},'e',this.value)"></td><td><input type=text value="${p.n||''}" placeholder="名称" onchange="setP('${k}',${i},'n',this.value)"></td><td><button class="btn g" onclick="delP('${k}',${i})">削除</button></td></tr>`).join('')+'</table>':'<small>未設定</small>'}
 
-function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt;const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(b[7]));$('#dt').style.whiteSpace='pre-line';$('#dt').textContent=nm(u)+'  '+dt+(rr.length?'\n打刻:\n'+rr.map(q=>String(q[7]).slice(-5)+' '+q[8]+' '+(q[9]||'')+(q[10]?' 「'+q[10]+'」':'')).join('\n'):'');dl.querySelectorAll('button').forEach(b=>b.remove());
-const mk=(l,f,c)=>{const b=document.createElement('button');b.className='btn '+(c||'g');b.style.margin='2px';b.textContent=l;b.onclick=()=>{f();save();dl.close();render()};dl.appendChild(b)};
-[['','自動(取込どおり)'],['pl','有給'],['half','半休(有給0.5)'],['abs','欠勤'],['off','休み(無給)']].forEach(([v,l])=>mk(l,()=>{if(v)S.ov[k]=v;else delete S.ov[k]}));
-dl.appendChild(document.createElement('br'));
-mk('グループ会社出勤('+S.cfg.gs+'始業)：'+(S.gr[k]?'ON':'OFF'),()=>{S.gr[k]?delete S.gr[k]:S.gr[k]=1},S.gr[k]?'':'g');
-mk('遅延証あり(遅刻にしない)：'+(S.dc[k]?'ON':'OFF'),()=>{S.dc[k]?delete S.dc[k]:S.dc[k]=1},S.dc[k]?'':'g');
-dl.appendChild(document.createElement('br'));
-const c=document.createElement('button');c.textContent='閉じる';c.onclick=()=>dl.close();dl.appendChild(c);dl.showModal()}
+function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt,i=info(u,dt),r=i.r||{},oI=r.i1||'',oO=r.o2||r.o1||'';
+const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(b[7]));
+dl.innerHTML='<div id="dt" style="white-space:pre-line;margin-bottom:8px"></div><div id="db"></div><div style="margin:10px 0 6px">出勤 <input type=time id="e_i"> 退勤 <input type=time id="e_o"> <button class="btn g" id="e_x">時刻修正を取消</button><br><small>打刻漏れ・誤りの修正。保存すると編集ログに残ります。</small></div><div>コメント(打刻漏れ・外勤の理由など)<br><textarea id="e_c" rows=3 style="width:100%;box-sizing:border-box"></textarea></div><div style="margin-top:8px"><button class="btn" id="e_s">保存</button> <button id="e_q">閉じる</button></div>';
+$('#dt').textContent=nm(u)+'  '+dt+(rr.length?'\n打刻:\n'+rr.map(q=>String(q[7]).slice(-5)+' '+q[8]+' '+(q[9]||'')+(q[10]?' 「'+q[10]+'」':'')).join('\n'):'');
+$('#e_i').value=i.i1||'';$('#e_o').value=i.o1||'';$('#e_c').value=S.cm[k]||'';
+const mk=(l,f,c)=>{const b=document.createElement('button');b.className='btn '+(c||'g');b.style.margin='2px';b.textContent=l;b.onclick=()=>{f();save();dl.close();render()};$('#db').appendChild(b)};
+[['','自動(取込どおり)'],['pl','有給'],['half','半休(有給0.5)'],['abs','欠勤'],['off','休み(無給)']].forEach(([v,l])=>mk(l,()=>{lg(u,dt,'区分',LB[S.ov[k]]||'自動',LB[v]||'自動');if(v)S.ov[k]=v;else delete S.ov[k]}));
+mk('グループ会社出勤('+S.cfg.gs+'始業)：'+(S.gr[k]?'ON':'OFF'),()=>{lg(u,dt,'グループ会社出勤',S.gr[k]?'ON':'OFF',S.gr[k]?'OFF':'ON');S.gr[k]?delete S.gr[k]:S.gr[k]=1},S.gr[k]?'':'g');
+mk('遅延証あり(遅刻にしない)：'+(S.dc[k]?'ON':'OFF'),()=>{lg(u,dt,'遅延証',S.dc[k]?'ON':'OFF',S.dc[k]?'OFF':'ON');S.dc[k]?delete S.dc[k]:S.dc[k]=1},S.dc[k]?'':'g');
+$('#e_s').onclick=()=>{const ni=$('#e_i').value||oI,no=$('#e_o').value||oO,c=$('#e_c').value.trim();
+lg(u,dt,'出勤時刻',i.i1,ni);lg(u,dt,'退勤時刻',i.o1,no);const pe={};if(ni&&ni!==oI)pe.i=ni;if(no&&no!==oO)pe.o=no;if(pe.i||pe.o)S.pe[k]=pe;else delete S.pe[k];
+lg(u,dt,'コメント',S.cm[k],c);if(c)S.cm[k]=c;else delete S.cm[k];dirty.add(dt.slice(0,7));save();dl.close();render()};
+$('#e_x').onclick=()=>{if(S.pe[k]){lg(u,dt,'時刻修正',(S.pe[k].i||'')+' / '+(S.pe[k].o||''),'取消');delete S.pe[k];save()}dl.close();render()};
+$('#e_q').onclick=()=>dl.close();dl.showModal()}
 
 function opts(sel,list,all){const v=sel.value;sel.innerHTML=(all?'<option value="">全員</option>':'')+list.map(u=>`<option value="${u}">${nm(u)}</option>`).join('');if(list.includes(v)||(all&&v===''))sel.value=v}
 function render(){
@@ -148,9 +159,9 @@ if(u){h='<tr><th>日</th><th>区分</th><th>出勤</th><th>退勤</th><th>実働
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt),wk=new Date(dt).getDay(),w=i.t==='work'||i.t==='half';
 const cl=(i.t==='hol'?'hol ':(wk%6==0?'we':''));
 const lt=i.late?`<b class=c-late>遅刻 ${i.late}分</b>`:i.ex?`遅延証 ${i.ex}分`:'',er=i.early?`<b class=c-late>早退 ${i.early}分</b>`:'';
-const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤(外勤): '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.g?'グループ会社出勤':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||''].filter(Boolean).join(' / ');
-h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}(${WD[wk]})</td><td>${LB[i.t]||''}</td><td class="${i.inFw?'fw':''}">${w||i.hot?(i.i1||'--'):''}${i.inFw?'<b class=ch>外勤</b>':''}</td><td class="${i.outFw?'fw':''}">${w||i.hot?(i.o1||'--'):''}${i.outFw?'<b class=ch>外勤</b>':''}</td><td>${i.net?hh(i.net):''}</td><td>${lt}</td><td>${er}</td><td>${i.mc?'<b class=c-late>'+i.mc+'</b>':''}</td><td class=l>${nt}</td></tr>`}
-const s=sumOf(u);$('#bs').innerHTML=`出勤 ${s.wd}日 / 実働 ${hh(s.net)}h / 遅刻 ${s.lc}回(${s.lm}分) / 遅延証 ${s.dl}回 / 早退 ${s.ec}回(${s.em}分) / 欠勤 ${s.ab}日 / 有給 ${s.pl}日 / 外勤 ${s.fw}日 / 残業 ${hh(s.tot)}h`}
+const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤(外勤): '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.g?'グループ会社出勤':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||'',i.cm?'💬 '+i.cm:''].filter(Boolean).map(esc).join(' / ')+((i.mc||i.fw)&&!i.cm?' <b class=c-late>要コメント</b>':'');
+h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}(${WD[wk]})</td><td>${LB[i.t]||''}</td><td class="${i.inFw?'fw':''}">${w||i.hot?(i.i1||'--'):''}${i.inFw?'<b class=ch>外勤</b>':''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${w||i.hot?(i.o1||'--'):''}${i.outFw?'<b class=ch>外勤</b>':''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${i.net?hh(i.net):''}</td><td>${lt}</td><td>${er}</td><td>${i.mc?'<b class=c-late>'+i.mc+'</b>':''}</td><td class=l>${nt}</td></tr>`}
+const s=sumOf(u);$('#bs').innerHTML=`出勤 ${s.wd}日 / 実働 ${hh(s.net)}h / 遅刻 ${s.lc}回(${s.lm}分) / 遅延証 ${s.dl}回 / 早退 ${s.ec}回(${s.em}分) / 欠勤 ${s.ab}日 / 有給 ${s.pl}日 / 外勤 ${s.fw}日 / 残業 ${hh(s.tot)}h / 要コメント ${s.nc}件`}
 else $('#bs').textContent='';$('#bv').innerHTML=h;
 // 全員一覧
 h='<tr><th class=l>氏名</th>';
@@ -160,13 +171,14 @@ EL.forEach(u=>{h+=`<tr><td class=l>${nm(u)}</td>`;for(let d=1;d<=n;d++){const dt
 const tms=`<small><span class="${i.inFw?'fwt':''}">${i.i1||'--'}${i.inFw?'<b class=ch>外</b>':''}</span><br><span class="${i.outFw?'fwt':''}">${i.o1||'--'}${i.outFw?'<b class=ch>外</b>':''}</span></small>`;
 if(i.t==='work'){tx=tms;if(i.late||i.early||i.mc)cl+=' c-late'}else if(i.t==='half'){tx='半'+tms}
 else if(i.t==='abs'){tx='欠';cl+=' c-abs'}else if(i.t==='pl'||i.t==='bulk'){tx='有';cl+=' c-pl'}else if(i.t==='hol'){tx=i.hot?'休出'+tms:'休';cl+=' hol'}else if(i.t==='off')tx='休';else if(i.t==='rest'){tx='−';cl+=' we'}
-h+=`<td class="${cl}" title="${i.inFw?'出勤外勤: '+(i.locIn||'場所情報なし')+' ':''}${i.outFw?'退勤外勤: '+(i.locOut||'場所情報なし')+' ':''}${i.note?'理由: '+i.note+' ':''}${i.late?' 遅刻'+i.late+'分':''}${i.ex?' 遅延証'+i.ex+'分':''}${i.early?' 早退'+i.early+'分':''}" onclick="edit('${u}','${dt}')">${tx}</td>`}
+h+=`<td class="${cl}" title="${esc(ttl(i))}" onclick="edit('${u}','${dt}')">${tx}${i.cm?'💬':''}${i.ei||i.eo?'✎':''}</td>`}
 const s=sumOf(u);h+=`<td>${s.wd}</td><td>${hh(s.net)}</td></tr>`});$('#bg').innerHTML=h;
 // 取込データ
 const du=$('#du').value,L=du?[du]:EL;h='<tr>'+HD.map(x=>`<th>${x}</th>`).join('')+'</tr>';
 L.forEach(u=>{for(let d=1;d<=n;d++){const r=S.days[u+'|'+ym+'-'+pad(d)];if(r&&r.x)h+='<tr class="'+((String(r.q1)+String(r.q2)).includes('外勤')?'fw':'')+'">'+r.x.map((v,j)=>`<td>${j===0?nm(u):(v==null?'':v)}</td>`).join('')+'</tr>'}});$('#dd').innerHTML=h;
 h='<tr><th>氏名</th><th>日付</th><th>打刻時刻</th><th>結果</th><th>場所</th><th>備考</th><th>端末</th><th>管理者修正</th></tr>';
 const mm=ym.slice(2);Object.values(S.raw).filter(r=>(!du||String(r[4])===du)&&String(r[7]).startsWith(ym)).sort((a,b)=>(String(a[4])+a[7]).localeCompare(String(b[4])+b[7])).forEach(r=>{h+=`<tr class="${String(r[8]).includes('外勤')?'fw':''}"><td>${nm(String(r[4]))}</td>`+[5,7,8,9,10,13,14].map(j=>`<td>${r[j]==null?'':r[j]}</td>`).join('')+'</tr>'});$('#dr').innerHTML=h;
+$('#lt').innerHTML='<tr><th>編集日時</th><th>編集者</th><th>社員</th><th>対象日</th><th>項目</th><th>変更前</th><th>変更後</th></tr>'+S.log.filter(l=>l.dt.startsWith(ym)).sort((a,b)=>b.ts-a.ts).map(l=>'<tr><td>'+new Date(l.ts).toLocaleString('ja-JP')+'</td>'+[l.by,l.n,l.dt,l.f,l.a,l.b].map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('');
 // 集計
 $('#st').innerHTML='<tr>'+H.map(x=>`<th>${x}</th>`).join('')+'</tr>'+rowsSum().map(r=>'<tr>'+r.map((x,i)=>`<td class="${i<2?'l':''}">${x}</td>`).join('')+'</tr>').join('')}
 const H=['氏名','部門','出勤日数','実働(h)','遅刻回','遅刻分','遅延証(回)','早退回','早退分','欠勤日','有給日','打刻漏れ','外勤日','平日残業(h)','休日労働(h)','残業計(h)','みなし(h)','超過残業(h)','月給','残業手当概算'];
@@ -186,21 +198,22 @@ const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const st=t=>document.getElementById('st2').textContent=t,clean=o=>JSON.parse(JSON.stringify(o));
 let t;
 async function doPush(){try{
- await setDoc(doc(db,'att_meta','main'),clean({emps:S.emps,hol:S.hol,bulk:S.bulk,wk:S.wk,gr:S.gr,dc:S.dc,ov:S.ov,cfg:S.cfg,updated:Date.now()}));
+ await setDoc(doc(db,'att_meta','main'),clean({emps:S.emps,hol:S.hol,bulk:S.bulk,wk:S.wk,gr:S.gr,dc:S.dc,pe:S.pe,cm:S.cm,ov:S.ov,cfg:S.cfg,updated:Date.now()}));
  for(const m of [...dirty]){const days={};for(const k in S.days)if(k.split('|')[1].startsWith(m))days[k]=S.days[k];
   await setDoc(doc(db,'att_months',m),clean({days}));
   const rows=Object.values(S.raw).filter(r=>String(r[7]).startsWith(m)).map(r=>JSON.stringify(r));
-  await setDoc(doc(db,'att_raw',m),{rows});dirty.delete(m)}
+  await setDoc(doc(db,'att_raw',m),{rows});await setDoc(doc(db,'att_log',m),clean({rows:S.log.filter(l=>l.dt.startsWith(m))}));dirty.delete(m)}
  st('クラウド保存済み')}catch(e){st('保存エラー: '+e.message)}}
 CL.push=()=>{clearTimeout(t);st('保存中…');t=setTimeout(doPush,800)};
 async function pull(){st('読込中…');try{const m=await getDoc(doc(db,'att_meta','main'));
- if(m.exists()){const d=m.data();S.emps=d.emps||{};S.hol=mig(d.hol);S.bulk=mig(d.bulk);if(d.wk)S.wk=d.wk;S.gr=d.gr||{};S.dc=d.dc||{};S.ov=d.ov||{};S.cfg=Object.assign(S.cfg,d.cfg||{});
+ if(m.exists()){const d=m.data();S.emps=d.emps||{};S.hol=mig(d.hol);S.bulk=mig(d.bulk);if(d.wk)S.wk=d.wk;S.gr=d.gr||{};S.dc=d.dc||{};S.pe=d.pe||{};S.cm=d.cm||{};S.ov=d.ov||{};S.cfg=Object.assign(S.cfg,d.cfg||{});
   (await getDocs(collection(db,'att_months'))).forEach(x=>Object.assign(S.days,x.data().days||{}));
   (await getDocs(collection(db,'att_raw'))).forEach(x=>(x.data().rows||[]).forEach(j=>{const r=JSON.parse(j);S.raw[r.join('|')]=r}));
+  const seen=new Set(S.log.map(l=>l.ts+l.u+l.dt+l.f));(await getDocs(collection(db,'att_log'))).forEach(x=>(x.data().rows||[]).forEach(l=>{const q=l.ts+l.u+l.dt+l.f;if(!seen.has(q)){seen.add(q);S.log.push(l)}}));
   try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}st('クラウド読込済み')}
  else{Object.keys(S.days).forEach(k=>dirty.add(k.split('|')[1].slice(0,7)));CL.push()}
  render()}catch(e){st('読込エラー: '+e.message)}}
-onAuthStateChanged(auth,u=>{document.getElementById('login').style.display=u?'none':'flex';if(u)pull();else st('未ログイン')});
+onAuthStateChanged(auth,u=>{window.ME=u?u.email:'';document.getElementById('login').style.display=u?'none':'flex';if(u)pull();else st('未ログイン')});
 const go=()=>signInWithEmailAndPassword(auth,document.getElementById('em').value,document.getElementById('pw').value).catch(e=>document.getElementById('le').textContent='失敗: '+e.code);
 document.getElementById('li').onclick=go;document.getElementById('pw').onkeydown=e=>{if(e.key==='Enter')go()};
 document.getElementById('lo').onclick=()=>signOut(auth);
