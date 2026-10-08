@@ -3,62 +3,108 @@
 <title>出勤簿 | LDY</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-body{font-family:-apple-system,"Hiragino Sans",Meiryo,sans-serif;margin:0;background:#f4f5f7;color:#222;font-size:14px}
-header{background:#1f2a44;color:#fff;padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-header h1{font-size:16px;margin:0 12px 0 0}
-nav button{background:none;border:0;color:#cbd3e6;padding:8px 10px;cursor:pointer;font-size:14px;border-bottom:3px solid transparent}
-nav button.on{color:#fff;border-color:#4da3ff}
-main{padding:16px}.tab{display:none}.tab.on{display:block}
-.card{background:#fff;border-radius:8px;padding:14px;margin-bottom:14px;box-shadow:0 1px 3px #0001}
-.card h2{font-size:15px;margin:0 0 8px}
-table{border-collapse:collapse;background:#fff}th,td{border:1px solid #dde;padding:3px 6px;text-align:center;white-space:nowrap}
-th{background:#eef1f7;position:sticky;top:0}.wrap{overflow:auto;max-height:70vh}
-td.l,th.l{text-align:left}input,select,button{font:inherit}input[type=text],input[type=number],input[type=date],input[type=time]{padding:3px 5px;border:1px solid #bbc;border-radius:4px}
-.btn{background:#2f6fed;color:#fff;border:0;border-radius:5px;padding:6px 12px;cursor:pointer}.btn.g{background:#667}
-small{color:#667}pre{background:#f0f2f6;padding:8px;border-radius:5px;max-height:160px;overflow:auto;font-size:12px}
-.we{background:#f3f3f8}.hol{background:#ffe3e3}.c-abs{background:#ffb3b3}.c-pl{background:#cdeccd}.c-late{color:#d22;font-weight:bold}.cell{cursor:pointer;min-width:44px}
-.fw,tr.fw td{background:#cfe4ff}.ch{background:#2f6fed;color:#fff;border-radius:3px;font-size:11px;padding:0 3px;margin-left:2px}.gray{background:#e4e4e4}#st th{position:static}.fwt{background:#cfe4ff;padding:0 2px;border-radius:2px}.sw{display:inline-block;width:12px;height:12px;vertical-align:middle;border:1px solid #99a}
-tr.row{cursor:pointer}
+:root{--bg:#f3f5f9;--card:#fff;--ink:#1b2333;--mute:#6b7487;--line:#e3e7ef;--pri:#3b6cf6;--navy:#141c33;--ok:#17a165;--warn:#e08a00;--bad:#e5484d;--fw:#dbe8ff}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;margin:0;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+header{background:var(--navy);color:#fff;padding:0 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.brand{font-weight:700;font-size:16px;letter-spacing:.04em;padding:12px 0}.brand span{color:#6f9bff}
+nav{display:flex;gap:2px;overflow-x:auto;flex:1}
+nav button{background:none;border:0;color:#aab4cf;padding:14px 12px;cursor:pointer;font-size:13.5px;border-bottom:3px solid transparent;white-space:nowrap}
+nav button:hover{color:#fff}nav button.on{color:#fff;border-color:#6f9bff;font-weight:600}
+.hr{display:flex;align-items:center;gap:8px;padding:8px 0}
+.hr input[type=month]{background:#202a49;color:#fff;border:1px solid #38446b}
+.mb{background:#202a49;color:#fff;border:1px solid #38446b;border-radius:6px;width:28px;height:28px;cursor:pointer}
+#st2{font-size:12px;color:#7be0b0}
+main{max-width:1500px;margin:0 auto;padding:20px}
+.tab{display:none}.tab.on{display:block}
+.ph{margin:0 0 14px}.ph h1{font-size:20px;margin:0}.ph p{margin:2px 0 0;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 2px #1b23330a}
+.card h2{font-size:15px;margin:0 0 10px;padding-left:10px;border-left:4px solid var(--pri)}
+p{margin:8px 0}small,.mu{color:var(--mute)}
+table{border-collapse:separate;border-spacing:0;background:#fff;font-size:13px}
+th,td{border-bottom:1px solid var(--line);border-right:1px solid #eef1f6;padding:5px 9px;text-align:center;white-space:nowrap}
+th{background:#eef2f9;color:#3b4560;font-weight:600;position:sticky;top:0;z-index:2}
+td.l,th.l{text-align:left}
+:where(table.z tr:nth-child(even)) td{background:#fafbfd}
+.wrap{overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:8px}
+input,select,button,textarea{font:inherit;color:inherit}
+input[type=text],input[type=number],input[type=date],input[type=time],input[type=password],input[type=month],select,textarea{padding:5px 8px;border:1px solid #cfd6e4;border-radius:7px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid #bcd0ff;border-color:var(--pri)}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:600}
+.btn:hover{filter:brightness(1.08)}.btn.g{background:#fff;color:#33405e;border:1px solid #cfd6e4;font-weight:500}.btn.g:hover{background:#f0f3fa}
+.btn.g.on,.btn.on{background:var(--pri);color:#fff}
+pre,#log{background:#f5f7fb;border-radius:8px;padding:10px;max-height:180px;overflow:auto;font-size:12px;white-space:pre-wrap;margin:10px 0 0}
+.drop{display:block;border:2px dashed #b9c5e0;border-radius:12px;padding:28px;text-align:center;color:var(--mute);cursor:pointer;background:#f8faff}
+.drop.on,.drop:hover{border-color:var(--pri);background:#eef3ff;color:var(--pri)}.drop input{display:none}.drop b{display:block;font-size:15px;color:var(--ink)}
+tr.row{cursor:pointer}tr.row:hover td{background:#eef4ff!important}
+.hol td,td.hol,th.hol{background:#fff0f1}.c-abs{background:#ffe1e1}.c-pl{background:#e4f6ea}.we,.we td{background:#f5f6fa}.gray{background:#f1f2f5}
+tr.c-abs td{background:#ffe9e9}tr.c-pl td{background:#eaf7ee}
+.fw,tr.fw td{background:var(--fw)}.fwt{background:var(--fw);padding:0 3px;border-radius:3px}
+.c-late{color:var(--bad);font-weight:700}
+.ch{background:var(--pri);color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
+.cell{cursor:pointer;min-width:46px;height:40px}.cell:hover{outline:2px solid var(--pri);outline-offset:-2px}
+#bg td:first-child,#bg th:first-child{position:sticky;left:0;z-index:1;background:#fff;text-align:left;font-weight:600}#bg th:first-child{z-index:3;background:#eef2f9}
+.tg{display:inline-block;padding:0 9px;border-radius:10px;font-size:12px;font-weight:600;background:#e8ecf4;color:#506080}
+.tg.ok{background:#dff5e8;color:#127a4c}.tg.hol{background:#ffd9dd;color:#b3263c}.tg.pl{background:#d3f0dc;color:#127a4c}.tg.ab{background:#ffc9c9;color:#b3202a}.tg.hw{background:#ffe7b8;color:#8a5a00}
+.kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px;margin-top:14px}
+.kpi div{background:#f6f8fc;border:1px solid var(--line);border-radius:10px;padding:9px 12px}.kpi span{font-size:12px;color:var(--mute);display:block}.kpi b{font-size:19px}.kpi .w b{color:var(--bad)}
+.who{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:10px 0;padding:10px 14px;background:#f6f8fc;border:1px solid var(--line);border-radius:10px}
+.lgd{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;color:var(--mute);font-size:12.5px;align-items:center}
+.sw{display:inline-block;width:13px;height:13px;vertical-align:middle;border:1px solid #99a;border-radius:3px;margin-right:4px}
+.cc{background:#f1f7ff}th.cc{background:#dfeafc}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#e8eefc;border-radius:14px;padding:3px 12px;margin:2px}
+dialog{border:0;border-radius:14px;padding:20px;width:min(560px,94vw);box-shadow:0 20px 60px #0004}dialog::backdrop{background:#10162866}
+#dlg #db{display:flex;gap:6px;flex-wrap:wrap}#dt{font-weight:600}
+#dlg textarea{width:100%}
+#login{position:fixed;inset:0;background:linear-gradient(135deg,#141c33,#2a3a78);display:flex;align-items:center;justify-content:center;z-index:20}
+#login .card{width:320px;padding:26px}#login h2{border:0;padding:0;font-size:18px}#login input{width:100%;margin-bottom:10px}
+@media(max-width:700px){main{padding:10px}header{gap:6px}.card{padding:12px}}
 </style></head><body>
-<header><h1>出勤簿</h1>
-<nav id="nav"><button data-t="imp" class="on">① 取込</button><button data-t="emp">② 社員・勤務時間</button><button data-t="cal">③ 休日・一斉有給</button><button data-t="book">④ 月次出勤簿</button><button data-t="grid">⑤ 全員一覧</button><button data-t="data">⑥ 取込データ</button><button data-t="sum">⑦ 集計・給与</button><button data-t="log">⑧ 編集ログ</button></nav>
-<span style="margin-left:auto"><small id="st2" style="color:#9fb">未ログイン</small> <button class="btn g" id="lo">ログアウト</button> 対象月 <input type="month" id="ym"></span></header>
-<div id="login" style="position:fixed;inset:0;background:#1f2a44ee;display:flex;align-items:center;justify-content:center;z-index:9"><div class="card" style="width:280px"><h2>ログイン</h2><input type="text" id="em" placeholder="メールアドレス" style="width:100%;margin-bottom:6px;box-sizing:border-box"><input type="password" id="pw" placeholder="パスワード" style="width:100%;margin-bottom:8px;box-sizing:border-box;padding:3px 5px"><button class="btn" id="li">ログイン</button> <small id="le" style="color:#d33"></small></div></div>
+<header><div class="brand">LDY <span>勤怠</span></div>
+<nav id="nav"><button data-t="imp" class="on">取込</button><button data-t="emp">社員・勤務時間</button><button data-t="cal">休日・一斉有給</button><button data-t="book">月次出勤簿</button><button data-t="grid">全員一覧</button><button data-t="data">取込データ</button><button data-t="sum">集計・給与</button><button data-t="log">編集ログ</button></nav>
+<div class="hr"><small id="st2">未ログイン</small><button class="mb" id="mp">◀</button><input type="month" id="ym"><button class="mb" id="mn">▶</button><button class="btn g" id="lo" style="padding:4px 10px">ログアウト</button></div></header>
+<div id="login"><div class="card"><h2>勤怠管理 ログイン</h2><p class="mu">LDY 出勤簿システム</p><input type="text" id="em" placeholder="メールアドレス"><input type="password" id="pw" placeholder="パスワード"><button class="btn" id="li" style="width:100%">ログイン</button><p><small id="le" style="color:var(--bad)"></small></p></div></div>
 <main>
-<section class="tab on" id="imp"><div class="card"><h2>打刻アプリのエクスポート(.xlsx)を取り込む</h2>
-<p>複数ファイル・期間が重なるファイルもOK(同じ社員×日付は上書き)。「每日统计」の全項目と「原始记录」(打刻ログ・場所)を保存します。<b>外勤の色分け・場所表示には再取込が必要です。</b></p>
-<input type="file" id="file" accept=".xlsx" multiple> <pre id="log">未取込</pre></div>
-<div class="card"><h2>バックアップ</h2><button class="btn g" id="bk">JSON書き出し</button> <input type="file" id="rs" accept=".json"><br><small>データはFirestore(att_meta / att_months / att_raw)に自動保存され、ブラウザにもキャッシュします。</small></div></section>
+<section class="tab on" id="imp"><div class="ph"><h1>取込</h1><p>打刻アプリのエクスポートを取り込みます。期間が重なるファイルは新しい方で上書きします。</p></div>
+<div class="card"><label class="drop" id="dz"><b>xlsxファイルをここにドロップ、またはクリックして選択</b>「每日统计」の全項目と「原始记录」(打刻ログ・場所)を保存します(複数選択可)<input type="file" id="file" accept=".xlsx" multiple></label><div id="log">未取込</div></div>
+<div class="card"><h2>バックアップ</h2><button class="btn g" id="bk">JSON書き出し</button> <input type="file" id="rs" accept=".json"><p><small>データはFirestore(att_meta / att_months / att_raw / att_log)に自動保存され、ブラウザにもキャッシュします。</small></p></div></section>
 
-<section class="tab" id="emp"><div class="card"><h2>社員(取込で自動追加。氏名などを入力)</h2><div class="wrap"><table id="et"></table></div><small>みなし残業(h/月)と月給を入れると集計に反映されます。</small></div>
-<div class="card"><h2>勤務時間(曜日別)</h2><table id="sch"></table>
-<p>グループ会社出勤時の始業 <input type="time" id="c_gs"> <small>(出勤簿の日付クリック →「グループ会社出勤」で、その日だけこの始業で遅刻判定)</small></p>
-<p>休憩控除 <input type="number" id="c_brk" style="width:60px">分(6時間以上の勤務)　月平均所定 <input type="number" id="c_hrs" style="width:60px">時間　残業割増 <input type="number" step="0.01" id="c_rate" style="width:60px">倍　休日割増 <input type="number" step="0.01" id="c_hrate" style="width:60px">倍</p><p>事前申請なしで認める残業 <input type="number" id="c_cap" style="width:60px">分/日 <small>(これを超える分は「申請実動」に含めず、日ごとの「残業事前申請」を入れた分だけ認めます)</small></p>
-<small>遅刻・早退はこの時間と打刻から自動計算します(アプリの遅刻判定は使いません)。残業は「実働 − (終業−始業−休憩)」です。</small></div></section>
+<section class="tab" id="emp"><div class="ph"><h1>社員・勤務時間</h1><p>打刻がある人が上、打刻不要の人は最後に並びます。</p></div>
+<div class="card"><h2>社員</h2><div class="wrap"><table id="et" class="z"></table></div><p><small>登録氏名・入社日・退職日・みなし残業(h/月)・月給を入れると、出勤簿と集計に反映されます。</small></p></div>
+<div class="card"><h2>勤務時間(曜日別)</h2><table id="sch" class="z"></table>
+<p>グループ会社出勤時の始業 <input type="time" id="c_gs"> <small>(出勤簿の行をクリック →「グループ会社出勤」で、その日だけこの始業で遅刻判定)</small></p>
+<p>休憩控除 <input type="number" id="c_brk" style="width:70px">分(6時間以上の勤務)　月平均所定 <input type="number" id="c_hrs" style="width:70px">時間　残業割増 <input type="number" step="0.01" id="c_rate" style="width:70px">倍　休日割増 <input type="number" step="0.01" id="c_hrate" style="width:70px">倍</p><p>事前申請なしで認める残業 <input type="number" id="c_cap" style="width:70px">分/日 <small>(超える分は、日ごとの「残業事前申請」を入れた分だけ認めます)</small></p>
+<small>遅刻・早退はこの時間と打刻から自動計算します(アプリの遅刻判定は使いません)。時間外は「申請実動 − 所定時間」です。</small></div></section>
 
-<section class="tab" id="cal"><div class="card"><h2>毎週の会社休日</h2><span id="wk"></span><br><small>チェックした曜日は毎週休みです(初期値: 水・日)。</small></div>
+<section class="tab" id="cal"><div class="ph"><h1>休日・一斉有給</h1><p>毎週の休みと、期間で決まる休み・一斉有給を設定します。</p></div>
+<div class="card"><h2>毎週の会社休日</h2><span id="wk"></span><p><small>チェックした曜日は毎週休みです(初期値: 水・日)。</small></p></div>
 <div class="card"><h2>会社休日(期間)</h2><div id="hl"></div>
-<p>追加: <input type="date" id="h1"> ～ <input type="date" id="h2"> <input type="text" id="h3" placeholder="名称(例: 創立記念日)" style="width:150px"> <button class="btn" onclick="addP('hol','h')">追加</button></p>
-<p>ひな形(対象月の年で追加。あとから日付を編集できます): <button class="btn g" onclick="preset('GW')">GW 4/29-5/5</button> <button class="btn g" onclick="preset('お盆')">お盆 8/13-8/16</button> <button class="btn g" onclick="preset('年末年始')">年末年始 12/29-1/3</button></p></div>
+<p>追加: <input type="date" id="h1"> ～ <input type="date" id="h2"> <input type="text" id="h3" placeholder="名称(例: 創立記念日)" style="width:170px"> <button class="btn" onclick="addP('hol','h')">追加</button></p>
+<p>ひな形(表示中の月の年で追加。あとから編集可): <button class="btn g" onclick="preset('GW')">GW 4/29-5/5</button> <button class="btn g" onclick="preset('お盆')">お盆 8/13-8/16</button> <button class="btn g" onclick="preset('年末年始')">年末年始 12/29-1/3</button></p></div>
 <div class="card"><h2>会社一斉有給(期間)</h2><div id="bl"></div>
-<p>追加: <input type="date" id="b1"> ～ <input type="date" id="b2"> <input type="text" id="b3" placeholder="名称" style="width:150px"> <button class="btn" onclick="addP('bulk','b')">追加</button></p></div></section>
+<p>追加: <input type="date" id="b1"> ～ <input type="date" id="b2"> <input type="text" id="b3" placeholder="名称" style="width:170px"> <button class="btn" onclick="addP('bulk','b')">追加</button></p></div></section>
 
-<section class="tab" id="book"><div class="card"><h2 id="bt"></h2>社員 <select id="bu"></select><div id="bh" style="margin:8px 0"></div>
-<div class="wrap" style="margin-top:8px"><table id="bv"></table></div><p id="bs"></p>
-<small><span class="sw fw"></span> 外勤打刻(出勤・退勤を別々に表示)　<b class="c-late">赤字</b>=遅刻・早退・打刻漏れ　行をクリックで有給・遅延証・グループ会社出勤などを編集</small></div></section>
+<section class="tab" id="book"><div class="ph"><h1 id="bt"></h1><p>行をクリックすると、時刻の修正・コメント・有給・遅延証などを編集できます。</p></div>
+<div class="card"><label>社員 <select id="bu"></select></label><div id="bh" class="who"></div><div id="bs"></div>
+<div class="wrap" style="margin-top:14px"><table id="bv" class="z"></table></div>
+<div class="lgd"><span><i class="sw" style="background:var(--fw)"></i>外勤打刻</span><span><i class="sw" style="background:#fff0f1"></i>会社休日</span><span><i class="sw" style="background:#e4f6ea"></i>有給</span><span><i class="sw" style="background:#ffe1e1"></i>欠勤</span><span class="c-late">赤字=遅刻・早退・打刻漏れ</span></div></div></section>
 
-<section class="tab" id="grid"><div class="card"><h2>全員一覧(上段=出勤 / 下段=退勤)</h2><div class="wrap"><table id="bg"></table></div>
-<small><span class="sw fw"></span> 外勤打刻(上段=出勤・下段=退勤のどちらが外勤かを青と「外」で表示。場所はマウスを乗せるか、セルをクリックで確認)　<b class="c-late">赤字</b>=遅刻・早退・打刻漏れ</small></div></section>
+<section class="tab" id="grid"><div class="ph"><h1>全員一覧</h1><p>上段=出勤、下段=退勤。セルをクリックで編集、マウスを乗せると外勤の場所を表示します。</p></div>
+<div class="card"><div class="wrap"><table id="bg"></table></div>
+<div class="lgd"><span><i class="sw" style="background:var(--fw)"></i>外勤打刻(「外」が付いた側)</span><span><i class="sw" style="background:#fff0f1"></i>会社休日</span><span><i class="sw" style="background:#e4f6ea"></i>有給</span><span><i class="sw" style="background:#ffc9c9"></i>欠勤</span><span class="c-late">赤字=遅刻・早退・打刻漏れ</span><span>💬コメント　✎時刻修正</span></div></div></section>
 
-<section class="tab" id="data"><div class="card"><h2>取込データ(全項目)</h2>社員 <select id="du"></select> <small>対象月のデータをすべて表示</small>
-<h2 style="margin-top:10px">日次データ</h2><div class="wrap"><table id="dd"></table></div>
-<h2 style="margin-top:10px">打刻ログ(場所つき)</h2><div class="wrap"><table id="dr"></table></div></div></section>
+<section class="tab" id="data"><div class="ph"><h1>取込データ</h1><p>取り込んだ内容を、そのまま確認できます。右側の青い列は、このシステムでの計算結果です。</p></div>
+<div class="card"><label>社員 <select id="du"></select></label> <span id="dn" class="c-late"></span>
+<h2 style="margin-top:14px">日次データ</h2><div class="wrap"><table id="dd" class="z"></table></div>
+<h2 style="margin-top:18px">打刻ログ(場所つき)</h2><div class="wrap"><table id="dr" class="z"></table></div></div></section>
 
-<section class="tab" id="log"><div class="card"><h2>編集ログ(対象月の日付分)</h2><div class="wrap"><table id="lt"></table></div><small>打刻時刻・区分・コメントなどの手動編集が、日時と編集者つきで残ります。</small></div></section>
+<section class="tab" id="sum"><div class="ph"><h1>集計・給与</h1><p>月ごとの勤怠集計と給与の概算です。</p></div>
+<div class="card"><button class="btn" id="csv">CSV出力(給与計算用)</button><div class="wrap" style="margin-top:12px"><table id="st" class="z"></table></div></div></section>
 
-<section class="tab" id="sum"><div class="card"><h2>月次集計</h2><button class="btn" id="csv">CSV出力(給与計算用)</button><div class="wrap" style="margin-top:8px"><table id="st"></table></div></div></section>
+<section class="tab" id="log"><div class="ph"><h1>編集ログ</h1><p>打刻時刻・区分・コメントなどの手動編集が、日時と編集者つきで残ります(表示は対象月)。</p></div>
+<div class="card"><div class="wrap"><table id="lt" class="z"></table></div></div></section>
 </main>
-<dialog id="dlg"><div id="dt" style="margin-bottom:8px"></div></dialog>
+<dialog id="dlg"><div id="dt"></div></dialog>
 <script>
 const K='ldy_att_v1',$=s=>document.querySelector(s);
 const DSCH=[0,1,2,3,4,5,6].map(w=>w===1?['08:45','18:00']:['09:00','18:00']);
@@ -83,6 +129,9 @@ const tm=x=>{const m=/(\d{1,2}):(\d\d)/.exec(x||'');return m?+m[1]*60+ +m[2]:nul
 const today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,#nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#'+b.dataset.t).classList.add('on');render()});
 $('#ym').value=ym;$('#ym').onchange=e=>{ym=e.target.value;render()};
+function mv(n){const d=new Date(+ym.slice(0,4),+ym.slice(5)-1+n,1);ym=d.getFullYear()+'-'+pad(d.getMonth()+1);$('#ym').value=ym;render()}
+$('#mp').onclick=()=>mv(-1);$('#mn').onclick=()=>mv(1);
+const dz=$('#dz');dz.ondragover=e=>{e.preventDefault();dz.classList.add('on')};dz.ondragleave=()=>dz.classList.remove('on');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('on');$('#file').files=e.dataTransfer.files;$('#file').dispatchEvent(new Event('change'))};
 
 $('#file').onchange=async e=>{let out=[];for(const f of e.target.files){try{const wb=XLSX.read(await f.arrayBuffer());const d=wb.Sheets['每日统计'];if(!d){out.push(f.name+': 「每日统计」シートなし');continue}
 const rows=XLSX.utils.sheet_to_json(d,{header:1,defval:null});let n=0;
@@ -120,6 +169,7 @@ const pun=u=>Object.keys(S.days).some(k=>k.startsWith(u+'|'+ym)&&S.days[k].att>0
 const rank=u=>S.emps[u].nopunch?2:(pun(u)?0:1);
 const srtE=L=>L.sort((a,b)=>rank(a)-rank(b)||((S.emps[a].dept||'')+a).localeCompare((S.emps[b].dept||'')+b));
 const emps=()=>srtE(Object.keys(S.emps).filter(u=>{const e=S.emps[u];if((e.leave&&e.leave<ym+'-01')||(e.join&&e.join>ym+'-31'))return false;return Object.keys(S.days).some(k=>k.startsWith(u+'|'+ym))||Object.keys(S.ov).some(k=>k.startsWith(u+'|'+ym))}));
+const tg=i=>{const c=i.hot>0?'hw':i.t==='work'||i.t==='half'?'ok':i.t==='hol'?'hol':(i.t==='pl'||i.t==='bulk')?'pl':i.t==='abs'?'ab':'',l=i.hot>0?'休日出勤':LB[i.t]||'';return l?`<span class="tg ${c}">${l}</span>`:''};
 function sumOf(u){const e=S.emps[u],s={sd:0,wd:0,kn:0,sj:0,lc:0,lm:0,dl:0,ec:0,em:0,ab:0,pl:0,mc:0,fw:0,nc:0,ot:0,hot:0};
 for(let d=1;d<=dim();d++){const i=info(u,ym+'-'+pad(d));if(i.t!=='out'&&i.t!=='hol')s.sd++;
 if(i.t==='work'){s.wd+=1}if(i.t==='half'){s.wd+=.5;s.pl+=.5}if(i.t==='pl'||i.t==='bulk')s.pl+=1;if(i.t==='abs')s.ab+=1;
@@ -170,9 +220,9 @@ h='<tr><th>日付</th><th>曜</th><th>区分</th><th>出勤時間</th><th>退勤
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt),wk=new Date(dt).getDay(),w=i.t==='work'||i.t==='half',sh=w||i.hot>0;
 const cl=i.t==='hol'?'hol':i.t==='abs'?'c-abs':(i.t==='pl'||i.t==='bulk')?'c-pl':(i.t==='out'||i.t==='rest'||i.t==='off')?'we':'';
 const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤(外勤): '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.g?'グループ会社出勤':'',i.ap?'残業事前申請 '+(i.ap/60)+'h':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||'',i.cm?'💬 '+i.cm:''].filter(Boolean).map(esc).join(' / ')+((i.mc||i.fw)&&!i.cm?' <b class=c-late>要コメント</b>':'');
-h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}</td><td>${WD[wk]}</td><td>${i.hot>0?'休日出勤':LB[i.t]||''}</td><td class="${i.inFw?'fw':''}">${sh?(i.i1||'--'):''}${i.inFw?'<b class=ch>外勤</b>':''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${sh?(i.o1||'--'):''}${i.outFw?'<b class=ch>外勤</b>':''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${sh&&i.bk?hm(i.bk):''}</td><td>${sh&&i.kn?hm(i.kn):''}</td><td class=gray>${w&&i.sj?hm(i.sj):''}</td><td class=gray>${w&&i.sj?hm(i.ot):''}</td><td class=gray>${w?(i.late?'<b class=c-late>'+hm(i.late)+'</b>':i.ex?'遅延証 '+hm(i.ex):'0:00'):''}</td><td class=gray>${w?(i.early?'<b class=c-late>'+hm(i.early)+'</b>':'0:00'):''}</td><td class=l>${nt}</td></tr>`}
-const s=sumOf(u),P=(l,v)=>`<th>${l}</th><td>${v}</td>`;
-$('#bs').innerHTML='<table><tr>'+P('所定出勤日数',s.sd)+P('有給日数',s.pl)+P('打刻実動時間',hm(s.kn))+P('遅刻時間',hm(s.lm))+'</tr><tr>'+P('出勤日数',s.wd)+P('遅刻日数',s.lc)+P('実働時間',hm(s.sj))+P('早退時間',hm(s.em))+'</tr><tr>'+P('欠勤日数',s.ab)+P('早退日数',s.ec)+P('みなし残業',hm(s.miss))+P('残業時間',hm(s.ot))+'</tr><tr>'+P('休日労働',hm(s.hot))+P('外勤日数',s.fw)+P('遅延証',s.dl+'回')+P('要コメント',s.nc+'件')+'</tr></table>'}
+h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}</td><td>${WD[wk]}</td><td>${tg(i)}</td><td class="${i.inFw?'fw':''}">${sh?(i.i1||'--'):''}${i.inFw?'<b class=ch>外勤</b>':''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${sh?(i.o1||'--'):''}${i.outFw?'<b class=ch>外勤</b>':''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${sh&&i.bk?hm(i.bk):''}</td><td>${sh&&i.kn?hm(i.kn):''}</td><td class=gray>${w&&i.sj?hm(i.sj):''}</td><td class=gray>${w&&i.sj?hm(i.ot):''}</td><td class=gray>${w?(i.late?'<b class=c-late>'+hm(i.late)+'</b>':i.ex?'遅延証 '+hm(i.ex):'0:00'):''}</td><td class=gray>${w?(i.early?'<b class=c-late>'+hm(i.early)+'</b>':'0:00'):''}</td><td class=l>${nt}</td></tr>`}
+const s=sumOf(u),K=(l,v,w)=>`<div class="${w?'w':''}"><span>${l}</span><b>${v}</b></div>`;
+$('#bs').innerHTML='<div class="kpi">'+K('出勤日数',s.wd+' / '+s.sd+'日')+K('実働(申請)',hm(s.sj))+K('打刻実動',hm(s.kn))+K('残業(時間外)',hm(s.ot),s.ot>s.miss&&s.miss>0)+K('みなし残業',hm(s.miss))+K('遅刻',s.lc+'回 '+hm(s.lm),s.lc>0)+K('早退',s.ec+'回 '+hm(s.em),s.ec>0)+K('欠勤',s.ab+'日',s.ab>0)+K('有給',s.pl+'日')+K('休日労働',hm(s.hot))+K('外勤',s.fw+'日')+K('遅延証',s.dl+'回')+K('要コメント',s.nc+'件',s.nc>0)+'</div>'}
 else{$('#bh').innerHTML='';$('#bs').innerHTML=''}$('#bv').innerHTML=h;
 // 全員一覧
 h='<tr><th class=l>氏名</th>';
@@ -185,10 +235,15 @@ else if(i.t==='abs'){tx='欠';cl+=' c-abs'}else if(i.t==='pl'||i.t==='bulk'){tx=
 h+=`<td class="${cl}" title="${esc(ttl(i))}" onclick="edit('${u}','${dt}')">${tx}${i.cm?'💬':''}${i.ei||i.eo?'✎':''}</td>`}
 const s=sumOf(u);h+=`<td>${s.wd}</td><td>${hm(s.sj)}</td></tr>`});$('#bg').innerHTML=h;
 // 取込データ
-const du=$('#du').value,L=du?[du]:EL;h='<tr>'+HD.map(x=>`<th>${x}</th>`).join('')+'</tr>';
-L.forEach(u=>{for(let d=1;d<=n;d++){const r=S.days[u+'|'+ym+'-'+pad(d)];if(r&&r.x)h+='<tr class="'+((String(r.q1)+String(r.q2)).includes('外勤')?'fw':'')+'">'+r.x.map((v,j)=>`<td>${j===0?nm(u):(v==null?'':v)}</td>`).join('')+'</tr>'}});$('#dd').innerHTML=h;
+const du=$('#du').value,L=du?[du]:EL;let old=0;
+const fillX=(u,dt,r)=>{const x=new Array(32).fill('');x[0]=nm(u);x[4]=u;x[5]=dt;x[6]=r.sh;x[7]=r.i1;x[8]=r.q1;x[9]=r.o1;x[10]=r.q2;x[11]=r.i2;x[13]=r.o2;x[15]=r.ap;x[16]=r.att;x[18]=r.wm;x[28]=r.ab;return x};
+h='<tr>'+HD.map(x=>`<th>${x}</th>`).join('')+'<th class=cc>区分</th><th class=cc>打刻実動</th><th class=cc>申請実動</th><th class=cc>時間外</th><th class=cc>遅刻</th><th class=cc>早退</th></tr>';
+L.forEach(u=>{for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),r=S.days[u+'|'+dt];if(!r)continue;if(!r.x)old++;const x=r.x||fillX(u,dt,r),i=info(u,dt),w=i.t==='work'||i.t==='half';
+h+=`<tr class="${(String(r.q1)+String(r.q2)).includes('外勤')?'fw':''}">`+x.map((v,j)=>`<td>${j===0?esc(nm(u)):esc(v)}</td>`).join('')+`<td class=cc>${LB[i.t]||''}</td><td class=cc>${i.kn?hm(i.kn):''}</td><td class=cc>${w&&i.sj?hm(i.sj):''}</td><td class=cc>${w&&i.sj?hm(i.ot):''}</td><td class=cc>${w?(i.late?hm(i.late):i.ex?'遅延証':''):''}</td><td class=cc>${w&&i.early?hm(i.early):''}</td></tr>`}});
+$('#dd').innerHTML=h.length>40&&h.includes('<tr class')?h:h+'<tr><td colspan=40 class=l>この月の日次データがありません(対象月と、取込済みかどうかを確認してください)</td></tr>';
+$('#dn').textContent=old?'※ '+old+'件は古い取込のため一部項目のみ表示です。全項目を表示するには、xlsxをもう一度取り込んでください。':'';
 h='<tr><th>氏名</th><th>日付</th><th>打刻時刻</th><th>結果</th><th>場所</th><th>備考</th><th>端末</th><th>管理者修正</th></tr>';
-const mm=ym.slice(2);Object.values(S.raw).filter(r=>(!du||String(r[4])===du)&&String(r[7]).startsWith(ym)).sort((a,b)=>(String(a[4])+a[7]).localeCompare(String(b[4])+b[7])).forEach(r=>{h+=`<tr class="${String(r[8]).includes('外勤')?'fw':''}"><td>${nm(String(r[4]))}</td>`+[5,7,8,9,10,13,14].map(j=>`<td>${r[j]==null?'':r[j]}</td>`).join('')+'</tr>'});$('#dr').innerHTML=h;
+const mm=ym.slice(2);Object.values(S.raw).filter(r=>(!du||String(r[4])===du)&&String(r[7]).startsWith(ym)).sort((a,b)=>(String(a[4])+a[7]).localeCompare(String(b[4])+b[7])).forEach(r=>{h+=`<tr class="${String(r[8]).includes('外勤')?'fw':''}"><td>${nm(String(r[4]))}</td>`+[5,7,8,9,10,13,14].map(j=>`<td>${r[j]==null?'':r[j]}</td>`).join('')+'</tr>'});$('#dr').innerHTML=h.includes('<tr class')?h:h+'<tr><td colspan=8 class=l>打刻ログがありません(「原始记录」シートを含むxlsxを取り込むと表示されます)</td></tr>';
 $('#lt').innerHTML='<tr><th>編集日時</th><th>編集者</th><th>社員</th><th>対象日</th><th>項目</th><th>変更前</th><th>変更後</th></tr>'+S.log.filter(l=>l.dt.startsWith(ym)).sort((a,b)=>b.ts-a.ts).map(l=>'<tr><td>'+new Date(l.ts).toLocaleString('ja-JP')+'</td>'+[l.by,l.n,l.dt,l.f,l.a,l.b].map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('');
 $('#st').innerHTML=sumHtml()}
 const COLS=[['','氏名',(u,s,e)=>nm(u)+(e.nopunch?'(打刻不要)':'')],['','部門',(u,s,e)=>e.dept||''],
