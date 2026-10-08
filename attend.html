@@ -15,6 +15,8 @@ nav button:hover{color:#fff}nav button.on{color:#fff;border-color:#6f9bff;font-w
 .hr input[type=month]{background:#202a49;color:#fff;border:1px solid #38446b}
 .mb{background:#202a49;color:#fff;border:1px solid #38446b;border-radius:6px;width:28px;height:28px;cursor:pointer}
 #st2{font-size:12px;color:#7be0b0}
+body.ro [data-t="imp"],body.ro #imp{display:none!important}
+body.locked main,body.locked #nav,body.locked .hr{display:none}
 main{max-width:1500px;margin:0 auto;padding:20px}
 .tab{display:none}.tab.on{display:block}
 .ph{margin:0 0 14px}.ph h1{font-size:20px;margin:0}.ph p{margin:2px 0 0;color:var(--mute)}
@@ -40,7 +42,7 @@ tr.row{cursor:pointer}tr.row:hover td{background:#eef4ff!important}
 .hol td,td.hol,th.hol{background:#fff0f1}.c-abs{background:#ffe1e1}.c-pl{background:#e4f6ea}.we,.we td{background:#f5f6fa}.gray{background:#f1f2f5}
 tr.c-abs td{background:#ffe9e9}tr.c-pl td{background:#eaf7ee}
 .fw,tr.fw td{background:var(--fw)}.fwt{background:var(--fw);padding:0 3px;border-radius:3px}
-.c-late{color:var(--bad);font-weight:700}.sm{padding:1px 8px!important;font-size:12px;margin-left:4px;border-radius:6px!important}.dly{background:#8a5cf6;color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
+.c-late{color:var(--bad);font-weight:700}.phs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.th{display:inline-flex;flex-direction:column;align-items:center;gap:3px}.th img{height:72px;border-radius:6px;border:1px solid var(--line)}.sm{padding:1px 8px!important;font-size:12px;margin-left:4px;border-radius:6px!important}.dly{background:#8a5cf6;color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
 .ch{background:var(--pri);color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
 .cell{cursor:pointer;min-width:46px;height:40px}.cell:hover{outline:2px solid var(--pri);outline-offset:-2px}
 #bg td:first-child,#bg th:first-child{position:sticky;left:0;z-index:1;background:#fff;text-align:left;font-weight:600}#bg th:first-child{z-index:3;background:#eef2f9}
@@ -59,10 +61,10 @@ dialog{border:0;border-radius:14px;padding:20px;width:min(560px,94vw);box-shadow
 #login{position:fixed;inset:0;background:linear-gradient(135deg,#141c33,#2a3a78);display:flex;align-items:center;justify-content:center;z-index:20}
 #login .card{width:320px;padding:26px}#login h2{border:0;padding:0;font-size:18px}#login input{width:100%;margin-bottom:10px}
 @media(max-width:700px){main{padding:10px}header{gap:6px}.card{padding:12px}}
-</style></head><body>
+</style></head><body class="locked">
 <header><div class="brand">LDY <span>勤怠</span></div>
 <nav id="nav"><button data-t="imp" class="on">取込</button><button data-t="emp">設定</button><button data-t="book">月次出勤簿</button><button data-t="grid">全員一覧</button><button data-t="data">取込データ</button><button data-t="sum">集計・給与</button></nav>
-<div class="hr"><small id="st2">未ログイン</small><button class="mb" id="mp">◀</button><input type="month" id="ym"><button class="mb" id="mn">▶</button><button class="btn g" id="lo" style="padding:4px 10px">ログアウト</button></div></header>
+<div class="hr"><small id="lv" style="color:#ffd27a"></small><small id="st2">未ログイン</small><button class="mb" id="mp">◀</button><input type="month" id="ym"><button class="mb" id="mn">▶</button><button class="btn g" id="lo" style="padding:4px 10px">ログアウト</button></div></header>
 <div id="login"><div class="card"><h2>勤怠管理 ログイン</h2><p class="mu">LDY 出勤簿システム</p><input type="text" id="em" placeholder="メールアドレス"><input type="password" id="pw" placeholder="パスワード"><button class="btn" id="li" style="width:100%">ログイン</button><p><small id="le" style="color:var(--bad)"></small></p></div></div>
 <main>
 <section class="tab on" id="imp"><div class="ph"><h1>取込</h1><p>打刻アプリのエクスポートを取り込みます。期間が重なるファイルは新しい方で上書きします。</p></div>
@@ -105,17 +107,21 @@ dialog{border:0;border-radius:14px;padding:20px;width:min(560px,94vw);box-shadow
 
 </main>
 <dialog id="dlg"><div id="dt"></div></dialog>
+<dialog id="pv" style="width:min(900px,96vw)"><img id="pvi" style="max-width:100%;border-radius:8px"><p style="text-align:right;margin:8px 0 0"><button class="btn g" onclick="document.getElementById('pv').close()">閉じる</button></p></dialog>
 <script>
 const K='ldy_att_v1',$=s=>document.querySelector(s);
 const DSCH=[0,1,2,3,4,5,6].map(w=>w===1?['08:45','18:00']:['09:00','18:00']);
 const DC={brk:60,hrs:160,rate:1.25,hrate:1.35,cap:60,gs:'09:30',sch:DSCH};
-let S={days:{},emps:{},hol:[],bulk:[],wk:[0,3],ov:{},gr:{},dc:{},pe:{},cm:{},ap:{},log:[],raw:{},cfg:Object.assign({},DC)};
-function load(){try{const t=localStorage.getItem(K);if(t)S=Object.assign(S,JSON.parse(t))}catch(e){}}
+const fresh=()=>({days:{},emps:{},hol:[],bulk:[],wk:[0,3],ov:{},gr:{},dc:{},pe:{},cm:{},ap:{},ph:{},log:[],raw:{},cfg:Object.assign({},DC)});let S=fresh();
+function load(){try{const t=localStorage.getItem(K);if(t)S=Object.assign(S,JSON.parse(t))}catch(e){}norm()}
 const dirty=new Set();window.CL={push:null};
-function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}if(CL.push)CL.push()}
-load();
+const RO=()=>window.LV==='view';
+function save(){if(RO())return;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}if(CL.push)CL.push()}
 const mig=a=>(a||[]).map(x=>typeof x==='string'?{s:x,e:x,n:''}:x);
-S.hol=mig(S.hol);S.bulk=mig(S.bulk);S.cfg=Object.assign({},DC,S.cfg);S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.log=S.log||[];
+function norm(){S.hol=mig(S.hol);S.bulk=mig(S.bulk);S.cfg=Object.assign({},DC,S.cfg);S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.ph=S.ph||{};S.log=S.log||[]}
+norm();
+function unlock(){document.body.classList.remove('locked');document.body.classList.toggle('ro',RO());load();render();if(RO()){const b=document.querySelector('#nav [data-t="book"]');if(b)b.click()}}
+function lockUI(){window.LV='';for(const k in PC)delete PC[k];document.body.classList.remove('ro');document.body.classList.add('locked');try{localStorage.removeItem(K)}catch(e){}S=fresh();norm();RI=null;RN=-1;dirty.clear();render()}
 let ym=new Date().toISOString().slice(0,7);
 const WD='日月火水木金土',pad=n=>String(n).padStart(2,'0'),hh=m=>(m/60).toFixed(2);
 const LB={out:'在籍外',work:'出勤',half:'半休',abs:'欠勤',pl:'有給',bulk:'一斉有給',hol:'会社休日',rest:'休み',off:'休み(無給)'};
@@ -173,11 +179,11 @@ const rank=u=>S.emps[u].nopunch?2:(pun(u)?0:1);
 const srtE=L=>L.sort((a,b)=>rank(a)-rank(b)||((S.emps[a].dept||'')+a).localeCompare((S.emps[b].dept||'')+b));
 const emps=()=>srtE(Object.keys(S.emps).filter(u=>{const e=S.emps[u];if((e.leave&&e.leave<ym+'-01')||(e.join&&e.join>ym+'-31'))return false;return Object.keys(S.days).some(k=>k.startsWith(u+'|'+ym))||Object.keys(S.ov).some(k=>k.startsWith(u+'|'+ym))}));
 const tg=i=>{const c=i.hot>0?'hw':i.t==='work'||i.t==='half'?'ok':i.t==='hol'?'hol':(i.t==='pl'||i.t==='bulk')?'pl':i.t==='abs'?'ab':'',l=i.hot>0?'休日出勤':LB[i.t]||'';return l?`<span class="tg ${c}">${l}</span>`:''};
-function sumOf(u){const e=S.emps[u],s={sd:0,wd:0,kn:0,sj:0,lc:0,lm:0,dl:0,ec:0,em:0,ab:0,pl:0,mc:0,mc0:0,fw:0,nc:0,ot:0,hot:0};
+function sumOf(u){const e=S.emps[u],s={sd:0,wd:0,kn:0,sj:0,lc:0,lm:0,dl:0,dlnp:0,ec:0,em:0,ab:0,pl:0,mc:0,mc0:0,fw:0,nc:0,ot:0,hot:0};
 for(let d=1;d<=dim();d++){const i=info(u,ym+'-'+pad(d));if(i.t!=='out'&&i.t!=='hol')s.sd++;
 if(i.t==='work'){s.wd+=1}if(i.t==='half'){s.wd+=.5;s.pl+=.5}if(i.t==='pl'||i.t==='bulk')s.pl+=1;if(i.t==='abs')s.ab+=1;
 if(i.t==='work'||i.t==='half'){s.kn+=i.kn;s.sj+=i.sj}
-if(i.late){s.lc++;s.lm+=i.late}if(i.ex)s.dl++;if(i.early){s.ec++;s.em+=i.early}s.mc+=i.mc;s.mc0+=i.mc0;if(i.fw)s.fw++;if((i.mc||i.fw)&&!i.cm)s.nc++;s.ot+=i.ot;s.hot+=i.hot}
+if(i.late){s.lc++;s.lm+=i.late}if(i.ex){s.dl++;if(!(S.ph[u+'|'+ym+'-'+pad(d)]||[]).length)s.dlnp++}if(i.early){s.ec++;s.em+=i.early}s.mc+=i.mc;s.mc0+=i.mc0;if(i.fw)s.fw++;if((i.mc||i.fw)&&!i.cm)s.nc++;s.ot+=i.ot;s.hot+=i.hot}
 s.miss=(+e.miss||0)*60;s.ex=Math.max(0,s.ot-s.miss);const hr=e.sal>0?e.sal/S.cfg.hrs:0;
 s.p1=Math.round(hr*S.cfg.rate*s.ex/60);s.p2=Math.round(hr*S.cfg.hrate*s.hot/60);s.ded=s.sd>0?Math.round((e.sal||0)/s.sd*s.ab):0;s.gross=e.sal>0?(+e.sal)+s.p1+s.p2-s.ded:0;return s}
 
@@ -190,12 +196,24 @@ function setS(w,i,v){S.cfg.sch[w][i]=v;save();render()}
 function preset(n){const y=+ym.slice(0,4),m={GW:[y+'-04-29',y+'-05-05'],'お盆':[y+'-08-13',y+'-08-16'],'年末年始':[y+'-12-29',(y+1)+'-01-03']}[n];S.hol.push({s:m[0],e:m[1],n});srt('hol');save();render()}
 function plist(k,el){$(el).innerHTML=S[k].length?'<table>'+S[k].map((p,i)=>`<tr><td><input type=date value="${p.s}" onchange="setP('${k}',${i},'s',this.value)"></td><td>～</td><td><input type=date value="${p.e}" onchange="setP('${k}',${i},'e',this.value)"></td><td><input type=text value="${p.n||''}" placeholder="名称" onchange="setP('${k}',${i},'n',this.value)"></td><td><button class="btn g" onclick="delP('${k}',${i})">削除</button></td></tr>`).join('')+'</table>':'<small>未設定</small>'}
 
+function shrink(f){return new Promise(res=>{const im=new Image(),url=URL.createObjectURL(f);im.onload=()=>{let m=1280,q=.7,d='';for(let i=0;i<6;i++){const sc=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);d=c.toDataURL('image/jpeg',q);if(d.length<400000)break;m*=.8;q=Math.max(.4,q-.08)}URL.revokeObjectURL(url);res(d)};im.onerror=()=>{URL.revokeObjectURL(url);res('')};im.src=url})}
+const PC={};
+async function photoSrc(p){if(p.url)return p.url;if(PC[p.id])return PC[p.id];if(!CL.photoGet)throw new Error('未ログイン');const d=await CL.photoGet(p.id);PC[p.id]=d;return d}
+function showPh(src){$('#pvi').src=src;$('#pv').showModal()}
+async function openPh(u,dt,j){const p=(S.ph[u+'|'+dt]||[])[j];if(!p)return;try{showPh(await photoSrc(p))}catch(e){alert('写真を読み込めませんでした: '+e.message)}}
+const phl=(u,dt)=>{const L=S.ph[u+'|'+dt]||[];return L.length?L.map((p,j)=>`<a href="#" onclick="event.stopPropagation();openPh('${u}','${dt}',${j});return false">📷${j+1}</a>`).join(' '):'<b class=c-late style="font-size:11px">写真なし</b>'};
 function toggleDc(u,dt){const k=u+'|'+dt;lg(u,dt,'遅延証',S.dc[k]?'あり':'なし',S.dc[k]?'なし':'あり');if(S.dc[k])delete S.dc[k];else S.dc[k]=1;save();render()}
 function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt,i=info(u,dt),r=i.r||{},oI=r.i1||'',oO=r.o2||r.o1||'';
 const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(b[7]));
-dl.innerHTML='<div id="dt" style="white-space:pre-line;margin-bottom:8px"></div><div id="db"></div><div style="margin:10px 0 6px">出勤 <input type=time id="e_i"> 退勤 <input type=time id="e_o"> <button class="btn g" id="e_x">時刻修正を取消</button><br>事前申請済みの残業 <input type=number step=0.5 min=0 id="e_a" style="width:60px"> 時間 <small>(1時間超の残業は事前申請が必要)</small><br><label><input type=checkbox id="e_d"> <b>遅延証あり</b>(この日の遅刻を遅延証扱いにして、遅刻に数えない)</label> <small id="e_dn"></small><br><small>打刻漏れ・誤りの修正。保存すると編集ログに残ります。</small></div><div>コメント(打刻漏れ・外勤の理由など)<br><textarea id="e_c" rows=3 style="width:100%;box-sizing:border-box"></textarea></div><div style="margin-top:8px"><button class="btn" id="e_s">保存</button> <button id="e_q">閉じる</button></div>';
+dl.innerHTML='<div id="dt" style="white-space:pre-line;margin-bottom:8px"></div><div id="db"></div><div style="margin:10px 0 6px">出勤 <input type=time id="e_i"> 退勤 <input type=time id="e_o"> <button class="btn g" id="e_x">時刻修正を取消</button><br>事前申請済みの残業 <input type=number step=0.5 min=0 id="e_a" style="width:60px"> 時間 <small>(1時間超の残業は事前申請が必要)</small><br><label><input type=checkbox id="e_d"> <b>遅延証あり</b>(この日の遅刻を遅延証扱いにして、遅刻に数えない)</label> <small id="e_dn"></small><div id="e_ph" class="phs"></div><label class="btn g sm" style="display:inline-block;margin:2px 0">📷 遅延証の写真を追加<input type=file id="e_f" accept="image/*" multiple style="display:none"></label> <small id="e_pn"></small><br><small>打刻漏れ・誤りの修正。保存すると編集ログに残ります。</small></div><div>コメント(打刻漏れ・外勤の理由など)<br><textarea id="e_c" rows=3 style="width:100%;box-sizing:border-box"></textarea></div><div style="margin-top:8px"><button class="btn" id="e_s">保存</button> <button id="e_q">閉じる</button></div>';
 $('#dt').textContent=nm(u)+'  '+dt+(rr.length?'\n打刻:\n'+rr.map(q=>String(q[7]).slice(-5)+' '+q[8]+' '+(q[9]||'')+(q[10]?' 「'+q[10]+'」':'')).join('\n'):'');
-$('#e_i').value=i.i1||'';$('#e_o').value=i.o1||'';$('#e_c').value=S.cm[k]||'';$('#e_a').value=(S.ap[k]||0)/60;$('#e_d').checked=!!S.dc[k];$('#e_dn').textContent=i.late||i.ex?'この日の遅刻: '+hm(i.late||i.ex):'この日は遅刻なし';{const hl=LI[k]||[];if(hl.length)$('#dt').textContent+='\n編集履歴:\n'+hl.map(l=>fdt(l.ts)+' '+(l.by||'')+' '+ft(l)).join('\n')}
+$('#e_i').value=i.i1||'';$('#e_o').value=i.o1||'';$('#e_c').value=S.cm[k]||'';$('#e_a').value=(S.ap[k]||0)/60;$('#e_d').checked=!!S.dc[k];
+const rph=()=>{const L=S.ph[k]||[];$('#e_ph').innerHTML=L.map((p,j)=>`<span class="th"><img data-j="${j}" style="cursor:pointer;min-width:60px;min-height:40px;background:#eee"><button class="btn g sm" data-j="${j}">削除</button></span>`).join('')||'<small>写真はまだありません</small>';
+ L.forEach(async(p,j)=>{try{const src=await photoSrc(p),im=document.querySelector('#e_ph img[data-j="'+j+'"]');if(im){im.src=src;im.onclick=()=>showPh(src)}}catch(x){}});
+ document.querySelectorAll('#e_ph button').forEach(b=>b.onclick=async()=>{const j=+b.dataset.j,p=S.ph[k][j],n=S.ph[k].length;if(!confirm('この写真を削除しますか？'))return;S.ph[k].splice(j,1);if(!S.ph[k].length)delete S.ph[k];lg(u,dt,'遅延証写真',n+'枚',(n-1)+'枚');if(CL.photoDel&&p.id)await CL.photoDel(p.id);save();rph()})};rph();
+$('#e_f').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!CL.photoPut){alert('ログイン後に添付できます');return}$('#e_pn').textContent='送信中…';
+try{for(const f of fs){const d=await shrink(f);if(!d)throw new Error('画像を読み込めませんでした');const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6),n=(S.ph[k]||[]).length;await CL.photoPut(id,{u,dt,name:f.name,ts:Date.now(),data:d});PC[id]=d;(S.ph[k]=S.ph[k]||[]).push({id,name:f.name,ts:Date.now()});lg(u,dt,'遅延証写真',n+'枚',(n+1)+'枚')}
+if(!S.dc[k]){lg(u,dt,'遅延証','なし','あり');S.dc[k]=1}$('#e_d').checked=true;save();$('#e_pn').textContent='';rph()}catch(x){$('#e_pn').textContent='送信失敗: '+x.message}};$('#e_dn').textContent=i.late||i.ex?'この日の遅刻: '+hm(i.late||i.ex):'この日は遅刻なし';{const hl=LI[k]||[];if(hl.length)$('#dt').textContent+='\n編集履歴:\n'+hl.map(l=>fdt(l.ts)+' '+(l.by||'')+' '+ft(l)).join('\n')}
 const mk=(l,f,c)=>{const b=document.createElement('button');b.className='btn '+(c||'g');b.style.margin='2px';b.textContent=l;b.onclick=()=>{f();save();dl.close();render()};$('#db').appendChild(b)};
 [['','自動(取込どおり)'],['pl','有給'],['half','半休(有給0.5)'],['abs','欠勤'],['off','休み(無給)']].forEach(([v,l])=>mk(l,()=>{lg(u,dt,'区分',LB[S.ov[k]]||'自動',LB[v]||'自動');if(v)S.ov[k]=v;else delete S.ov[k]}));
 mk('グループ会社出勤('+S.cfg.gs+'始業)：'+(S.gr[k]?'ON':'OFF'),()=>{lg(u,dt,'グループ会社出勤',S.gr[k]?'ON':'OFF',S.gr[k]?'OFF':'ON');S.gr[k]?delete S.gr[k]:S.gr[k]=1},S.gr[k]?'':'g');
@@ -203,7 +221,9 @@ $('#e_s').onclick=()=>{const ni=$('#e_i').value||oI,no=$('#e_o').value||oO,c=$('
 lg(u,dt,'出勤時刻',i.i1,ni);lg(u,dt,'退勤時刻',i.o1,no);const pe={};if(ni&&ni!==oI)pe.i=ni;if(no&&no!==oO)pe.o=no;if(pe.i||pe.o)S.pe[k]=pe;else delete S.pe[k];
 lg(u,dt,'コメント',S.cm[k],c);if(c)S.cm[k]=c;else delete S.cm[k];const na=Math.round((+$('#e_a').value||0)*60);lg(u,dt,'残業事前申請',(S.ap[k]||0)/60+'h',na/60+'h');if(na)S.ap[k]=na;else delete S.ap[k];{const nd=$('#e_d').checked;lg(u,dt,'遅延証',S.dc[k]?'あり':'なし',nd?'あり':'なし');if(nd)S.dc[k]=1;else delete S.dc[k]}dirty.add(dt.slice(0,7));save();dl.close();render()};
 $('#e_x').onclick=()=>{if(S.pe[k]){lg(u,dt,'時刻修正',(S.pe[k].i||'')+' / '+(S.pe[k].o||''),'取消');delete S.pe[k];save()}dl.close();render()};
-$('#e_q').onclick=()=>dl.close();dl.showModal()}
+$('#e_q').onclick=()=>dl.close();
+if(RO()){dl.querySelectorAll('input,textarea,button').forEach(x=>{if(x.id!=='e_q')x.disabled=true});$('#e_s').style.display='none'}
+dl.showModal()}
 
 function opts(sel,list,all){const v=sel.value;sel.innerHTML=(all?'<option value="">全員</option>':'')+list.map(u=>`<option value="${u}">${nm(u)}</option>`).join('');if(list.includes(v)||(all&&v===''))sel.value=v}
 function render(){
@@ -224,9 +244,9 @@ h='<tr><th>日付</th><th>曜</th><th>区分</th><th>出勤時間</th><th>退勤
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt),wk=new Date(dt).getDay(),w=i.t==='work'||i.t==='half',sh=w||i.hot>0;
 const cl=i.t==='hol'?'hol':i.t==='abs'?'c-abs':(i.t==='pl'||i.t==='bulk')?'c-pl':(i.t==='out'||i.t==='rest'||i.t==='off')?'we':'';
 const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤(外勤): '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.g?'グループ会社出勤':'',i.ap?'残業事前申請 '+(i.ap/60)+'h':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||'',i.cm?'💬 '+i.cm:''].filter(Boolean).map(esc).join(' / ')+((i.mc||i.fw)&&!i.cm?' <b class=c-late>要コメント</b>':'');
-h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}</td><td>${WD[wk]}</td><td>${tg(i)}</td><td class="${i.inFw?'fw':''}">${sh?(i.i1||'--'):''}${i.mi?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.inFw?'<b class=ch>外勤</b>':''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${sh?(i.o1||'--'):''}${i.mo?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.outFw?'<b class=ch>外勤</b>':''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${sh&&i.bk?hm(i.bk):''}</td><td>${sh&&i.kn?hm(i.kn):''}</td><td class=gray>${w&&i.sj?hm(i.sj):''}</td><td class=gray>${w&&i.sj?hm(i.ot):''}</td><td class=gray>${w?(i.late?'<b class=c-late>'+hm(i.late)+'</b><button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">遅延証にする</button>':i.ex?'<span class=dly>遅延証</span> '+hm(i.ex)+'<button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">取消</button>':'0:00'):''}</td><td class=gray>${w?(i.early?'<b class=c-late>'+hm(i.early)+'</b>':'0:00'):''}</td><td class=l>${nt}${hist(u,dt)}</td></tr>`}
+h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}</td><td>${WD[wk]}</td><td>${tg(i)}</td><td class="${i.inFw?'fw':''}">${sh?(i.i1||'--'):''}${i.mi?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.inFw?'<b class=ch>外勤</b>':''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${sh?(i.o1||'--'):''}${i.mo?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.outFw?'<b class=ch>外勤</b>':''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${sh&&i.bk?hm(i.bk):''}</td><td>${sh&&i.kn?hm(i.kn):''}</td><td class=gray>${w&&i.sj?hm(i.sj):''}</td><td class=gray>${w&&i.sj?hm(i.ot):''}</td><td class=gray>${w?(i.late?'<b class=c-late>'+hm(i.late)+'</b><button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">遅延証にする</button>':i.ex?'<span class=dly>遅延証</span> '+hm(i.ex)+' '+phl(u,dt)+'<button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">取消</button>':'0:00'):''}</td><td class=gray>${w?(i.early?'<b class=c-late>'+hm(i.early)+'</b>':'0:00'):''}</td><td class=l>${nt}${hist(u,dt)}</td></tr>`}
 const s=sumOf(u),K=(l,v,w)=>`<div class="${w?'w':''}"><span>${l}</span><b>${v}</b></div>`;
-$('#bs').innerHTML='<div class="kpi">'+K('出勤日数',s.wd+' / '+s.sd+'日')+K('実働(申請)',hm(s.sj))+K('打刻実動',hm(s.kn))+K('残業(時間外)',hm(s.ot),s.ot>s.miss&&s.miss>0)+K('みなし残業',hm(s.miss))+K('遅刻',s.lc+'回 '+hm(s.lm),s.lc>0)+K('早退',s.ec+'回 '+hm(s.em),s.ec>0)+K('欠勤',s.ab+'日',s.ab>0)+K('有給',s.pl+'日')+K('休日労働',hm(s.hot))+K('外勤',s.fw+'日')+K('遅延証',s.dl+'回')+K('打刻漏れ',s.mc0+'回'+(s.mc0?'(未修正 '+s.mc+')':''),s.mc>0)+K('要コメント',s.nc+'件',s.nc>0)+'</div>'}
+$('#bs').innerHTML='<div class="kpi">'+K('出勤日数',s.wd+' / '+s.sd+'日')+K('実働(申請)',hm(s.sj))+K('打刻実動',hm(s.kn))+K('残業(時間外)',hm(s.ot),s.ot>s.miss&&s.miss>0)+K('みなし残業',hm(s.miss))+K('遅刻',s.lc+'回 '+hm(s.lm),s.lc>0)+K('早退',s.ec+'回 '+hm(s.em),s.ec>0)+K('欠勤',s.ab+'日',s.ab>0)+K('有給',s.pl+'日')+K('休日労働',hm(s.hot))+K('外勤',s.fw+'日')+K('遅延証',s.dl+'回'+(s.dlnp?'(写真なし '+s.dlnp+')':''),s.dlnp>0)+K('打刻漏れ',s.mc0+'回'+(s.mc0?'(未修正 '+s.mc+')':''),s.mc>0)+K('要コメント',s.nc+'件',s.nc>0)+'</div>'}
 else{$('#bh').innerHTML='';$('#bs').innerHTML=''}$('#bv').innerHTML=h;$('#bhist').innerHTML=u?histTable(u):'';
 // 全員一覧
 h='<tr><th class=l>氏名</th>';
@@ -249,10 +269,11 @@ $('#dd').innerHTML=h.length>40&&h.includes('<tr class')?h:h+'<tr><td colspan=40 
 $('#dn').textContent=old?'※ '+old+'件は古い取込のため一部項目のみ表示です。全項目を表示するには、xlsxをもう一度取り込んでください。':'';
 h='<tr><th>氏名</th><th>日付</th><th>打刻時刻</th><th>結果</th><th>場所</th><th>備考</th><th>端末</th><th>管理者修正</th></tr>';
 const mm=ym.slice(2);Object.values(S.raw).filter(r=>(!du||String(r[4])===du)&&String(r[7]).startsWith(ym)).sort((a,b)=>(String(a[4])+a[7]).localeCompare(String(b[4])+b[7])).forEach(r=>{h+=`<tr class="${String(r[8]).includes('外勤')?'fw':''}"><td>${nm(String(r[4]))}</td>`+[5,7,8,9,10,13,14].map(j=>`<td>${r[j]==null?'':r[j]}</td>`).join('')+'</tr>'});$('#dr').innerHTML=h.includes('<tr class')?h:h+'<tr><td colspan=8 class=l>打刻ログがありません(「原始记录」シートを含むxlsxを取り込むと表示されます)</td></tr>';
-$('#st').innerHTML=sumHtml()}
+$('#st').innerHTML=sumHtml();
+if(RO())document.querySelectorAll('#emp input,#emp select,#emp button,#bv button').forEach(x=>x.disabled=true)}
 const COLS=[['','氏名',(u,s,e)=>nm(u)+(e.nopunch?'(打刻不要)':'')],['','部門',(u,s,e)=>e.dept||''],
 ['日数','所定出勤',(u,s)=>s.sd],['日数','出勤',(u,s)=>s.wd],['日数','欠勤',(u,s)=>s.ab],['日数','有給',(u,s)=>s.pl],
-['遅刻・早退','遅刻回',(u,s)=>s.lc],['遅刻・早退','遅刻時間',(u,s)=>M(s.lm)],['遅刻・早退','遅延証',(u,s)=>s.dl],['遅刻・早退','早退回',(u,s)=>s.ec],['遅刻・早退','早退時間',(u,s)=>M(s.em)],
+['遅刻・早退','遅刻回',(u,s)=>s.lc],['遅刻・早退','遅刻時間',(u,s)=>M(s.lm)],['遅刻・早退','遅延証',(u,s)=>s.dl],['遅刻・早退','遅延証写真なし',(u,s)=>s.dlnp],['遅刻・早退','早退回',(u,s)=>s.ec],['遅刻・早退','早退時間',(u,s)=>M(s.em)],
 ['時間','打刻実動',(u,s)=>M(s.kn)],['時間','実働(申請)',(u,s)=>M(s.sj)],['時間','残業(時間外)',(u,s)=>M(s.ot)],['時間','みなし',(u,s)=>M(s.miss)],['時間','超過=支払対象',(u,s)=>M(s.ex)],['時間','休日労働',(u,s)=>M(s.hot)],
 ['その他','外勤日',(u,s)=>s.fw],['その他','打刻漏れ回数',(u,s)=>s.mc0],['その他','未修正',(u,s)=>s.mc],
 ['給与','月給',(u,s,e)=>e.sal||0],['給与','残業手当',(u,s)=>s.p1],['給与','休日手当',(u,s)=>s.p2],['給与','欠勤控除',(u,s)=>s.ded],['給与','概算支給額',(u,s)=>s.gross]];
@@ -268,30 +289,30 @@ render();
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,collection,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-const st=t=>document.getElementById('st2').textContent=t,clean=o=>JSON.parse(JSON.stringify(o));
-let t;
-async function doPush(){try{
- await setDoc(doc(db,'att_meta','main'),clean({emps:S.emps,hol:S.hol,bulk:S.bulk,wk:S.wk,gr:S.gr,dc:S.dc,pe:S.pe,cm:S.cm,ap:S.ap,ov:S.ov,cfg:Object.assign({},S.cfg,{sch:S.cfg.sch.map(a=>a.join('|'))}),updated:Date.now()}));
- for(const m of [...dirty]){const days={};for(const k in S.days)if(k.split('|')[1].startsWith(m))days[k]=S.days[k];
-  await setDoc(doc(db,'att_months',m),clean({days}));
-  const rows=Object.values(S.raw).filter(r=>String(r[7]).startsWith(m)).map(r=>JSON.stringify(r));
-  await setDoc(doc(db,'att_raw',m),{rows});await setDoc(doc(db,'att_log',m),clean({rows:S.log.filter(l=>l.dt.startsWith(m))}));dirty.delete(m)}
- st('クラウド保存済み')}catch(e){st('保存エラー: '+e.message)}}
-CL.push=()=>{clearTimeout(t);st('保存中…');t=setTimeout(doPush,800)};
+CL.photoPut=(id,o)=>setDoc(doc(db,'att_photos',id),o);
+CL.photoGet=async id=>{const r=await getDoc(doc(db,'att_photos',id));if(!r.exists())throw new Error('写真が見つかりません');return r.data().data};
+CL.photoDel=id=>deleteDoc(doc(db,'att_photos',id));
+let busy=false;CL.busy=()=>busy;
+CL.push=()=>{busy=true;clearTimeout(t);st('保存中…');t=setTimeout(doPush,800)};
 async function pull(){st('読込中…');try{const m=await getDoc(doc(db,'att_meta','main'));
- if(m.exists()){const d=m.data();S.emps=d.emps||{};S.hol=mig(d.hol);S.bulk=mig(d.bulk);if(d.wk)S.wk=d.wk;S.gr=d.gr||{};S.dc=d.dc||{};S.pe=d.pe||{};S.cm=d.cm||{};S.ap=d.ap||{};S.ov=d.ov||{};{const c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));S.cfg=Object.assign(S.cfg,c)}
+ if(m.exists()){const d=m.data();S.emps=d.emps||{};S.hol=mig(d.hol);S.bulk=mig(d.bulk);if(d.wk)S.wk=d.wk;S.gr=d.gr||{};S.dc=d.dc||{};S.pe=d.pe||{};S.cm=d.cm||{};S.ap=d.ap||{};S.ph=d.ph||{};S.ov=d.ov||{};{const c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));S.cfg=Object.assign(S.cfg,c)}
   (await getDocs(collection(db,'att_months'))).forEach(x=>Object.assign(S.days,x.data().days||{}));
   (await getDocs(collection(db,'att_raw'))).forEach(x=>(x.data().rows||[]).forEach(j=>{const r=JSON.parse(j);S.raw[r.join('|')]=r}));
   const seen=new Set(S.log.map(l=>l.ts+l.u+l.dt+l.f));(await getDocs(collection(db,'att_log'))).forEach(x=>(x.data().rows||[]).forEach(l=>{const q=l.ts+l.u+l.dt+l.f;if(!seen.has(q)){seen.add(q);S.log.push(l)}}));
   try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}st('クラウド読込済み')}
- else{Object.keys(S.days).forEach(k=>dirty.add(k.split('|')[1].slice(0,7)));CL.push()}
- render()}catch(e){st('読込エラー: '+e.message)}}
-onAuthStateChanged(auth,u=>{window.ME=u?u.email:'';document.getElementById('login').style.display=u?'none':'flex';if(u)pull();else st('未ログイン')});
+ else if(window.LV!=='view'){Object.keys(S.days).forEach(k=>dirty.add(k.split('|')[1].slice(0,7)));CL.push()}
+ render()}catch(e){st(e.code==='permission-denied'?'権限がありません(管理者のみ閲覧できます)':'読込エラー: '+e.message)}}
+onAuthStateChanged(auth,async u=>{window.ME=u?u.email:'';
+ if(!u){document.getElementById('login').style.display='flex';lockUI();st('未ログイン');return}
+ let lv='';try{const r=await getDoc(doc(db,'user_roles',u.email));if(r.exists()&&r.data().attAccess===true)lv=r.data().attReadOnly===true?'view':'edit'}catch(e){}
+ if(!lv){document.getElementById('le').textContent='勤怠管理の権限がありません。管理者に attAccess の付与を依頼してください。';lockUI();await signOut(auth);return}
+ window.LV=lv;document.getElementById('lv').textContent=lv==='edit'?'編集可':'閲覧のみ';
+ document.getElementById('login').style.display='none';document.getElementById('le').textContent='';unlock();pull()});
 const go=()=>signInWithEmailAndPassword(auth,document.getElementById('em').value,document.getElementById('pw').value).catch(e=>document.getElementById('le').textContent='失敗: '+e.code);
 document.getElementById('li').onclick=go;document.getElementById('pw').onkeydown=e=>{if(e.key==='Enter')go()};
-document.getElementById('lo').onclick=()=>signOut(auth);
+document.getElementById('lo').onclick=()=>{if(CL.busy&&CL.busy()&&!confirm('保存が完了していない変更があります。ログアウトすると失われる可能性があります。続けますか？'))return;signOut(auth)};
 </script>
 </body></html>
