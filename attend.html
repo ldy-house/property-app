@@ -55,8 +55,8 @@ tr.c-abs td{background:#ffe9e9}tr.c-pl td{background:#eaf7ee}
 .sw{display:inline-block;width:13px;height:13px;vertical-align:middle;border:1px solid #99a;border-radius:3px;margin-right:4px}
 .cc{background:#f1f7ff}th.cc{background:#dfeafc}
 .chip{display:inline-flex;align-items:center;gap:6px;background:#e8eefc;border-radius:14px;padding:3px 12px;margin:2px}
-dialog{border:0;border-radius:14px;padding:20px;width:min(560px,94vw);box-shadow:0 20px 60px #0004}dialog::backdrop{background:#10162866}
-#dlg #db{display:flex;gap:6px;flex-wrap:wrap}#dt{font-weight:600}
+dialog{border:0;border-radius:14px;padding:20px 22px;width:min(520px,94vw);max-height:92vh;overflow:auto;box-shadow:0 20px 60px #0004}dialog::backdrop{background:#10162866}
+#dlg .dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}#dlg .x{border:0;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--mute)}#dlg .sum{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}#dlg .sec{border-top:1px solid var(--line);padding:11px 0}#dlg .sec h3{font-size:12px;color:var(--mute);margin:0 0 7px;font-weight:600;letter-spacing:.04em}#dlg .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}#dlg .lnk{background:none;border:0;color:var(--pri);cursor:pointer;padding:0;font-size:13px}#dlg .ft{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}#dlg details.sec summary{cursor:pointer;color:var(--mute);font-size:13px}#dlg .pt{font-size:12px;margin-top:6px}#dlg .pt td{padding:2px 8px 2px 0;border:0;text-align:left;white-space:normal}#dlg #db{display:flex;gap:6px;flex-wrap:wrap}#dt{font-weight:600}
 #dlg textarea{width:100%}
 #login{position:fixed;inset:0;background:linear-gradient(135deg,#141c33,#2a3a78);display:flex;align-items:center;justify-content:center;z-index:20}
 #login .card{width:320px;padding:26px}#login h2{border:0;padding:0;font-size:18px}#login input{width:100%;margin-bottom:10px}
@@ -203,26 +203,38 @@ function showPh(src){$('#pvi').src=src;$('#pv').showModal()}
 async function openPh(u,dt,j){const p=(S.ph[u+'|'+dt]||[])[j];if(!p)return;try{showPh(await photoSrc(p))}catch(e){alert('写真を読み込めませんでした: '+e.message)}}
 const phl=(u,dt)=>{const L=S.ph[u+'|'+dt]||[];return L.length?L.map((p,j)=>`<a href="#" onclick="event.stopPropagation();openPh('${u}','${dt}',${j});return false">📷${j+1}</a>`).join(' '):'<b class=c-late style="font-size:11px">写真なし</b>'};
 function toggleDc(u,dt){const k=u+'|'+dt;lg(u,dt,'遅延証',S.dc[k]?'あり':'なし',S.dc[k]?'なし':'あり');if(S.dc[k])delete S.dc[k];else S.dc[k]=1;save();render()}
-function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt,i=info(u,dt),r=i.r||{},oI=r.i1||'',oO=r.o2||r.o1||'';
-const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(b[7]));
-dl.innerHTML='<div id="dt" style="white-space:pre-line;margin-bottom:8px"></div><div id="db"></div><div style="margin:10px 0 6px">出勤 <input type=time id="e_i"> 退勤 <input type=time id="e_o"> <button class="btn g" id="e_x">時刻修正を取消</button><br>事前申請済みの残業 <input type=number step=0.5 min=0 id="e_a" style="width:60px"> 時間 <small>(1時間超の残業は事前申請が必要)</small><br><label><input type=checkbox id="e_d"> <b>遅延証あり</b>(この日の遅刻を遅延証扱いにして、遅刻に数えない)</label> <small id="e_dn"></small><div id="e_ph" class="phs"></div><label class="btn g sm" style="display:inline-block;margin:2px 0">📷 遅延証の写真を追加<input type=file id="e_f" accept="image/*" multiple style="display:none"></label> <small id="e_pn"></small><br><small>打刻漏れ・誤りの修正。保存すると編集ログに残ります。</small></div><div>コメント(打刻漏れ・外勤の理由など)<br><textarea id="e_c" rows=3 style="width:100%;box-sizing:border-box"></textarea></div><div style="margin-top:8px"><button class="btn" id="e_s">保存</button> <button id="e_q">閉じる</button></div>';
-$('#dt').textContent=nm(u)+'  '+dt+(rr.length?'\n打刻:\n'+rr.map(q=>String(q[7]).slice(-5)+' '+q[8]+' '+(q[9]||'')+(q[10]?' 「'+q[10]+'」':'')).join('\n'):'');
-$('#e_i').value=i.i1||'';$('#e_o').value=i.o1||'';$('#e_c').value=S.cm[k]||'';$('#e_a').value=(S.ap[k]||0)/60;$('#e_d').checked=!!S.dc[k];
-const rph=()=>{const L=S.ph[k]||[];$('#e_ph').innerHTML=L.map((p,j)=>`<span class="th"><img data-j="${j}" style="cursor:pointer;min-width:60px;min-height:40px;background:#eee"><button class="btn g sm" data-j="${j}">削除</button></span>`).join('')||'<small>写真はまだありません</small>';
+function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt,i=info(u,dt),r=i.r||{},oI=r.i1||'',oO=r.o2||r.o1||'',w=i.t==='work'||i.t==='half',wk=new Date(dt).getDay(),hol=isHol(dt);
+const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(b[7])),hl=LI[k]||[],showDc=w&&(i.late>0||i.ex>0||S.dc[k]||(S.ph[k]||[]).length>0),need=(i.mc||i.fw)&&!S.cm[k];
+const ch=[i.late?`<span class="tg ab">遅刻 ${hm(i.late)}</span>`:'',i.ex?'<span class="dly">遅延証</span>':'',i.early?`<span class="tg ab">早退 ${hm(i.early)}</span>`:'',i.mc?`<span class="tg ab">打刻漏れ ${i.mc}</span>`:'',i.fw?'<span class="ch" style="margin:0">外勤</span>':''].join('');
+const loc=[i.inFw?'出勤: '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤: '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:''].filter(Boolean).map(esc).join('　');
+dl.innerHTML=`<div class="dh"><div><b style="font-size:16px">${esc(nm(u))}</b> <span class="mu">${dt}(${WD[wk]})</span> ${tg(i)}</div><button class="x" id="e_q" title="閉じる">×</button></div>
+<div class="sum"><span>出勤 <b>${i.i1||'--'}</b>　退勤 <b>${i.o1||'--'}</b></span>${ch}</div>${loc?`<small>${loc}</small>`:''}
+<div class="sec"><h3>時刻の修正</h3><div class="row">出勤 <input type="time" id="e_i"> 退勤 <input type="time" id="e_o"> <button class="lnk" id="e_x">修正を取消</button></div><small>打刻漏れ・誤りはここで直します。編集履歴に残ります。</small></div>
+<div class="sec"><h3>区分</h3><div class="row"><select id="e_t"${hol?' disabled':''}>${[['','自動(取込どおり)'],['pl','有給'],['half','半休(有給0.5)'],['abs','欠勤'],['off','休み(無給)']].map(([v,l])=>`<option value="${v}"${(S.ov[k]||'')===v?' selected':''}>${l}</option>`).join('')}</select>${hol?'<small>会社休日のため変更できません</small>':''}<label><input type="checkbox" id="e_g"${S.gr[k]?' checked':''}> グループ会社出勤(${S.cfg.gs}始業)</label></div></div>
+${w?`<div class="sec"><h3>残業</h3><div class="row">事前申請済み <input type="number" step="0.5" min="0" id="e_a" style="width:70px"> 時間 <small>(1時間超の残業は事前申請が必要)</small></div></div>`:''}
+${showDc?`<div class="sec"><h3>遅延証</h3><label><input type="checkbox" id="e_d"> 遅延証あり(この日の遅刻 ${hm(i.late||i.ex)} を遅刻に数えない)</label><div id="e_ph" class="phs"></div><label class="btn g sm" style="display:inline-block">📷 写真を追加<input type="file" id="e_f" accept="image/*" multiple style="display:none"></label> <small id="e_pn"></small></div>`:''}
+<div class="sec"><h3>コメント${need?' <span class="c-late">← 打刻漏れ・外勤の理由を記入</span>':''}</h3><textarea id="e_c" rows="2" placeholder="打刻漏れ・外勤の理由など"></textarea></div>
+${rr.length?`<details class="sec"${i.fw?' open':''}><summary>打刻の記録(${rr.length}件)</summary><table class="pt">${rr.map(q=>`<tr><td>${esc(String(q[7]).slice(-5))}</td><td>${esc(q[8])}</td><td>${esc(q[9]||'')}${q[10]?' 「'+esc(q[10])+'」':''}</td></tr>`).join('')}</table></details>`:''}
+${hl.length?`<details class="sec"><summary>編集履歴(${hl.length}件)</summary><table class="pt">${hl.map(l=>`<tr><td>${fdt(l.ts)}</td><td>${esc(l.by||'')}</td><td>${esc(ft(l))}</td></tr>`).join('')}</table></details>`:''}
+<div class="ft"><button class="btn g" id="e_q2">閉じる</button><button class="btn" id="e_s">保存</button></div>`;
+$('#e_i').value=i.i1||'';$('#e_o').value=i.o1||'';$('#e_c').value=S.cm[k]||'';if($('#e_a'))$('#e_a').value=(S.ap[k]||0)/60;if($('#e_d'))$('#e_d').checked=!!S.dc[k];
+const rph=()=>{if(!$('#e_ph'))return;const L=S.ph[k]||[];$('#e_ph').innerHTML=L.map((p,j)=>`<span class="th"><img data-j="${j}" style="cursor:pointer;min-width:60px;min-height:40px;background:#eee"><button class="btn g sm" data-j="${j}">削除</button></span>`).join('')||'<small>写真はまだありません</small>';
  L.forEach(async(p,j)=>{try{const src=await photoSrc(p),im=document.querySelector('#e_ph img[data-j="'+j+'"]');if(im){im.src=src;im.onclick=()=>showPh(src)}}catch(x){}});
  document.querySelectorAll('#e_ph button').forEach(b=>b.onclick=async()=>{const j=+b.dataset.j,p=S.ph[k][j],n=S.ph[k].length;if(!confirm('この写真を削除しますか？'))return;S.ph[k].splice(j,1);if(!S.ph[k].length)delete S.ph[k];lg(u,dt,'遅延証写真',n+'枚',(n-1)+'枚');if(CL.photoDel&&p.id)await CL.photoDel(p.id);save();rph()})};rph();
-$('#e_f').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!CL.photoPut){alert('ログイン後に添付できます');return}$('#e_pn').textContent='送信中…';
-try{for(const f of fs){const d=await shrink(f);if(!d)throw new Error('画像を読み込めませんでした');const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6),n=(S.ph[k]||[]).length;await CL.photoPut(id,{u,dt,name:f.name,ts:Date.now(),data:d});PC[id]=d;(S.ph[k]=S.ph[k]||[]).push({id,name:f.name,ts:Date.now()});lg(u,dt,'遅延証写真',n+'枚',(n+1)+'枚')}
-if(!S.dc[k]){lg(u,dt,'遅延証','なし','あり');S.dc[k]=1}$('#e_d').checked=true;save();$('#e_pn').textContent='';rph()}catch(x){$('#e_pn').textContent='送信失敗: '+x.message}};$('#e_dn').textContent=i.late||i.ex?'この日の遅刻: '+hm(i.late||i.ex):'この日は遅刻なし';{const hl=LI[k]||[];if(hl.length)$('#dt').textContent+='\n編集履歴:\n'+hl.map(l=>fdt(l.ts)+' '+(l.by||'')+' '+ft(l)).join('\n')}
-const mk=(l,f,c)=>{const b=document.createElement('button');b.className='btn '+(c||'g');b.style.margin='2px';b.textContent=l;b.onclick=()=>{f();save();dl.close();render()};$('#db').appendChild(b)};
-[['','自動(取込どおり)'],['pl','有給'],['half','半休(有給0.5)'],['abs','欠勤'],['off','休み(無給)']].forEach(([v,l])=>mk(l,()=>{lg(u,dt,'区分',LB[S.ov[k]]||'自動',LB[v]||'自動');if(v)S.ov[k]=v;else delete S.ov[k]}));
-mk('グループ会社出勤('+S.cfg.gs+'始業)：'+(S.gr[k]?'ON':'OFF'),()=>{lg(u,dt,'グループ会社出勤',S.gr[k]?'ON':'OFF',S.gr[k]?'OFF':'ON');S.gr[k]?delete S.gr[k]:S.gr[k]=1},S.gr[k]?'':'g');
-$('#e_s').onclick=()=>{const ni=$('#e_i').value||oI,no=$('#e_o').value||oO,c=$('#e_c').value.trim();
-lg(u,dt,'出勤時刻',i.i1,ni);lg(u,dt,'退勤時刻',i.o1,no);const pe={};if(ni&&ni!==oI)pe.i=ni;if(no&&no!==oO)pe.o=no;if(pe.i||pe.o)S.pe[k]=pe;else delete S.pe[k];
-lg(u,dt,'コメント',S.cm[k],c);if(c)S.cm[k]=c;else delete S.cm[k];const na=Math.round((+$('#e_a').value||0)*60);lg(u,dt,'残業事前申請',(S.ap[k]||0)/60+'h',na/60+'h');if(na)S.ap[k]=na;else delete S.ap[k];{const nd=$('#e_d').checked;lg(u,dt,'遅延証',S.dc[k]?'あり':'なし',nd?'あり':'なし');if(nd)S.dc[k]=1;else delete S.dc[k]}dirty.add(dt.slice(0,7));save();dl.close();render()};
+if($('#e_f'))$('#e_f').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;if(!CL.photoPut){alert('ログイン後に添付できます');return}$('#e_pn').textContent='送信中…';
+ try{for(const f of fs){const d=await shrink(f);if(!d)throw new Error('画像を読み込めませんでした');const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6),n=(S.ph[k]||[]).length;await CL.photoPut(id,{u,dt,name:f.name,ts:Date.now(),data:d});PC[id]=d;(S.ph[k]=S.ph[k]||[]).push({id,name:f.name,ts:Date.now()});lg(u,dt,'遅延証写真',n+'枚',(n+1)+'枚')}
+ if(!S.dc[k]){lg(u,dt,'遅延証','なし','あり');S.dc[k]=1}$('#e_d').checked=true;save();$('#e_pn').textContent='';rph()}catch(x){$('#e_pn').textContent='送信失敗: '+x.message}};
+$('#e_s').onclick=()=>{const ni=$('#e_i').value||oI,no=$('#e_o').value||oO,c=$('#e_c').value.trim(),nt=hol?(S.ov[k]||''):$('#e_t').value,ng=$('#e_g').checked;
+ lg(u,dt,'区分',LB[S.ov[k]]||'自動',LB[nt]||'自動');if(nt)S.ov[k]=nt;else delete S.ov[k];
+ lg(u,dt,'グループ会社出勤',S.gr[k]?'ON':'OFF',ng?'ON':'OFF');if(ng)S.gr[k]=1;else delete S.gr[k];
+ lg(u,dt,'出勤時刻',i.i1,ni);lg(u,dt,'退勤時刻',i.o1,no);const pe={};if(ni&&ni!==oI)pe.i=ni;if(no&&no!==oO)pe.o=no;if(pe.i||pe.o)S.pe[k]=pe;else delete S.pe[k];
+ lg(u,dt,'コメント',S.cm[k],c);if(c)S.cm[k]=c;else delete S.cm[k];
+ if($('#e_a')){const na=Math.round((+$('#e_a').value||0)*60);lg(u,dt,'残業事前申請',(S.ap[k]||0)/60+'h',na/60+'h');if(na)S.ap[k]=na;else delete S.ap[k]}
+ if($('#e_d')){const nd=$('#e_d').checked;lg(u,dt,'遅延証',S.dc[k]?'あり':'なし',nd?'あり':'なし');if(nd)S.dc[k]=1;else delete S.dc[k]}
+ dirty.add(dt.slice(0,7));save();dl.close();render()};
 $('#e_x').onclick=()=>{if(S.pe[k]){lg(u,dt,'時刻修正',(S.pe[k].i||'')+' / '+(S.pe[k].o||''),'取消');delete S.pe[k];save()}dl.close();render()};
-$('#e_q').onclick=()=>dl.close();
-if(RO()){dl.querySelectorAll('input,textarea,button').forEach(x=>{if(x.id!=='e_q')x.disabled=true});$('#e_s').style.display='none'}
+$('#e_q').onclick=()=>dl.close();$('#e_q2').onclick=()=>dl.close();
+if(RO()){dl.querySelectorAll('input,textarea,select,button').forEach(x=>{if(!['e_q','e_q2'].includes(x.id))x.disabled=true});$('#e_s').style.display='none'}
 dl.showModal()}
 
 function opts(sel,list,all){const v=sel.value;sel.innerHTML=(all?'<option value="">全員</option>':'')+list.map(u=>`<option value="${u}">${nm(u)}</option>`).join('');if(list.includes(v)||(all&&v===''))sel.value=v}
