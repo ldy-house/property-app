@@ -61,42 +61,55 @@ dialog{border:0;border-radius:14px;padding:20px 22px;width:min(520px,94vw);max-h
 #login{position:fixed;inset:0;background:linear-gradient(135deg,#141c33,#2a3a78);display:flex;align-items:center;justify-content:center;z-index:20}
 #login .card{width:320px;padding:26px}#login h2{border:0;padding:0;font-size:18px}#login input{width:100%;margin-bottom:10px}
 @media(max-width:700px){main{padding:10px}header{gap:6px}.card{padding:12px}}
+.sep{width:1px;background:#38446b;margin:12px 8px;flex:none}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.pills .btn b{margin-left:4px}
+.row2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.empty{padding:22px;text-align:center;color:var(--mute);background:#f8faff;border:1px dashed #c3cde6;border-radius:10px;margin-top:12px}
+.todo td{text-align:left}tr.row .go{color:var(--pri);font-weight:600}
+a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover{color:var(--pri)}
+.kpi.top{margin:0 0 16px}
+@media print{body{background:#fff}header,#login,.lgd,.noprint,dialog,.tab{display:none!important}.ph{display:none!important}#book{display:block!important}#book .ph{display:block!important;margin:0 0 6px}#book .ph p{display:none}#book .card{border:0;box-shadow:none;padding:0;margin:0}.wrap{max-height:none!important;overflow:visible!important;border:0}th{position:static}table{font-size:11px}main{padding:0;max-width:none}.kpi{grid-template-columns:repeat(6,1fr)}tr.row{cursor:default}}
 </style></head><body class="locked">
 <header><div class="brand">LDY <span>勤怠</span></div>
-<nav id="nav"><button data-t="imp" class="on">取込</button><button data-t="emp">設定</button><button data-t="book">月次出勤簿</button><button data-t="grid">全員一覧</button><button data-t="data">取込データ</button><button data-t="sum">集計・給与</button></nav>
+<nav id="nav"><button data-t="home" class="on">ホーム</button><button data-t="book">月次出勤簿</button><button data-t="grid">全員一覧</button><button data-t="sum">集計・給与</button><span class="sep"></span><button data-t="imp">取込</button><button data-t="emp">設定</button><button data-t="data">元データ</button></nav>
 <div class="hr"><small id="lv" style="color:#ffd27a"></small><small id="st2">未ログイン</small><button class="mb" id="mp">◀</button><input type="month" id="ym"><button class="mb" id="mn">▶</button><button class="btn g" id="lo" style="padding:4px 10px">ログアウト</button></div></header>
 <div id="login"><div class="card"><h2>勤怠管理 ログイン</h2><p class="mu">LDY 出勤簿システム</p><input type="text" id="em" placeholder="メールアドレス"><input type="password" id="pw" placeholder="パスワード"><button class="btn" id="li" style="width:100%">ログイン</button><p><small id="le" style="color:var(--bad)"></small></p></div></div>
 <main>
-<section class="tab on" id="imp"><div class="ph"><h1>取込</h1><p>打刻アプリのエクスポートを取り込みます。期間が重なるファイルは新しい方で上書きします。</p></div>
+<section class="tab on" id="home"><div class="ph"><h1 id="hh"></h1><p>取込のあと、確認が必要なものをここで片付けます。行をクリックすると、その日の画面が開きます。</p></div>
+<div class="kpi top" id="hk"></div>
+<div class="card"><h2>要対応</h2><div class="pills" id="hp"></div><div class="wrap"><table id="ht" class="z"></table></div></div></section>
+
+<section class="tab" id="imp"><div class="ph"><h1>取込</h1><p>打刻アプリのエクスポートを取り込みます。期間が重なるファイルは新しい方で上書きします。</p></div>
 <div class="card"><label class="drop" id="dz"><b>xlsxファイルをここにドロップ、またはクリックして選択</b>「每日统计」の全項目と「原始记录」(打刻ログ・場所)を保存します(複数選択可)<input type="file" id="file" accept=".xlsx" multiple></label><div id="ilog">未取込</div></div>
 <div class="card"><h2>バックアップ</h2><button class="btn g" id="bk">JSON書き出し</button> <input type="file" id="rs" accept=".json"><p><small>データはFirestore(att_meta / att_months / att_raw / att_log)に自動保存され、ブラウザにもキャッシュします。</small></p></div></section>
 
-<section class="tab" id="emp"><div class="ph"><h1>設定</h1><p>社員、勤務時間、休日・一斉有給をまとめて設定します。社員は、打刻がある人が上、打刻不要の人は最後に並びます。</p></div>
-<div class="card"><h2>社員</h2><div class="wrap"><table id="et" class="z"></table></div><p><small>登録氏名・入社日・退職日・みなし残業(h/月)・月給を入れると、出勤簿と集計に反映されます。</small></p></div>
-<div class="card"><h2>勤務時間(曜日別)</h2><table id="sch" class="z"></table>
+<section class="tab" id="emp"><div class="ph"><h1>設定</h1><p>社員、勤務時間、休日、一斉有給を設定します。社員は、打刻がある人が上、打刻不要の人は最後に並びます。</p></div>
+<div class="pills" id="sp"><button class="btn g on" data-p="emp">社員</button><button class="btn g" data-p="sch">勤務時間</button><button class="btn g" data-p="hol">休日</button><button class="btn g" data-p="bulk">一斉有給</button></div>
+<div class="card" data-p="emp"><h2>社員</h2><div class="wrap"><table id="et" class="z"></table></div><p><small>登録氏名・入社日・退職日・みなし残業(h/月)・月給を入れると、出勤簿と集計に反映されます。</small></p></div>
+<div class="card" data-p="sch"><h2>勤務時間(曜日別)</h2><table id="sch" class="z"></table>
 <p>グループ会社出勤時の始業 <input type="time" id="c_gs"> <small>(出勤簿の行をクリック →「グループ会社出勤」で、その日だけこの始業で遅刻判定)</small></p>
 <p>休憩控除 <input type="number" id="c_brk" style="width:70px">分(6時間以上の勤務)　月平均所定 <input type="number" id="c_hrs" style="width:70px">時間　残業割増 <input type="number" step="0.01" id="c_rate" style="width:70px">倍　休日割増 <input type="number" step="0.01" id="c_hrate" style="width:70px">倍</p><p>事前申請なしで認める残業 <input type="number" id="c_cap" style="width:70px">分/日 <small>(超える分は、日ごとの「残業事前申請」を入れた分だけ認めます)</small></p>
 <small>遅刻・早退はこの時間と打刻から自動計算します(アプリの遅刻判定は使いません)。時間外は「申請実動 − 所定時間」です。</small></div>
-<div class="card"><h2>毎週の会社休日</h2><span id="wk"></span><p><small>チェックした曜日は毎週休みです(初期値: 水・日)。</small></p></div>
-<div class="card"><h2>会社休日(期間)</h2><div id="hl"></div>
+<div class="card" data-p="hol"><h2>毎週の会社休日</h2><span id="wk"></span><p><small>チェックした曜日は毎週休みです(初期値: 水・日)。</small></p></div>
+<div class="card" data-p="hol"><h2>会社休日(期間)</h2><div id="hl"></div>
 <p>追加: <input type="date" id="h1"> ～ <input type="date" id="h2"> <input type="text" id="h3" placeholder="名称(例: 創立記念日)" style="width:170px"> <button class="btn" onclick="addP('hol','h')">追加</button></p>
 <p>ひな形(表示中の月の年で追加。あとから編集可): <button class="btn g" onclick="preset('GW')">GW 4/29-5/5</button> <button class="btn g" onclick="preset('お盆')">お盆 8/13-8/16</button> <button class="btn g" onclick="preset('年末年始')">年末年始 12/29-1/3</button></p></div>
-<div class="card"><h2>会社一斉有給(期間)</h2><div id="bl"></div>
+<div class="card" data-p="bulk"><h2>会社一斉有給(期間)</h2><div id="bl"></div>
 <p>追加: <input type="date" id="b1"> ～ <input type="date" id="b2"> <input type="text" id="b3" placeholder="名称" style="width:170px"> <button class="btn" onclick="addP('bulk','b')">追加</button></p></div></section>
 
 
 
 <section class="tab" id="book"><div class="ph"><h1 id="bt"></h1><p>行をクリックすると、時刻の修正・コメント・有給・遅延証などを編集できます。</p></div>
-<div class="card"><label>社員 <select id="bu"></select></label><div id="bh" class="who"></div><div id="bs"></div>
+<div class="card"><div class="row2 noprint"><button class="mb" id="bpv" style="background:#fff;color:#333;border-color:#cfd6e4">◀</button><select id="bu" style="min-width:200px"></select><button class="mb" id="bnx" style="background:#fff;color:#333;border-color:#cfd6e4">▶</button><button class="btn g" onclick="window.print()" style="margin-left:auto">印刷 / PDF</button></div><div id="bh" class="who"></div><div id="bs"></div>
 <div class="wrap" style="margin-top:14px"><table id="bv" class="z"></table></div>
 <div class="lgd"><span><i class="sw" style="background:var(--fw)"></i>外勤打刻</span><span><i class="sw" style="background:#fff0f1"></i>会社休日</span><span><i class="sw" style="background:#e4f6ea"></i>有給</span><span><i class="sw" style="background:#ffe1e1"></i>欠勤</span><span class="c-late">赤字=遅刻・早退・打刻漏れ</span></div></div>
-<div class="card"><h2>編集履歴(この社員・この月)</h2><div class="wrap"><table id="bhist" class="z"></table></div></div></section>
+<div class="card noprint"><h2>編集履歴(この社員・この月)</h2><div class="wrap"><table id="bhist" class="z"></table></div></div></section>
 
 <section class="tab" id="grid"><div class="ph"><h1>全員一覧</h1><p>上段=出勤、下段=退勤。セルをクリックで編集、マウスを乗せると外勤の場所を表示します。</p></div>
 <div class="card"><div class="wrap"><table id="bg"></table></div>
 <div class="lgd"><span><i class="sw" style="background:var(--fw)"></i>外勤打刻(「外」が付いた側)</span><span><i class="sw" style="background:#fff0f1"></i>会社休日</span><span><i class="sw" style="background:#e4f6ea"></i>有給</span><span><i class="sw" style="background:#ffc9c9"></i>欠勤</span><span class="c-late">赤字=遅刻・早退・打刻漏れ</span><span>💬コメント　✎時刻修正</span></div></div></section>
 
-<section class="tab" id="data"><div class="ph"><h1>取込データ</h1><p>取り込んだ内容を、そのまま確認できます。右側の青い列は、このシステムでの計算結果です。</p></div>
+<section class="tab" id="data"><div class="ph"><h1>元データ</h1><p>取り込んだ内容を、そのまま確認できます。右側の青い列は、このシステムでの計算結果です。</p></div>
 <div class="card"><label>社員 <select id="du"></select></label> <span id="dn" class="c-late"></span>
 <h2 style="margin-top:14px">日次データ(1日1行・アプリの集計)</h2><div class="wrap"><table id="dd" class="z"></table></div>
 <h2 style="margin-top:18px">打刻ログ(打刻1回ごとの記録・場所つき)</h2><div class="wrap"><table id="dr" class="z"></table></div></div></section>
@@ -120,7 +133,11 @@ function save(){if(RO())return;try{localStorage.setItem(K,JSON.stringify(S))}cat
 const mig=a=>(a||[]).map(x=>typeof x==='string'?{s:x,e:x,n:''}:x);
 function norm(){S.hol=mig(S.hol);S.bulk=mig(S.bulk);S.cfg=Object.assign({},DC,S.cfg);S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.ph=S.ph||{};S.log=S.log||[]}
 norm();
-function unlock(){document.body.classList.remove('locked');document.body.classList.toggle('ro',RO());load();render();if(RO()){const b=document.querySelector('#nav [data-t="book"]');if(b)b.click()}}
+function go(t){const b=document.querySelector('#nav [data-t="'+t+'"]');if(b)b.click()}
+function viewU(u){$('#bu').value=u;go('book')}
+function stepU(n){const L=emps(),i=L.indexOf($('#bu').value),j=Math.min(L.length-1,Math.max(0,(i<0?0:i)+n));if(L[j]){$('#bu').value=L[j];render()}}
+let HF='all',SP='emp';
+function unlock(){document.body.classList.remove('locked');document.body.classList.toggle('ro',RO());load();render();go('home')}
 function lockUI(){window.LV='';for(const k in PC)delete PC[k];document.body.classList.remove('ro');document.body.classList.add('locked');try{localStorage.removeItem(K)}catch(e){}S=fresh();norm();RI=null;RN=-1;dirty.clear();render()}
 let ym=new Date().toISOString().slice(0,7);
 const WD='日月火水木金土',pad=n=>String(n).padStart(2,'0'),hh=m=>(m/60).toFixed(2);
@@ -147,7 +164,7 @@ if(r[0]){em.imp=r[0];if(!em.name)em.name=r[0]}if(r[1]&&!em.dept)em.dept=r[1];if(
 dirty.add(dt.slice(0,7));S.days[u+'|'+dt]={sh:r[6],i1:r[7],q1:r[8],o1:r[9],q2:r[10],i2:r[11],o2:r[13],ap:r[15],att:+r[16]||0,wm:+r[18]||0,ab:+r[28]||0,x:r.slice(0,32)};n++;ym=dt.slice(0,7)}
 const w=wb.Sheets['原始记录'];if(w)XLSX.utils.sheet_to_json(w,{header:1,defval:null}).slice(3).forEach(r=>{if(r[4]&&r[7]){S.raw[r.join('|')]=r;dirty.add(String(r[7]).slice(0,7))}});
 out.push(f.name+': '+n+'件の日次データを取込')}catch(x){out.push(f.name+': 失敗 '+x.message)}}
-save();$('#ilog').textContent=out.join('\n');$('#ym').value=ym};
+save();$('#ilog').innerHTML=out.map(esc).join('<br>')+'<br><a href="#" onclick="go(\'home\');return false" style="color:var(--pri);font-weight:600">→ ホームで要対応を確認する</a>';$('#ym').value=ym};
 
 let LI={};const fdt=ts=>{const d=new Date(ts);return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes())},ft=l=>l.f+': '+(l.a||'(なし)')+' → '+(l.b||'(なし)');
 const hist=(u,dt)=>(LI[u+'|'+dt]||[]).map(l=>`<div class="mu" style="font-size:11.5px">✎ ${esc(ft(l))} (${esc(l.by||'—')} ${fdt(l.ts)})</div>`).join('');
@@ -247,7 +264,7 @@ $('#sch').innerHTML='<tr><th>曜日</th><th>始業</th><th>終業</th></tr>'+[1,
 const us=srtE(Object.keys(S.emps));$('#et').innerHTML='<tr><th class=l>UserId</th><th>取込氏名</th><th>登録氏名</th><th>部門</th><th>役職</th><th>入社日</th><th>退職日</th><th>打刻不要</th><th>みなし残業(h/月)</th><th>月給(円)</th></tr>'+us.map(u=>{const e=S.emps[u],I=(k,ty,x)=>`<td><input type=${ty} ${ty==='checkbox'?(e[k]?'checked':''):'value="'+esc(e[k]==null?(ty==='number'?0:''):e[k])+'"'} ${x||''} data-u="${u}" data-k="${k}"></td>`;
 return`<tr${e.nopunch?' style="background:#f3f3f6"':''}><td class=l>${u}</td><td>${esc(e.imp||'')}</td>`+I('name','text')+I('dept','text')+I('pos','text')+I('join','date')+I('leave','date')+I('nopunch','checkbox')+I('miss','number','style="width:70px"')+I('sal','number','style="width:90px"')+'</tr>'}).join('');
 document.querySelectorAll('#et input').forEach(i=>i.onchange=()=>{const e=S.emps[i.dataset.u],k=i.dataset.k;e[k]=i.type==='number'?+i.value:i.type==='checkbox'?i.checked:i.value;save();if(['name','join','leave','nopunch'].includes(k))render()});
-const EL=emps(),n=dim();opts($('#bu'),EL);opts($('#du'),EL,1);$('#bu').onchange=render;$('#du').onchange=render;
+const EL=emps(),n=dim();opts($('#bu'),EL);opts($('#du'),EL,1);$('#bu').onchange=render;$('#bpv').onclick=()=>stepU(-1);$('#bnx').onclick=()=>stepU(1);$('#du').onchange=render;
 // 月次出勤簿(個人)
 $('#bt').textContent=ym.replace('-','年')+'月 出勤簿';const u=$('#bu').value;let h='';
 if(u){const e=S.emps[u],t2=c.sch[2],std=tm(t2[1])-tm(t2[0])-c.brk;
@@ -259,12 +276,12 @@ const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'
 h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}</td><td>${WD[wk]}</td><td>${tg(i)}</td><td class="${i.inFw?'fw':''}">${sh?(i.i1||'--'):''}${i.mi?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.inFw?'<b class=ch>外勤</b>':''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${sh?(i.o1||'--'):''}${i.mo?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.outFw?'<b class=ch>外勤</b>':''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${sh&&i.bk?hm(i.bk):''}</td><td>${sh&&i.kn?hm(i.kn):''}</td><td class=gray>${w&&i.sj?hm(i.sj):''}</td><td class=gray>${w&&i.sj?hm(i.ot):''}</td><td class=gray>${w?(i.late?'<b class=c-late>'+hm(i.late)+'</b><button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">遅延証にする</button>':i.ex?'<span class=dly>遅延証</span> '+hm(i.ex)+' '+phl(u,dt)+'<button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">取消</button>':'0:00'):''}</td><td class=gray>${w?(i.early?'<b class=c-late>'+hm(i.early)+'</b>':'0:00'):''}</td><td class=l>${nt}${hist(u,dt)}</td></tr>`}
 const s=sumOf(u),K=(l,v,w)=>`<div class="${w?'w':''}"><span>${l}</span><b>${v}</b></div>`;
 $('#bs').innerHTML='<div class="kpi">'+K('出勤日数',s.wd+' / '+s.sd+'日')+K('実働(申請)',hm(s.sj))+K('打刻実動',hm(s.kn))+K('残業(時間外)',hm(s.ot),s.ot>s.miss&&s.miss>0)+K('みなし残業',hm(s.miss))+K('遅刻',s.lc+'回 '+hm(s.lm),s.lc>0)+K('早退',s.ec+'回 '+hm(s.em),s.ec>0)+K('欠勤',s.ab+'日',s.ab>0)+K('有給',s.pl+'日')+K('休日労働',hm(s.hot))+K('外勤',s.fw+'日')+K('遅延証',s.dl+'回'+(s.dlnp?'(写真なし '+s.dlnp+')':''),s.dlnp>0)+K('打刻漏れ',s.mc0+'回'+(s.mc0?'(未修正 '+s.mc+')':''),s.mc>0)+K('要コメント',s.nc+'件',s.nc>0)+'</div>'}
-else{$('#bh').innerHTML='';$('#bs').innerHTML=''}$('#bv').innerHTML=h;$('#bhist').innerHTML=u?histTable(u):'';
+else{$('#bh').innerHTML='';$('#bs').innerHTML='<div class="empty">この月のデータがありません。右上の対象月を確認するか、「取込」からxlsxを取り込んでください。</div>'}$('#bv').innerHTML=h;$('#bhist').innerHTML=u?histTable(u):'';
 // 全員一覧
 h='<tr><th class=l>氏名</th>';
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),w=new Date(dt).getDay();h+=`<th class="${isHol(dt)?'hol':w%6==0?'we':''}">${d}<br><small>${WD[w]}</small></th>`}
 h+='<th>出勤</th><th>実働</th></tr>';
-EL.forEach(u=>{h+=`<tr><td class=l>${nm(u)}</td>`;for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt);let tx='',cl='cell';
+EL.forEach(u=>{h+=`<tr><td class=l><a href="#" class=nl onclick="viewU('${u}');return false">${esc(nm(u))}</a></td>`;for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt);let tx='',cl='cell';
 const tms=`<small><span class="${i.inFw?'fwt':''}">${i.i1||'--'}${i.inFw?'<b class=ch>外</b>':''}</span><br><span class="${i.outFw?'fwt':''}">${i.o1||'--'}${i.outFw?'<b class=ch>外</b>':''}</span></small>`;
 if(i.t==='work'){tx=tms+(i.ex?'<b class=dly>遅延証</b>':'');if(i.late||i.early||i.mc)cl+=' c-late'}else if(i.t==='half'){tx='半'+tms}
 else if(i.t==='abs'){tx='欠';cl+=' c-abs'}else if(i.t==='pl'||i.t==='bulk'){tx='有';cl+=' c-pl'}else if(i.t==='hol'){tx=i.hot?'休出'+tms:'休';cl+=' hol'}else if(i.t==='off')tx='休';else if(i.t==='rest'){tx='−';cl+=' we'}
@@ -281,8 +298,26 @@ $('#dd').innerHTML=h.length>40&&h.includes('<tr class')?h:h+'<tr><td colspan=40 
 $('#dn').textContent=old?'※ '+old+'件は古い取込のため一部項目のみ表示です。全項目を表示するには、xlsxをもう一度取り込んでください。':'';
 h='<tr><th>氏名</th><th>日付</th><th>打刻時刻</th><th>結果</th><th>場所</th><th>備考</th><th>端末</th><th>管理者修正</th></tr>';
 const mm=ym.slice(2);Object.values(S.raw).filter(r=>(!du||String(r[4])===du)&&String(r[7]).startsWith(ym)).sort((a,b)=>(String(a[4])+a[7]).localeCompare(String(b[4])+b[7])).forEach(r=>{h+=`<tr class="${String(r[8]).includes('外勤')?'fw':''}"><td>${nm(String(r[4]))}</td>`+[5,7,8,9,10,13,14].map(j=>`<td>${r[j]==null?'':r[j]}</td>`).join('')+'</tr>'});$('#dr').innerHTML=h.includes('<tr class')?h:h+'<tr><td colspan=8 class=l>打刻ログがありません(「原始记录」シートを含むxlsxを取り込むと表示されます)</td></tr>';
+
+// ホーム
+{const EL2=emps().filter(u=>!S.emps[u].nopunch),TL=[];
+EL2.forEach(u=>{for(let d=1;d<=dim();d++){const dt=ym+'-'+pad(d),i=info(u,dt),t=[];if(i.mc)t.push('打刻漏れ');if((i.mc||i.fw)&&!i.cm)t.push('コメント');if(i.ex&&!(S.ph[u+'|'+dt]||[]).length)t.push('遅延証');if(i.t==='abs')t.push('欠勤');if(t.length)TL.push({u,dt,t,i})}});
+const cnt=k=>TL.filter(x=>x.t.includes(k)).length,SS=EL2.map(sumOf),sm=f=>SS.reduce((a,x)=>a+x[f],0);
+const ds=Object.keys(S.days).filter(k=>k.split('|')[1].startsWith(ym)).map(k=>k.split('|')[1]).sort(),nosal=EL2.filter(u=>!(S.emps[u].sal>0)).length;
+$('#hh').textContent=ym.replace('-','年')+'月の状況';
+const K2=(l,v,w)=>`<div class="${w?'w':''}"><span>${l}</span><b>${v}</b></div>`;
+$('#hk').innerHTML=EL2.length?K2('打刻対象',EL2.length+'人')+K2('取込データ',ds.length?ds[0].slice(5).replace('-','/')+'〜'+ds[ds.length-1].slice(5).replace('-','/'):'なし')+K2('要対応',TL.length+'件',TL.length>0)+K2('欠勤',sm('ab')+'日',sm('ab')>0)+K2('外勤',sm('fw')+'日')+K2('遅延証',sm('dl')+'回')+K2('残業(時間外)計',hm(sm('ot')))+(nosal?K2('月給未設定',nosal+'人',true):''):'';
+const TY=[['all','すべて'],['打刻漏れ','打刻漏れ'],['コメント','コメント未記入'],['遅延証','遅延証の写真なし'],['欠勤','欠勤']];
+$('#hp').innerHTML=TY.map(([k,l])=>`<button class="btn g${HF===k?' on':''}" data-f="${k}">${l} <b>${k==='all'?TL.length:cnt(k)}</b></button>`).join('');
+document.querySelectorAll('#hp button').forEach(b=>b.onclick=()=>{HF=b.dataset.f;render()});
+const LBL={'打刻漏れ':'<span class="tg ab">打刻漏れ</span>','コメント':'<span class="tg hw">コメント未記入</span>','遅延証':'<span class="tg" style="background:#e6dcff;color:#5b34c9">遅延証の写真なし</span>','欠勤':'<span class="tg ab">欠勤</span>'};
+const RW=TL.filter(x=>HF==='all'||x.t.includes(HF));
+$('#ht').innerHTML=RW.length?'<tr><th>日付</th><th class=l>社員</th><th class=l>内容</th><th>出勤</th><th>退勤</th><th></th></tr>'+RW.map(x=>`<tr class="row todo" onclick="edit('${x.u}','${x.dt}')"><td>${x.dt.slice(5).replace('-','/')}(${WD[new Date(x.dt).getDay()]})</td><td>${esc(nm(x.u))}</td><td>${x.t.map(k=>LBL[k]).join(' ')}${x.i.fw?' <span class="ch" style="margin:0">外勤</span>':''}</td><td>${x.i.i1||'--'}</td><td>${x.i.o1||'--'}</td><td class="go">開く ›</td></tr>`).join(''):`<tr><td class="empty" style="border:0">${EL2.length?(HF==='all'?'要対応はありません。確認はすべて完了しています。':'該当する項目はありません。'):'この月のデータがありません。「取込」からxlsxを取り込んでください。'}</td></tr>`;}
+// 設定のサブメニュー
+document.querySelectorAll('#emp .card[data-p]').forEach(c=>{c.style.display=c.dataset.p===SP?'':'none'});
+document.querySelectorAll('#sp button').forEach(b=>{b.classList.toggle('on',b.dataset.p===SP);b.onclick=()=>{SP=b.dataset.p;render()}});
 $('#st').innerHTML=sumHtml();
-if(RO())document.querySelectorAll('#emp input,#emp select,#emp button,#bv button').forEach(x=>x.disabled=true)}
+if(RO())document.querySelectorAll('#emp input,#emp select,#emp .card button,#bv button').forEach(x=>x.disabled=true)}
 const COLS=[['','氏名',(u,s,e)=>nm(u)+(e.nopunch?'(打刻不要)':'')],['','部門',(u,s,e)=>e.dept||''],
 ['日数','所定出勤',(u,s)=>s.sd],['日数','出勤',(u,s)=>s.wd],['日数','欠勤',(u,s)=>s.ab],['日数','有給',(u,s)=>s.pl],
 ['遅刻・早退','遅刻回',(u,s)=>s.lc],['遅刻・早退','遅刻時間',(u,s)=>M(s.lm)],['遅刻・早退','遅延証',(u,s)=>s.dl],['遅刻・早退','遅延証写真なし',(u,s)=>s.dlnp],['遅刻・早退','早退回',(u,s)=>s.ec],['遅刻・早退','早退時間',(u,s)=>M(s.em)],
@@ -291,7 +326,7 @@ const COLS=[['','氏名',(u,s,e)=>nm(u)+(e.nopunch?'(打刻不要)':'')],['','�
 ['給与','月給',(u,s,e)=>e.sal||0],['給与','残業手当',(u,s)=>s.p1],['給与','休日手当',(u,s)=>s.p2],['給与','欠勤控除',(u,s)=>s.ded],['給与','概算支給額',(u,s)=>s.gross]];
 function sumHtml(){const gs=[];COLS.forEach(c=>{const l=gs[gs.length-1];if(l&&c[0]&&l.g===c[0])l.n++;else gs.push({g:c[0],n:1})});
 let h='<tr>'+gs.map(x=>`<th colspan=${x.n}>${x.g}</th>`).join('')+'</tr><tr>'+COLS.map(c=>`<th>${c[1]}</th>`).join('')+'</tr>';
-emps().forEach(u=>{const s=sumOf(u),e=S.emps[u];h+=`<tr${e.nopunch?' style="color:#889;background:#f3f3f6"':''}>`+COLS.map((c,i)=>`<td class="${i<2?'l':''}">${esc(c[2](u,s,e))}</td>`).join('')+'</tr>'});return h}
+emps().forEach(u=>{const s=sumOf(u),e=S.emps[u];h+=`<tr${e.nopunch?' style="color:#889;background:#f3f3f6"':''}>`+COLS.map((c,i)=>`<td class="${i<2?'l':''}">${i===0?`<a href="#" class=nl onclick="viewU('${u}');return false">${esc(c[2](u,s,e))}</a>`:esc(c[2](u,s,e))}</td>`).join('')+'</tr>'});return h}
 $('#csv').onclick=()=>{FMT=1;const rows=emps().map(u=>{const s=sumOf(u),e=S.emps[u];return COLS.map(c=>c[2](u,s,e))});FMT=0;const t=[COLS.map(c=>(c[0]?c[0]+'_':'')+c[1])].concat(rows).map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download='勤怠集計_'+ym+'.csv';a.click()};
 $('#bk').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='attendance_backup.json';a.click()};
 $('#rs').onchange=async e=>{try{S=JSON.parse(await e.target.files[0].text());save();render()}catch(x){alert('読込失敗')}};
