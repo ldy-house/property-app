@@ -126,10 +126,11 @@ const K='ldy_att_v1',$=s=>document.querySelector(s);
 const DSCH=[0,1,2,3,4,5,6].map(w=>w===1?['08:45','18:00']:['09:00','18:00']);
 const DC={brk:60,hrs:160,rate:1.25,hrate:1.35,cap:60,gs:'09:30',sch:DSCH};
 const fresh=()=>({days:{},emps:{},hol:[],bulk:[],wk:[0,3],ov:{},gr:{},dc:{},pe:{},cm:{},ap:{},ph:{},log:[],raw:{},cfg:Object.assign({},DC)});let S=fresh();
-function load(){try{const t=localStorage.getItem(K);if(t)S=Object.assign(S,JSON.parse(t))}catch(e){}norm()}
+let HASC=false;
+function load(){try{const t=localStorage.getItem(K);HASC=!!t;if(t)S=Object.assign(S,JSON.parse(t))}catch(e){}norm()}
 const dirty=new Set();window.CL={push:null};
 const RO=()=>window.LV==='view';
-function save(){if(RO())return;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}if(CL.push)CL.push()}
+function save(){if(RO())return;S._u=1;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}try{if(CL.push)CL.push()}catch(e){console.error(e)}}
 const mig=a=>(a||[]).map(x=>typeof x==='string'?{s:x,e:x,n:''}:x);
 function norm(){S.hol=mig(S.hol);S.bulk=mig(S.bulk);S.cfg=Object.assign({},DC,S.cfg);S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.ph=S.ph||{};S.log=S.log||[]}
 norm();
@@ -339,27 +340,44 @@ import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "htt
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const stEl=document.getElementById('st2'),clean=o=>JSON.parse(JSON.stringify(o));
+const stat=(t,bad)=>{stEl.textContent=t;stEl.style.color=bad?'#ff9a9a':'#7be0b0'};
 CL.photoPut=(id,o)=>setDoc(doc(db,'att_photos',id),o);
 CL.photoGet=async id=>{const r=await getDoc(doc(db,'att_photos',id));if(!r.exists())throw new Error('写真が見つかりません');return r.data().data};
 CL.photoDel=id=>deleteDoc(doc(db,'att_photos',id));
-let busy=false;CL.busy=()=>busy;
-CL.push=()=>{busy=true;clearTimeout(t);st('保存中…');t=setTimeout(doPush,800)};
-async function pull(){st('読込中…');try{const m=await getDoc(doc(db,'att_meta','main'));
- if(m.exists()){const d=m.data();S.emps=d.emps||{};S.hol=mig(d.hol);S.bulk=mig(d.bulk);if(d.wk)S.wk=d.wk;S.gr=d.gr||{};S.dc=d.dc||{};S.pe=d.pe||{};S.cm=d.cm||{};S.ap=d.ap||{};S.ph=d.ph||{};S.ov=d.ov||{};{const c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));S.cfg=Object.assign(S.cfg,c)}
-  (await getDocs(collection(db,'att_months'))).forEach(x=>Object.assign(S.days,x.data().days||{}));
+let busy=false,gen=0,tm0=null;CL.busy=()=>busy;
+CL.push=()=>{gen++;busy=true;clearTimeout(tm0);stat('保存中…');tm0=setTimeout(doPush,800)};
+async function doPush(){const g=gen;try{
+ await setDoc(doc(db,'att_meta','main'),clean({emps:S.emps,hol:S.hol,bulk:S.bulk,wk:S.wk,gr:S.gr,dc:S.dc,pe:S.pe,cm:S.cm,ap:S.ap,ph:S.ph,ov:S.ov,cfg:Object.assign({},S.cfg,{sch:S.cfg.sch.map(a=>a.join('|'))}),updated:Date.now()}));
+ for(const m of [...dirty]){const days={};for(const k in S.days)if(k.split('|')[1].startsWith(m))days[k]=S.days[k];
+  await setDoc(doc(db,'att_months',m),clean({days}));
+  const rows=Object.values(S.raw).filter(r=>String(r[7]).startsWith(m)).map(r=>JSON.stringify(r));
+  await setDoc(doc(db,'att_raw',m),{rows});
+  await setDoc(doc(db,'att_log',m),clean({rows:S.log.filter(l=>l.dt.startsWith(m))}));dirty.delete(m)}
+ if(g===gen){busy=false;S._u=0;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+ stat('クラウド保存済み')}catch(e){stat(e.code==='permission-denied'?'権限がありません(保存できません)':'保存エラー: '+e.message,true)}}
+async function pull(){stat('読込中…');try{
+ const loc=window.LV!=='view'&&(S._u===1||(S._u===undefined&&HASC));
+ const m=await getDoc(doc(db,'att_meta','main'));
+ if(m.exists()){const d=m.data(),mg=(a,b)=>loc?Object.assign({},a||{},b||{}):(a||{}),c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));
+  S.emps=mg(d.emps,S.emps);S.gr=mg(d.gr,S.gr);S.dc=mg(d.dc,S.dc);S.pe=mg(d.pe,S.pe);S.cm=mg(d.cm,S.cm);S.ap=mg(d.ap,S.ap);S.ph=mg(d.ph,S.ph);S.ov=mg(d.ov,S.ov);
+  if(!(loc&&S.hol.length))S.hol=mig(d.hol);if(!(loc&&S.bulk.length))S.bulk=mig(d.bulk);if(!loc&&d.wk)S.wk=d.wk;
+  S.cfg=loc?Object.assign({},DC,c,S.cfg):Object.assign(S.cfg,c);
+  const cd={};(await getDocs(collection(db,'att_months'))).forEach(x=>Object.assign(cd,x.data().days||{}));S.days=loc?Object.assign({},cd,S.days):Object.assign(S.days,cd);
   (await getDocs(collection(db,'att_raw'))).forEach(x=>(x.data().rows||[]).forEach(j=>{const r=JSON.parse(j);S.raw[r.join('|')]=r}));
   const seen=new Set(S.log.map(l=>l.ts+l.u+l.dt+l.f));(await getDocs(collection(db,'att_log'))).forEach(x=>(x.data().rows||[]).forEach(l=>{const q=l.ts+l.u+l.dt+l.f;if(!seen.has(q)){seen.add(q);S.log.push(l)}}));
-  try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}st('クラウド読込済み')}
+  if(loc){Object.keys(S.days).forEach(k=>dirty.add(k.split('|')[1].slice(0,7)));CL.push()}
+  else{S._u=0;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}stat('クラウド読込済み')}}
  else if(window.LV!=='view'){Object.keys(S.days).forEach(k=>dirty.add(k.split('|')[1].slice(0,7)));CL.push()}
- render()}catch(e){st(e.code==='permission-denied'?'権限がありません(管理者のみ閲覧できます)':'読込エラー: '+e.message)}}
+ render()}catch(e){stat(e.code==='permission-denied'?'権限がありません(管理者のみ閲覧できます)':'読込エラー: '+e.message,true)}}
 onAuthStateChanged(auth,async u=>{window.ME=u?u.email:'';
- if(!u){document.getElementById('login').style.display='flex';lockUI();st('未ログイン');return}
+ if(!u){document.getElementById('login').style.display='flex';lockUI();stat('未ログイン');return}
  let lv='';try{const r=await getDoc(doc(db,'user_roles',u.email));if(r.exists()&&r.data().attAccess===true)lv=r.data().attReadOnly===true?'view':'edit'}catch(e){}
  if(!lv){document.getElementById('le').textContent='勤怠管理の権限がありません。管理者に attAccess の付与を依頼してください。';lockUI();await signOut(auth);return}
  window.LV=lv;document.getElementById('lv').textContent=lv==='edit'?'編集可':'閲覧のみ';
  document.getElementById('login').style.display='none';document.getElementById('le').textContent='';unlock();pull()});
-const go=()=>signInWithEmailAndPassword(auth,document.getElementById('em').value,document.getElementById('pw').value).catch(e=>document.getElementById('le').textContent='失敗: '+e.code);
-document.getElementById('li').onclick=go;document.getElementById('pw').onkeydown=e=>{if(e.key==='Enter')go()};
+const doLogin=()=>signInWithEmailAndPassword(auth,document.getElementById('em').value,document.getElementById('pw').value).catch(e=>document.getElementById('le').textContent='失敗: '+e.code);
+document.getElementById('li').onclick=doLogin;document.getElementById('pw').onkeydown=e=>{if(e.key==='Enter')doLogin()};
 document.getElementById('lo').onclick=()=>{if(CL.busy&&CL.busy()&&!confirm('保存が完了していない変更があります。ログアウトすると失われる可能性があります。続けますか？'))return;signOut(auth)};
 </script>
 </body></html>
