@@ -42,7 +42,7 @@ tr.row{cursor:pointer}tr.row:hover td{background:#eef4ff!important}
 .hol td,td.hol,th.hol{background:#fff0f1}.c-abs{background:#ffe1e1}.c-pl{background:#e4f6ea}.we,.we td{background:#f5f6fa}.gray{background:#f1f2f5}
 tr.c-abs td{background:#ffe9e9}tr.c-pl td{background:#eaf7ee}
 .fw,tr.fw td{background:var(--fw)}.fwt{background:var(--fw);padding:0 3px;border-radius:3px}
-.c-late{color:var(--bad);font-weight:700}.phs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.th{display:inline-flex;flex-direction:column;align-items:center;gap:3px}.th img{height:72px;border-radius:6px;border:1px solid var(--line)}.sm{padding:1px 8px!important;font-size:12px;margin-left:4px;border-radius:6px!important}.dly{background:#8a5cf6;color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
+.c-late{color:var(--bad);font-weight:700}.chk{display:inline-block;background:var(--bad);color:#fff;border-radius:5px;font-size:11px;padding:1px 7px;margin-left:5px;font-weight:700;white-space:nowrap}.okc{display:inline-block;background:#dff5e8;color:#127a4c;border-radius:5px;font-size:11px;padding:1px 7px;margin-left:4px;white-space:nowrap}.mt-late{background:#ffe08a;color:#7a4300;font-weight:700;padding:1px 6px;border-radius:5px}tr.nck td:first-child{box-shadow:inset 5px 0 0 var(--bad)}.phs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.th{display:inline-flex;flex-direction:column;align-items:center;gap:3px}.th img{height:72px;border-radius:6px;border:1px solid var(--line)}.sm{padding:1px 8px!important;font-size:12px;margin-left:4px;border-radius:6px!important}.dly{background:#8a5cf6;color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
 .ch{background:var(--pri);color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
 .cell{cursor:pointer;min-width:46px;height:40px}.cell:hover{outline:2px solid var(--pri);outline-offset:-2px}
 #bg td:first-child,#bg th:first-child{position:sticky;left:0;z-index:1;background:#fff;text-align:left;font-weight:600}#bg th:first-child{z-index:3;background:#eef2f9}
@@ -90,7 +90,7 @@ a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover
 <div class="card" data-p="sch"><h2>勤務時間(曜日別)</h2><table id="sch" class="z"></table>
 <p>グループ会社出勤時の始業 <input type="time" id="c_gs"> <small>(出勤簿の行をクリック →「グループ会社出勤」で、その日だけこの始業で遅刻判定)</small></p>
 <p>休憩控除 <input type="number" id="c_brk" style="width:70px">分(6時間以上の勤務)　月平均所定 <input type="number" id="c_hrs" style="width:70px">時間　残業割増 <input type="number" step="0.01" id="c_rate" style="width:70px">倍　休日割増 <input type="number" step="0.01" id="c_hrate" style="width:70px">倍</p><p>事前申請なしで認める残業 <input type="number" id="c_cap" style="width:70px">分/日 <small>(超える分は、日ごとの「残業事前申請」を入れた分だけ認めます)</small></p>
-<small>遅刻・早退はこの時間と打刻から自動計算します(アプリの遅刻判定は使いません)。時間外は「申請実動 − 所定時間」です。</small></div>
+<small>遅刻・早退は「始業・終業」と打刻から自動計算します(アプリの遅刻判定は使いません)。「朝礼」は、打刻がその時刻を過ぎると時刻の色が変わり、「朝礼遅れ」として別に数えます(遅刻・給与には影響しません。グループ会社出勤の日と遅延証の日は対象外)。時間外は「申請実動 − 所定時間」です。</small></div>
 <div class="card" data-p="hol"><h2>毎週の会社休日</h2><span id="wk"></span><p><small>チェックした曜日は毎週休みです(初期値: 水・日)。</small></p></div>
 <div class="card" data-p="hol"><h2>会社休日(期間)</h2><div id="hl"></div>
 <p>追加: <input type="date" id="h1"> ～ <input type="date" id="h2"> <input type="text" id="h3" placeholder="名称(例: 創立記念日)" style="width:170px"> <button class="btn" onclick="addP('hol','h')">追加</button></p>
@@ -135,8 +135,8 @@ a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover
 <dialog id="pv" style="width:min(900px,96vw)"><img id="pvi" style="max-width:100%;border-radius:8px"><p style="text-align:right;margin:8px 0 0"><button class="btn g" onclick="document.getElementById('pv').close()">閉じる</button></p></dialog>
 <script>
 const K='ldy_att_v1',$=s=>document.querySelector(s);
-const DSCH=[0,1,2,3,4,5,6].map(w=>w===1?['08:45','18:00']:['09:00','18:00']);
-const DC={brk:60,hrs:160,rate:1.25,hrate:1.35,cap:60,gs:'09:30',sch:DSCH};
+const DSCH=[0,1,2,3,4,5,6].map(w=>['09:00','18:00']);
+const DC={brk:60,hrs:160,rate:1.25,hrate:1.35,cap:60,gs:'09:30',sch:DSCH,mt:{1:'08:45'}};
 const fresh=()=>({days:{},emps:{},hol:[],bulk:[],wk:[0,3],ov:{},gr:{},dc:{},pe:{},cm:{},ap:{},ck:{},rq:{},lv:[],plg:{},pla:{},ph:{},log:[],raw:{},cfg:Object.assign({},DC)});let S=fresh();
 let HASC=false;
 function load(){try{const t=localStorage.getItem(K);HASC=!!t;if(t)S=Object.assign(S,JSON.parse(t))}catch(e){}norm()}
@@ -144,7 +144,7 @@ const dirty=new Set();window.CL={push:null};
 const RO=()=>window.LV==='view';
 function save(){if(RO())return;S._u=1;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}try{if(CL.push)CL.push()}catch(e){console.error(e)}}
 const mig=a=>(a||[]).map(x=>typeof x==='string'?{s:x,e:x,n:''}:x);
-function norm(){S.hol=mig(S.hol);S.bulk=mig(S.bulk);S.cfg=Object.assign({},DC,S.cfg);S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.ck=S.ck||{};S.rq=S.rq||{};S.lv=S.lv||[];S.plg=S.plg||{};S.pla=S.pla||{};S.ph=S.ph||{};S.log=S.log||[]}
+function norm(){S.hol=mig(S.hol);S.bulk=mig(S.bulk);{const had=S.cfg&&S.cfg.mt;S.cfg=Object.assign({},DC,S.cfg);S.cfg.sch=S.cfg.sch.map(a=>a.slice());const old=!had&&S.cfg.sch[1][0]==='08:45';S.cfg.mt=Object.assign({},had||(old?{1:'08:45'}:{}));if(old)S.cfg.sch[1][0]='09:00'}S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.ck=S.ck||{};S.rq=S.rq||{};S.lv=S.lv||[];S.plg=S.plg||{};S.pla=S.pla||{};S.ph=S.ph||{};S.log=S.log||[]}
 norm();
 function go(t){const b=document.querySelector('#nav [data-t="'+t+'"]');if(b)b.click()}
 function viewU(u){$('#bu').value=u;go('book')}
@@ -230,9 +230,10 @@ else if(r){if(!S.wk.length&&(r.sh||'').trim()==='休息')t='rest';else if(r.ab>0
 const np0=t==='abs'&&!o&&dt<today;
 if((t===''||t==='abs')&&(pe.i||pe.o))t='work';
 const brk=S.cfg.brk,w=(t==='work'||t==='half'),sc=S.cfg.sch[new Date(dt).getDay()],st=g?S.cfg.gs:sc[0],en=sc[1],std=Math.max(0,tm(en)-tm(sc[0])-brk),a=tm(i1),b=tm(o1),ok=a!=null&&b!=null&&b>a,bk=ok&&b-a>=360?brk:0;
-let kn=ok?b-a-bk:0,sj=0,late=0,early=0,mc=0,mc0=0,ex=0,ot=0,hot=0;
+let kn=ok?b-a-bk:0,sj=0,late=0,early=0,mc=0,mc0=0,ml=0,ex=0,ot=0,hot=0;
 if(w){if(a!=null&&tm(st)!=null)late=Math.max(0,a-tm(st));if(b!=null&&tm(en)!=null)early=Math.max(0,tm(en)-b);
  if(a==null)mc++;if(b==null&&dt<today)mc++;if(r&&r.att>0){if(!r.i1)mc0++;if(!(r.o2||r.o1)&&dt<today)mc0++}if(late&&S.dc[k]){ex=late;late=0}
+ {const mS=!g&&(S.cfg.mt||{})[new Date(dt).getDay()];if(a!=null&&mS&&tm(mS)!=null&&!S.dc[k])ml=Math.max(0,a-tm(mS))}
  if(ok){sj=Math.max(0,b-Math.max(a,tm(st))-bk);sj=Math.min(sj,std+Math.max(S.cfg.cap,S.ap[k]||0));ot=Math.max(0,sj-std)}}
 else if((t==='hol'||t==='rest'||t==='off')&&kn>0)hot=kn;
 const np=t==='abs'&&!o&&dt<today;if(np0)mc0=2;if(np)mc=2
@@ -240,18 +241,18 @@ const rs=ridx()[k]||[],f=q=>String(q[8]).includes('外勤'),hq=q=>String(q[7]||'
 const pi=rs.find(q=>hq(q)===i1)||null,po=rs.find(q=>hq(q)===o1)||null,rq=r||{};
 const inFw=w&&!pe.i&&(String(rq.q1).includes('外勤')||(pi&&f(pi))),outFw=w&&!pe.o&&((!rq.o2&&String(rq.q2).includes('外勤'))||(po&&f(po)));
 const locIn=pi&&inFw?pi[9]||'':'',locOut=po&&outFw?po[9]||'':'',note=[...new Set([pi,po].filter(q=>q&&f(q)&&q[10]).map(q=>q[10]))].join(' / ');
-return{t,kn,sj,bk,ot,hot,late,early,ex,mc:(w||np)?mc:0,mc0,np,mi:(w&&a==null)||np,mo:(w&&b==null&&dt<today)||np,rq:S.rq[k]||(lv?{st:'yes',d:(lv.sub||lv.ap||'').slice(0,10),at:(lv.sub||'').slice(0,16),r:lv.reason,auto:1,late:lv.late}:null),lv,rqNeed:(['pl','half','off'].includes(t)||(t==='abs'&&!!o&&o!=='w')||early>0),fw:inFw||outFw,inFw,outFw,locIn,locOut,note,g,dc:!!S.dc[k],i1,o1,ei:!!pe.i,eo:!!pe.o,cm:S.cm[k]||'',ap:S.ap[k]||0,ck:!!S.ck[k],r,rs}}
+return{t,kn,sj,bk,ot,hot,late,early,ex,ml,mc:(w||np)?mc:0,mc0,np,mi:(w&&a==null)||np,mo:(w&&b==null&&dt<today)||np,rq:S.rq[k]||(lv?{st:'yes',d:(lv.sub||lv.ap||'').slice(0,10),at:(lv.sub||'').slice(0,16),r:lv.reason,auto:1,late:lv.late}:null),lv,rqNeed:(['pl','half','off'].includes(t)||(t==='abs'&&!!o&&o!=='w')||early>0),fw:inFw||outFw,inFw,outFw,locIn,locOut,note,g,dc:!!S.dc[k],i1,o1,ei:!!pe.i,eo:!!pe.o,cm:S.cm[k]||'',ap:S.ap[k]||0,ck:!!S.ck[k],r,rs}}
 const dim=()=>new Date(+ym.slice(0,4),+ym.slice(5),0).getDate();
 const pun=u=>Object.keys(S.days).some(k=>k.startsWith(u+'|'+ym)&&S.days[k].att>0);
 const rank=u=>S.emps[u].nopunch?2:(pun(u)?0:1);
 const srtE=L=>L.sort((a,b)=>rank(a)-rank(b)||((S.emps[a].dept||'')+a).localeCompare((S.emps[b].dept||'')+b));
 const emps=()=>srtE(Object.keys(S.emps).filter(u=>{const e=S.emps[u];if((e.leave&&e.leave<ym+'-01')||(e.join&&e.join>ym+'-31'))return false;return Object.keys(S.days).some(k=>k.startsWith(u+'|'+ym))||Object.keys(S.ov).some(k=>k.startsWith(u+'|'+ym))}));
 const tg=i=>{if(i.np)return '<span class="tg ab">打刻なし</span>';const c=i.hot>0?'hw':i.t==='work'||i.t==='half'?'ok':i.t==='hol'?'hol':(i.t==='pl'||i.t==='bulk')?'pl':i.t==='abs'?'ab':'',l=i.hot>0?'休日出勤':LB[i.t]||'';return l?`<span class="tg ${c}">${l}</span>`:''};
-function sumOf(u){const e=S.emps[u],s={sd:0,wd:0,kn:0,sj:0,lc:0,lm:0,dl:0,dlnp:0,ec:0,em:0,ab:0,pl:0,off:0,mc:0,mc0:0,fw:0,nc:0,ot:0,hot:0};
+function sumOf(u){const e=S.emps[u],s={sd:0,wd:0,kn:0,sj:0,lc:0,lm:0,dl:0,dlnp:0,ec:0,em:0,ab:0,pl:0,off:0,mc:0,mc0:0,mlc:0,mlm:0,fw:0,nc:0,ot:0,hot:0};
 for(let d=1;d<=dim();d++){const i=info(u,ym+'-'+pad(d));if(i.t!=='out'&&i.t!=='hol')s.sd++;
 if(i.t==='work'){s.wd+=1}if(i.t==='half'){s.wd+=.5;s.pl+=.5}if(i.t==='pl'||i.t==='bulk')s.pl+=1;if(i.t==='abs'&&!i.np)s.ab+=1;if(i.t==='off')s.off+=1;
 if(i.t==='work'||i.t==='half'){s.kn+=i.kn;s.sj+=i.sj}
-if(i.late){s.lc++;s.lm+=i.late}if(i.ex){s.dl++;if(!(S.ph[u+'|'+ym+'-'+pad(d)]||[]).length)s.dlnp++}if(i.early){s.ec++;s.em+=i.early}s.mc+=i.mc;s.mc0+=i.mc0;if(i.fw)s.fw++;if(i.mc>0||(i.fw&&!i.ck))s.nc++;s.ot+=i.ot;s.hot+=i.hot}
+if(i.late){s.lc++;s.lm+=i.late}if(i.ex){s.dl++;if(!(S.ph[u+'|'+ym+'-'+pad(d)]||[]).length)s.dlnp++}if(i.early){s.ec++;s.em+=i.early}s.mc+=i.mc;s.mc0+=i.mc0;if(i.ml>0){s.mlc++;s.mlm+=i.ml}if(i.fw)s.fw++;if(i.mc>0||(i.fw&&!i.ck))s.nc++;s.ot+=i.ot;s.hot+=i.hot}
 s.miss=(+e.miss||0)*60;s.ex=Math.max(0,s.ot-s.miss);const hr=e.sal>0?e.sal/S.cfg.hrs:0;
 s.p1=Math.round(hr*S.cfg.rate*s.ex/60);s.p2=Math.round(hr*S.cfg.hrate*s.hot/60);s.ded=s.sd>0?Math.round((e.sal||0)/s.sd*(s.ab+s.off)):0;s.gross=e.sal>0?(+e.sal)+s.p1+s.p2-s.ded:0;return s}
 
@@ -260,6 +261,7 @@ function addP(k,p){const a=$('#'+p+'1').value;if(!a)return;S[k].push({s:a,e:$('#
 function delP(k,i){S[k].splice(i,1);save();render()}
 function setP(k,i,f,v){S[k][i][f]=v;srt(k);save();render()}
 function togW(i,on){S.wk=S.wk.filter(x=>x!==i);if(on)S.wk.push(i);save();render()}
+function setMt(w,v){S.cfg.mt=S.cfg.mt||{};if(v)S.cfg.mt[w]=v;else delete S.cfg.mt[w];save();render()}
 function setS(w,i,v){S.cfg.sch[w][i]=v;save();render()}
 function preset(n){const y=+ym.slice(0,4),m={GW:[y+'-04-29',y+'-05-05'],'お盆':[y+'-08-13',y+'-08-16'],'年末年始':[y+'-12-29',(y+1)+'-01-03']}[n];S.hol.push({s:m[0],e:m[1],n});srt('hol');save();render()}
 function plist(k,el){$(el).innerHTML=S[k].length?'<table>'+S[k].map((p,i)=>`<tr><td><input type=date value="${p.s}" onchange="setP('${k}',${i},'s',this.value)"></td><td>～</td><td><input type=date value="${p.e}" onchange="setP('${k}',${i},'e',this.value)"></td><td><input type=text value="${p.n||''}" placeholder="名称" onchange="setP('${k}',${i},'n',this.value)"></td><td><button class="btn g" onclick="delP('${k}',${i})">削除</button></td></tr>`).join('')+'</table>':'<small>未設定</small>'}
@@ -328,7 +330,7 @@ LI={};S.log.forEach(l=>{(LI[l.u+'|'+l.dt]=LI[l.u+'|'+l.dt]||[]).push(l)});
 plist('hol','#hl');plist('bulk','#bl');$('#wk').innerHTML=WD.split('').map((c,i)=>`<label style="margin-right:12px"><input type=checkbox ${S.wk.includes(i)?'checked':''} onchange="togW(${i},this.checked)">${c}</label>`).join('');
 const c=S.cfg;$('#c_brk').value=c.brk;$('#c_cap').value=c.cap;$('#c_hrate').value=c.hrate;$('#c_hrs').value=c.hrs;$('#c_rate').value=c.rate;$('#c_gs').value=c.gs;
 ['brk','hrs','rate','cap','hrate'].forEach(k=>$('#c_'+k).onchange=e=>{c[k]=+e.target.value;save();render()});$('#c_gs').onchange=e=>{c.gs=e.target.value;save();render()};
-$('#sch').innerHTML='<tr><th>曜日</th><th>始業</th><th>終業</th></tr>'+[1,2,3,4,5,6,0].map(w=>`<tr><td>${WD[w]}</td><td><input type=time value="${c.sch[w][0]}" onchange="setS(${w},0,this.value)"></td><td><input type=time value="${c.sch[w][1]}" onchange="setS(${w},1,this.value)"></td></tr>`).join('');
+$('#sch').innerHTML='<tr><th>曜日</th><th>朝礼<br><small>(過ぎたら色表示)</small></th><th>始業</th><th>終業</th></tr>'+[1,2,3,4,5,6,0].map(w=>`<tr><td>${WD[w]}</td><td><input type=time value="${(c.mt||{})[w]||''}" onchange="setMt(${w},this.value)"></td><td><input type=time value="${c.sch[w][0]}" onchange="setS(${w},0,this.value)"></td><td><input type=time value="${c.sch[w][1]}" onchange="setS(${w},1,this.value)"></td></tr>`).join('');
 const us=srtE(Object.keys(S.emps));$('#et').innerHTML='<tr><th class=l>UserId</th><th>取込氏名</th><th>登録氏名</th><th>部門</th><th>役職</th><th>入社日</th><th>退職日</th><th>打刻不要</th><th>みなし残業(h/月)</th><th>月給(円)</th></tr>'+us.map(u=>{const e=S.emps[u],I=(k,ty,x)=>`<td><input type=${ty} ${ty==='checkbox'?(e[k]?'checked':''):'value="'+esc(e[k]==null?(ty==='number'?0:''):e[k])+'"'} ${x||''} data-u="${u}" data-k="${k}"></td>`;
 return`<tr${e.nopunch?' style="background:#f3f3f6"':''}><td class=l>${u}</td><td>${esc(e.imp||'')}</td>`+I('name','text')+I('dept','text')+I('pos','text')+I('join','date')+I('leave','date')+I('nopunch','checkbox')+I('miss','number','style="width:70px"')+I('sal','number','style="width:90px"')+'</tr>'}).join('');
 document.querySelectorAll('#et input').forEach(i=>i.onchange=()=>{const e=S.emps[i.dataset.u],k=i.dataset.k;e[k]=i.type==='number'?+i.value:i.type==='checkbox'?i.checked:i.value;save();if(['name','join','leave','nopunch'].includes(k))render()});
@@ -340,20 +342,20 @@ $('#bh').innerHTML=`<b>${esc(nm(u))}</b>${e.nopunch?' (打刻不要)':''}　勤�
 h='<tr><th>日付</th><th>曜</th><th>区分</th><th>出勤時間</th><th>退勤時間</th><th>休憩</th><th>打刻実動</th><th>申請実動</th><th>時間外</th><th>遅刻</th><th>早退</th><th class=l>備考</th></tr>';
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt),wk=new Date(dt).getDay(),w=i.t==='work'||i.t==='half',sh=w||i.hot>0||i.np;
 const cl=i.t==='hol'?'hol':i.t==='abs'?'c-abs':(i.t==='pl'||i.t==='bulk')?'c-pl':(i.t==='out'||i.t==='rest'||i.t==='off')?'we':'';
-const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤(外勤): '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.g?'グループ会社出勤':'',i.lv?'休暇申請('+(i.lv.paid?'有給使用':'有給使用なし・無給')+')':'',i.ap?'残業事前申請 '+(i.ap/60)+'h':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||'',i.cm?'💬 '+i.cm:''].filter(Boolean).map(esc).join(' / ')+(i.mc>0||(i.fw&&!i.ck)?' <b class=c-late>要チェック</b>':'')+(i.fw?` <button class="btn g sm" onclick="event.stopPropagation();toggleCk('${u}','${dt}')">${i.ck?'✓ 外勤確認済み(取消)':'外勤確認済みにする'}</button>`:'')+((i.rqNeed||i.rq)?' '+rqChip(i):'');
-h+=`<tr class="row ${cl}" onclick="edit('${u}','${dt}')"><td>${d}</td><td>${WD[wk]}</td><td>${tg(i)}</td><td class="${i.inFw?'fw':''}">${sh?(i.i1||'--'):''}${i.mi?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.inFw?'<b class=ch>外勤</b>':''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${sh?(i.o1||'--'):''}${i.mo?'<b class="ch" style="background:#e5484d">漏れ</b>':''}${i.outFw?'<b class=ch>外勤</b>':''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${sh&&i.bk?hm(i.bk):''}</td><td>${sh&&i.kn?hm(i.kn):''}</td><td class=gray>${w&&i.sj?hm(i.sj):''}</td><td class=gray>${w&&i.sj?hm(i.ot):''}</td><td class=gray>${w?(i.late?'<b class=c-late>'+hm(i.late)+'</b><button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">遅延証にする</button>':i.ex?'<span class=dly>遅延証</span> '+hm(i.ex)+' '+phl(u,dt)+'<button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">取消</button>':'0:00'):''}</td><td class=gray>${w?(i.early?'<b class=c-late>'+hm(i.early)+'</b>':'0:00'):''}</td><td class=l>${nt}${hist(u,dt)}</td></tr>`}
+const nt=[i.inFw?'出勤(外勤): '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤(外勤): '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:'',i.g?'グループ会社出勤':'',i.lv?'休暇申請('+(i.lv.paid?'有給使用':'有給使用なし・無給')+')':'',i.ap?'残業事前申請 '+(i.ap/60)+'h':'',S.ov[u+'|'+dt]?'手動':'',(i.r&&i.r.ap)||'',i.cm?'💬 '+i.cm:''].filter(Boolean).map(esc).join(' / ')+(i.fw?` <button class="btn g sm" onclick="event.stopPropagation();toggleCk('${u}','${dt}')">${i.ck?'✓ 外勤確認済み(取消)':'外勤確認済みにする'}</button>`:'')+((i.rqNeed||i.rq)?' '+rqChip(i):'');
+h+=`<tr class="row ${cl}${i.mc>0||(i.fw&&!i.ck)?' nck':''}" onclick="edit('${u}','${dt}')"><td>${d}</td><td>${WD[wk]}</td><td>${tg(i)}</td><td class="${i.inFw?'fw':''}">${sh?`<span class="${i.ml>0?'mt-late':''}" title="${i.ml>0?'朝礼('+((S.cfg.mt||{})[wk]||'')+')に'+i.ml+'分遅れ':''}">${i.i1||'--'}</span>`:''}${i.mi?'<b class="chk">要チェック 漏れ</b>':''}${i.inFw?'<b class=ch>外勤</b>'+(i.ck?'<b class="okc">確認済</b>':'<b class="chk">要チェック</b>'):''}${i.ei?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td class="${i.outFw?'fw':''}">${sh?(i.o1||'--'):''}${i.mo?'<b class="chk">要チェック 漏れ</b>':''}${i.outFw?'<b class=ch>外勤</b>'+(i.ck?'<b class="okc">確認済</b>':'<b class="chk">要チェック</b>'):''}${i.eo?'<b class=ch style="background:#e08a00">修正</b>':''}</td><td>${sh&&i.bk?hm(i.bk):''}</td><td>${sh&&i.kn?hm(i.kn):''}</td><td class=gray>${w&&i.sj?hm(i.sj):''}</td><td class=gray>${w&&i.sj?hm(i.ot):''}</td><td class=gray>${w?(i.late?'<b class=c-late>'+hm(i.late)+'</b><button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">遅延証にする</button>':i.ex?'<span class=dly>遅延証</span> '+hm(i.ex)+' '+phl(u,dt)+'<button class="btn g sm" onclick="event.stopPropagation();toggleDc(\''+u+'\',\''+dt+'\')">取消</button>':'0:00'):''}</td><td class=gray>${w?(i.early?'<b class=c-late>'+hm(i.early)+'</b>':'0:00'):''}</td><td class=l>${nt}${hist(u,dt)}</td></tr>`}
 const s=sumOf(u),K=(l,v,w)=>`<div class="${w?'w':''}"><span>${l}</span><b>${v}</b></div>`;
-$('#bs').innerHTML='<div class="kpi">'+K('出勤日数',s.wd+' / '+s.sd+'日')+K('実働(申請)',hm(s.sj))+K('打刻実動',hm(s.kn))+K('残業(時間外)',hm(s.ot),s.ot>s.miss&&s.miss>0)+K('みなし残業',hm(s.miss))+K('遅刻',s.lc+'回 '+hm(s.lm),s.lc>0)+K('早退',s.ec+'回 '+hm(s.em),s.ec>0)+K('欠勤',s.ab+'日',s.ab>0)+K('有給',s.pl+'日')+K('有給残',fd(plCalc(u,today).bal)+'日')+(s.off?K('無給休暇',s.off+'日'):'')+K('休日労働',hm(s.hot))+K('外勤',s.fw+'日')+K('遅延証',s.dl+'回'+(s.dlnp?'(写真なし '+s.dlnp+')':''),s.dlnp>0)+K('打刻漏れ',s.mc0+'回'+(s.mc0?'(未修正 '+s.mc+')':''),s.mc>0)+K('要チェック',s.nc+'件',s.nc>0)+'</div>'}
+$('#bs').innerHTML='<div class="kpi">'+K('出勤日数',s.wd+' / '+s.sd+'日')+K('実働(申請)',hm(s.sj))+K('打刻実動',hm(s.kn))+K('残業(時間外)',hm(s.ot),s.ot>s.miss&&s.miss>0)+K('みなし残業',hm(s.miss))+K('遅刻',s.lc+'回 '+hm(s.lm),s.lc>0)+K('早退',s.ec+'回 '+hm(s.em),s.ec>0)+(Object.keys(S.cfg.mt||{}).length?K('朝礼遅れ',s.mlc+'回 '+hm(s.mlm)):'')+K('欠勤',s.ab+'日',s.ab>0)+K('有給',s.pl+'日')+K('有給残',fd(plCalc(u,today).bal)+'日')+(s.off?K('無給休暇',s.off+'日'):'')+K('休日労働',hm(s.hot))+K('外勤',s.fw+'日')+K('遅延証',s.dl+'回'+(s.dlnp?'(写真なし '+s.dlnp+')':''),s.dlnp>0)+K('打刻漏れ',s.mc0+'回'+(s.mc0?'(未修正 '+s.mc+')':''),s.mc>0)+K('要チェック',s.nc+'件',s.nc>0)+'</div>'}
 else{$('#bh').innerHTML='';$('#bs').innerHTML='<div class="empty">この月のデータがありません。右上の対象月を確認するか、「取込」からxlsxを取り込んでください。</div>'}$('#bv').innerHTML=h;$('#bhist').innerHTML=u?histTable(u):'';
 // 全員一覧
 h='<tr><th class=l>氏名</th>';
 for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),w=new Date(dt).getDay();h+=`<th class="${isHol(dt)?'hol':w%6==0?'we':''}">${d}<br><small>${WD[w]}</small></th>`}
 h+='<th>出勤</th><th>実働</th></tr>';
 EL.forEach(u=>{h+=`<tr><td class=l><a href="#" class=nl onclick="viewU('${u}');return false">${esc(nm(u))}</a></td>`;for(let d=1;d<=n;d++){const dt=ym+'-'+pad(d),i=info(u,dt);let tx='',cl='cell';
-const tms=`<small><span class="${i.inFw?'fwt':''}">${i.i1||'--'}${i.inFw?'<b class=ch>外</b>':''}</span><br><span class="${i.outFw?'fwt':''}">${i.o1||'--'}${i.outFw?'<b class=ch>外</b>':''}</span></small>`;
+const tms=`<small><span class="${i.inFw?'fwt ':''}${i.ml>0?'mt-late':''}">${i.i1||'--'}${i.inFw?'<b class=ch>外</b>':''}</span><br><span class="${i.outFw?'fwt':''}">${i.o1||'--'}${i.outFw?'<b class=ch>外</b>':''}</span></small>`;
 if(i.t==='work'){tx=tms+(i.ex?'<b class=dly>遅延証</b>':'');if(i.late||i.early||i.mc)cl+=' c-late'}else if(i.t==='half'){tx='半'+tms}
 else if(i.t==='abs'){tx=i.np?'漏':'欠';cl+=' c-abs'+(i.np?' c-late':'')}else if(i.t==='pl'||i.t==='bulk'){tx='有';cl+=' c-pl'}else if(i.t==='hol'){tx=i.hot?'休出'+tms:'休';cl+=' hol'}else if(i.t==='off')tx='休';else if(i.t==='rest'){tx='−';cl+=' we'}
-h+=`<td class="${cl}" title="${esc(ttl(i)+(LI[u+'|'+dt]||[]).map(l=>' ✎'+ft(l)).join(''))}" onclick="edit('${u}','${dt}')">${tx}${i.cm?'💬':''}${i.ei||i.eo||LI[u+'|'+dt]?'✎':''}</td>`}
+h+=`<td class="${cl}" title="${esc(ttl(i)+(LI[u+'|'+dt]||[]).map(l=>' ✎'+ft(l)).join(''))}" onclick="edit('${u}','${dt}')">${tx}${(i.mc>0||(i.fw&&!i.ck))?'<b class="chk">!</b>':''}${i.cm?'💬':''}${i.ei||i.eo||LI[u+'|'+dt]?'✎':''}</td>`}
 const s=sumOf(u);h+=`<td>${s.wd}</td><td>${hm(s.sj)}</td></tr>`});$('#bg').innerHTML=h;
 // 取込データ
 const du=$('#du').value,L=du?[du]:EL;let old=0;
@@ -400,7 +402,7 @@ $('#st').innerHTML=sumHtml();
 if(RO())document.querySelectorAll('#emp input,#emp select,#emp .card button,#bv button,#plv .ed').forEach(x=>x.disabled=true)}
 const COLS=[['','氏名',(u,s,e)=>nm(u)+(e.nopunch?'(打刻不要)':'')],['','部門',(u,s,e)=>e.dept||''],
 ['日数','所定出勤',(u,s)=>s.sd],['日数','出勤',(u,s)=>s.wd],['日数','欠勤',(u,s)=>s.ab],['日数','有給',(u,s)=>s.pl],['日数','無給休暇',(u,s)=>s.off],['日数','有給残',(u,s)=>fd(plCalc(u,today).bal)],
-['遅刻・早退','遅刻回',(u,s)=>s.lc],['遅刻・早退','遅刻時間',(u,s)=>M(s.lm)],['遅刻・早退','遅延証',(u,s)=>s.dl],['遅刻・早退','遅延証写真なし',(u,s)=>s.dlnp],['遅刻・早退','早退回',(u,s)=>s.ec],['遅刻・早退','早退時間',(u,s)=>M(s.em)],
+['遅刻・早退','遅刻回',(u,s)=>s.lc],['遅刻・早退','遅刻時間',(u,s)=>M(s.lm)],['遅刻・早退','遅延証',(u,s)=>s.dl],['遅刻・早退','遅延証写真なし',(u,s)=>s.dlnp],['遅刻・早退','早退回',(u,s)=>s.ec],['遅刻・早退','早退時間',(u,s)=>M(s.em)],['遅刻・早退','朝礼遅れ回',(u,s)=>s.mlc],
 ['時間','打刻実動',(u,s)=>M(s.kn)],['時間','実働(申請)',(u,s)=>M(s.sj)],['時間','残業(時間外)',(u,s)=>M(s.ot)],['時間','みなし',(u,s)=>M(s.miss)],['時間','超過=支払対象',(u,s)=>M(s.ex)],['時間','休日労働',(u,s)=>M(s.hot)],
 ['その他','外勤日',(u,s)=>s.fw],['その他','打刻漏れ回数',(u,s)=>s.mc0],['その他','未修正',(u,s)=>s.mc],
 ['給与','月給',(u,s,e)=>e.sal||0],['給与','残業手当',(u,s)=>s.p1],['給与','休日手当',(u,s)=>s.p2],['給与','欠勤・無給休暇控除',(u,s)=>s.ded],['給与','概算支給額',(u,s)=>s.gross]];
@@ -441,7 +443,7 @@ CL.flush=async()=>{clearTimeout(tm0);await doPush()};
 async function pull(){stat('読込中…');try{
  const loc=window.LV!=='view'&&(S._u===1||(S._u===undefined&&HASC));
  const m=await getDoc(doc(db,'att_meta','main'));
- if(m.exists()){const d=m.data(),mg=(a,b)=>loc?Object.assign({},a||{},b||{}):(a||{}),c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));
+ if(m.exists()){const d=m.data(),mg=(a,b)=>loc?Object.assign({},a||{},b||{}):(a||{}),c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));if(!c.mt&&c.sch){c.mt={};if(c.sch[1]&&c.sch[1][0]==='08:45'){c.sch[1][0]='09:00';c.mt[1]='08:45'}}
   S.emps=mg(d.emps,S.emps);S.gr=mg(d.gr,S.gr);S.dc=mg(d.dc,S.dc);S.pe=mg(d.pe,S.pe);S.cm=mg(d.cm,S.cm);S.ap=mg(d.ap,S.ap);S.ck=mg(d.ck,S.ck);S.rq=mg(d.rq,S.rq);S.plg=mg(d.plg,S.plg);S.pla=mg(d.pla,S.pla);S.lv=loc?[...new Map([...(d.lv||[]),...S.lv].map(r=>[r.id,r])).values()]:(d.lv||[]);S.ph=mg(d.ph,S.ph);S.ov=mg(d.ov,S.ov);
   if(!(loc&&S.hol.length))S.hol=mig(d.hol);if(!(loc&&S.bulk.length))S.bulk=mig(d.bulk);if(!loc&&d.wk)S.wk=d.wk;
   S.cfg=loc?Object.assign({},DC,c,S.cfg):Object.assign(S.cfg,c);
