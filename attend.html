@@ -90,7 +90,7 @@ a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover
 <div class="card" data-p="sch"><h2>勤務時間(曜日別)</h2><table id="sch" class="z"></table>
 <p>グループ会社出勤時の始業 <input type="time" id="c_gs"> <small>(出勤簿の行をクリック →「グループ会社出勤」で、その日だけこの始業で遅刻判定)</small></p>
 <p>休憩控除 <input type="number" id="c_brk" style="width:70px">分(6時間以上の勤務)　月平均所定 <input type="number" id="c_hrs" style="width:70px">時間　残業割増 <input type="number" step="0.01" id="c_rate" style="width:70px">倍　休日割増 <input type="number" step="0.01" id="c_hrate" style="width:70px">倍</p><p>事前申請なしで認める残業 <input type="number" id="c_cap" style="width:70px">分/日 <small>(超える分は、日ごとの「残業事前申請」を入れた分だけ認めます)</small></p>
-<small>遅刻・早退は「始業・終業」と打刻から自動計算します(アプリの遅刻判定は使いません)。「朝礼」は、打刻がその時刻を過ぎると時刻の色が変わり、「朝礼遅れ」として別に数えます(遅刻・給与には影響しません。グループ会社出勤の日と遅延証の日は対象外)。時間外は「申請実動 − 所定時間」です。</small></div>
+<small>「始業」は所定時間・実働(申請実動)の起点です。「遅刻の基準」を過ぎた出勤を遅刻に数えます(空欄は始業と同じ)。早退は「終業」より前の退勤です(アプリの遅刻判定は使いません)。「朝礼」は、打刻がその時刻を過ぎると時刻の色が変わり、「朝礼遅れ」として別に数えます(遅刻・給与には影響しません。グループ会社出勤の日と遅延証の日は対象外)。時間外は「申請実動 − 所定時間」です。</small></div>
 <div class="card" data-p="hol"><h2>毎週の会社休日</h2><span id="wk"></span><p><small>チェックした曜日は毎週休みです(初期値: 水・日)。</small></p></div>
 <div class="card" data-p="hol"><h2>会社休日(期間)</h2><div id="hl"></div>
 <p>追加: <input type="date" id="h1"> ～ <input type="date" id="h2"> <input type="text" id="h3" placeholder="名称(例: 創立記念日)" style="width:170px"> <button class="btn" onclick="addP('hol','h')">追加</button></p>
@@ -135,8 +135,8 @@ a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover
 <dialog id="pv" style="width:min(900px,96vw)"><img id="pvi" style="max-width:100%;border-radius:8px"><p style="text-align:right;margin:8px 0 0"><button class="btn g" onclick="document.getElementById('pv').close()">閉じる</button></p></dialog>
 <script>
 const K='ldy_att_v1',$=s=>document.querySelector(s);
-const DSCH=[0,1,2,3,4,5,6].map(w=>['09:00','18:00']);
-const DC={brk:60,hrs:160,rate:1.25,hrate:1.35,cap:60,gs:'09:30',sch:DSCH,mt:{1:'08:45'}};
+const DSCH=[0,1,2,3,4,5,6].map(w=>w===1?['08:45','18:00']:['09:00','18:00']);
+const DC={brk:60,hrs:160,rate:1.25,hrate:1.35,cap:60,gs:'09:30',sch:DSCH,mt:{1:'08:45'},lt:{1:'09:00'}};
 const fresh=()=>({days:{},emps:{},hol:[],bulk:[],wk:[0,3],ov:{},gr:{},dc:{},pe:{},cm:{},ap:{},ck:{},rq:{},lv:[],plg:{},pla:{},ph:{},log:[],raw:{},cfg:Object.assign({},DC)});let S=fresh();
 let HASC=false;
 function load(){try{const t=localStorage.getItem(K);HASC=!!t;if(t)S=Object.assign(S,JSON.parse(t))}catch(e){}norm()}
@@ -144,7 +144,8 @@ const dirty=new Set();window.CL={push:null};
 const RO=()=>window.LV==='view';
 function save(){if(RO())return;S._u=1;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}try{if(CL.push)CL.push()}catch(e){console.error(e)}}
 const mig=a=>(a||[]).map(x=>typeof x==='string'?{s:x,e:x,n:''}:x);
-function norm(){S.hol=mig(S.hol);S.bulk=mig(S.bulk);{const had=S.cfg&&S.cfg.mt;S.cfg=Object.assign({},DC,S.cfg);S.cfg.sch=S.cfg.sch.map(a=>a.slice());const old=!had&&S.cfg.sch[1][0]==='08:45';S.cfg.mt=Object.assign({},had||(old?{1:'08:45'}:{}));if(old)S.cfg.sch[1][0]='09:00'}S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.ck=S.ck||{};S.rq=S.rq||{};S.lv=S.lv||[];S.plg=S.plg||{};S.pla=S.pla||{};S.ph=S.ph||{};S.log=S.log||[]}
+function norm(){S.hol=mig(S.hol);S.bulk=mig(S.bulk);{const c0=S.cfg||{},hasLt=c0.lt!==undefined,hasMt=c0.mt!==undefined;S.cfg=Object.assign({},DC,c0);S.cfg.sch=S.cfg.sch.map(a=>a.slice());S.cfg.mt=Object.assign({},hasMt?c0.mt:{});S.cfg.lt=Object.assign({},hasLt?c0.lt:{});
+if(!hasLt){const m1=S.cfg.sch[1][0];if(!hasMt&&m1==='08:45'){S.cfg.mt[1]='08:45';S.cfg.lt[1]='09:00'}else if(hasMt&&S.cfg.mt[1]==='08:45'&&m1==='09:00'){S.cfg.sch[1][0]='08:45';S.cfg.lt[1]='09:00'}}}S.gr=S.gr||{};S.dc=S.dc||{};S.pe=S.pe||{};S.cm=S.cm||{};S.ap=S.ap||{};S.ck=S.ck||{};S.rq=S.rq||{};S.lv=S.lv||[];S.plg=S.plg||{};S.pla=S.pla||{};S.ph=S.ph||{};S.log=S.log||[]}
 norm();
 function go(t){const b=document.querySelector('#nav [data-t="'+t+'"]');if(b)b.click()}
 function viewU(u){$('#bu').value=u;go('book')}
@@ -229,9 +230,9 @@ else if(isHol(dt))t='hol';else if(o&&o!=='w')t=o;else if(inP(S.bulk,dt))t='bulk'
 else if(r){if(!S.wk.length&&(r.sh||'').trim()==='休息')t='rest';else if(r.ab>0&&!e.nopunch)t='abs';else if(r.att>0)t='work'}
 const np0=t==='abs'&&!o&&dt<today;
 if((t===''||t==='abs')&&(pe.i||pe.o))t='work';
-const brk=S.cfg.brk,w=(t==='work'||t==='half'),sc=S.cfg.sch[new Date(dt).getDay()],st=g?S.cfg.gs:sc[0],en=sc[1],std=Math.max(0,tm(en)-tm(sc[0])-brk),a=tm(i1),b=tm(o1),ok=a!=null&&b!=null&&b>a,bk=ok&&b-a>=360?brk:0;
+const brk=S.cfg.brk,w=(t==='work'||t==='half'),sc=S.cfg.sch[new Date(dt).getDay()],st=g?S.cfg.gs:sc[0],lth=g?S.cfg.gs:((S.cfg.lt||{})[new Date(dt).getDay()]||sc[0]),en=sc[1],std=Math.max(0,tm(en)-tm(sc[0])-brk),a=tm(i1),b=tm(o1),ok=a!=null&&b!=null&&b>a,bk=ok&&b-a>=360?brk:0;
 let kn=ok?b-a-bk:0,sj=0,late=0,early=0,mc=0,mc0=0,ml=0,ex=0,ot=0,hot=0;
-if(w){if(a!=null&&tm(st)!=null)late=Math.max(0,a-tm(st));if(b!=null&&tm(en)!=null)early=Math.max(0,tm(en)-b);
+if(w){if(a!=null&&tm(lth)!=null)late=Math.max(0,a-tm(lth));if(b!=null&&tm(en)!=null)early=Math.max(0,tm(en)-b);
  if(a==null)mc++;if(b==null&&dt<today)mc++;if(r&&r.att>0){if(!r.i1)mc0++;if(!(r.o2||r.o1)&&dt<today)mc0++}if(late&&S.dc[k]){ex=late;late=0}
  {const mS=!g&&(S.cfg.mt||{})[new Date(dt).getDay()];if(a!=null&&mS&&tm(mS)!=null&&!S.dc[k])ml=Math.max(0,a-tm(mS))}
  if(ok){sj=Math.max(0,b-Math.max(a,tm(st))-bk);sj=Math.min(sj,std+Math.max(S.cfg.cap,S.ap[k]||0));ot=Math.max(0,sj-std)}}
@@ -261,6 +262,7 @@ function addP(k,p){const a=$('#'+p+'1').value;if(!a)return;S[k].push({s:a,e:$('#
 function delP(k,i){S[k].splice(i,1);save();render()}
 function setP(k,i,f,v){S[k][i][f]=v;srt(k);save();render()}
 function togW(i,on){S.wk=S.wk.filter(x=>x!==i);if(on)S.wk.push(i);save();render()}
+function setLt(w,v){S.cfg.lt=S.cfg.lt||{};if(v)S.cfg.lt[w]=v;else delete S.cfg.lt[w];save();render()}
 function setMt(w,v){S.cfg.mt=S.cfg.mt||{};if(v)S.cfg.mt[w]=v;else delete S.cfg.mt[w];save();render()}
 function setS(w,i,v){S.cfg.sch[w][i]=v;save();render()}
 function preset(n){const y=+ym.slice(0,4),m={GW:[y+'-04-29',y+'-05-05'],'お盆':[y+'-08-13',y+'-08-16'],'年末年始':[y+'-12-29',(y+1)+'-01-03']}[n];S.hol.push({s:m[0],e:m[1],n});srt('hol');save();render()}
@@ -330,7 +332,7 @@ LI={};S.log.forEach(l=>{(LI[l.u+'|'+l.dt]=LI[l.u+'|'+l.dt]||[]).push(l)});
 plist('hol','#hl');plist('bulk','#bl');$('#wk').innerHTML=WD.split('').map((c,i)=>`<label style="margin-right:12px"><input type=checkbox ${S.wk.includes(i)?'checked':''} onchange="togW(${i},this.checked)">${c}</label>`).join('');
 const c=S.cfg;$('#c_brk').value=c.brk;$('#c_cap').value=c.cap;$('#c_hrate').value=c.hrate;$('#c_hrs').value=c.hrs;$('#c_rate').value=c.rate;$('#c_gs').value=c.gs;
 ['brk','hrs','rate','cap','hrate'].forEach(k=>$('#c_'+k).onchange=e=>{c[k]=+e.target.value;save();render()});$('#c_gs').onchange=e=>{c.gs=e.target.value;save();render()};
-$('#sch').innerHTML='<tr><th>曜日</th><th>朝礼<br><small>(過ぎたら色表示)</small></th><th>始業</th><th>終業</th></tr>'+[1,2,3,4,5,6,0].map(w=>`<tr><td>${WD[w]}</td><td><input type=time value="${(c.mt||{})[w]||''}" onchange="setMt(${w},this.value)"></td><td><input type=time value="${c.sch[w][0]}" onchange="setS(${w},0,this.value)"></td><td><input type=time value="${c.sch[w][1]}" onchange="setS(${w},1,this.value)"></td></tr>`).join('');
+$('#sch').innerHTML='<tr><th>曜日</th><th>朝礼<br><small>(過ぎたら色表示のみ)</small></th><th>始業<br><small>(所定・実働の起点)</small></th><th>遅刻の基準<br><small>(過ぎたら遅刻・空欄=始業)</small></th><th>終業</th></tr>'+[1,2,3,4,5,6,0].map(w=>`<tr><td>${WD[w]}</td><td><input type=time value="${(c.mt||{})[w]||''}" onchange="setMt(${w},this.value)"></td><td><input type=time value="${c.sch[w][0]}" onchange="setS(${w},0,this.value)"></td><td><input type=time value="${(c.lt||{})[w]||''}" onchange="setLt(${w},this.value)"></td><td><input type=time value="${c.sch[w][1]}" onchange="setS(${w},1,this.value)"></td></tr>`).join('');
 const us=srtE(Object.keys(S.emps));$('#et').innerHTML='<tr><th class=l>UserId</th><th>取込氏名</th><th>登録氏名</th><th>部門</th><th>役職</th><th>入社日</th><th>退職日</th><th>打刻不要</th><th>みなし残業(h/月)</th><th>月給(円)</th></tr>'+us.map(u=>{const e=S.emps[u],I=(k,ty,x)=>`<td><input type=${ty} ${ty==='checkbox'?(e[k]?'checked':''):'value="'+esc(e[k]==null?(ty==='number'?0:''):e[k])+'"'} ${x||''} data-u="${u}" data-k="${k}"></td>`;
 return`<tr${e.nopunch?' style="background:#f3f3f6"':''}><td class=l>${u}</td><td>${esc(e.imp||'')}</td>`+I('name','text')+I('dept','text')+I('pos','text')+I('join','date')+I('leave','date')+I('nopunch','checkbox')+I('miss','number','style="width:70px"')+I('sal','number','style="width:90px"')+'</tr>'}).join('');
 document.querySelectorAll('#et input').forEach(i=>i.onchange=()=>{const e=S.emps[i.dataset.u],k=i.dataset.k;e[k]=i.type==='number'?+i.value:i.type==='checkbox'?i.checked:i.value;save();if(['name','join','leave','nopunch'].includes(k))render()});
@@ -443,7 +445,7 @@ CL.flush=async()=>{clearTimeout(tm0);await doPush()};
 async function pull(){stat('読込中…');try{
  const loc=window.LV!=='view'&&(S._u===1||(S._u===undefined&&HASC));
  const m=await getDoc(doc(db,'att_meta','main'));
- if(m.exists()){const d=m.data(),mg=(a,b)=>loc?Object.assign({},a||{},b||{}):(a||{}),c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));if(!c.mt&&c.sch){c.mt={};if(c.sch[1]&&c.sch[1][0]==='08:45'){c.sch[1][0]='09:00';c.mt[1]='08:45'}}
+ if(m.exists()){const d=m.data(),mg=(a,b)=>loc?Object.assign({},a||{},b||{}):(a||{}),c=Object.assign({},d.cfg||{});if(c.sch)c.sch=c.sch.map(x=>String(x).split('|'));if(c.sch&&c.lt===undefined){if(c.mt===undefined){c.mt={};c.lt={};if(c.sch[1]&&c.sch[1][0]==='08:45'){c.mt[1]='08:45';c.lt[1]='09:00'}}else if(c.mt[1]==='08:45'&&c.sch[1]&&c.sch[1][0]==='09:00'){c.sch[1][0]='08:45';c.lt={1:'09:00'}}else c.lt={}}
   S.emps=mg(d.emps,S.emps);S.gr=mg(d.gr,S.gr);S.dc=mg(d.dc,S.dc);S.pe=mg(d.pe,S.pe);S.cm=mg(d.cm,S.cm);S.ap=mg(d.ap,S.ap);S.ck=mg(d.ck,S.ck);S.rq=mg(d.rq,S.rq);S.plg=mg(d.plg,S.plg);S.pla=mg(d.pla,S.pla);S.lv=loc?[...new Map([...(d.lv||[]),...S.lv].map(r=>[r.id,r])).values()]:(d.lv||[]);S.ph=mg(d.ph,S.ph);S.ov=mg(d.ov,S.ov);
   if(!(loc&&S.hol.length))S.hol=mig(d.hol);if(!(loc&&S.bulk.length))S.bulk=mig(d.bulk);if(!loc&&d.wk)S.wk=d.wk;
   S.cfg=loc?Object.assign({},DC,c,S.cfg):Object.assign(S.cfg,c);
