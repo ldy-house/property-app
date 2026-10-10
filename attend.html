@@ -85,7 +85,7 @@ a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover
 <div class="card"><h2>バックアップ</h2><button class="btn g" id="bk">JSON書き出し</button> <input type="file" id="rs" accept=".json"><p><small>データはFirestore(att_meta / att_months / att_raw / att_log)に自動保存され、ブラウザにもキャッシュします。</small></p></div></section>
 
 <section class="tab" id="emp"><div class="ph"><h1>設定</h1><p>社員、勤務時間、休日、一斉有給を設定します。社員は、打刻がある人が上、打刻不要の人は最後に並びます。</p></div>
-<div class="pills" id="sp"><button class="btn g on" data-p="emp">社員</button><button class="btn g" data-p="sch">勤務時間</button><button class="btn g" data-p="hol">休日</button><button class="btn g" data-p="bulk">一斉有給</button></div>
+<div class="pills" id="sp"><button class="btn g on" data-p="emp">社員</button><button class="btn g" data-p="sch">勤務時間</button><button class="btn g" data-p="hol">休日</button><button class="btn g" data-p="bulk">一斉有給</button><button class="btn g" data-p="dat">データ管理</button></div>
 <div class="card" data-p="emp"><h2>社員</h2><div class="wrap"><table id="et" class="z"></table></div><p><small>登録氏名・入社日・退職日・みなし残業(h/月)・月給を入れると、出勤簿と集計に反映されます。</small></p></div>
 <div class="card" data-p="sch"><h2>勤務時間(曜日別)</h2><table id="sch" class="z"></table>
 <p>グループ会社出勤時の始業 <input type="time" id="c_gs"> <small>(出勤簿の行をクリック →「グループ会社出勤」で、その日だけこの始業で遅刻判定)</small></p>
@@ -96,7 +96,13 @@ a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover
 <p>追加: <input type="date" id="h1"> ～ <input type="date" id="h2"> <input type="text" id="h3" placeholder="名称(例: 創立記念日)" style="width:170px"> <button class="btn" onclick="addP('hol','h')">追加</button></p>
 <p>ひな形(表示中の月の年で追加。あとから編集可): <button class="btn g" onclick="preset('GW')">GW 4/29-5/5</button> <button class="btn g" onclick="preset('お盆')">お盆 8/13-8/16</button> <button class="btn g" onclick="preset('年末年始')">年末年始 12/29-1/3</button></p></div>
 <div class="card" data-p="bulk"><h2>会社一斉有給(期間)</h2><div id="bl"></div>
-<p>追加: <input type="date" id="b1"> ～ <input type="date" id="b2"> <input type="text" id="b3" placeholder="名称" style="width:170px"> <button class="btn" onclick="addP('bulk','b')">追加</button></p></div></section>
+<p>追加: <input type="date" id="b1"> ～ <input type="date" id="b2"> <input type="text" id="b3" placeholder="名称" style="width:170px"> <button class="btn" onclick="addP('bulk','b')">追加</button></p></div><div class="card" data-p="dat"><h2>データの削除(初期化)</h2>
+<p>テストで取り込んだデータなどを消して、1からやり直すときに使います。<b style="color:var(--bad)">削除すると元に戻せません。</b>先にバックアップを取ることをおすすめします(写真の画像はバックアップに含まれません)。</p>
+<p><button class="btn g" id="w_bk">バックアップ(JSON)を書き出す</button></p>
+<p><b>削除する内容を選んでください</b></p><div id="w_list"></div>
+<p><small>残るもの: 勤務時間・休日・一斉有給・計算設定・権限。社員の登録内容は、チェックを入れたときだけ消えます。</small></p>
+<p>確認のため「削除」と入力: <input type="text" id="w_t" style="width:100px"> <button class="btn" id="w_go" style="background:var(--bad)" disabled>削除する</button> <span id="w_m"></span></p></div>
+</section>
 
 
 
@@ -143,7 +149,7 @@ norm();
 function go(t){const b=document.querySelector('#nav [data-t="'+t+'"]');if(b)b.click()}
 function viewU(u){$('#bu').value=u;go('book')}
 function stepU(n){const L=emps(),i=L.indexOf($('#bu').value),j=Math.min(L.length-1,Math.max(0,(i<0?0:i)+n));if(L[j]){$('#bu').value=L[j];render()}}
-let HF='all',SP='emp',PLU='';
+let HF='all',SP='emp',PLU='',WP={days:1,lv:1,man:1,ph:1,log:1,pl:1,emp:0};
 function unlock(){document.body.classList.remove('locked');document.body.classList.toggle('ro',RO());load();render();go('home')}
 function lockUI(){window.LV='';for(const k in PC)delete PC[k];document.body.classList.remove('ro');document.body.classList.add('locked');try{localStorage.removeItem(K)}catch(e){}S=fresh();norm();RI=null;RN=-1;dirty.clear();render()}
 let ym=new Date().toISOString().slice(0,7);
@@ -266,6 +272,12 @@ async function openPh(u,dt,j){const p=(S.ph[u+'|'+dt]||[])[j];if(!p)return;try{s
 const phl=(u,dt)=>{const L=S.ph[u+'|'+dt]||[];return L.length?L.map((p,j)=>`<a href="#" onclick="event.stopPropagation();openPh('${u}','${dt}',${j});return false">📷${j+1}</a>`).join(' '):'<b class=c-late style="font-size:11px">写真なし</b>'};
 const rqf=v=>v?(v.st==='yes'?'あり':v.st==='no'?'なし':'未確認')+(v.d?' '+v.d.slice(5).replace('-','/')+'申請':'')+(v.r?' 「'+v.r+'」':''):'未確認';
 const rqChip=i=>{const v=i.rq;if(!v||!v.st)return '<span class="tg" style="background:#e0ecff;color:#2a5bd7">申請未確認</span>'+(v&&v.r?' '+esc(v.r):'');return (v.st==='yes'?'<span class="tg ok">申請あり</span>':'<span class="tg ab">申請なし</span>')+(v.at?' '+esc(v.at.slice(5).replace('-','/'))+'申請':v.d?' '+esc(v.d.slice(5).replace('-','/'))+'申請':'')+(v.late?' <span class="tg hw">事後申請</span>':'')+(v.r?' 理由: '+esc(v.r):'')};
+$('#w_t').oninput=()=>{$('#w_go').disabled=$('#w_t').value.trim()!=='削除'||RO()};
+$('#w_bk').onclick=()=>$('#bk').onclick();
+$('#w_go').onclick=async()=>{if(RO()||$('#w_t').value.trim()!=='削除')return;if(!confirm('選んだデータを削除します。元に戻せません。よろしいですか？'))return;const o=WP;$('#w_m').textContent='削除中…';
+ try{if(CL.wipeCloud)await CL.wipeCloud({days:!!o.days,log:!!o.log,photoIds:o.ph?Object.values(S.ph).reduce((a,x)=>a.concat(x),[]).map(p=>p.id).filter(Boolean):[]});
+  if(o.days){S.days={};S.raw={};RN=-1;RI=null}if(o.lv)S.lv=[];if(o.man){S.pe={};S.ov={};S.cm={};S.rq={};S.ck={};S.dc={};S.ap={};S.gr={}}if(o.ph)S.ph={};if(o.log)S.log=[];if(o.pl){S.pla={};S.plg={}}if(o.emp)S.emps={};
+  dirty.clear();save();if(CL.flush)await CL.flush();$('#w_t').value='';$('#w_go').disabled=true;$('#w_m').textContent='削除しました';render()}catch(x){$('#w_m').textContent='失敗: '+x.message}};
 function toggleCk(u,dt){const k=u+'|'+dt;lg(u,dt,'外勤確認',S.ck[k]?'済み':'未確認',S.ck[k]?'未確認':'済み');if(S.ck[k])delete S.ck[k];else S.ck[k]=1;save();render()}
 function toggleDc(u,dt){const k=u+'|'+dt;lg(u,dt,'遅延証',S.dc[k]?'あり':'なし',S.dc[k]?'なし':'あり');if(S.dc[k])delete S.dc[k];else S.dc[k]=1;save();render()}
 function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt,i=info(u,dt),r=i.r||{},oI=r.i1||'',oO=r.o2||r.o1||'',w=i.t==='work'||i.t==='half',wk=new Date(dt).getDay(),hol=isHol(dt);
@@ -380,6 +392,10 @@ LU.forEach(u=>{const e=S.emps[u],c=plCalc(u,today),last=[...c.G].reverse().find(
  h+=`<tr class="row" data-u="${u}"${PLU===u?' style="outline:2px solid var(--pri);outline-offset:-2px"':''}><td class=l>${esc(nm(u))}${e.nopunch?' <small>(打刻不要)</small>':''}</td><td>${e.join||'—'}</td><td>${tenure(e.join)}</td><td>${last?last.d.slice(2).replace(/-/g,'/')+' '+fd(last.n)+'日':'—'}</td><td>${fd(live.reduce((a,g)=>a+g.n,0))}</td><td>${fd(live.reduce((a,g)=>a+g.used,0))}</td><td><b>${fd(c.bal)}</b></td><td>${c.sched?fd(c.sched):''}</td><td>${c.five?(c.five.used>=5?'<span class="tg ok">'+fd(c.five.used)+'/5</span>':'<span class="tg ab">'+fd(c.five.used)+'/5</span>'):'—'}</td><td>${c.nx?c.nx.d.slice(2).replace(/-/g,'/')+' '+c.nx.n+'日':'—'}</td><td class=l>${w.map(x=>`<span class="tg ab">${esc(x)}</span>`).join(' ')}</td></tr>`});
 $('#pt').innerHTML=h;document.querySelectorAll('#pt tr[data-u]').forEach(r=>r.onclick=()=>{PLU=r.dataset.u;render()});
 const ok=PLU&&S.emps[PLU];$('#pd').style.display=ok?'block':'none';if(ok){$('#pd').innerHTML=plDetail(PLU);bindPl(PLU)}}
+{const cnt=o=>Object.keys(o).length,man=['pe','ov','cm','rq','ck','dc','ap','gr'].reduce((a,k)=>a+cnt(S[k]),0),ph=Object.values(S.ph).reduce((a,x)=>a+x.length,0);
+const W=[['days','取込データ(日次データ・打刻ログ)',cnt(S.days)+'日分 / '+cnt(S.raw)+'打刻'],['lv','休暇申請',S.lv.length+'件'],['man','手動の編集(時刻修正・区分・コメント・申請・外勤確認・遅延証など)',man+'件'],['ph','遅延証の写真',ph+'枚'],['log','編集履歴',S.log.length+'件'],['pl','有給の調整・付与日数の変更',cnt(S.pla)+'人分 / '+cnt(S.plg)+'件'],['emp','社員の登録内容(登録氏名・入社日・月給など)',cnt(S.emps)+'人']];
+$('#w_list').innerHTML=W.map(([k,l,n])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-w="${k}"${WP[k]?' checked':''}> ${l} <small>(${n})</small></label>`).join('');
+document.querySelectorAll('#w_list input').forEach(x=>x.onchange=()=>{WP[x.dataset.w]=x.checked?1:0})}
 $('#st').innerHTML=sumHtml();
 if(RO())document.querySelectorAll('#emp input,#emp select,#emp .card button,#bv button,#plv .ed').forEach(x=>x.disabled=true)}
 const COLS=[['','氏名',(u,s,e)=>nm(u)+(e.nopunch?'(打刻不要)':'')],['','部門',(u,s,e)=>e.dept||''],
@@ -419,6 +435,9 @@ async function doPush(){const g=gen;try{
   await setDoc(doc(db,'att_log',m),clean({rows:S.log.filter(l=>l.dt.startsWith(m))}));dirty.delete(m)}
  if(g===gen){busy=false;S._u=0;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
  stat('クラウド保存済み')}catch(e){stat(e.code==='permission-denied'?'権限がありません(保存できません)':'保存エラー: '+e.message,true)}}
+CL.wipeCloud=async o=>{const del=async c=>{for(const d of (await getDocs(collection(db,c))).docs)await deleteDoc(doc(db,c,d.id))};
+ if(o.days){await del('att_months');await del('att_raw')}if(o.log)await del('att_log');for(const id of (o.photoIds||[]))await deleteDoc(doc(db,'att_photos',id))};
+CL.flush=async()=>{clearTimeout(tm0);await doPush()};
 async function pull(){stat('読込中…');try{
  const loc=window.LV!=='view'&&(S._u===1||(S._u===undefined&&HASC));
  const m=await getDoc(doc(db,'att_meta','main'));
