@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>管理委託物件｜株式会社LDY</title>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <style>
 :root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;--red:#C62828;--orange:#E65100;--purple:#6A1B9A;--green:#2E7D32;--teal:#00695C;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -128,6 +129,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .fr input,.fr select,.fr textarea{width:100%;font-size:13px;padding:8px 10px;border:1.5px solid #ddd;border-radius:4px;outline:none;font-family:inherit;background:#fff;}
 .fr input:focus,.fr select:focus,.fr textarea:focus{border-color:var(--navy);}
 .fr textarea{resize:vertical;height:70px;line-height:1.6;}
+.fr input.fr-jimu,.fr select.fr-jimu{border-color:#A8D5B5;background:#F9FFFA;}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .days-auto{font-size:11px;color:var(--sub);margin-top:4px;}
 .days-auto span{font-weight:700;color:var(--navy);}
@@ -148,10 +150,28 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.open{display:flex;}
 .lb-img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:3px;display:block;background:#111;}
+.lb-cap{color:rgba(255,255,255,0.7);font-size:12px;margin-top:10px;text-align:center;}
 .lb-close{position:absolute;top:14px;right:18px;background:none;border:none;color:#fff;font-size:26px;cursor:pointer;opacity:0.7;}
 .lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;padding:11px 15px;cursor:pointer;border-radius:4px;}
 .lb-prev{left:12px;}.lb-next{right:12px;}
 .lb-counter{position:absolute;top:14px;left:18px;color:rgba(255,255,255,0.55);font-size:11px;}
+/* ===== 電気・水道・ガス ===== */
+.util-box{background:#fff;border:1px solid #C8E6C9;border-radius:4px;padding:10px;margin-bottom:8px;}
+.util-box:last-child{margin-bottom:0;}
+.util-title{font-size:11px;font-weight:700;color:var(--green);margin-bottom:8px;}
+.meter-block{background:#fff;border:1px solid #C8E6C9;border-radius:4px;padding:8px;margin-bottom:6px;}
+.meter-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.meter-lbl{font-size:10px;font-weight:600;color:var(--green);}
+.ll-photo-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+.ll-photo-cell{width:96px;}
+.ll-photo-item{position:relative;width:96px;height:72px;border-radius:4px;overflow:hidden;background:#eee;border:1px solid #C8E6C9;}
+.ll-photo-item img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;}
+.ll-photo-del{position:absolute;top:2px;right:2px;background:rgba(200,0,0,0.8);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.ll-photo-cap{width:100%;font-size:10px;padding:3px 5px;margin-top:3px;border:1px solid #C8E6C9;border-radius:3px;outline:none;font-family:inherit;}
+.ll-photo-cap:focus{border-color:var(--green);}
+.ll-drop{border-radius:4px;}
+.ll-drop.dragover{outline:2px dashed var(--gold);background:#fffbf0;}
+.ut-thumb{width:44px;height:36px;object-fit:cover;border-radius:3px;border:1px solid #C8E6C9;cursor:zoom-in;margin-right:4px;vertical-align:middle;}
 .hdr-left{gap:22px;height:100%;min-width:0}
 .hdr-nav{display:flex;height:100%;overflow-x:auto}
 .hdr-nav a{display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.6);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
@@ -236,7 +256,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="img-uploading" id="b-img-uploading">アップロード中...</div>
         <div class="img-list" id="b-img-list"></div>
-        <input type="file" id="b-img-file-input" accept="image/*" multiple style="display:none;" onchange="handleBldFiles(event)"/>
+        <input type="file" id="b-img-file-input" accept="image/*,.heic,.heif" multiple style="display:none;" onchange="handleBldFiles(event)"/>
       </div>
 
       <div class="fs">
@@ -338,6 +358,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fs-title">設備点検</div>
         <div id="equip-blocks"></div>
         <button type="button" class="btn btn-sm btn-navy" onclick="addEquip()">＋ 点検項目を追加</button>
+      </div>
+
+      <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
+        <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス（共用部）</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">ビルの共用部分で契約しているメーターを登録します（複数可）。各区分の分は、区分の編集画面で登録します。</div>
+        <div id="b-util"></div>
       </div>
 
       <div class="fs">
@@ -489,6 +515,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
       </div>
 
+      <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
+        <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分で契約しているメーターを登録します。1区分に複数ある場合は「メーターを追加」で増やしてください。</div>
+        <div id="u-util"></div>
+      </div>
+
       <div class="fs">
         <div class="fs-title">鍵管理</div>
         <div class="fr"><label>引継ぎ状況</label>
@@ -537,6 +569,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   <button class="lb-prev" onclick="lbMove(-1)">&#8249;</button>
   <img class="lb-img" id="lb-img" src="" alt=""/>
   <button class="lb-next" onclick="lbMove(1)">&#8250;</button>
+  <div class="lb-cap" id="lb-cap"></div>
 </div>
 
 <script type="module">
@@ -628,13 +661,19 @@ window.ldyOpt=function(u,w,best){
   return u.replace('/image/upload/','/image/upload/f_auto,q_auto'+(best?':best':':good')+',w_'+w+',c_limit/');
 };
 const CLD='dujllruro',CLD_P='ldy-property';
+const isHeicFile=f=>/hei[cf]/i.test(f.type)||/\.hei[cf]$/i.test(f.name);
+const isImgFile=f=>/^image\//.test(f.type)||/\.(hei[cf]|jpe?g|png|webp|gif)$/i.test(f.name);
+async function toJpegIfHeic(f){if(!isHeicFile(f))return f;const r=await heic2any({blob:f,toType:'image/jpeg',quality:.9});return Array.isArray(r)?r[0]:r;}
 async function uploadOne(file){
-  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLD_P);
+  file=await toJpegIfHeic(file);
+  const fd=new FormData();fd.append('file',file,file.name||'photo.jpg');fd.append('upload_preset',CLD_P);
   const r=await fetch('https://api.cloudinary.com/v1_1/'+CLD+'/image/upload',{method:'POST',body:fd});
   const d=await r.json();
   if(d.secure_url)return{url:d.secure_url,caption:''};
   throw new Error(d.error?.message||'アップロード失敗');
 }
+window.addEventListener('dragover',e=>{if(e.dataTransfer&&e.dataTransfer.types.includes('Files'))e.preventDefault();});
+window.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.types.includes('Files'))e.preventDefault();});
 let currentBldPhotos=[];
 window.handleBldFiles=async function(e){
   const files=Array.from(e.target.files);if(!files.length)return;
@@ -653,7 +692,7 @@ bImgDrop.addEventListener('dragover',e=>{e.preventDefault();bImgDrop.classList.a
 bImgDrop.addEventListener('dragleave',()=>bImgDrop.classList.remove('dragover'));
 bImgDrop.addEventListener('drop',async e=>{
   e.preventDefault();bImgDrop.classList.remove('dragover');
-  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  const files=Array.from(e.dataTransfer.files).filter(isImgFile);
   document.getElementById('b-img-uploading').style.display='block';
   for(const f of files){try{const p=await uploadOne(f);currentBldPhotos.push(p);renderBldImgList();}catch(err){alert('失敗: '+err.message);}}
   document.getElementById('b-img-uploading').style.display='none';
@@ -667,12 +706,150 @@ window.lbMove=function(dir){lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length;up
 function updateLB(){
   const p=lbPhotos[lbIdx];
   document.getElementById('lb-img').src=ldyOpt(p.url||p,2400,true);
+  document.getElementById('lb-cap').textContent=p.caption||'';
   document.getElementById('lb-counter').textContent=(lbIdx+1)+' / '+lbPhotos.length;
 }
 document.addEventListener('keydown',e=>{
   if(!document.getElementById('lightbox').classList.contains('open'))return;
   if(e.key==='ArrowLeft')lbMove(-1);if(e.key==='ArrowRight')lbMove(1);if(e.key==='Escape')closeLB();
 });
+
+// ===== 電気・水道・ガス（ビル共用部 'b' ／ 区分 'u' で共通） =====
+const UT=[['water','水道'],['elec','電気'],['gas','ガス']];
+const newUtil=()=>({water:{meters:[],photos:[]},elec:{customerNo:'',meters:[],photos:[]},gas:{customerNo:'',meters:[],photos:[]}});
+const cloneUtil=o=>{
+  const n=newUtil();if(!o)return n;
+  UT.forEach(([t])=>{
+    const s=o[t]||{};
+    n[t].meters=JSON.parse(JSON.stringify(s.meters||[]));
+    n[t].photos=(s.photos||[]).map(x=>typeof x==='string'?{url:x,caption:''}:{url:x.url,caption:x.caption||''});
+    if(t!=='water')n[t].customerNo=s.customerNo||'';
+  });
+  return n;
+};
+let utilState={b:newUtil(),u:newUtil()};
+function getUtil(sc){
+  const o=JSON.parse(JSON.stringify(utilState[sc]));
+  ['elec','gas'].forEach(t=>{o[t].customerNo=(o[t].customerNo||'').trim();});
+  return o;
+}
+function renderUtil(sc){
+  const el=document.getElementById(sc+'-util');if(!el)return;
+  el.innerHTML=UT.map(([t,l])=>{
+    const s=utilState[sc][t],id=sc+'-'+t;
+    return '<div class="util-box ll-drop" id="'+id+'-box">'+
+      '<div class="util-title">'+l+'</div>'+
+      (t!=='water'?'<div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(s.customerNo)+'" placeholder="例：1234567890" oninput="setUtilCust(\''+sc+'\',\''+t+'\',this.value)"/></div>':'')+
+      '<div id="'+id+'-meters"></div>'+
+      '<button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="addMeter(\''+sc+'\',\''+t+'\')">＋ メーターを追加</button>'+
+      '<div style="margin-top:8px;">'+
+        '<label style="font-size:11px;color:var(--sub);font-weight:700;display:block;margin-bottom:4px;">写真</label>'+
+        '<div class="ll-photo-list" id="'+id+'-photos"></div>'+
+        '<button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="document.getElementById(\''+id+'-photo-input\').click()">＋ 写真を追加</button>'+
+        '<input type="file" id="'+id+'-photo-input" accept="image/*,.heic,.heif" multiple style="display:none;" onchange="handleUtilPhoto(event,\''+sc+'\',\''+t+'\')"/>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  UT.forEach(([t])=>{
+    renderMeters(sc,t);renderUtilPhotos(sc,t);
+    const box=document.getElementById(sc+'-'+t+'-box');if(!box)return;
+    box.addEventListener('dragover',e=>{if(e.dataTransfer.types.includes('Files')){e.preventDefault();box.classList.add('dragover');}});
+    box.addEventListener('dragleave',()=>box.classList.remove('dragover'));
+    box.addEventListener('drop',async e=>{
+      e.preventDefault();box.classList.remove('dragover');
+      for(const f of Array.from(e.dataTransfer.files).filter(isImgFile)){
+        try{const p=await uploadOne(f);utilState[sc][t].photos.push({url:p.url,caption:''});renderUtilPhotos(sc,t);}catch(err){alert('失敗: '+err.message);}
+      }
+    });
+  });
+}
+window.setUtilCust=function(sc,t,v){utilState[sc][t].customerNo=v;};
+window.addMeter=function(sc,t){utilState[sc][t].meters.push({label:'',status:'',customerNo:'',openDate:'',cancelDate:''});renderMeters(sc,t);};
+window.removeMeter=function(sc,t,i){utilState[sc][t].meters.splice(i,1);renderMeters(sc,t);};
+window.updateMeter=function(sc,t,i,f,v){const m=utilState[sc][t].meters[i];if(m)m[f]=v;};
+function renderMeters(sc,t){
+  const el=document.getElementById(sc+'-'+t+'-meters');if(!el)return;
+  const ph=sc==='b'?'例：共用部／エレベーター':'例：1F左／店舗用';
+  el.innerHTML=utilState[sc][t].meters.map((m,i)=>{
+    const a="'"+sc+"','"+t+"',"+i;
+    const custNo=t==='water'?'<div class="fg"><div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(m.customerNo||'')+'" placeholder="例：1234567890" oninput="updateMeter('+a+',\'customerNo\',this.value)"/></div><div class="fr"></div></div>':'';
+    return '<div class="meter-block">'+
+      '<div class="meter-head"><span class="meter-lbl">メーター '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeMeter('+a+')">削除</button></div>'+
+      '<div class="fg">'+
+        '<div class="fr"><label>場所・番号</label><input class="fr-jimu" value="'+esc(m.label||'')+'" placeholder="'+ph+'" oninput="updateMeter('+a+',\'label\',this.value)"/></div>'+
+        '<div class="fr"><label>開通状況</label><select class="fr-jimu" onchange="updateMeter('+a+',\'status\',this.value)">'+
+          '<option value=""'+(!m.status?' selected':'')+'>未確認</option>'+
+          '<option value="on"'+(m.status==='on'?' selected':'')+'>開通済</option>'+
+          '<option value="off"'+(m.status==='off'?' selected':'')+'>未開通</option>'+
+          '<option value="cancelled"'+(m.status==='cancelled'?' selected':'')+'>解約済</option>'+
+        '</select></div>'+
+      '</div>'+
+      custNo+
+      '<div class="fg">'+
+        '<div class="fr"><label>開通日</label><input class="fr-jimu" type="date" value="'+esc(m.openDate||'')+'" oninput="updateMeter('+a+',\'openDate\',this.value)"/></div>'+
+        '<div class="fr"><label>解約日</label><input class="fr-jimu" type="date" value="'+esc(m.cancelDate||'')+'" oninput="updateMeter('+a+',\'cancelDate\',this.value)"/></div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+window.handleUtilPhoto=async function(e,sc,t){
+  const files=Array.from(e.target.files);if(!files.length)return;
+  for(const f of files){try{const p=await uploadOne(f);utilState[sc][t].photos.push({url:p.url,caption:''});renderUtilPhotos(sc,t);}catch(err){alert('失敗: '+err.message);}}
+  e.target.value='';
+};
+window.removeUtilPhoto=function(sc,t,i){utilState[sc][t].photos.splice(i,1);renderUtilPhotos(sc,t);};
+window.updateUtilCaption=function(sc,t,i,v){const p=utilState[sc][t].photos[i];if(p)p.caption=v;};
+window.openUtilPhoto=function(sc,t,i){openLB(utilState[sc][t].photos,i);};
+function renderUtilPhotos(sc,t){
+  const el=document.getElementById(sc+'-'+t+'-photos');if(!el)return;
+  const a=(i)=>"'"+sc+"','"+t+"',"+i;
+  el.innerHTML=utilState[sc][t].photos.map((ph,i)=>
+    '<div class="ll-photo-cell"><div class="ll-photo-item"><img src="'+esc(ldyOpt(ph.url,400))+'" alt="" onclick="openUtilPhoto('+a(i)+')"/><button type="button" class="ll-photo-del" onclick="removeUtilPhoto('+a(i)+')">✕</button></div>'+
+    '<input class="ll-photo-cap" value="'+esc(ph.caption||'')+'" placeholder="キャプション" oninput="updateUtilCaption(\''+sc+'\',\''+t+'\','+i+',this.value)"/></div>'
+  ).join('');
+}
+
+// カード表示用
+window.phReg=[];
+function stBadge(s){
+  if(s==='on')return'<span style="background:#E8F5E9;color:#2E7D32;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;border:1px solid #A5D6A7;">開通</span>';
+  if(s==='off')return'<span style="background:#F5F5F5;color:#999;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;border:1px solid #DDD;">未開通</span>';
+  if(s==='cancelled')return'<span style="background:#FFEBEE;color:#C62828;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;border:1px solid #FFCDD2;">解約済</span>';
+  return'<span style="background:#F5F5F5;color:#bbb;font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid #EEE;">未確認</span>';
+}
+function utilViewHtml(ut){
+  if(!ut)return'';
+  const rows=[];
+  UT.forEach(([t,l])=>{
+    const s=ut[t];if(!s)return;
+    const ms=s.meters||[],cn=s.customerNo;
+    if(ms.length){
+      ms.forEach((m,i)=>{
+        const d=[];
+        if(t==='water'){if(m.customerNo)d.push('No.'+m.customerNo);}else if(cn)d.push('No.'+cn);
+        if(m.openDate)d.push('開通:'+m.openDate);
+        if(m.cancelDate)d.push('解約:'+m.cancelDate);
+        rows.push('<div class="kn-row full" style="align-items:center;flex-wrap:wrap;gap:6px;"><span class="kn-lbl">'+l+' '+esc(m.label||('メーター'+(i+1)))+'</span>'+stBadge(m.status)+(d.length?'<span style="font-size:10px;color:#888;">'+esc(d.join('　'))+'</span>':'')+'</div>');
+      });
+    }else if(t!=='water'&&cn){
+      rows.push('<div class="kn-row full"><span class="kn-lbl">'+l+'</span><span class="kn-val">No.'+esc(cn)+'</span></div>');
+    }
+    const ph=(s.photos||[]).map(x=>typeof x==='string'?{url:x,caption:''}:x);
+    if(ph.length){
+      const idx=window.phReg.push(ph)-1;
+      rows.push('<div class="kn-row full" style="align-items:center;"><span class="kn-lbl">'+l+'の写真</span><span>'+ph.map((p,j)=>'<img class="ut-thumb" src="'+esc(ldyOpt(p.url,200))+'" alt="" onclick="event.stopPropagation();openLB(phReg['+idx+'],'+j+')"/>').join('')+'</span></div>');
+    }
+  });
+  return rows.length?'<div class="kn-grid" style="grid-template-columns:1fr;">'+rows.join('')+'</div>':'';
+}
+function bldUtilHtml(b){
+  const h=utilViewHtml(b.utilities);
+  return h?'<div class="osec"><div class="osec-t">電気・水道・ガス（共用部）</div>'+h+'</div>':'';
+}
+function unitUtilHtml(u){
+  const h=utilViewHtml(u.utilities);
+  return h?'<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">電気・水道・ガス</div>'+h+'</div>':'';
+}
 
 let equipBlocks=[];
 let feePayments={};let feePayYear=new Date().getFullYear();
@@ -760,6 +937,7 @@ window.toggleTenantType=function(){
 
 window.openBldModal=function(id=null){
   editBldId=id;equipBlocks=[];feePayments={};feePayYear=new Date().getFullYear();currentBldPhotos=[];
+  utilState.b=newUtil();renderUtil('b');
   document.getElementById('bld-modal-title').textContent=id?'ビルを編集':'ビルを追加';
   const setV=(e,v)=>{const el=document.getElementById(e);if(el)el.value=(v===0?'0':(v||''));};
   ['b-name','b-addr','b-struct','b-built','b-owner','b-owner-kana','b-owner-tel','b-owner-contact','b-owner-contact-tel','b-owner-mail','b-owner-addr','b-owner-bank',
@@ -782,6 +960,7 @@ window.openBldModal=function(id=null){
     equipBlocks=b.equip?JSON.parse(JSON.stringify(b.equip)):[];
     feePayments=b.feePayments?JSON.parse(JSON.stringify(b.feePayments)):{};
     currentBldPhotos=b.photos?JSON.parse(JSON.stringify(b.photos)):[];
+    utilState.b=cloneUtil(b.utilities);renderUtil('b');
     renderBldImgList();
     renderLinkedPropertyOptions(b.linkedPropertyId||'');
     updateBldDays();toggleOwnerType();toggleCashflow();renderEquipBlocks();
@@ -915,6 +1094,7 @@ window.saveBld=async function(){if(editBldId&&verOf(blds.find(x=>x.id===editBldI
     invoiceFreq:g('b-invoice-freq'),invoiceDue:g('b-invoice-due'),
     equip:equipBlocks.filter(e=>e.name),
     repairs:repairBlocks.filter(r=>r.date||r.content||r.place).map(r=>({...r,cost:(r.cost===''||r.cost==null)?null:Number(r.cost)})),
+    utilities:getUtil('b'),
     photos:currentBldPhotos,
     linkedPropertyId:document.getElementById('b-linked-property').value||null,
     feePayments,
@@ -950,6 +1130,7 @@ window.toggleAll=function(v){
 // ===== 区分 =====
 window.openUnitModal=function(bldId,unitId=null){
   unitParentBldId=bldId;editUnitId=unitId;rentHistory=[];rentPayments={};rentPayYear=new Date().getFullYear();contactLog=[];
+  utilState.u=newUtil();renderUtil('u');
   const b=blds.find(x=>x.id===bldId);
   document.getElementById('unit-modal-title').textContent=unitId?'区分を編集':'区分を追加';
   document.getElementById('unit-modal-sub').textContent=b?b.name:'';
@@ -992,6 +1173,7 @@ window.openUnitModal=function(bldId,unitId=null){
     rentHistory=(u.rentHistory&&u.rentHistory.length)?JSON.parse(JSON.stringify(u.rentHistory)):(u.rent?[{date:u.start||'',rent:u.rent,note:'（旧データから自動移行）'}]:[]);
     rentPayments=u.rentPayments?JSON.parse(JSON.stringify(u.rentPayments)):{};
     contactLog=u.contactLog?JSON.parse(JSON.stringify(u.contactLog)):[];
+    utilState.u=cloneUtil(u.utilities);renderUtil('u');
     updateUnitDays();updateKeyDisplay();toggleTenantType();toggleKeyStatus();renderRentHistory();renderContactLog();
     renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');
   }
@@ -1053,6 +1235,7 @@ window.saveUnit=async function(){if(editUnitId&&verOf(units.find(x=>x.id===editU
     payTiming:g('u-pay-timing'),payMethod:g('u-pay-method'),
     hoshoName:g('u-hosho-name'),hoshoTel:g('u-hosho-tel'),hoshoAddr:g('u-hosho-addr'),
     hoshoFee:n('u-hosho-fee'),hoshoCycle:g('u-hosho-cycle'),
+    utilities:getUtil('u'),
     reformStart:g('u-reform-start'),reformEnd:g('u-reform-end'),reformNote:g('u-reform-note'),
     keyReceived:n('u-key-received'),keyHanded:n('u-key-handed'),keyNote:g('u-key-note'),keyStatus:document.getElementById('u-key-status').value,
     memo:g('u-memo'),updatedAt:serverTimestamp()};
@@ -1073,6 +1256,7 @@ window.deleteUnit=async function(id){
 // ===== 描画 =====
 window.render=function(){
   if(!document.getElementById('bld-wrap'))return;
+  window.phReg=[];
   const kw=(document.getElementById('f-keyword').value||'').trim().toLowerCase();
   const st=document.getElementById('f-status').value||'';
   const sortVal=document.getElementById('f-sort').value||'name';
@@ -1185,6 +1369,7 @@ window.render=function(){
           }).join('')+
           '</div>'+
         '</div>':'')+
+        bldUtilHtml(b)+
         repairHtml(b)+'<div style="display:flex;gap:6px;">'+
           '<button class="btn btn-navy btn-sm" onclick="openBldModal(\''+b.id+'\')">ビル情報を編集</button>'+
           '<button class="btn btn-red btn-sm" onclick="deleteBld(\''+b.id+'\')">ビルを削除</button>'+
@@ -1269,6 +1454,7 @@ function unitHtml(u){
           '<div class="kn-row"><span class="kn-lbl">所在地</span><span class="kn-val">'+esc(u.hoshoAddr||'—')+'</span></div>'+
         '</div>'+
       '</div>':'')+
+      unitUtilHtml(u)+
       ((u.keyReceived||u.keyReceived===0||u.keyHanded||u.keyHanded===0||u.keyNote||u.keyStatus)?'<div class="unit-sub" style="grid-column:1/-1;">'+
         '<div class="unit-sub-t">鍵管理</div>'+
         '<div class="kn-grid">'+
