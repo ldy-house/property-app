@@ -1,79 +1,115 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>出勤簿 | LDY</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>勤怠管理｜株式会社LDY</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#f3f5f9;--card:#fff;--ink:#1b2333;--mute:#6b7487;--line:#e3e7ef;--pri:#3b6cf6;--navy:#141c33;--ok:#17a165;--warn:#e08a00;--bad:#e5484d;--fw:#dbe8ff}
+:root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--card:#fff;--ink:#1a1a2e;--mute:#777;--line:#DDD;--pri:#1B2A6B;--ok:#2E7D32;--warn:#E65100;--bad:#C62828;--fw:#dbe8ff}
 *{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;margin:0;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
-header{background:var(--navy);color:#fff;padding:0 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:5}
-.brand{font-weight:700;font-size:16px;letter-spacing:.04em;padding:12px 0}.brand span{color:#6f9bff}
-nav{display:flex;gap:2px;overflow-x:auto;flex:1}
-nav button{background:none;border:0;color:#aab4cf;padding:14px 12px;cursor:pointer;font-size:13.5px;border-bottom:3px solid transparent;white-space:nowrap}
-nav button:hover{color:#fff}nav button.on{color:#fff;border-color:#6f9bff;font-weight:600}
-.hr{display:flex;align-items:center;gap:8px;padding:8px 0}
-.hr input[type=month]{background:#202a49;color:#fff;border:1px solid #38446b}
-.mb{background:#202a49;color:#fff;border:1px solid #38446b;border-radius:6px;width:28px;height:28px;cursor:pointer}
-#st2{font-size:12px;color:#7be0b0}
+body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;margin:0;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5}
+/* ===== 共通ヘッダー(他ページと同じ) ===== */
+.header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.25)}
+.hdr-left{display:flex;align-items:center;gap:22px;height:100%;min-width:0}
+.hdr-lmark{font-size:19px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px}
+.hdr-nav{display:flex;height:100%;overflow-x:auto}
+.hdr-nav a{display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.6);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.hdr-nav a:hover{color:#fff}
+.hdr-nav a.on{color:var(--gold);border-bottom-color:var(--gold)}
+.role-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700}
+.role-badge:empty{display:none}
+.role-admin{background:var(--gold);color:var(--navy-dark)}
+.role-staff{background:rgba(255,255,255,0.2);color:#fff}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.hdr-user{font-size:11px;color:rgba(255,255,255,0.65)}
+#st2{font-size:11px;color:#7be0b0}
+.btn-logout{font-size:11px;padding:4px 10px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);border-radius:3px;cursor:pointer}
+/* ===== 勤怠のサブナビ・対象月 ===== */
+.subbar{background:#fff;border-bottom:2px solid var(--gold);padding:0 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:52px;z-index:90}
+#nav{display:flex;gap:2px;overflow-x:auto;flex:1}
+#nav button{background:none;border:0;color:#666;padding:12px 14px;cursor:pointer;font-size:12.5px;font-weight:600;border-bottom:3px solid transparent;white-space:nowrap;font-family:inherit}
+#nav button:hover{color:var(--navy)}
+#nav button.on{color:var(--navy);border-bottom-color:var(--gold);font-weight:700}
+.sep{width:1px;background:#ddd;margin:10px 8px;flex:none}
+.hr{display:flex;align-items:center;gap:6px;padding:6px 0}
+.hr input[type=month]{padding:4px 8px}
+.mb{background:#fff;color:var(--navy);border:1px solid #ccc;border-radius:4px;width:28px;height:28px;cursor:pointer}
+.mb:hover{background:#f0f3fa}
 body.ro [data-t="imp"],body.ro #imp{display:none!important}
-body.locked main,body.locked #nav,body.locked .hr{display:none}
+body.locked main,body.locked .header,body.locked .subbar{display:none}
 main{max-width:1500px;margin:0 auto;padding:20px}
 .tab{display:none}.tab.on{display:block}
-.ph{margin:0 0 14px}.ph h1{font-size:20px;margin:0}.ph p{margin:2px 0 0;color:var(--mute)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 2px #1b23330a}
-.card h2{font-size:15px;margin:0 0 10px;padding-left:10px;border-left:4px solid var(--pri)}
+.ph{margin:0 0 14px}.ph h1{font-size:20px;margin:0;color:var(--navy)}.ph p{margin:2px 0 0;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(27,42,107,0.08)}
+.card h2{font-size:15px;margin:0 0 10px;padding-left:10px;border-left:4px solid var(--gold);color:var(--navy)}
 p{margin:8px 0}small,.mu{color:var(--mute)}
 table{border-collapse:separate;border-spacing:0;background:#fff;font-size:13px}
 th,td{border-bottom:1px solid var(--line);border-right:1px solid #eef1f6;padding:5px 9px;text-align:center;white-space:nowrap}
 th{background:#eef2f9;color:#3b4560;font-weight:600;position:sticky;top:0;z-index:2}
 td.l,th.l{text-align:left}
 :where(table.z tr:nth-child(even)) td{background:#fafbfd}
-.wrap{overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:8px}
+.wrap{overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:6px}
 input,select,button,textarea{font:inherit;color:inherit}
-input[type=text],input[type=number],input[type=date],input[type=time],input[type=password],input[type=month],select,textarea{padding:5px 8px;border:1px solid #cfd6e4;border-radius:7px;background:#fff}
-input:focus,select:focus,textarea:focus{outline:2px solid #bcd0ff;border-color:var(--pri)}
-.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:600}
-.btn:hover{filter:brightness(1.08)}.btn.g{background:#fff;color:#33405e;border:1px solid #cfd6e4;font-weight:500}.btn.g:hover{background:#f0f3fa}
+input[type=text],input[type=number],input[type=date],input[type=time],input[type=password],input[type=month],select,textarea{padding:5px 8px;border:1px solid #ccc;border-radius:4px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy)}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:4px;padding:7px 14px;cursor:pointer;font-weight:600;font-size:12px}
+.btn:hover{filter:brightness(1.12)}.btn.g{background:#fff;color:var(--ink);border:1px solid #ccc;font-weight:500}.btn.g:hover{background:#f0f3fa}
 .btn.g.on,.btn.on{background:var(--pri);color:#fff}
-pre,#ilog{background:#f5f7fb;border-radius:8px;padding:10px;max-height:180px;overflow:auto;font-size:12px;white-space:pre-wrap;margin:10px 0 0}
-.drop{display:block;border:2px dashed #b9c5e0;border-radius:12px;padding:28px;text-align:center;color:var(--mute);cursor:pointer;background:#f8faff}
-.drop.on,.drop:hover{border-color:var(--pri);background:#eef3ff;color:var(--pri)}.drop input{display:none}.drop b{display:block;font-size:15px;color:var(--ink)}
+pre,#ilog{background:#f5f7fb;border-radius:6px;padding:10px;max-height:180px;overflow:auto;font-size:12px;white-space:pre-wrap;margin:10px 0 0}
+.drop{display:block;border:2px dashed #ccc;border-radius:5px;padding:28px;text-align:center;color:#999;cursor:pointer;background:#fafafa}
+.drop.on,.drop:hover{border-color:var(--gold);background:#fffbf0;color:var(--navy)}.drop input{display:none}.drop b{display:block;font-size:15px;color:var(--ink)}
 tr.row{cursor:pointer}tr.row:hover td{background:#eef4ff!important}
 .hol td,td.hol,th.hol{background:#fff0f1}.c-abs{background:#ffe1e1}.c-pl{background:#e4f6ea}.we,.we td{background:#f5f6fa}.gray{background:#f1f2f5}
 tr.c-abs td{background:#ffe9e9}tr.c-pl td{background:#eaf7ee}
 .fw,tr.fw td{background:var(--fw)}.fwt{background:var(--fw);padding:0 3px;border-radius:3px}
 .c-late{color:var(--bad);font-weight:700}.chk{display:inline-block;background:var(--bad);color:#fff;border-radius:5px;font-size:11px;padding:1px 7px;margin-left:5px;font-weight:700;white-space:nowrap}.okc{display:inline-block;background:#dff5e8;color:#127a4c;border-radius:5px;font-size:11px;padding:1px 7px;margin-left:4px;white-space:nowrap}.ic{width:14px;height:14px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.e1{display:block;font-size:11px;color:var(--mute);line-height:1.25}.e1.miss{color:var(--bad);font-weight:700}.e2{display:block;font-weight:700;color:#b36b00;line-height:1.35}.mtc{display:inline-block;background:#ffe08a;color:#7a4300;border-radius:5px;font-size:11px;padding:1px 7px;margin-left:5px;font-weight:700;white-space:nowrap}.mt-late{background:#ffe08a;color:#7a4300;font-weight:700;padding:1px 6px;border-radius:5px}tr.nck td:first-child{box-shadow:inset 5px 0 0 var(--bad)}.phs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.th{display:inline-flex;flex-direction:column;align-items:center;gap:3px}.th img{height:72px;border-radius:6px;border:1px solid var(--line)}.sm{padding:1px 8px!important;font-size:12px;margin-left:4px;border-radius:6px!important}.dly{background:#8a5cf6;color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
 .ch{background:var(--pri);color:#fff;border-radius:4px;font-size:11px;padding:0 4px;margin-left:3px;font-weight:600}
-.cell{cursor:pointer;min-width:46px;height:40px}.cell:hover{outline:2px solid var(--pri);outline-offset:-2px}
+.cell{cursor:pointer;min-width:46px;height:40px}.cell:hover{outline:2px solid var(--gold);outline-offset:-2px}
 #bg td:first-child,#bg th:first-child{position:sticky;left:0;z-index:1;background:#fff;text-align:left;font-weight:600}#bg th:first-child{z-index:3;background:#eef2f9}
 .tg{display:inline-block;padding:0 9px;border-radius:10px;font-size:12px;font-weight:600;background:#e8ecf4;color:#506080}
 .tg.ok{background:#dff5e8;color:#127a4c}.tg.hol{background:#ffd9dd;color:#b3263c}.tg.pl{background:#d3f0dc;color:#127a4c}.tg.ab{background:#ffc9c9;color:#b3202a}.tg.hw{background:#ffe7b8;color:#8a5a00}
 .kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px;margin-top:14px}
-.kpi div{background:#f6f8fc;border:1px solid var(--line);border-radius:10px;padding:9px 12px}.kpi span{font-size:12px;color:var(--mute);display:block}.kpi b{font-size:19px}.kpi .w b{color:var(--bad)}
-.who{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:10px 0;padding:10px 14px;background:#f6f8fc;border:1px solid var(--line);border-radius:10px}
+.kpi div{background:#f6f8fc;border:1px solid var(--line);border-radius:6px;padding:9px 12px}.kpi span{font-size:12px;color:var(--mute);display:block}.kpi b{font-size:19px;color:var(--navy)}.kpi .w b{color:var(--bad)}
+.who{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:10px 0;padding:10px 14px;background:#f6f8fc;border:1px solid var(--line);border-radius:6px}
 .lgd{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;color:var(--mute);font-size:12.5px;align-items:center}
 .sw{display:inline-block;width:13px;height:13px;vertical-align:middle;border:1px solid #99a;border-radius:3px;margin-right:4px}
 .cc{background:#f1f7ff}th.cc{background:#dfeafc}
 .chip{display:inline-flex;align-items:center;gap:6px;background:#e8eefc;border-radius:14px;padding:3px 12px;margin:2px}
-dialog{border:0;border-radius:14px;padding:20px 22px;width:min(520px,94vw);max-height:92vh;overflow:auto;box-shadow:0 20px 60px #0004}dialog::backdrop{background:#10162866}
-#dlg .dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}#dlg .x{border:0;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--mute)}#dlg .sum{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}#dlg .sec{border-top:1px solid var(--line);padding:11px 0}#dlg .sec h3{font-size:12px;color:var(--mute);margin:0 0 7px;font-weight:600;letter-spacing:.04em}#dlg .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}#dlg .lnk{background:none;border:0;color:var(--pri);cursor:pointer;padding:0;font-size:13px}#dlg .ft{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}#dlg details.sec summary{cursor:pointer;color:var(--mute);font-size:13px}#dlg .pt{font-size:12px;margin-top:6px}#dlg .pt td{padding:2px 8px 2px 0;border:0;text-align:left;white-space:normal}#dlg #db{display:flex;gap:6px;flex-wrap:wrap}#dt{font-weight:600}
+dialog{border:0;border-radius:8px;padding:20px 22px;width:min(520px,94vw);max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}dialog::backdrop{background:rgba(10,15,40,0.6);backdrop-filter:blur(2px)}
+#dlg .dh{display:flex;justify-content:space-between;align-items:center;margin:-20px -22px 10px;padding:14px 18px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));color:#fff}#dlg .dh .mu{color:rgba(255,255,255,0.65)}#dlg .x{border:0;background:none;font-size:24px;line-height:1;cursor:pointer;color:rgba(255,255,255,0.6)}#dlg .sum{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}#dlg .sec{border-top:1px solid var(--line);padding:11px 0}#dlg .sec h3{font-size:12px;color:var(--navy);margin:0 0 7px;font-weight:700;letter-spacing:.04em}#dlg .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}#dlg .lnk{background:none;border:0;color:var(--pri);cursor:pointer;padding:0;font-size:13px}#dlg .ft{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}#dlg details.sec summary{cursor:pointer;color:var(--mute);font-size:13px}#dlg .pt{font-size:12px;margin-top:6px}#dlg .pt td{padding:2px 8px 2px 0;border:0;text-align:left;white-space:normal}#dlg #db{display:flex;gap:6px;flex-wrap:wrap}#dt{font-weight:600}
 #dlg textarea{width:100%}
-#login{position:fixed;inset:0;background:linear-gradient(135deg,#141c33,#2a3a78);display:flex;align-items:center;justify-content:center;z-index:20}
-#login .card{width:320px;padding:26px}#login h2{border:0;padding:0;font-size:18px}#login input{width:100%;margin-bottom:10px}
-@media(max-width:700px){main{padding:10px}header{gap:6px}.card{padding:12px}}
-.sep{width:1px;background:#38446b;margin:12px 8px;flex:none}
+@media(max-width:700px){main{padding:10px}.card{padding:12px}}
+@media(max-width:600px){.hdr-user{display:none}.hdr-nav a{padding:0 10px}.header,.subbar{padding:0 10px}}
 .pills{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.pills .btn b{margin-left:4px}
 .row2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.empty{padding:22px;text-align:center;color:var(--mute);background:#f8faff;border:1px dashed #c3cde6;border-radius:10px;margin-top:12px}
+.empty{padding:22px;text-align:center;color:var(--mute);background:#f8faff;border:1px dashed #c3cde6;border-radius:6px;margin-top:12px}
 .todo td{text-align:left}tr.row .go{color:var(--pri);font-weight:600}
 a.nl{color:inherit;text-decoration:none;border-bottom:1px dotted #99a}a.nl:hover{color:var(--pri)}
 .kpi.top{margin:0 0 16px}
-@media print{body{background:#fff}header,#login,.lgd,.noprint,dialog,.tab{display:none!important}.ph{display:none!important}#book{display:block!important}#book .ph{display:block!important;margin:0 0 6px}#book .ph p{display:none}#book .card{border:0;box-shadow:none;padding:0;margin:0}.wrap{max-height:none!important;overflow:visible!important;border:0}th{position:static}table{font-size:11px}main{padding:0;max-width:none}.kpi{grid-template-columns:repeat(6,1fr)}tr.row{cursor:default}}
+@media print{body{background:#fff}.header,.subbar,#login,.lgd,.noprint,dialog,.tab{display:none!important}.ph{display:none!important}#book{display:block!important}#book .ph{display:block!important;margin:0 0 6px}#book .ph p{display:none}#book .card{border:0;box-shadow:none;padding:0;margin:0}.wrap{max-height:none!important;overflow:visible!important;border:0}th{position:static}table{font-size:11px}main{padding:0;max-width:none}.kpi{grid-template-columns:repeat(6,1fr)}tr.row{cursor:default}}
+/* ===== ログイン画面(他ページと同じ) ===== */
+#login{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy-dark),var(--navy));display:flex;align-items:center;justify-content:center;z-index:1000}
+.login-box{background:#fff;border-radius:12px;padding:40px 36px;width:380px;max-width:95%;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-lmark{font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px}
+.login-lsub{font-size:11px;color:var(--mute);margin-top:4px}
+.login-title{font-size:15px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:20px}
+#login .lf{margin-bottom:12px}#login .lf label{display:block;font-size:11px;font-weight:700;color:var(--mute);margin-bottom:4px}
+#login .lf input{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:5px;font-size:14px;outline:none}
+#login .lf input:focus{border-color:var(--navy)}
+.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:#fff;border:none;border-radius:5px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px}
+.login-err{color:var(--bad);font-size:12px;text-align:center;margin-top:8px;min-height:18px}
 </style></head><body class="locked">
-<header><div class="brand">LDY <span>勤怠</span></div>
+<div class="header">
+<div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html">在庫管理</a><a href="opsadmin.html">管理委託</a><a href="attend.html" class="on">勤怠管理</a></nav><span class="role-badge" id="lv"></span></div>
+<div class="hdr-right"><span id="st2">未ログイン</span><span class="hdr-user" id="user-email"></span><button class="btn-logout" id="lo">ログアウト</button></div>
+</div>
+<div class="subbar">
 <nav id="nav"><button data-t="home" class="on">ホーム</button><button data-t="book">月次出勤簿</button><button data-t="grid">全員一覧</button><button data-t="sum">集計・給与</button><button data-t="plv">有給管理</button><span class="sep"></span><button data-t="imp">取込</button><button data-t="emp">設定</button><button data-t="data">元データ</button></nav>
-<div class="hr"><small id="lv" style="color:#ffd27a"></small><small id="st2">未ログイン</small><button class="mb" id="mp">◀</button><input type="month" id="ym"><button class="mb" id="mn">▶</button><button class="btn g" id="lo" style="padding:4px 10px">ログアウト</button></div></header>
-<div id="login"><div class="card"><h2>勤怠管理 ログイン</h2><p class="mu">LDY 出勤簿システム</p><input type="text" id="em" placeholder="メールアドレス"><input type="password" id="pw" placeholder="パスワード"><button class="btn" id="li" style="width:100%">ログイン</button><p><small id="le" style="color:var(--bad)"></small></p></div></div>
+<div class="hr"><button class="mb" id="mp">◀</button><input type="month" id="ym"><button class="mb" id="mn">▶</button></div>
+</div>
+<div id="login"><div class="login-box"><div class="login-logo"><div class="login-lmark">LDY</div><div class="login-lsub">株式会社LDY</div></div><div class="login-title">社員ログイン</div><div class="lf"><label>メールアドレス</label><input type="email" id="em" placeholder="example@ldy-house.com"></div><div class="lf"><label>パスワード</label><input type="password" id="pw" placeholder="••••••••"></div><button class="login-btn" id="li">ログイン</button><div class="login-err" id="le"></div></div></div>
 <main>
 <section class="tab on" id="home"><div class="ph"><h1 id="hh"></h1><p>取込のあと、確認が必要なものをここで片付けます。行をクリックすると、その日の画面が開きます。</p></div>
 <div class="kpi top" id="hk"></div>
@@ -293,7 +329,7 @@ const dmbtn=(u,dt,l)=>`<button class="btn g sm" onclick="event.stopPropagation()
 function toggleDc(u,dt){const k=u+'|'+dt,m=mExcOf(k);lg(u,dt,'遅延証(遅刻)',S.dc[k]?'あり':'なし',S.dc[k]?'なし':'あり');if(S.dc[k])delete S.dc[k];else S.dc[k]=1;setM(k,m);save();render()}
 function toggleDm(u,dt){const k=u+'|'+dt,m=mExcOf(k);lg(u,dt,'遅延証(掃除遅刻)',m?'あり':'なし',m?'なし':'あり');setM(k,!m);save();render()}
 function edit(u,dt){const dl=$('#dlg'),k=u+'|'+dt,i=info(u,dt),r=i.r||{},oI=r.i1||'',oO=r.o2||r.o1||'',w=i.t==='work'||i.t==='half',wk=new Date(dt).getDay(),hol=isHol(dt);
-const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(b[7])),hl=LI[k]||[],showDc=(w||i.np)&&(i.late>0||i.ex>0||i.ml>0||i.mlx>0||i.mc>0||S.dc[k]||S.dcm[k]!==undefined||(S.ph[k]||[]).length>0),chk=i.mc>0||(i.fw&&!S.ck[k]),needRq=(i.rqNeed||i.late>0||!!S.rq[k])&&(!i.lv||!!S.rq[k]),lvb=i.lv?`<div class="sec"><h3>休暇申請(アプリの承認データ)</h3><div style="line-height:1.9">${i.lv.d0}${i.lv.d1!==i.lv.d0?'〜'+i.lv.d1:''}　<span class="tg ${i.lv.paid?'ok':'hw'}">${i.lv.paid?'有給使用':'有給使用なし(無給)'}</span> <span class="tg ok">承認済</span>${i.lv.late?' <span class="tg hw">事後申請</span>':''}<br>申請日時: <b>${esc((i.lv.sub||'').slice(0,16)||'—')}</b>${i.lv.ap&&i.lv.ap!==(i.lv.sub||'').slice(0,10)?'　<small>(申請日の記載: '+esc(i.lv.ap)+')</small>':''}<br>理由: ${esc(i.lv.reason||'—')}</div></div>`:'';
+const rr=(ridx()[k]||[]).slice().sort((a,b)=>String(a[7]).localeCompare(String(b[7]))),hl=LI[k]||[],showDc=(w||i.np)&&(i.late>0||i.ex>0||i.ml>0||i.mlx>0||i.mc>0||S.dc[k]||S.dcm[k]!==undefined||(S.ph[k]||[]).length>0),chk=i.mc>0||(i.fw&&!S.ck[k]),needRq=(i.rqNeed||i.late>0||!!S.rq[k])&&(!i.lv||!!S.rq[k]),lvb=i.lv?`<div class="sec"><h3>休暇申請(アプリの承認データ)</h3><div style="line-height:1.9">${i.lv.d0}${i.lv.d1!==i.lv.d0?'〜'+i.lv.d1:''}　<span class="tg ${i.lv.paid?'ok':'hw'}">${i.lv.paid?'有給使用':'有給使用なし(無給)'}</span> <span class="tg ok">承認済</span>${i.lv.late?' <span class="tg hw">事後申請</span>':''}<br>申請日時: <b>${esc((i.lv.sub||'').slice(0,16)||'—')}</b>${i.lv.ap&&i.lv.ap!==(i.lv.sub||'').slice(0,10)?'　<small>(申請日の記載: '+esc(i.lv.ap)+')</small>':''}<br>理由: ${esc(i.lv.reason||'—')}</div></div>`:'';
 const ch=[i.late?`<span class="tg ab">遅刻 ${hm(i.late)}</span>`:'',i.ml?`<span class="tg hw">掃除遅刻 ${hm(i.ml)}</span>`:'',(i.ex||i.mlx)?'<span class="dly">遅延証</span>':'',i.early?`<span class="tg ab">早退 ${hm(i.early)}</span>`:'',i.mc?`<span class="tg ab">打刻漏れ ${i.mc}</span>`:'',i.fw?'<span class="ch" style="margin:0">外勤</span>':''].join('');
 const loc=[i.inFw?'出勤: '+(i.locIn||'場所情報なし'):'',i.outFw?'退勤: '+(i.locOut||'場所情報なし'):'',i.note?'理由: '+i.note:''].filter(Boolean).map(esc).join('　');
 dl.innerHTML=`<div class="dh"><div><b style="font-size:16px">${esc(nm(u))}</b> <span class="mu">${dt}(${WD[wk]})</span> ${tg(i)}</div><button class="x" id="e_q" title="閉じる">×</button></div>
@@ -472,10 +508,10 @@ async function pull(){stat('読込中…');try{
  else if(window.LV!=='view'){Object.keys(S.days).forEach(k=>dirty.add(k.split('|')[1].slice(0,7)));CL.push()}
  render()}catch(e){stat(e.code==='permission-denied'?'権限がありません(管理者のみ閲覧できます)':'読込エラー: '+e.message,true)}}
 onAuthStateChanged(auth,async u=>{window.ME=u?u.email:'';
- if(!u){document.getElementById('login').style.display='flex';lockUI();stat('未ログイン');return}
+ if(!u){document.getElementById('login').style.display='flex';lockUI();stat('未ログイン');document.getElementById('user-email').textContent='';document.getElementById('lv').textContent='';return}
  let lv='';try{const r=await getDoc(doc(db,'user_roles',u.email));if(r.exists()&&r.data().attAccess===true)lv=r.data().attReadOnly===true?'view':'edit'}catch(e){}
  if(!lv){document.getElementById('le').textContent='勤怠管理の権限がありません。管理者に attAccess の付与を依頼してください。';lockUI();await signOut(auth);return}
- window.LV=lv;document.getElementById('lv').textContent=lv==='edit'?'編集可':'閲覧のみ';
+ window.LV=lv;{const b=document.getElementById('lv');b.textContent=lv==='edit'?'編集可':'閲覧のみ';b.className='role-badge '+(lv==='edit'?'role-admin':'role-staff')}document.getElementById('user-email').textContent=u.email;
  document.getElementById('login').style.display='none';document.getElementById('le').textContent='';unlock();pull()});
 const doLogin=()=>signInWithEmailAndPassword(auth,document.getElementById('em').value,document.getElementById('pw').value).catch(e=>document.getElementById('le').textContent='失敗: '+e.code);
 document.getElementById('li').onclick=doLogin;document.getElementById('pw').onkeydown=e=>{if(e.key==='Enter')doLogin()};
