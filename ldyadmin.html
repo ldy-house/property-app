@@ -1101,11 +1101,12 @@ window.renderCards=function(){
     ]:[];
     const allInternalRows=[...scheduleRows,...adminRows].filter(Boolean);
     const intSection=allInternalRows.length?'<div class="internal-section"><div class="internal-title">社内専用</div><div class="internal-grid">'+allInternalRows.join('')+'</div></div>':'';
-    const linkedBld=managedBuildings.find(b=>b.linkedPropertyId===p.id);
+    const linkedBld=managedBuildings.find(b=>b.linkedPropertyId===p.id&&b.biz!=='lodging');
+    const linkedLodge=managedBuildings.find(b=>b.linkedPropertyId===p.id&&b.biz==='lodging');
     return '<div class="prop-card">'+
       '<div class="card-photos" onclick="openLB('+pj+',0)">'+photoArea+'<span class="sale-badge '+getBadgeClass(p.saleStatus)+'">'+(p.saleStatus||'販売中')+'</span></div>'+
       '<div class="card-body">'+
-        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="opsadmin.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">管理委託あり</a>':'')+'</div>'+
+        '<div class="card-name">'+(p.name||'')+(linkedBld?' <a href="opsadmin.html" style="font-size:10px;font-weight:700;background:#EEF2FF;color:var(--navy);border:1px solid #C7D2FE;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">管理委託あり</a>':'')+(linkedLodge?' <a href="opsadmin.html" style="font-size:10px;font-weight:700;background:#EDE7F6;color:#4527A0;border:1px solid #D1C4E9;padding:1px 7px;border-radius:10px;text-decoration:none;vertical-align:middle;">旅館業・民泊あり</a>':'')+'</div>'+
         '<div class="card-price">'+(p.price?p.price.toLocaleString()+'万円':'価格応相談')+'</div>'+
         '<div class="card-tags"><span class="tag tag-kind">'+(p.kind||'')+'</span><span class="tag '+propTagClass(p.propStatus)+'">'+(p.propStatus||'')+'</span></div>'+
         '<div class="card-sta">'+(p.sta||'—')+'</div>'+
