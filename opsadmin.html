@@ -220,7 +220,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html">在庫管理</a><a href="opsadmin.html" class="on">管理委託</a><a href="attend.html">勤怠管理</a></nav><span class="role-badge" id="role-badge"></span></div>
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
-  <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸の管理委託</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button></div>
+  <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button></div>
   <div id="view-rent">
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="s-bld">0</div><div class="stat-label">管理棟数</div></div>
@@ -290,16 +290,18 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
 
       <div class="fs">
-        <div class="fs-title">在庫物件との関連付け（任意）</div>
+        <div class="fs-title">関連付け（任意）</div>
         <div class="fr">
           <label>元は在庫物件（買取再販）だった場合、対象を選択</label>
           <select id="b-linked-property" onchange="onLinkedPropertyChange()"><option value="">関連なし（管理委託のみ）</option></select>
         </div>
         <div class="hint" id="b-linked-property-hint"></div>
+        <div class="fr" style="margin-top:10px;"><label>旅館業・民泊の管理と同じ建物の場合、対象を選択</label><select id="b-linked-lodging"><option value="">関連なし</option></select></div>
       </div>
 
       <div class="fs">
         <div class="fs-title">建物情報</div>
+        <div class="fr"><label>管理形態</label><select id="b-mgmt" onchange="toggleMgmt('b')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
         <div class="fr"><label>ビル名 *</label><input id="b-name" placeholder="例：太平1丁目ビル"/></div>
         <div class="fr"><label>所在地</label><input id="b-addr" placeholder="例：江東区扇橋3丁目1-4"/></div>
         <div class="fg">
@@ -308,7 +310,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
       </div>
 
-      <div class="fs">
+      <div class="fs" id="b-sec-owner">
         <div class="fs-title">所有者（オーナー）</div>
         <div class="fr"><label>所有者区分</label>
           <select id="b-owner-type" onchange="toggleOwnerType()"><option>個人</option><option>法人</option></select>
@@ -331,7 +333,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
       </div>
 
-      <div class="fs">
+      <div class="fs" id="b-sec-contract">
         <div class="fs-title">管理委託契約</div>
         <div class="fg">
           <div class="fr"><label>初回契約 始期</label><input id="b-start" type="date"/></div>
@@ -347,7 +349,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
       </div>
 
-      <div class="fs">
+      <div class="fs" id="b-sec-fee">
         <div class="fs-title">管理料・資金フロー</div>
         <div class="fr"><label>振込先口座</label><input id="b-owner-bank" placeholder="例：○○銀行 ○○支店 普通 1234567"/></div>
         <div class="fg">
@@ -610,7 +612,14 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <input type="file" id="lb-img-file-input" accept="image/*,.heic,.heif" multiple style="display:none;" onchange="handleLBFiles(event)"/>
       </div>
       <div class="fs">
+        <div class="fs-title">関連付け（任意）</div>
+        <div class="fr"><label>賃貸の管理（管理委託・自社管理）と同じ建物の場合、対象を選択</label><select id="lb-linked-rent" onchange="onLBLinkRent()"><option value="">関連なし</option></select></div>
+        <div class="fr"><label>在庫物件（買取再販）と関連する場合、対象を選択</label><select id="lb-linked-property" onchange="onLBLinkProp()"><option value="">関連なし</option></select></div>
+        <div class="hint" id="lb-linked-hint"></div>
+      </div>
+      <div class="fs">
         <div class="fs-title">施設情報</div>
+        <div class="fr"><label>管理形態</label><select id="lb-mgmt" onchange="toggleMgmt('lb')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
         <div class="fr"><label>施設名 *</label><input id="lb-name" placeholder="例：浅草ゲストハウス"/></div>
         <div class="fr"><label>所在地</label><input id="lb-addr" placeholder="例：台東区浅草1丁目1-1"/></div>
         <div class="fg">
@@ -618,7 +627,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>築年月</label><input id="lb-built" placeholder="例：1990年12月"/></div>
         </div>
       </div>
-      <div class="fs">
+      <div class="fs" id="lb-sec-owner">
         <div class="fs-title">所有者（オーナー）</div>
         <div class="fr"><label>所有者区分</label><select id="lb-owner-type"><option>個人</option><option>法人</option></select></div>
         <div class="fg">
@@ -635,7 +644,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>担当者電話番号</label><input id="lb-owner-contact-tel"/></div>
         </div>
       </div>
-      <div class="fs">
+      <div class="fs" id="lb-sec-contract">
         <div class="fs-title">管理運営契約</div>
         <div class="fg">
           <div class="fr"><label>初回契約 始期</label><input id="lb-start" type="date"/></div>
@@ -649,7 +658,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>解約予告</label><input id="lb-notice" placeholder="例：3ヶ月前"/></div>
         </div>
       </div>
-      <div class="fs">
+      <div class="fs" id="lb-sec-fee">
         <div class="fs-title">管理料・精算</div>
         <div class="fr"><label>振込先口座</label><input id="lb-owner-bank" placeholder="例：○○銀行 ○○支店 普通 1234567"/></div>
         <div class="fg">
@@ -667,6 +676,28 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
             <span style="font-size:10px;color:var(--sub);">クリックで支払済/未払を切替</span>
           </div>
           <div class="pay-grid" id="lfee-pay-grid"></div>
+        </div>
+      </div>
+      <div class="fs">
+        <div class="fs-title">免許・届出・保健所</div>
+        <div class="fr"><label>免許の単位</label><select id="lb-lic-scope" onchange="toggleLicScope()"><option value="unit">区分ごとに免許がある</option><option value="building">1棟まるごとで1つの免許</option></select></div>
+        <div id="lb-lic-unit-note" style="font-size:10px;color:var(--sub);margin-bottom:8px;">各区分の編集画面で、免許・届出を入力します。</div>
+        <div id="lb-lic-fields">
+          <div class="fr"><label>種別</label><select id="lb-lic-type"></select></div>
+          <div class="fg">
+            <div class="fr"><label>許可・届出・認定番号</label><input id="lb-lic-no" placeholder="例：第○○号"/></div>
+            <div class="fr"><label>届出先（保健所など）</label><input id="lb-lic-office" placeholder="例：台東区保健所"/></div>
+          </div>
+          <div class="fg">
+            <div class="fr"><label>取得日・届出日</label><input id="lb-lic-date" type="date"/></div>
+            <div class="fr"><label>有効期限・更新期限</label><input id="lb-lic-exp" type="date"/></div>
+          </div>
+          <div class="fr"><label>免許に関する備考</label><input id="lb-lic-note" placeholder="例：定期報告は2か月ごと／認定は5年ごとに更新"/></div>
+        </div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">保健所とのやり取り（施設全体）</div>
+          <div id="lbh-log-blocks"></div>
+          <button type="button" class="btn btn-sm btn-navy" onclick="addLogL('lbh')">＋ やり取りを記録</button>
         </div>
       </div>
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
@@ -704,7 +735,8 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fr"><label>間取り・タイプ</label><input id="lu-use" placeholder="例：1K／ドミトリー"/></div>
       </div>
-      <div class="fs">
+      <div class="fs" style="display:none;" id="lu-lic-bnote"><div style="font-size:11px;color:var(--sub);">この施設は「1棟まるごと」の免許です。免許・届出と保健所とのやり取りは、施設の編集画面で入力します。</div></div>
+      <div class="fs" id="lu-sec-lic">
         <div class="fs-title">免許・届出</div>
         <div class="fr"><label>種別</label><select id="lu-lic-type"></select></div>
         <div class="fg">
@@ -716,6 +748,11 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>有効期限・更新期限</label><input id="lu-lic-exp" type="date"/></div>
         </div>
         <div class="fr"><label>免許に関する備考</label><input id="lu-lic-note" placeholder="例：定期報告は2か月ごと／認定は5年ごとに更新"/></div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">保健所とのやり取り（この区分）</div>
+          <div id="luh-log-blocks"></div>
+          <button type="button" class="btn btn-sm btn-navy" onclick="addLogL('luh')">＋ やり取りを記録</button>
+        </div>
       </div>
       <div class="fs">
         <div class="fs-title">清掃業者</div>
@@ -1131,11 +1168,11 @@ window.openBldModal=function(id=null){
   const setV=(e,v)=>{const el=document.getElementById(e);if(el)el.value=(v===0?'0':(v||''));};
   ['b-name','b-addr','b-struct','b-built','b-owner','b-owner-kana','b-owner-tel','b-owner-contact','b-owner-contact-tel','b-owner-mail','b-owner-addr','b-owner-bank',
    'b-start','b-end','b-fee','b-scope','b-notice','b-remit','b-invoice-freq','b-invoice-due','b-memo'].forEach(x=>setV(x,''));
-  setV('b-fee-tax','');setV('b-auto-renew','');setV('b-owner-type','個人');setV('b-cashflow','');
+  setV('b-fee-tax','');setV('b-auto-renew','');setV('b-owner-type','個人');setV('b-cashflow','');setV('b-mgmt','consign');toggleMgmt('b');
   document.getElementById('b-days-display').innerHTML='';
   toggleOwnerType();toggleCashflow();renderEquipBlocks();renderBldImgList();
   renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');
-  renderLinkedPropertyOptions('');
+  renderLinkedPropertyOptions('');renderLinkedLodgingOptions('');
   if(id){
     const b=blds.find(x=>x.id===id);if(!b)return;
     setV('b-name',b.name);setV('b-addr',b.addr);setV('b-struct',b.struct);setV('b-built',b.built);
@@ -1145,13 +1182,13 @@ window.openBldModal=function(id=null){
     setV('b-start',b.start);setV('b-end',b.end);setV('b-fee',b.fee);setV('b-fee-tax',b.feeTax);
     setV('b-scope',b.scope);setV('b-auto-renew',b.autoRenew);setV('b-notice',b.notice);
     setV('b-cashflow',b.cashflow);setV('b-remit',b.remit);setV('b-invoice-freq',b.invoiceFreq);setV('b-invoice-due',b.invoiceDue);
-    setV('b-memo',b.memo);
+    setV('b-memo',b.memo);setV('b-mgmt',b.mgmtType||'consign');toggleMgmt('b');
     equipBlocks=b.equip?JSON.parse(JSON.stringify(b.equip)):[];
     feePayments=b.feePayments?JSON.parse(JSON.stringify(b.feePayments)):{};
     currentBldPhotos=b.photos?JSON.parse(JSON.stringify(b.photos)):[];
     utilState.b=cloneUtil(b.utilities);renderUtil('b');renewals.b=JSON.parse(JSON.stringify(b.renewals||[]));renderRenewals('b');
     renderBldImgList();
-    renderLinkedPropertyOptions(b.linkedPropertyId||'');
+    renderLinkedPropertyOptions(b.linkedPropertyId||'');renderLinkedLodgingOptions(b.linkedLodgingId||'');
     updateBldDays();toggleOwnerType();toggleCashflow();renderEquipBlocks();
     renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');
   }
@@ -1283,7 +1320,7 @@ window.saveBld=async function(){if(editBldId&&verOf(blds.find(x=>x.id===editBldI
     invoiceFreq:g('b-invoice-freq'),invoiceDue:g('b-invoice-due'),
     equip:equipBlocks.filter(e=>e.name),
     repairs:repairBlocks.filter(r=>r.date||r.content||r.place).map(r=>({...r,cost:(r.cost===''||r.cost==null)?null:Number(r.cost)})),
-    utilities:getUtil('b'),renewals:cleanRenewals('b'),
+    utilities:getUtil('b'),renewals:cleanRenewals('b'),mgmtType:document.getElementById('b-mgmt').value,linkedLodgingId:document.getElementById('b-linked-lodging').value||null,
     photos:currentBldPhotos,
     linkedPropertyId:document.getElementById('b-linked-property').value||null,
     feePayments,
@@ -1489,11 +1526,11 @@ window.render=function(){
     const bPhotos=b.photos&&b.photos.length?b.photos:[];
     const bPhotosJson=JSON.stringify(bPhotos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
     const linkedProp=b.linkedPropertyId?properties.find(p=>p.id===b.linkedPropertyId):null;
-    return '<div class="bld'+(isOpen?' open':'')+'">'+
+    return '<div class="bld'+(isOpen?' open':'')+'" id="bld-'+b.id+'">'+
       '<div class="bld-head" onclick="toggleBld(\''+b.id+'\')">'+
         '<span class="bld-toggle">▶</span>'+
         (bPhotos.length?'<span class="bld-photo-count" onclick="event.stopPropagation();openLB('+bPhotosJson+',0)"><img class="bld-thumb" src="'+esc(ldyOpt(bPhotos[0].url,300))+'" alt=""/>'+(bPhotos.length>1?'<span class="bld-photo-count-badge">'+bPhotos.length+'枚</span>':'')+'</span>':'<div class="bld-thumb-empty">🏢</div>')+
-        '<div><div class="bld-name">'+esc(b.name||'')+(linkedProp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">元在庫物件</span>':'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
+        '<div><div class="bld-name">'+esc(b.name||'')+(linkedProp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">元在庫物件</span>':'')+mgmtChips(b,'rent')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
         '<div class="bld-meta">'+
           '<span class="bld-chip">区分 '+us.length+'件</span>'+
           '<span class="bld-chip">稼働 '+activeN+'/'+us.length+'</span>'+
@@ -1509,7 +1546,7 @@ window.render=function(){
             '<div class="kn-row"><span class="kn-lbl">価格</span><span class="kn-val">'+(linkedProp.price?linkedProp.price.toLocaleString()+'万円':'—')+'</span></div>'+
           '</div>'+
           '</div>':'')+
-        '<div class="osec">'+
+        (b.mgmtType==='own'?ownBldHtml(b):'<div class="osec">'+
           '<div class="osec-t">建物・所有者</div>'+
           '<div class="kn-grid">'+
             '<div class="kn-row"><span class="kn-lbl">構造</span><span class="kn-val">'+esc(b.struct||'—')+'</span></div>'+
@@ -1544,7 +1581,7 @@ window.render=function(){
             return '<div style="margin-top:6px;"><div style="font-size:9px;color:var(--sub);margin-bottom:3px;">'+yr+'年 管理料 入金チェック</div><div class="pay-mini">'+cells+'</div></div>';
           })():'')+
           (bmemos.length?'<div style="font-size:11px;color:#777;margin-top:6px;border-top:1px solid #eee;padding-top:6px;"><ul style="padding-left:14px;line-height:1.7;">'+bmemos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
-        '</div>'+
+        '</div>')+
         ((b.equip&&b.equip.length)?'<div class="osec">'+
           '<div class="osec-t">設備点検</div>'+
           '<div class="equip-list">'+
@@ -1728,8 +1765,8 @@ document.getElementById('lu-status').innerHTML=optsHtml(OPS);
 const setVal=(e,v)=>{const el=document.getElementById(e);if(el)el.value=(v===0?'0':(v||''));};
 let openL=new Set(),editLBId=null,editLUId=null,luParent=null,editLBVer=null,editLUVer=null;
 let lPhotos=[],lFeePay={},lFeeYear=new Date().getFullYear();
-const repairsL={lb:[],lu:[]},logsL={lu:[]};
-const LBF=[['lb-name','name'],['lb-addr','addr'],['lb-struct','struct'],['lb-built','built'],['lb-owner-type','ownerType'],['lb-owner','owner'],['lb-owner-kana','ownerKana'],['lb-owner-addr','ownerAddr'],['lb-owner-tel','ownerTel'],['lb-owner-mail','ownerMail'],['lb-owner-contact','ownerContact'],['lb-owner-contact-tel','ownerContactTel'],['lb-owner-bank','ownerBank'],['lb-start','start'],['lb-end','end'],['lb-scope','scope'],['lb-auto-renew','autoRenew'],['lb-notice','notice'],['lb-fee','fee'],['lb-fee-tax','feeTax'],['lb-settle','settle'],['lb-memo','memo']];
+const repairsL={lb:[],lu:[]},logsL={lu:[],lbh:[],luh:[]};
+const LBF=[['lb-name','name'],['lb-addr','addr'],['lb-struct','struct'],['lb-built','built'],['lb-mgmt','mgmtType'],['lb-owner-type','ownerType'],['lb-owner','owner'],['lb-owner-kana','ownerKana'],['lb-owner-addr','ownerAddr'],['lb-owner-tel','ownerTel'],['lb-owner-mail','ownerMail'],['lb-owner-contact','ownerContact'],['lb-owner-contact-tel','ownerContactTel'],['lb-owner-bank','ownerBank'],['lb-start','start'],['lb-end','end'],['lb-scope','scope'],['lb-auto-renew','autoRenew'],['lb-notice','notice'],['lb-fee','fee'],['lb-fee-tax','feeTax'],['lb-settle','settle'],['lb-lic-scope','licScope'],['lb-lic-type','licType'],['lb-lic-no','licNo'],['lb-lic-office','licOffice'],['lb-lic-date','licDate'],['lb-lic-exp','licExp'],['lb-lic-note','licNote'],['lb-memo','memo']];
 const LUF=[['lu-name','name'],['lu-status','opStatus'],['lu-size','size'],['lu-cap','capacity'],['lu-use','use'],['lu-lic-type','licType'],['lu-lic-no','licNo'],['lu-lic-office','licOffice'],['lu-lic-date','licDate'],['lu-lic-exp','licExp'],['lu-lic-note','licNote'],['lu-clean-name','cleanName'],['lu-clean-tel','cleanTel'],['lu-clean-fee','cleanFee'],['lu-memo','memo']];
 
 window.switchView=function(v){
@@ -1762,12 +1799,16 @@ window.removeLogL=function(sc,i){logsL[sc].splice(i,1);renderLogsL(sc);};
 window.updateLogL=function(sc,i,f,v){if(logsL[sc][i])logsL[sc][i][f]=v;};
 function renderLogsL(sc){
   const el=document.getElementById(sc+'-log-blocks');if(!el)return;
+  const hc=sc!=='lu';
+  const mph=hc?'例：電話／窓口訪問／立入検査':'例：電話／LINE／メール';
+  const cph=hc?'例：消防設備の指摘について相談。是正報告は月末まで':'例：リネン交換の追加依頼。次回から週2回に変更';
   el.innerHTML=logsL[sc].map((c,i)=>
     '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">記録 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeLogL(\''+sc+'\','+i+')">削除</button></div>'+
       '<div class="fg"><div class="fr"><label>日付</label><input type="date" value="'+esc(c.date||'')+'" oninput="updateLogL(\''+sc+'\','+i+',\'date\',this.value)"/></div>'+
-      '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="例：電話／LINE／メール" oninput="updateLogL(\''+sc+'\','+i+',\'method\',this.value)"/></div></div>'+
-      '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="例：リネン交換の追加依頼。次回から週2回に変更" oninput="updateLogL(\''+sc+'\','+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
+      '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="'+mph+'" oninput="updateLogL(\''+sc+'\','+i+',\'method\',this.value)"/></div></div>'+
+      (hc?'<div class="fr"><label>相手（担当課・担当者）</label><input value="'+esc(c.who||'')+'" placeholder="例：生活衛生課 ○○さん" oninput="updateLogL(\''+sc+'\','+i+',\'who\',this.value)"/></div>':'')+
+      '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="'+cph+'" oninput="updateLogL(\''+sc+'\','+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
     '</div>'
   ).join('');
 }
@@ -1806,22 +1847,87 @@ function updateLBDays(){
 }
 document.getElementById('lb-end').addEventListener('change',updateLBDays);
 
+// ===== 管理形態・免許の単位・関連付け =====
+document.getElementById('lb-lic-type').innerHTML=optsHtml(LIC,'未設定');
+window.toggleMgmt=function(sc){
+  const own=document.getElementById(sc+'-mgmt').value==='own';
+  ['owner','contract','fee'].forEach(k=>{const e=document.getElementById(sc+'-sec-'+k);if(e)e.style.display=own?'none':'';});
+};
+window.toggleLicScope=function(){
+  const bld=document.getElementById('lb-lic-scope').value==='building';
+  document.getElementById('lb-lic-fields').style.display=bld?'':'none';
+  document.getElementById('lb-lic-unit-note').style.display=bld?'none':'';
+};
+const licTypeOf=u=>{const b=lblds.find(x=>x.id===u.bldId);return (b&&b.licScope==='building')?(b.licType||''):(u.licType||'');};
+const byName=(a,b)=>(a.name||'').localeCompare(b.name||'','ja');
+function fillSelect(id,items,sel,empty,labelFn){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML='<option value="">'+empty+'</option>'+items.map(x=>'<option value="'+x.id+'"'+(x.id===sel?' selected':'')+'>'+esc(labelFn(x))+'</option>').join('');
+}
+function renderLinkedLodgingOptions(sel){fillSelect('b-linked-lodging',[...lblds].sort(byName),sel,'関連なし',x=>x.name||'（名称未設定）');}
+function fillLBLinks(rentId,propId){
+  fillSelect('lb-linked-rent',[...blds].sort(byName),rentId,'関連なし',x=>x.name||'（名称未設定）');
+  fillSelect('lb-linked-property',[...properties].sort(byName),propId,'関連なし',x=>(x.name||'（名称未設定）')+'（'+(x.saleStatus||'—')+'）');
+  updateLBLinkHint();
+}
+function updateLBLinkHint(){
+  const p=properties.find(x=>x.id===document.getElementById('lb-linked-property').value);
+  document.getElementById('lb-linked-hint').textContent=p?('在庫物件の現在の状態：'+(p.saleStatus||'—')+'／価格：'+(p.price?p.price.toLocaleString()+'万円':'—')):'';
+}
+function fillIfEmptyL(src){
+  const f=(id,v)=>{const el=document.getElementById(id);if(el&&!el.value.trim()&&v)el.value=v;};
+  f('lb-name',src.name);f('lb-addr',src.addr||src.loc);f('lb-struct',src.struct);f('lb-built',src.built);
+  if(!lPhotos.length&&src.photos&&src.photos.length){lPhotos=JSON.parse(JSON.stringify(src.photos));renderLBImgList();}
+}
+window.onLBLinkRent=function(){const r=blds.find(x=>x.id===document.getElementById('lb-linked-rent').value);if(r)fillIfEmptyL(r);};
+window.onLBLinkProp=function(){updateLBLinkHint();const p=properties.find(x=>x.id===document.getElementById('lb-linked-property').value);if(p)fillIfEmptyL(p);};
+const lodgeOfRent=b=>lblds.find(l=>l.linkedRentId===b.id)||lblds.find(l=>l.id===b.linkedLodgingId)||null;
+const rentOfLodge=l=>blds.find(r=>r.id===l.linkedRentId)||blds.find(r=>r.linkedLodgingId===l.id)||null;
+function mgmtChips(b,kind){
+  let h='';
+  const st='background:rgba(255,255,255,0.2);font-size:9px;cursor:pointer;';
+  if(b.mgmtType==='own')h+=' <span class="bld-chip" style="background:var(--gold);color:var(--navy-dark);font-size:9px;">自社管理</span>';
+  if(kind==='rent'){const l=lodgeOfRent(b);if(l)h+=' <span class="bld-chip" style="'+st+'" onclick="event.stopPropagation();jumpTo(\'lodge\',\''+l.id+'\')">旅館業・民泊あり ›</span>';}
+  else{const r=rentOfLodge(b);if(r)h+=' <span class="bld-chip" style="'+st+'" onclick="event.stopPropagation();jumpTo(\'rent\',\''+r.id+'\')">賃貸管理あり ›</span>';}
+  return h;
+}
+window.jumpTo=function(kind,id){
+  if(kind==='lodge'){switchView('lodge');openL.add(id);renderLodge();}
+  else{switchView('rent');openBlds.add(id);render();}
+  setTimeout(()=>{const el=document.getElementById('bld-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},60);
+};
+function ownBldHtml(b){
+  const memos=(b.memo||'').split('\n').filter(Boolean);
+  return '<div class="osec"><div class="osec-t">建物（自社管理）</div><div class="kn-grid">'+
+    '<div class="kn-row"><span class="kn-lbl">構造</span><span class="kn-val">'+esc(b.struct||'—')+'</span></div>'+
+    '<div class="kn-row"><span class="kn-lbl">築年月</span><span class="kn-val">'+esc(b.built||'—')+'</span></div></div>'+
+    (memos.length?'<div style="font-size:11px;color:#777;margin-top:6px;border-top:1px solid #eee;padding-top:6px;"><ul style="padding-left:14px;line-height:1.7;">'+memos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
+  '</div>';
+}
+function hcHtml(arr,title){
+  const l=(arr||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+  if(!l.length)return'';
+  return '<div class="osec"><div class="osec-t">'+title+'（直近5件）</div>'+l.map(c=>'<div style="font-size:10.5px;padding:4px 0;border-bottom:1px dashed #eee;"><span style="font-weight:700;">'+esc(c.date||'—')+'</span>'+(c.method?' <span style="color:var(--teal);">['+esc(c.method)+']</span>':'')+(c.who?' '+esc(c.who):'')+(c.content?'：'+esc(c.content):'')+'</div>').join('')+'</div>';
+}
+
 // 施設モーダル
 window.openLBModal=function(id=null){
   const b=id?lblds.find(x=>x.id===id):null;
   if(id&&!b)return;
-  editLBId=id;lPhotos=[];lFeePay={};lFeeYear=new Date().getFullYear();repairsL.lb=[];renewals.lb=[];utilState.lb=newUtil();
+  editLBId=id;lPhotos=[];lFeePay={};lFeeYear=new Date().getFullYear();repairsL.lb=[];renewals.lb=[];logsL.lbh=[];utilState.lb=newUtil();
   document.getElementById('lb-modal-title').textContent=id?'施設を編集':'施設を追加';
   LBF.forEach(([i,k])=>setVal(i,b?b[k]:''));
-  if(!document.getElementById('lb-owner-type').value)setVal('lb-owner-type','個人');
+  [['lb-owner-type','個人'],['lb-mgmt','consign'],['lb-lic-scope','unit']].forEach(([i,v])=>{if(!document.getElementById(i).value)setVal(i,v);});
   if(b){
     lPhotos=JSON.parse(JSON.stringify(b.photos||[]));
     lFeePay=JSON.parse(JSON.stringify(b.feePayments||{}));
     repairsL.lb=JSON.parse(JSON.stringify(b.repairs||[]));
     renewals.lb=JSON.parse(JSON.stringify(b.renewals||[]));
+    logsL.lbh=JSON.parse(JSON.stringify(b.hcLog||[]));
     utilState.lb=cloneUtil(b.utilities);
   }
-  renderLBImgList();renderRenewals('lb');renderUtil('lb');renderRepairsL('lb');updateLBDays();
+  fillLBLinks(b?b.linkedRentId||'':'',b?b.linkedPropertyId||'':'');
+  renderLBImgList();renderRenewals('lb');renderUtil('lb');renderRepairsL('lb');renderLogsL('lbh');updateLBDays();toggleMgmt('lb');toggleLicScope();
   renderPayGrid('lfee-pay-grid','lfee-pay-year-label',lFeePay,lFeeYear,'toggleLFeePay');
   editLBVer=id?verOf(b):null;
   document.getElementById('lb-modal').classList.add('open');
@@ -1834,7 +1940,10 @@ window.saveLB=async function(){
   showLoading(true);
   const obj={biz:'lodging'};
   LBF.forEach(([i,k])=>{obj[k]=document.getElementById(i).value.trim();});
+  obj.linkedRentId=document.getElementById('lb-linked-rent').value||null;
+  obj.linkedPropertyId=document.getElementById('lb-linked-property').value||null;
   obj.renewals=cleanRenewals('lb');obj.repairs=cleanRepairsL('lb');obj.utilities=getUtil('lb');
+  obj.hcLog=logsL.lbh.filter(c=>c.date||c.method||c.who||c.content);
   obj.photos=lPhotos;obj.feePayments=lFeePay;obj.updatedAt=serverTimestamp();
   try{
     if(editLBId){await updateDoc(doc(db,'managed_buildings',editLBId),obj);}
@@ -1858,18 +1967,22 @@ window.toggleAllL=function(v){openL=v?new Set(lblds.map(b=>b.id)):new Set();rend
 window.openLUModal=function(bldId,unitId=null){
   const u=unitId?lunits.find(x=>x.id===unitId):null;
   if(unitId&&!u)return;
-  luParent=bldId;editLUId=unitId;logsL.lu=[];repairsL.lu=[];utilState.lu=newUtil();
+  luParent=bldId;editLUId=unitId;logsL.lu=[];logsL.luh=[];repairsL.lu=[];utilState.lu=newUtil();
   const b=lblds.find(x=>x.id===bldId);
   document.getElementById('lu-modal-title').textContent=unitId?'区分を編集':'区分を追加';
   document.getElementById('lu-modal-sub').textContent=b?b.name:'';
+  const bScope=!!(b&&b.licScope==='building');
+  document.getElementById('lu-sec-lic').style.display=bScope?'none':'';
+  document.getElementById('lu-lic-bnote').style.display=bScope?'':'none';
   LUF.forEach(([i,k])=>setVal(i,u?u[k]:''));
   if(!document.getElementById('lu-status').value)setVal('lu-status','営業中');
   if(u){
     logsL.lu=JSON.parse(JSON.stringify(u.cleanLog||[]));
+    logsL.luh=JSON.parse(JSON.stringify(u.hcLog||[]));
     repairsL.lu=JSON.parse(JSON.stringify(u.repairs||[]));
     utilState.lu=cloneUtil(u.utilities);
   }
-  renderLogsL('lu');renderRepairsL('lu');renderUtil('lu');
+  renderLogsL('lu');renderLogsL('luh');renderRepairsL('lu');renderUtil('lu');
   editLUVer=unitId?verOf(u):null;
   document.getElementById('lu-modal').classList.add('open');
 };
@@ -1882,7 +1995,9 @@ window.saveLU=async function(){
   showLoading(true);
   const obj={biz:'lodging',bldId:luParent};
   LUF.forEach(([i,k])=>{obj[k]=document.getElementById(i).value.trim();});
-  obj.cleanLog=logsL.lu.filter(c=>c.date||c.method||c.content);obj.repairs=cleanRepairsL('lu');obj.utilities=getUtil('lu');
+  obj.cleanLog=logsL.lu.filter(c=>c.date||c.method||c.content);
+  obj.hcLog=logsL.luh.filter(c=>c.date||c.method||c.who||c.content);
+  obj.repairs=cleanRepairsL('lu');obj.utilities=getUtil('lu');
   obj.updatedAt=serverTimestamp();
   try{
     if(editLUId){await updateDoc(doc(db,'managed_units',editLUId),obj);}
@@ -1901,40 +2016,44 @@ function renderLodge(){
   const wrap=document.getElementById('lbld-wrap');if(!wrap)return;
   const kw=(document.getElementById('lf-keyword').value||'').trim().toLowerCase();
   const lic=document.getElementById('lf-lic').value||'',st=document.getElementById('lf-status').value||'';
-  const uOf=id=>lunits.filter(u=>u.bldId===id).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
+  const uOf=id=>lunits.filter(u=>u.bldId===id).slice().sort(byName);
   const list=lblds.filter(b=>{
     const us=uOf(b.id);
-    if(lic&&!us.some(u=>u.licType===lic))return false;
+    if(lic&&!us.some(u=>licTypeOf(u)===lic))return false;
     if(st&&!us.some(u=>u.opStatus===st))return false;
     if(kw){
-      const t=[b.name||'',b.addr||'',b.owner||'',b.ownerKana||'',...us.map(u=>[u.name||'',u.licNo||'',u.cleanName||''].join(' '))].join(' ').toLowerCase();
+      const t=[b.name||'',b.addr||'',b.owner||'',b.ownerKana||'',b.licNo||'',...us.map(u=>[u.name||'',u.licNo||'',u.cleanName||''].join(' '))].join(' ').toLowerCase();
       if(!t.includes(kw))return false;
     }
     return true;
-  }).sort((a,b)=>(a.name||'').localeCompare(b.name||'','ja'));
+  }).sort(byName);
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set('ls-bld',lblds.length);set('ls-unit',lunits.length);
   set('ls-open',lunits.filter(u=>u.opStatus==='営業中').length);
   set('ls-prep',lunits.filter(u=>u.opStatus==='準備中'||u.opStatus==='休業中').length);
-  set('ls-ryokan',lunits.filter(u=>licGroup(u.licType)==='ryokan').length);
-  set('ls-minpaku',lunits.filter(u=>licGroup(u.licType)==='minpaku').length);
-  set('ls-nolic',lunits.filter(u=>!u.licType||licGroup(u.licType)==='none').length);
+  set('ls-ryokan',lunits.filter(u=>licGroup(licTypeOf(u))==='ryokan').length);
+  set('ls-minpaku',lunits.filter(u=>licGroup(licTypeOf(u))==='minpaku').length);
+  set('ls-nolic',lunits.filter(u=>{const t=licTypeOf(u);return !t||licGroup(t)==='none';}).length);
   set('lcount-info',list.length+'施設表示中 / 全'+lblds.length+'施設・区分'+lunits.length+'件');
   if(!list.length){wrap.innerHTML='<div style="text-align:center;padding:3rem;color:#999;">該当する施設がありません</div>';return;}
   wrap.innerHTML=list.map(b=>{
-    const us=uOf(b.id),isOpen=openL.has(b.id);
+    const us=uOf(b.id),isOpen=openL.has(b.id),own=b.mgmtType==='own';
     const openN=us.filter(u=>u.opStatus==='営業中').length;
     const ph=b.photos&&b.photos.length?b.photos:[];
     const phJson=JSON.stringify(ph).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
     const memos=(b.memo||'').split('\n').filter(Boolean);
-    return '<div class="bld'+(isOpen?' open':'')+'">'+
+    const lp=b.linkedPropertyId?properties.find(p=>p.id===b.linkedPropertyId):null;
+    const bScope=b.licScope==='building';
+    return '<div class="bld'+(isOpen?' open':'')+'" id="bld-'+b.id+'">'+
       '<div class="bld-head" onclick="toggleLBld(\''+b.id+'\')">'+
         '<span class="bld-toggle">▶</span>'+
         (ph.length?'<span class="bld-photo-count" onclick="event.stopPropagation();openLB('+phJson+',0)"><img class="bld-thumb" src="'+esc(ldyOpt(ph[0].url,300))+'" alt=""/>'+(ph.length>1?'<span class="bld-photo-count-badge">'+ph.length+'枚</span>':'')+'</span>':'<div class="bld-thumb-empty">🏨</div>')+
-        '<div><div class="bld-name">'+esc(b.name||'')+'</div><div class="bld-addr">'+esc(b.addr||'—')+(b.owner?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
+        '<div><div class="bld-name">'+esc(b.name||'')+(lp?' <span class="bld-chip" style="background:rgba(255,255,255,0.2);font-size:9px;">元在庫物件</span>':'')+mgmtChips(b,'lodge')+'</div><div class="bld-addr">'+esc(b.addr||'—')+((!own&&b.owner)?'　／　オーナー：'+esc(b.owner):'')+'</div></div>'+
         '<div class="bld-meta"><span class="bld-chip">区分 '+us.length+'件</span><span class="bld-chip gold">営業中 '+openN+'/'+us.length+'</span></div>'+
       '</div>'+
       '<div class="bld-detail">'+
+        (lp?'<div class="osec" style="border-color:var(--gold);background:#FFFBF0;"><div class="osec-t" style="color:#8A6D00;">🔗 在庫物件（買取再販）としての履歴</div><div class="kn-grid"><div class="kn-row"><span class="kn-lbl">物件名</span><span class="kn-val">'+esc(lp.name||'—')+'</span></div><div class="kn-row"><span class="kn-lbl">現在の状態</span><span class="kn-val">'+esc(lp.saleStatus||'—')+'</span></div><div class="kn-row"><span class="kn-lbl">価格</span><span class="kn-val">'+(lp.price?lp.price.toLocaleString()+'万円':'—')+'</span></div></div></div>':'')+
+        (own?ownBldHtml(b):
         '<div class="osec"><div class="osec-t">施設・所有者</div><div class="kn-grid">'+
           '<div class="kn-row"><span class="kn-lbl">構造</span><span class="kn-val">'+esc(b.struct||'—')+'</span></div>'+
           '<div class="kn-row"><span class="kn-lbl">築年月</span><span class="kn-val">'+esc(b.built||'—')+'</span></div>'+
@@ -1955,7 +2074,16 @@ function renderLodge(){
         '</div>'+
         (b.feePayments?(()=>{const yr=new Date().getFullYear();const cells=Array.from({length:12},(_,i)=>i+1).map(m=>'<div class="pay-mini-cell'+(b.feePayments[monthKey(yr,m)]?' paid':'')+'">'+m+'</div>').join('');return '<div style="margin-top:6px;"><div style="font-size:9px;color:var(--sub);margin-bottom:3px;">'+yr+'年 管理料 入金チェック</div><div class="pay-mini">'+cells+'</div></div>';})():'')+
         (memos.length?'<div style="font-size:11px;color:#777;margin-top:6px;border-top:1px solid #eee;padding-top:6px;"><ul style="padding-left:14px;line-height:1.7;">'+memos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
-        '</div>'+
+        '</div>')+
+        (bScope?'<div class="osec"><div class="osec-t">免許・届出（1棟まるごと）</div><div class="kn-grid">'+
+          '<div class="kn-row full"><span class="kn-lbl">種別</span><span class="kn-val">'+(b.licType?'<span class="lic-chip'+(licGroup(b.licType)==='none'?' none':'')+'">'+esc(b.licType)+'</span>':'—')+'</span></div>'+
+          '<div class="kn-row"><span class="kn-lbl">番号</span><span class="kn-val">'+esc(b.licNo||'—')+'</span></div>'+
+          '<div class="kn-row"><span class="kn-lbl">届出先</span><span class="kn-val">'+esc(b.licOffice||'—')+'</span></div>'+
+          '<div class="kn-row"><span class="kn-lbl">取得・届出日</span><span class="kn-val">'+esc(b.licDate||'—')+'</span></div>'+
+          '<div class="kn-row"><span class="kn-lbl">期限</span><span class="kn-val">'+esc(b.licExp||'—')+' '+daysHtml(b.licExp)+'</span></div>'+
+          (b.licNote?'<div class="kn-row full"><span class="kn-lbl">備考</span><span class="kn-val">'+esc(b.licNote)+'</span></div>':'')+
+        '</div></div>':'')+
+        hcHtml(b.hcLog,'保健所とのやり取り（施設全体）')+
         bldUtilHtml(b)+repairHtml(b)+
         '<div style="display:flex;gap:6px;"><button class="btn btn-navy btn-sm" onclick="openLBModal(\''+b.id+'\')">施設情報を編集</button><button class="btn btn-red btn-sm" onclick="deleteLB(\''+b.id+'\')">施設を削除</button></div>'+
       '</div>'+
@@ -1967,14 +2095,18 @@ function renderLodge(){
   }).join('');
 }
 function lodgeUnitHtml(u){
-  const g=licGroup(u.licType);
-  const chip=u.licType?'<span class="lic-chip'+(g==='none'?' none':'')+'">'+esc(u.licType)+'</span>':'<span class="lic-chip none">免許未設定</span>';
+  const b=lblds.find(x=>x.id===u.bldId)||{};
+  const bScope=b.licScope==='building';
+  const lt=licTypeOf(u),g=licGroup(lt);
+  const chip=lt?'<span class="lic-chip'+(g==='none'?' none':'')+'">'+esc(lt)+(bScope?'（1棟）':'')+'</span>':'<span class="lic-chip none">免許未設定</span>';
   const logs=(u.cleanLog||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+  const hcs=(u.hcLog||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
   const memos=(u.memo||'').split('\n').filter(Boolean);
   return '<div class="unit">'+
     '<div class="unit-head"><span class="kn-status '+opClass(u.opStatus)+'">'+esc(u.opStatus||'—')+'</span><span class="unit-name">'+esc(u.name||'')+'</span>'+chip+
       '<span style="font-size:11px;color:var(--sub);">'+esc(u.size||'—')+(u.capacity?'／定員'+esc(u.capacity)+'名':'')+(u.use?'／'+esc(u.use):'')+'</span></div>'+
     '<div class="unit-body">'+
+      (bScope?'<div class="unit-sub"><div class="unit-sub-t">免許・届出</div><div style="font-size:11px;color:var(--sub);">この施設は1棟まるごとの免許です（施設の欄を参照）</div></div>':
       '<div class="unit-sub"><div class="unit-sub-t">免許・届出</div><div class="kn-grid" style="grid-template-columns:1fr;">'+
         '<div class="kn-row"><span class="kn-lbl">種別</span><span class="kn-val">'+esc(u.licType||'—')+'</span></div>'+
         '<div class="kn-row"><span class="kn-lbl">番号</span><span class="kn-val">'+esc(u.licNo||'—')+'</span></div>'+
@@ -1982,7 +2114,7 @@ function lodgeUnitHtml(u){
         '<div class="kn-row"><span class="kn-lbl">取得・届出日</span><span class="kn-val">'+esc(u.licDate||'—')+'</span></div>'+
         '<div class="kn-row"><span class="kn-lbl">期限</span><span class="kn-val">'+esc(u.licExp||'—')+' '+daysHtml(u.licExp)+'</span></div>'+
         (u.licNote?'<div class="kn-row"><span class="kn-lbl">備考</span><span class="kn-val">'+esc(u.licNote)+'</span></div>':'')+
-      '</div></div>'+
+      '</div></div>')+
       '<div class="unit-sub"><div class="unit-sub-t">清掃業者</div><div class="kn-grid" style="grid-template-columns:1fr;">'+
         '<div class="kn-row"><span class="kn-lbl">業者名</span><span class="kn-val">'+esc(u.cleanName||'—')+'</span></div>'+
         '<div class="kn-row"><span class="kn-lbl">電話</span><span class="kn-val">'+esc(u.cleanTel||'—')+'</span></div>'+
@@ -1990,6 +2122,7 @@ function lodgeUnitHtml(u){
       '</div></div>'+
       unitUtilHtml(u)+
       ((u.repairs&&u.repairs.length)?'<div style="grid-column:1/-1;">'+repairHtml(u)+'</div>':'')+
+      (hcs.length?'<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">保健所とのやり取り（直近5件）</div>'+hcs.map(c=>'<div style="font-size:10.5px;padding:4px 0;border-bottom:1px dashed #eee;"><span style="font-weight:700;">'+esc(c.date||'—')+'</span>'+(c.method?' <span style="color:var(--teal);">['+esc(c.method)+']</span>':'')+(c.who?' '+esc(c.who):'')+(c.content?'：'+esc(c.content):'')+'</div>').join('')+'</div>':'')+
       (logs.length?'<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">清掃業者とのやり取り（直近5件）</div>'+logs.map(c=>'<div style="font-size:10.5px;padding:4px 0;border-bottom:1px dashed #eee;"><span style="font-weight:700;">'+esc(c.date||'—')+'</span>'+(c.method?' <span style="color:var(--teal);">['+esc(c.method)+']</span>':'')+(c.content?' '+esc(c.content):'')+'</div>').join('')+'</div>':'')+
     '</div>'+
     (memos.length?'<div style="font-size:11px;color:#777;margin-top:8px;"><ul style="padding-left:14px;line-height:1.7;">'+memos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
