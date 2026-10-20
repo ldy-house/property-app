@@ -185,6 +185,14 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .vt.on{color:var(--navy);border-bottom-color:var(--gold);}
 .lic-chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:12px;background:#EDE7F6;color:#4527A0;}
 .lic-chip.none{background:#FFF3E0;color:#E65100;}
+.modal.wide{width:1100px;}
+.bk-table{width:100%;border-collapse:collapse;font-size:12px;min-width:860px;}
+.bk-table th{background:#EEF1F8;color:var(--navy);font-size:10px;font-weight:700;padding:6px 6px;text-align:left;border-bottom:2px solid var(--gold);white-space:nowrap;}
+.bk-table td{padding:4px 4px;border-bottom:1px solid #eee;vertical-align:middle;}
+.bk-table input,.bk-table select{font-size:12px;padding:5px 6px;border:1.5px solid #ddd;border-radius:4px;outline:none;background:#fff;font-family:inherit;}
+.bk-table input:focus,.bk-table select:focus{border-color:var(--navy);}
+.bk-table tr.bk-del td{background:#FFF0F0;}
+.bk-table tr.bk-del input,.bk-table tr.bk-del select{text-decoration:line-through;opacity:.5;}
 </style>
 </head>
 <body>
@@ -679,6 +687,19 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
       </div>
       <div class="fs">
+        <div class="fs-title">清掃業者（施設全体）</div>
+        <div class="fg">
+          <div class="fr"><label>業者名</label><input id="lb-clean-name"/></div>
+          <div class="fr"><label>電話番号</label><input id="lb-clean-tel"/></div>
+        </div>
+        <div class="fr"><label>清掃単価（円／回）</label><input id="lb-clean-fee" type="number" placeholder="5000"/></div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">清掃業者とのやり取り</div>
+          <div id="lbc-log-blocks"></div>
+          <button type="button" class="btn btn-sm btn-navy" onclick="addLogL('lbc')">＋ やり取りを記録</button>
+        </div>
+      </div>
+      <div class="fs">
         <div class="fs-title">免許・届出・保健所</div>
         <div class="fr"><label>免許の単位</label><select id="lb-lic-scope" onchange="toggleLicScope()"><option value="unit">区分ごとに免許がある</option><option value="building">1棟まるごとで1つの免許</option></select></div>
         <div id="lb-lic-unit-note" style="font-size:10px;color:var(--sub);margin-bottom:8px;">各区分の編集画面で、免許・届出を入力します。</div>
@@ -754,19 +775,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <button type="button" class="btn btn-sm btn-navy" onclick="addLogL('luh')">＋ やり取りを記録</button>
         </div>
       </div>
-      <div class="fs">
-        <div class="fs-title">清掃業者</div>
-        <div class="fg">
-          <div class="fr"><label>業者名</label><input id="lu-clean-name"/></div>
-          <div class="fr"><label>電話番号</label><input id="lu-clean-tel"/></div>
-        </div>
-        <div class="fr"><label>清掃単価（円／回）</label><input id="lu-clean-fee" type="number" placeholder="5000"/></div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
-          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">清掃業者とのやり取り</div>
-          <div id="lu-log-blocks"></div>
-          <button type="button" class="btn btn-sm btn-navy" onclick="addLogL('lu')">＋ やり取りを記録</button>
-        </div>
-      </div>
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス</div>
         <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分で契約しているメーターを登録します。複数ある場合は「メーターを追加」で増やしてください。</div>
@@ -789,6 +797,48 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
 </div>
 
+<!-- 旅館業・民泊：区分の一括追加・編集 -->
+<div class="modal-bg" id="lbk-modal">
+  <div class="modal wide">
+    <div class="modal-head"><div><h3>区分を一括で追加・編集</h3><div class="modal-sub" id="lbk-sub"></div></div><button class="modal-close" onclick="closeLBulk()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs">
+        <div class="fs-title">連番でまとめて追加</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;align-items:end;">
+          <div class="fr"><label>頭に付ける文字</label><input id="lbk-prefix" placeholder="例：A-"/></div>
+          <div class="fr"><label>開始番号</label><input id="lbk-start" type="number" value="101"/></div>
+          <div class="fr"><label>個数</label><input id="lbk-count" type="number" value="5" min="1" max="100"/></div>
+          <div class="fr"><label>後ろに付ける文字</label><input id="lbk-suffix" placeholder="例：号室"/></div>
+          <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genBulkRows()">表に追加</button>
+        </div>
+        <div class="days-auto" id="lbk-preview">例：頭=空欄・開始=101・個数=3・後ろ=号室 → 101号室、102号室、103号室</div>
+      </div>
+      <div class="fs">
+        <div class="fs-title">全行にまとめて反映（入力した項目だけ）</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr) auto;gap:10px;align-items:end;">
+          <div class="fr"><label>営業状況</label><select id="lbk-all-status"></select></div>
+          <div class="fr"><label>面積</label><input id="lbk-all-size" placeholder="例：約25㎡"/></div>
+          <div class="fr"><label>定員（名）</label><input id="lbk-all-cap" type="number"/></div>
+          <div class="fr"><label>間取り・タイプ</label><input id="lbk-all-use" placeholder="例：1K"/></div>
+          <div class="fr" id="lbk-all-lic-wrap"><label>免許種別</label><select id="lbk-all-lic"></select></div>
+          <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="applyAllBulk()">全行に反映</button>
+        </div>
+        <div id="lbk-bscope-note" style="display:none;font-size:10px;color:var(--sub);">この施設は「1棟まるごと」の免許のため、区分ごとの免許欄は表示しません。</div>
+      </div>
+      <div class="fs">
+        <div class="fs-title">区分一覧</div>
+        <div style="overflow-x:auto;" id="lbk-table"></div>
+        <button type="button" class="btn btn-sm btn-navy" style="margin-top:8px;" onclick="addBulkRow()">＋ 1行追加</button>
+        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ここでは基本項目だけ編集できます。ライフライン・修繕・保健所とのやり取りなどは、各区分の「編集」から入力してください。</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeLBulk()">キャンセル</button>
+      <button class="btn btn-gold" onclick="saveLBulk()">まとめて保存する</button>
+    </div>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox">
   <button class="lb-close" onclick="closeLB()">✕</button>
   <span class="lb-counter" id="lb-counter"></span>
@@ -800,7 +850,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,getDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,getDoc,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
 const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
@@ -1765,9 +1815,9 @@ document.getElementById('lu-status').innerHTML=optsHtml(OPS);
 const setVal=(e,v)=>{const el=document.getElementById(e);if(el)el.value=(v===0?'0':(v||''));};
 let openL=new Set(),editLBId=null,editLUId=null,luParent=null,editLBVer=null,editLUVer=null;
 let lPhotos=[],lFeePay={},lFeeYear=new Date().getFullYear();
-const repairsL={lb:[],lu:[]},logsL={lu:[],lbh:[],luh:[]};
-const LBF=[['lb-name','name'],['lb-addr','addr'],['lb-struct','struct'],['lb-built','built'],['lb-mgmt','mgmtType'],['lb-owner-type','ownerType'],['lb-owner','owner'],['lb-owner-kana','ownerKana'],['lb-owner-addr','ownerAddr'],['lb-owner-tel','ownerTel'],['lb-owner-mail','ownerMail'],['lb-owner-contact','ownerContact'],['lb-owner-contact-tel','ownerContactTel'],['lb-owner-bank','ownerBank'],['lb-start','start'],['lb-end','end'],['lb-scope','scope'],['lb-auto-renew','autoRenew'],['lb-notice','notice'],['lb-fee','fee'],['lb-fee-tax','feeTax'],['lb-settle','settle'],['lb-lic-scope','licScope'],['lb-lic-type','licType'],['lb-lic-no','licNo'],['lb-lic-office','licOffice'],['lb-lic-date','licDate'],['lb-lic-exp','licExp'],['lb-lic-note','licNote'],['lb-memo','memo']];
-const LUF=[['lu-name','name'],['lu-status','opStatus'],['lu-size','size'],['lu-cap','capacity'],['lu-use','use'],['lu-lic-type','licType'],['lu-lic-no','licNo'],['lu-lic-office','licOffice'],['lu-lic-date','licDate'],['lu-lic-exp','licExp'],['lu-lic-note','licNote'],['lu-clean-name','cleanName'],['lu-clean-tel','cleanTel'],['lu-clean-fee','cleanFee'],['lu-memo','memo']];
+const repairsL={lb:[],lu:[]},logsL={lu:[],lbh:[],luh:[],lbc:[]};
+const LBF=[['lb-name','name'],['lb-addr','addr'],['lb-struct','struct'],['lb-built','built'],['lb-mgmt','mgmtType'],['lb-owner-type','ownerType'],['lb-owner','owner'],['lb-owner-kana','ownerKana'],['lb-owner-addr','ownerAddr'],['lb-owner-tel','ownerTel'],['lb-owner-mail','ownerMail'],['lb-owner-contact','ownerContact'],['lb-owner-contact-tel','ownerContactTel'],['lb-owner-bank','ownerBank'],['lb-start','start'],['lb-end','end'],['lb-scope','scope'],['lb-auto-renew','autoRenew'],['lb-notice','notice'],['lb-fee','fee'],['lb-fee-tax','feeTax'],['lb-settle','settle'],['lb-lic-scope','licScope'],['lb-lic-type','licType'],['lb-lic-no','licNo'],['lb-lic-office','licOffice'],['lb-lic-date','licDate'],['lb-lic-exp','licExp'],['lb-lic-note','licNote'],['lb-clean-name','cleanName'],['lb-clean-tel','cleanTel'],['lb-clean-fee','cleanFee'],['lb-memo','memo']];
+const LUF=[['lu-name','name'],['lu-status','opStatus'],['lu-size','size'],['lu-cap','capacity'],['lu-use','use'],['lu-lic-type','licType'],['lu-lic-no','licNo'],['lu-lic-office','licOffice'],['lu-lic-date','licDate'],['lu-lic-exp','licExp'],['lu-lic-note','licNote'],['lu-memo','memo']];
 
 window.switchView=function(v){
   document.getElementById('view-rent').style.display=v==='rent'?'':'none';
@@ -1799,7 +1849,7 @@ window.removeLogL=function(sc,i){logsL[sc].splice(i,1);renderLogsL(sc);};
 window.updateLogL=function(sc,i,f,v){if(logsL[sc][i])logsL[sc][i][f]=v;};
 function renderLogsL(sc){
   const el=document.getElementById(sc+'-log-blocks');if(!el)return;
-  const hc=sc!=='lu';
+  const hc=(sc==='lbh'||sc==='luh');
   const mph=hc?'例：電話／窓口訪問／立入検査':'例：電話／LINE／メール';
   const cph=hc?'例：消防設備の指摘について相談。是正報告は月末まで':'例：リネン交換の追加依頼。次回から週2回に変更';
   el.innerHTML=logsL[sc].map((c,i)=>
@@ -1859,7 +1909,7 @@ window.toggleLicScope=function(){
   document.getElementById('lb-lic-unit-note').style.display=bld?'none':'';
 };
 const licTypeOf=u=>{const b=lblds.find(x=>x.id===u.bldId);return (b&&b.licScope==='building')?(b.licType||''):(u.licType||'');};
-const byName=(a,b)=>(a.name||'').localeCompare(b.name||'','ja');
+const byName=(a,b)=>(a.name||'').localeCompare(b.name||'','ja',{numeric:true});
 function fillSelect(id,items,sel,empty,labelFn){
   const el=document.getElementById(id);if(!el)return;
   el.innerHTML='<option value="">'+empty+'</option>'+items.map(x=>'<option value="'+x.id+'"'+(x.id===sel?' selected':'')+'>'+esc(labelFn(x))+'</option>').join('');
@@ -1914,7 +1964,7 @@ function hcHtml(arr,title){
 window.openLBModal=function(id=null){
   const b=id?lblds.find(x=>x.id===id):null;
   if(id&&!b)return;
-  editLBId=id;lPhotos=[];lFeePay={};lFeeYear=new Date().getFullYear();repairsL.lb=[];renewals.lb=[];logsL.lbh=[];utilState.lb=newUtil();
+  editLBId=id;lPhotos=[];lFeePay={};lFeeYear=new Date().getFullYear();repairsL.lb=[];renewals.lb=[];logsL.lbh=[];logsL.lbc=[];utilState.lb=newUtil();
   document.getElementById('lb-modal-title').textContent=id?'施設を編集':'施設を追加';
   LBF.forEach(([i,k])=>setVal(i,b?b[k]:''));
   [['lb-owner-type','個人'],['lb-mgmt','consign'],['lb-lic-scope','unit']].forEach(([i,v])=>{if(!document.getElementById(i).value)setVal(i,v);});
@@ -1923,11 +1973,11 @@ window.openLBModal=function(id=null){
     lFeePay=JSON.parse(JSON.stringify(b.feePayments||{}));
     repairsL.lb=JSON.parse(JSON.stringify(b.repairs||[]));
     renewals.lb=JSON.parse(JSON.stringify(b.renewals||[]));
-    logsL.lbh=JSON.parse(JSON.stringify(b.hcLog||[]));
+    logsL.lbh=JSON.parse(JSON.stringify(b.hcLog||[]));logsL.lbc=JSON.parse(JSON.stringify(b.cleanLog||[]));
     utilState.lb=cloneUtil(b.utilities);
   }
   fillLBLinks(b?b.linkedRentId||'':'',b?b.linkedPropertyId||'':'');
-  renderLBImgList();renderRenewals('lb');renderUtil('lb');renderRepairsL('lb');renderLogsL('lbh');updateLBDays();toggleMgmt('lb');toggleLicScope();
+  renderLBImgList();renderRenewals('lb');renderUtil('lb');renderRepairsL('lb');renderLogsL('lbh');renderLogsL('lbc');updateLBDays();toggleMgmt('lb');toggleLicScope();
   renderPayGrid('lfee-pay-grid','lfee-pay-year-label',lFeePay,lFeeYear,'toggleLFeePay');
   editLBVer=id?verOf(b):null;
   document.getElementById('lb-modal').classList.add('open');
@@ -1943,7 +1993,7 @@ window.saveLB=async function(){
   obj.linkedRentId=document.getElementById('lb-linked-rent').value||null;
   obj.linkedPropertyId=document.getElementById('lb-linked-property').value||null;
   obj.renewals=cleanRenewals('lb');obj.repairs=cleanRepairsL('lb');obj.utilities=getUtil('lb');
-  obj.hcLog=logsL.lbh.filter(c=>c.date||c.method||c.who||c.content);
+  obj.hcLog=logsL.lbh.filter(c=>c.date||c.method||c.who||c.content);obj.cleanLog=logsL.lbc.filter(c=>c.date||c.method||c.content);
   obj.photos=lPhotos;obj.feePayments=lFeePay;obj.updatedAt=serverTimestamp();
   try{
     if(editLBId){await updateDoc(doc(db,'managed_buildings',editLBId),obj);}
@@ -1967,7 +2017,7 @@ window.toggleAllL=function(v){openL=v?new Set(lblds.map(b=>b.id)):new Set();rend
 window.openLUModal=function(bldId,unitId=null){
   const u=unitId?lunits.find(x=>x.id===unitId):null;
   if(unitId&&!u)return;
-  luParent=bldId;editLUId=unitId;logsL.lu=[];logsL.luh=[];repairsL.lu=[];utilState.lu=newUtil();
+  luParent=bldId;editLUId=unitId;logsL.luh=[];repairsL.lu=[];utilState.lu=newUtil();
   const b=lblds.find(x=>x.id===bldId);
   document.getElementById('lu-modal-title').textContent=unitId?'区分を編集':'区分を追加';
   document.getElementById('lu-modal-sub').textContent=b?b.name:'';
@@ -1977,12 +2027,11 @@ window.openLUModal=function(bldId,unitId=null){
   LUF.forEach(([i,k])=>setVal(i,u?u[k]:''));
   if(!document.getElementById('lu-status').value)setVal('lu-status','営業中');
   if(u){
-    logsL.lu=JSON.parse(JSON.stringify(u.cleanLog||[]));
     logsL.luh=JSON.parse(JSON.stringify(u.hcLog||[]));
     repairsL.lu=JSON.parse(JSON.stringify(u.repairs||[]));
     utilState.lu=cloneUtil(u.utilities);
   }
-  renderLogsL('lu');renderLogsL('luh');renderRepairsL('lu');renderUtil('lu');
+  renderLogsL('luh');renderRepairsL('lu');renderUtil('lu');
   editLUVer=unitId?verOf(u):null;
   document.getElementById('lu-modal').classList.add('open');
 };
@@ -1995,7 +2044,6 @@ window.saveLU=async function(){
   showLoading(true);
   const obj={biz:'lodging',bldId:luParent};
   LUF.forEach(([i,k])=>{obj[k]=document.getElementById(i).value.trim();});
-  obj.cleanLog=logsL.lu.filter(c=>c.date||c.method||c.content);
   obj.hcLog=logsL.luh.filter(c=>c.date||c.method||c.who||c.content);
   obj.repairs=cleanRepairsL('lu');obj.utilities=getUtil('lu');
   obj.updatedAt=serverTimestamp();
@@ -2022,7 +2070,7 @@ function renderLodge(){
     if(lic&&!us.some(u=>licTypeOf(u)===lic))return false;
     if(st&&!us.some(u=>u.opStatus===st))return false;
     if(kw){
-      const t=[b.name||'',b.addr||'',b.owner||'',b.ownerKana||'',b.licNo||'',...us.map(u=>[u.name||'',u.licNo||'',u.cleanName||''].join(' '))].join(' ').toLowerCase();
+      const t=[b.name||'',b.addr||'',b.owner||'',b.ownerKana||'',b.licNo||'',b.cleanName||'',...us.map(u=>[u.name||'',u.licNo||'',u.cleanName||''].join(' '))].join(' ').toLowerCase();
       if(!t.includes(kw))return false;
     }
     return true;
@@ -2083,12 +2131,12 @@ function renderLodge(){
           '<div class="kn-row"><span class="kn-lbl">期限</span><span class="kn-val">'+esc(b.licExp||'—')+' '+daysHtml(b.licExp)+'</span></div>'+
           (b.licNote?'<div class="kn-row full"><span class="kn-lbl">備考</span><span class="kn-val">'+esc(b.licNote)+'</span></div>':'')+
         '</div></div>':'')+
-        hcHtml(b.hcLog,'保健所とのやり取り（施設全体）')+
+        cleanerHtml(b)+hcHtml(b.hcLog,'保健所とのやり取り（施設全体）')+
         bldUtilHtml(b)+repairHtml(b)+
         '<div style="display:flex;gap:6px;"><button class="btn btn-navy btn-sm" onclick="openLBModal(\''+b.id+'\')">施設情報を編集</button><button class="btn btn-red btn-sm" onclick="deleteLB(\''+b.id+'\')">施設を削除</button></div>'+
       '</div>'+
       '<div class="bld-units">'+
-        '<div class="units-head"><span class="units-t">区分一覧（'+us.length+'件）</span><button class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openLUModal(\''+b.id+'\')">＋ 区分を追加</button></div>'+
+        '<div class="units-head"><span class="units-t">区分一覧（'+us.length+'件）</span><button class="btn btn-navy btn-sm" style="margin-left:auto;" onclick="openLBulk(\''+b.id+'\')">区分を一括追加・編集</button><button class="btn btn-gold btn-sm" onclick="openLUModal(\''+b.id+'\')">＋ 区分を追加</button></div>'+
         (us.length?us.map(u=>lodgeUnitHtml(u)).join(''):'<div class="empty-units">区分が登録されていません</div>')+
       '</div>'+
     '</div>';
@@ -2115,11 +2163,11 @@ function lodgeUnitHtml(u){
         '<div class="kn-row"><span class="kn-lbl">期限</span><span class="kn-val">'+esc(u.licExp||'—')+' '+daysHtml(u.licExp)+'</span></div>'+
         (u.licNote?'<div class="kn-row"><span class="kn-lbl">備考</span><span class="kn-val">'+esc(u.licNote)+'</span></div>':'')+
       '</div></div>')+
-      '<div class="unit-sub"><div class="unit-sub-t">清掃業者</div><div class="kn-grid" style="grid-template-columns:1fr;">'+
+      ((u.cleanName||u.cleanTel||u.cleanFee)?'<div class="unit-sub"><div class="unit-sub-t">清掃業者（旧：区分に登録済み）</div><div class="kn-grid" style="grid-template-columns:1fr;">'+
         '<div class="kn-row"><span class="kn-lbl">業者名</span><span class="kn-val">'+esc(u.cleanName||'—')+'</span></div>'+
         '<div class="kn-row"><span class="kn-lbl">電話</span><span class="kn-val">'+esc(u.cleanTel||'—')+'</span></div>'+
         '<div class="kn-row"><span class="kn-lbl">単価</span><span class="kn-val">'+(u.cleanFee?yen(Number(u.cleanFee))+'／回':'—')+'</span></div>'+
-      '</div></div>'+
+      '</div></div>':'')+
       unitUtilHtml(u)+
       ((u.repairs&&u.repairs.length)?'<div style="grid-column:1/-1;">'+repairHtml(u)+'</div>':'')+
       (hcs.length?'<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">保健所とのやり取り（直近5件）</div>'+hcs.map(c=>'<div style="font-size:10.5px;padding:4px 0;border-bottom:1px dashed #eee;"><span style="font-weight:700;">'+esc(c.date||'—')+'</span>'+(c.method?' <span style="color:var(--teal);">['+esc(c.method)+']</span>':'')+(c.who?' '+esc(c.who):'')+(c.content?'：'+esc(c.content):'')+'</div>').join('')+'</div>':'')+
@@ -2129,6 +2177,109 @@ function lodgeUnitHtml(u){
     '<div class="unit-acts"><button class="btn btn-navy btn-sm" onclick="openLUModal(\''+u.bldId+'\',\''+u.id+'\')">編集</button><button class="btn btn-red btn-sm" onclick="deleteLU(\''+u.id+'\')">削除</button></div>'+
   '</div>';
 }
+
+// ===== 施設カードの清掃業者 =====
+function cleanerHtml(b){
+  const has=b.cleanName||b.cleanTel||b.cleanFee||(b.cleanLog&&b.cleanLog.length);
+  if(!has)return'';
+  return '<div class="osec"><div class="osec-t">清掃業者（施設全体）</div><div class="kn-grid">'+
+    '<div class="kn-row"><span class="kn-lbl">業者名</span><span class="kn-val">'+esc(b.cleanName||'—')+'</span></div>'+
+    '<div class="kn-row"><span class="kn-lbl">電話</span><span class="kn-val">'+esc(b.cleanTel||'—')+'</span></div>'+
+    '<div class="kn-row"><span class="kn-lbl">単価</span><span class="kn-val">'+(b.cleanFee?yen(Number(b.cleanFee))+'／回':'—')+'</span></div>'+
+  '</div></div>'+hcHtml(b.cleanLog,'清掃業者とのやり取り');
+}
+
+// ===== 区分の一括追加・編集（旅館業・民泊） =====
+const BK=['name','opStatus','size','capacity','use','licType','licNo','licExp'];
+let bulkRows=[],bulkBld=null;
+const bkScopeUnit=()=>{const b=lblds.find(x=>x.id===bulkBld);return !(b&&b.licScope==='building');};
+window.openLBulk=function(bldId){
+  const b=lblds.find(x=>x.id===bldId);if(!b)return;
+  bulkBld=bldId;
+  bulkRows=lunits.filter(u=>u.bldId===bldId).slice().sort(byName).map(u=>{const o={};BK.forEach(k=>{o[k]=u[k]==null?'':String(u[k]);});return {id:u.id,orig:o,...o,del:false};});
+  document.getElementById('lbk-sub').textContent=b.name||'';
+  const su=bkScopeUnit();
+  document.getElementById('lbk-all-lic-wrap').style.display=su?'':'none';
+  document.getElementById('lbk-bscope-note').style.display=su?'none':'';
+  document.getElementById('lbk-all-status').innerHTML=optsHtml(OPS,'変更しない');
+  document.getElementById('lbk-all-lic').innerHTML=optsHtml(LIC,'変更しない');
+  ['lbk-prefix','lbk-suffix','lbk-all-size','lbk-all-cap','lbk-all-use'].forEach(i=>setVal(i,''));
+  setVal('lbk-start','101');setVal('lbk-count','5');
+  document.getElementById('lbk-preview').textContent='例：頭=空欄・開始=101・個数=3・後ろ=号室 → 101号室、102号室、103号室';
+  renderBulk();
+  document.getElementById('lbk-modal').classList.add('open');
+};
+window.closeLBulk=function(){document.getElementById('lbk-modal').classList.remove('open');};
+function newBulkRow(name){const o={};BK.forEach(k=>{o[k]='';});o.name=name||'';o.opStatus='営業中';return {id:null,orig:o,...o,del:false};}
+window.addBulkRow=function(){bulkRows.push(newBulkRow(''));renderBulk();};
+window.genBulkRows=function(){
+  const pre=document.getElementById('lbk-prefix').value,suf=document.getElementById('lbk-suffix').value;
+  const st=parseInt(document.getElementById('lbk-start').value),n=parseInt(document.getElementById('lbk-count').value);
+  if(isNaN(st)||isNaN(n)||n<1||n>100){alert('開始番号と個数（1〜100）を入力してください');return;}
+  const exist=new Set(bulkRows.filter(r=>!r.del).map(r=>(r.name||'').trim()));
+  let added=0,skipped=0;
+  for(let i=0;i<n;i++){const nm=pre+(st+i)+suf;if(exist.has(nm)){skipped++;continue;}exist.add(nm);bulkRows.push(newBulkRow(nm));added++;}
+  document.getElementById('lbk-preview').textContent=added+'件を追加しました'+(skipped?'（同じ名前の '+skipped+'件はスキップ）':'');
+  renderBulk();
+};
+window.applyAllBulk=function(){
+  const v={opStatus:document.getElementById('lbk-all-status').value,size:document.getElementById('lbk-all-size').value.trim(),capacity:document.getElementById('lbk-all-cap').value.trim(),use:document.getElementById('lbk-all-use').value.trim()};
+  if(bkScopeUnit())v.licType=document.getElementById('lbk-all-lic').value;
+  const keys=Object.keys(v).filter(k=>v[k]);
+  if(!keys.length){alert('反映する項目を入力してください');return;}
+  bulkRows.forEach(r=>{if(!r.del)keys.forEach(k=>{r[k]=v[k];});});
+  renderBulk();
+};
+window.bkSet=function(i,k,v){if(bulkRows[i])bulkRows[i][k]=v;};
+window.bkDel=function(i){
+  const r=bulkRows[i];if(!r)return;
+  if(!r.id)bulkRows.splice(i,1);else r.del=!r.del;
+  renderBulk();
+};
+function renderBulk(){
+  const su=bkScopeUnit();
+  const head='<tr><th>#</th><th>区画名 *</th><th>営業状況</th><th>面積</th><th>定員</th><th>間取り・タイプ</th>'+(su?'<th>免許種別</th><th>許可・届出番号</th><th>期限</th>':'')+'<th></th></tr>';
+  const body=bulkRows.map((r,i)=>{
+    const I=(k,t,w,ph)=>'<input type="'+t+'" value="'+esc(r[k])+'"'+(ph?' placeholder="'+ph+'"':'')+' style="width:'+w+'" oninput="bkSet('+i+',\''+k+'\',this.value)"/>';
+    const S=(k,arr,empty)=>'<select style="width:100%" onchange="bkSet('+i+',\''+k+'\',this.value)">'+(empty?'<option value="">'+empty+'</option>':'')+arr.map(x=>'<option'+(r[k]===x?' selected':'')+'>'+x+'</option>').join('')+'</select>';
+    return '<tr class="'+(r.del?'bk-del':'')+'"><td style="white-space:nowrap;">'+(i+1)+(r.id?'':' <span class="lic-chip">新規</span>')+'</td>'+
+      '<td>'+I('name','text','130px','例：101号室')+'</td>'+
+      '<td style="width:100px;">'+S('opStatus',OPS)+'</td>'+
+      '<td>'+I('size','text','90px')+'</td>'+
+      '<td>'+I('capacity','number','60px')+'</td>'+
+      '<td>'+I('use','text','110px')+'</td>'+
+      (su?'<td style="min-width:170px;">'+S('licType',LIC,'未設定')+'</td><td>'+I('licNo','text','120px')+'</td><td>'+I('licExp','date','130px')+'</td>':'')+
+      '<td style="white-space:nowrap;"><button type="button" class="btn btn-sm '+(r.del?'':'btn-red')+'" onclick="bkDel('+i+')">'+(r.id?(r.del?'取消':'削除'):'行を消す')+'</button></td></tr>';
+  }).join('');
+  document.getElementById('lbk-table').innerHTML='<table class="bk-table">'+head+(body||'<tr><td colspan="10" style="text-align:center;color:#aaa;padding:16px;">区分がありません。上の「連番でまとめて追加」か「＋ 1行追加」で追加してください。</td></tr>')+'</table>';
+}
+window.saveLBulk=async function(){
+  const b=lblds.find(x=>x.id===bulkBld);if(!b)return;
+  for(const r of bulkRows){if(!r.del&&r.id&&!(r.name||'').trim()){alert('区画名が空の既存行があります。名前を入れるか、削除してください');return;}}
+  const dels=bulkRows.filter(r=>r.del&&r.id);
+  if(dels.length&&!confirm(dels.length+'件の区分を削除します。元に戻せません。よろしいですか？'))return;
+  const batch=writeBatch(db);let n=0,add=0,upd=0;
+  bulkRows.forEach(r=>{
+    if(r.id){
+      if(r.del){batch.delete(doc(db,'managed_units',r.id));n++;return;}
+      const f={};
+      BK.forEach(k=>{const nv=(r[k]||'').trim(),ov=(r.orig[k]||'').trim();if(nv!==ov)f[k]=nv;});
+      if(Object.keys(f).length){f.updatedAt=serverTimestamp();batch.update(doc(db,'managed_units',r.id),f);n++;upd++;}
+    }else{
+      const nm=(r.name||'').trim();if(!nm)return;
+      const o={biz:'lodging',bldId:bulkBld,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+      BK.forEach(k=>{o[k]=(r[k]||'').trim();});
+      if(!o.opStatus)o.opStatus='営業中';
+      batch.set(doc(collection(db,'managed_units')),o);n++;add++;
+    }
+  });
+  if(!n){closeLBulk();return;}
+  if(n>450){alert('一度に保存できるのは450件までです。分けて保存してください');return;}
+  showLoading(true);
+  try{await batch.commit();openL.add(bulkBld);closeLBulk();}
+  catch(e){alert('保存失敗: '+e.message);console.error(e);}
+  showLoading(false);
+};
 
 function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
 </script>
