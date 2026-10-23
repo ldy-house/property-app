@@ -193,6 +193,14 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .bk-table input:focus,.bk-table select:focus{border-color:var(--navy);}
 .bk-table tr.bk-del td{background:#FFF0F0;}
 .bk-table tr.bk-del input,.bk-table tr.bk-del select{text-decoration:line-through;opacity:.5;}
+.bld-chip.co-LDY{background:#fff;color:var(--navy);}
+.bld-chip.co-MK{background:#26A69A;color:#fff;}
+.co-btn{font-size:11px;font-weight:700;padding:4px 12px;border:1.5px solid #ccc;background:#fff;color:#777;border-radius:14px;cursor:pointer;font-family:inherit;}
+.co-btn:hover{border-color:var(--navy);color:var(--navy);}
+.co-btn.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.co-badge{font-size:11px;font-weight:700;padding:3px 12px;border-radius:12px;}
+.co-badge.co-LDY{background:var(--navy);color:#fff;}
+.co-badge.co-MK{background:#26A69A;color:#fff;}
 </style>
 </head>
 <body>
@@ -228,7 +236,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html">在庫管理</a><a href="opsadmin.html" class="on">管理委託</a><a href="attend.html">勤怠管理</a></nav><span class="role-badge" id="role-badge"></span></div>
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
-  <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button></div>
+  <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button><div id="co-filter" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 0;flex-wrap:wrap;"></div></div>
   <div id="view-rent">
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="s-bld">0</div><div class="stat-label">管理棟数</div></div>
@@ -310,6 +318,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">建物情報</div>
         <div class="fr"><label>管理形態</label><select id="b-mgmt" onchange="toggleMgmt('b')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
+        <div class="fr"><label>管理会社</label><select id="b-company"></select></div>
         <div class="fr"><label>ビル名 *</label><input id="b-name" placeholder="例：太平1丁目ビル"/></div>
         <div class="fr"><label>所在地</label><input id="b-addr" placeholder="例：江東区扇橋3丁目1-4"/></div>
         <div class="fg">
@@ -628,6 +637,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">施設情報</div>
         <div class="fr"><label>管理形態</label><select id="lb-mgmt" onchange="toggleMgmt('lb')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
+        <div class="fr"><label>管理会社</label><select id="lb-company"></select></div>
         <div class="fr"><label>施設名 *</label><input id="lb-name" placeholder="例：浅草ゲストハウス"/></div>
         <div class="fr"><label>所在地</label><input id="lb-addr" placeholder="例：台東区浅草1丁目1-1"/></div>
         <div class="fg">
@@ -850,11 +860,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,getDoc,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,getDoc,serverTimestamp,writeBatch,query,where}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
 const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
 let blds=[],units=[],lblds=[],lunits=[],properties=[],currentRole='staff';
+let rb=[],ru=[],allowedCo=['LDY','MK'],coSel='all',unsubs=[];
 let editBldId=null,editUnitId=null,unitParentBldId=null;
 let openBlds=new Set();
 
@@ -865,6 +876,8 @@ onAuthStateChanged(auth,async user=>{
       const rd=await getDoc(doc(db,'user_roles',user.email));
       currentRole=rd.exists()?(rd.data().role||'staff'):'staff';
       kanriAccess=rd.exists()?(rd.data().kanriAccess===true):false;
+      allowedCo=normCo(rd.exists()?rd.data().kanriCompanies:undefined);coSel='all';
+      if(!allowedCo.length)kanriAccess=false;
     }catch(e){currentRole='staff';kanriAccess=false;}
     document.getElementById('login-screen').style.display='none';
     document.getElementById('user-email').textContent=user.email;
@@ -878,8 +891,8 @@ onAuthStateChanged(auth,async user=>{
     const badge=document.getElementById('role-badge');
     if(currentRole==='admin'){badge.textContent='管理者';badge.className='role-badge role-admin';document.body.classList.remove('is-staff');}
     else{badge.textContent='スタッフ';badge.className='role-badge role-staff';document.body.classList.add('is-staff');}
-    setTimeout(()=>startSync(),0);
-  }else{document.getElementById('login-screen').style.display='flex';document.getElementById('main-app').style.display='none';document.getElementById('no-access-screen').style.display='none';}
+    setTimeout(()=>{renderCoFilter();startSync();},0);
+  }else{stopSync();document.getElementById('login-screen').style.display='flex';document.getElementById('main-app').style.display='none';document.getElementById('no-access-screen').style.display='none';}
 });
 
 window.doLogin=async function(){
@@ -892,16 +905,60 @@ window.doLogin=async function(){
 window.doLogout=async function(){await signOut(auth);};
 document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin();});
 
+// ===== 管理会社（LDY / MK）と閲覧権限 =====
+// user_roles/{メール} の kanriCompanies: ['LDY'] / ['MK'] / ['LDY','MK']（未設定の既存ユーザーは両方扱い）
+const normCo=v=>{if(v===undefined||v===null)return['LDY','MK'];if(!Array.isArray(v))return[];return['LDY','MK'].filter(c=>v.includes(c));};
+const coOf=o=>(o&&o.company)||'LDY';
+const defaultCo=()=>(coSel!=='all'&&allowedCo.includes(coSel))?coSel:(allowedCo.includes('LDY')?'LDY':allowedCo[0]);
+const bldCo=id=>{const b=rb.find(x=>x.id===id);return b?coOf(b):defaultCo();};
+function applyCo(){
+  const bc={};rb.forEach(b=>{bc[b.id]=coOf(b);});
+  const ok=c=>allowedCo.includes(c)&&(coSel==='all'||coSel===c);
+  blds=rb.filter(b=>b.biz!=='lodging'&&ok(coOf(b)));
+  lblds=rb.filter(b=>b.biz==='lodging'&&ok(coOf(b)));
+  units=ru.filter(u=>u.biz!=='lodging'&&ok(bc[u.bldId]||coOf(u)));
+  lunits=ru.filter(u=>u.biz==='lodging'&&ok(bc[u.bldId]||coOf(u)));
+}
+function renderCoFilter(){
+  const el=document.getElementById('co-filter');if(!el)return;
+  if(allowedCo.length<2){el.innerHTML=allowedCo.length?'<span class="co-badge co-'+allowedCo[0]+'">'+allowedCo[0]+' のみ表示</span>':'';return;}
+  const btn=(v,l)=>'<button class="co-btn'+(coSel===v?' on':'')+'" onclick="setCo(\''+v+'\')">'+l+'</button>';
+  const legacy=rb.filter(b=>!b.company).length+ru.filter(u=>!u.company).length;
+  el.innerHTML='<span style="font-size:10px;color:var(--sub);">管理会社：</span>'+btn('all','すべて')+btn('LDY','LDY')+btn('MK','MK')+(legacy?'<button class="co-btn" style="border-style:dashed;" onclick="migrateCompany()">会社が未設定の '+legacy+'件をLDYに設定</button>':'');
+}
+window.setCo=function(v){coSel=v;applyCo();renderCoFilter();render();};
+function fillCo(id,val){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=allowedCo.map(c=>'<option>'+c+'</option>').join('');
+  el.value=(val&&allowedCo.includes(val))?val:defaultCo();
+  el.disabled=allowedCo.length<2;
+}
+async function syncUnitCo(bldId,co){
+  const us=ru.filter(u=>u.bldId===bldId&&u.company!==co);
+  for(let i=0;i<us.length;i+=400){const batch=writeBatch(db);us.slice(i,i+400).forEach(u=>batch.update(doc(db,'managed_units',u.id),{company:co}));await batch.commit();}
+}
+window.migrateCompany=async function(){
+  const bs=rb.filter(b=>!b.company),us=ru.filter(u=>!u.company);
+  if(!bs.length&&!us.length)return;
+  if(!confirm('会社が未設定の建物 '+bs.length+'件・区分 '+us.length+'件を「LDY」に設定します。\n（あとから建物ごとに変更できます）\nよろしいですか？'))return;
+  showLoading(true);
+  try{
+    const bco={};rb.forEach(b=>{bco[b.id]=b.company||'LDY';});
+    const ops=[...bs.map(b=>['managed_buildings',b.id,'LDY']),...us.map(u=>['managed_units',u.id,bco[u.bldId]||'LDY'])];
+    for(let i=0;i<ops.length;i+=400){const batch=writeBatch(db);ops.slice(i,i+400).forEach(([c,id,co])=>batch.update(doc(db,c,id),{company:co}));await batch.commit();}
+  }catch(e){alert('失敗: '+e.message);console.error(e);}
+  showLoading(false);
+};
+function stopSync(){unsubs.forEach(f=>{try{f();}catch(e){}});unsubs=[];rb=[];ru=[];properties=[];applyCo();}
 function startSync(){
-  onSnapshot(collection(db,'managed_buildings'),snap=>{
-    const all=snap.docs.map(d=>({id:d.id,...d.data()}));blds=all.filter(b=>b.biz!=='lodging');lblds=all.filter(b=>b.biz==='lodging');render();
-  });
-  onSnapshot(collection(db,'managed_units'),snap=>{
-    const all=snap.docs.map(d=>({id:d.id,...d.data()}));units=all.filter(u=>u.biz!=='lodging');lunits=all.filter(u=>u.biz==='lodging');render();
-  });
-  onSnapshot(collection(db,'properties'),snap=>{
-    properties=snap.docs.map(d=>({id:d.id,...d.data()}));render();
-  });
+  stopSync();
+  // 1社だけの権限の人は、その会社のデータだけを問い合わせる（ルール側でも同じ条件で制限できる）
+  const q=c=>allowedCo.length>=2?collection(db,c):query(collection(db,c),where('company','==',allowedCo[0]));
+  const onErr=e=>{console.error(e);};
+  unsubs.push(onSnapshot(q('managed_buildings'),snap=>{rb=snap.docs.map(d=>({id:d.id,...d.data()}));applyCo();renderCoFilter();render();},onErr));
+  unsubs.push(onSnapshot(q('managed_units'),snap=>{ru=snap.docs.map(d=>({id:d.id,...d.data()}));applyCo();render();},onErr));
+  // 在庫物件は LDY の権限がある人だけ読み込む
+  if(allowedCo.includes('LDY'))unsubs.push(onSnapshot(collection(db,'properties'),snap=>{properties=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
 }
 
 function yen(v){return(v||v===0)?'¥'+Number(v).toLocaleString():'—';}
@@ -1218,7 +1275,7 @@ window.openBldModal=function(id=null){
   const setV=(e,v)=>{const el=document.getElementById(e);if(el)el.value=(v===0?'0':(v||''));};
   ['b-name','b-addr','b-struct','b-built','b-owner','b-owner-kana','b-owner-tel','b-owner-contact','b-owner-contact-tel','b-owner-mail','b-owner-addr','b-owner-bank',
    'b-start','b-end','b-fee','b-scope','b-notice','b-remit','b-invoice-freq','b-invoice-due','b-memo'].forEach(x=>setV(x,''));
-  setV('b-fee-tax','');setV('b-auto-renew','');setV('b-owner-type','個人');setV('b-cashflow','');setV('b-mgmt','consign');toggleMgmt('b');
+  setV('b-fee-tax','');setV('b-auto-renew','');setV('b-owner-type','個人');setV('b-cashflow','');setV('b-mgmt','consign');toggleMgmt('b');fillCo('b-company','');
   document.getElementById('b-days-display').innerHTML='';
   toggleOwnerType();toggleCashflow();renderEquipBlocks();renderBldImgList();
   renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');
@@ -1232,7 +1289,7 @@ window.openBldModal=function(id=null){
     setV('b-start',b.start);setV('b-end',b.end);setV('b-fee',b.fee);setV('b-fee-tax',b.feeTax);
     setV('b-scope',b.scope);setV('b-auto-renew',b.autoRenew);setV('b-notice',b.notice);
     setV('b-cashflow',b.cashflow);setV('b-remit',b.remit);setV('b-invoice-freq',b.invoiceFreq);setV('b-invoice-due',b.invoiceDue);
-    setV('b-memo',b.memo);setV('b-mgmt',b.mgmtType||'consign');toggleMgmt('b');
+    setV('b-memo',b.memo);setV('b-mgmt',b.mgmtType||'consign');toggleMgmt('b');fillCo('b-company',coOf(b));
     equipBlocks=b.equip?JSON.parse(JSON.stringify(b.equip)):[];
     feePayments=b.feePayments?JSON.parse(JSON.stringify(b.feePayments)):{};
     currentBldPhotos=b.photos?JSON.parse(JSON.stringify(b.photos)):[];
@@ -1370,13 +1427,13 @@ window.saveBld=async function(){if(editBldId&&verOf(blds.find(x=>x.id===editBldI
     invoiceFreq:g('b-invoice-freq'),invoiceDue:g('b-invoice-due'),
     equip:equipBlocks.filter(e=>e.name),
     repairs:repairBlocks.filter(r=>r.date||r.content||r.place).map(r=>({...r,cost:(r.cost===''||r.cost==null)?null:Number(r.cost)})),
-    utilities:getUtil('b'),renewals:cleanRenewals('b'),mgmtType:document.getElementById('b-mgmt').value,linkedLodgingId:document.getElementById('b-linked-lodging').value||null,
+    utilities:getUtil('b'),renewals:cleanRenewals('b'),company:document.getElementById('b-company').value,mgmtType:document.getElementById('b-mgmt').value,linkedLodgingId:document.getElementById('b-linked-lodging').value||null,
     photos:currentBldPhotos,
     linkedPropertyId:document.getElementById('b-linked-property').value||null,
     feePayments,
     memo:g('b-memo'),updatedAt:serverTimestamp()};
   try{
-    if(editBldId){await updateDoc(doc(db,'managed_buildings',editBldId),obj);}
+    if(editBldId){await updateDoc(doc(db,'managed_buildings',editBldId),obj);await syncUnitCo(editBldId,obj.company);}
     else{obj.createdAt=serverTimestamp();const ref=await addDoc(collection(db,'managed_buildings'),obj);openBlds.add(ref.id);}
     closeBldModal();
   }catch(e){alert('保存失敗: '+e.message);console.error(e);}
@@ -1491,7 +1548,7 @@ window.saveUnit=async function(){if(editUnitId&&verOf(units.find(x=>x.id===editU
   showLoading(true);
   const g=id=>document.getElementById(id).value.trim();
   const n=id=>{const v=document.getElementById(id).value;return v===''?null:parseInt(v);};
-  const obj={bldId:unitParentBldId,name,size:g('u-size'),use1:g('u-use1'),use2:g('u-use2'),
+  const obj={bldId:unitParentBldId,company:bldCo(unitParentBldId),name,size:g('u-size'),use1:g('u-use1'),use2:g('u-use2'),
     tenantType:document.getElementById('u-tenant-type').value,
     tenant:g('u-tenant'),tenantKana:g('u-tenant-kana'),nationality:g('u-nationality'),tenantTel:g('u-tenant-tel'),
     tenantContact:g('u-tenant-contact'),tenantContactTel:g('u-tenant-contact-tel'),
@@ -1574,7 +1631,7 @@ window.render=function(){
     const activeN=us.filter(u=>u.status==='契約中'||u.status==='解約予告中').length;
     const bmemos=(b.memo||'').split('\n').filter(Boolean);
     const bPhotos=b.photos&&b.photos.length?b.photos:[];
-    const bPhotosJson=JSON.stringify(bPhotos).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+    const bPhotosJson='phReg['+(window.phReg.push(bPhotos)-1)+']';
     const linkedProp=b.linkedPropertyId?properties.find(p=>p.id===b.linkedPropertyId):null;
     return '<div class="bld'+(isOpen?' open':'')+'" id="bld-'+b.id+'">'+
       '<div class="bld-head" onclick="toggleBld(\''+b.id+'\')">'+
@@ -1934,7 +1991,7 @@ window.onLBLinkProp=function(){updateLBLinkHint();const p=properties.find(x=>x.i
 const lodgeOfRent=b=>lblds.find(l=>l.linkedRentId===b.id)||lblds.find(l=>l.id===b.linkedLodgingId)||null;
 const rentOfLodge=l=>blds.find(r=>r.id===l.linkedRentId)||blds.find(r=>r.linkedLodgingId===l.id)||null;
 function mgmtChips(b,kind){
-  let h='';
+  const co=coOf(b);let h=' <span class="bld-chip co-'+co+'" style="font-size:9px;">'+co+'</span>';
   const st='background:rgba(255,255,255,0.2);font-size:9px;cursor:pointer;';
   if(b.mgmtType==='own')h+=' <span class="bld-chip" style="background:var(--gold);color:var(--navy-dark);font-size:9px;">自社管理</span>';
   if(kind==='rent'){const l=lodgeOfRent(b);if(l)h+=' <span class="bld-chip" style="'+st+'" onclick="event.stopPropagation();jumpTo(\'lodge\',\''+l.id+'\')">旅館業・民泊あり ›</span>';}
@@ -1967,6 +2024,7 @@ window.openLBModal=function(id=null){
   editLBId=id;lPhotos=[];lFeePay={};lFeeYear=new Date().getFullYear();repairsL.lb=[];renewals.lb=[];logsL.lbh=[];logsL.lbc=[];utilState.lb=newUtil();
   document.getElementById('lb-modal-title').textContent=id?'施設を編集':'施設を追加';
   LBF.forEach(([i,k])=>setVal(i,b?b[k]:''));
+  fillCo('lb-company',b?coOf(b):'');
   [['lb-owner-type','個人'],['lb-mgmt','consign'],['lb-lic-scope','unit']].forEach(([i,v])=>{if(!document.getElementById(i).value)setVal(i,v);});
   if(b){
     lPhotos=JSON.parse(JSON.stringify(b.photos||[]));
@@ -1991,12 +2049,13 @@ window.saveLB=async function(){
   const obj={biz:'lodging'};
   LBF.forEach(([i,k])=>{obj[k]=document.getElementById(i).value.trim();});
   obj.linkedRentId=document.getElementById('lb-linked-rent').value||null;
+  obj.company=document.getElementById('lb-company').value;
   obj.linkedPropertyId=document.getElementById('lb-linked-property').value||null;
   obj.renewals=cleanRenewals('lb');obj.repairs=cleanRepairsL('lb');obj.utilities=getUtil('lb');
   obj.hcLog=logsL.lbh.filter(c=>c.date||c.method||c.who||c.content);obj.cleanLog=logsL.lbc.filter(c=>c.date||c.method||c.content);
   obj.photos=lPhotos;obj.feePayments=lFeePay;obj.updatedAt=serverTimestamp();
   try{
-    if(editLBId){await updateDoc(doc(db,'managed_buildings',editLBId),obj);}
+    if(editLBId){await updateDoc(doc(db,'managed_buildings',editLBId),obj);await syncUnitCo(editLBId,obj.company);}
     else{obj.createdAt=serverTimestamp();const ref=await addDoc(collection(db,'managed_buildings'),obj);openL.add(ref.id);}
     closeLBModal();
   }catch(e){alert('保存失敗: '+e.message);console.error(e);}
@@ -2042,7 +2101,7 @@ window.saveLU=async function(){
   if(!name){alert('区画名は必須です');return;}
   if(!luParent){alert('対象の施設が不明です');return;}
   showLoading(true);
-  const obj={biz:'lodging',bldId:luParent};
+  const obj={biz:'lodging',bldId:luParent,company:bldCo(luParent)};
   LUF.forEach(([i,k])=>{obj[k]=document.getElementById(i).value.trim();});
   obj.hcLog=logsL.luh.filter(c=>c.date||c.method||c.who||c.content);
   obj.repairs=cleanRepairsL('lu');obj.utilities=getUtil('lu');
@@ -2088,7 +2147,7 @@ function renderLodge(){
     const us=uOf(b.id),isOpen=openL.has(b.id),own=b.mgmtType==='own';
     const openN=us.filter(u=>u.opStatus==='営業中').length;
     const ph=b.photos&&b.photos.length?b.photos:[];
-    const phJson=JSON.stringify(ph).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+    const phJson='phReg['+(window.phReg.push(ph)-1)+']';
     const memos=(b.memo||'').split('\n').filter(Boolean);
     const lp=b.linkedPropertyId?properties.find(p=>p.id===b.linkedPropertyId):null;
     const bScope=b.licScope==='building';
@@ -2267,7 +2326,7 @@ window.saveLBulk=async function(){
       if(Object.keys(f).length){f.updatedAt=serverTimestamp();batch.update(doc(db,'managed_units',r.id),f);n++;upd++;}
     }else{
       const nm=(r.name||'').trim();if(!nm)return;
-      const o={biz:'lodging',bldId:bulkBld,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+      const o={biz:'lodging',bldId:bulkBld,company:bldCo(bulkBld),createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
       BK.forEach(k=>{o[k]=(r[k]||'').trim();});
       if(!o.opStatus)o.opStatus='営業中';
       batch.set(doc(collection(db,'managed_units')),o);n++;add++;
