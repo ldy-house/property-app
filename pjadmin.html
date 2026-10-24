@@ -31,6 +31,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .hdr-user{font-size:11px;color:rgba(255,255,255,0.65);}
 .btn-logout{font-size:11px;padding:4px 10px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);border-radius:3px;cursor:pointer;}
 .main{max-width:1060px;margin:0 auto;padding:24px 20px;}
+.main.wide{max-width:1240px;}
 .page-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:6px;}
 .page-sub{font-size:12px;color:var(--sub);margin-bottom:20px;line-height:1.8;}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
@@ -46,7 +47,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .pdesc{font-size:12px;color:var(--sub);line-height:1.8;margin-bottom:8px;}
 .pnow{display:inline-block;font-size:10px;font-weight:700;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);padding:3px 10px;border-radius:3px;margin-right:6px;}
 .pmeta{font-size:11px;color:var(--sub);margin-top:8px;}
-.pcard-actions{padding:10px 16px;border-top:1px solid #eee;background:#fafafa;display:flex;justify-content:flex-end;}
+.pcard-actions{padding:10px 16px;border-top:1px solid #eee;background:#fafafa;display:flex;justify-content:flex-end;gap:8px;}
 .btn{font-size:12px;padding:7px 18px;border-radius:4px;border:1px solid #ccc;background:#fff;color:var(--text);cursor:pointer;white-space:nowrap;font-family:inherit;}
 .btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);border:none;font-weight:700;}
 .btn-navy{background:var(--navy);color:#fff;border:none;font-weight:600;}
@@ -102,7 +103,55 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .lb .c{top:14px;right:16px;}.lb .p{left:14px;top:50%;}.lb .nx{right:14px;top:50%;}
 .lb span{color:rgba(255,255,255,.75);margin-top:12px;font-size:12px;}
 .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--navy-dark);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:700;z-index:11000;display:none;box-shadow:0 4px 16px rgba(0,0,0,.3);}
-@media(max-width:600px){.hdr-user{display:none;}.hdr-nav a{padding:0 10px;}.fg,.step-head{grid-template-columns:1fr;}}
+/* ===== タブ・決定事項 ===== */
+.tabs{display:flex;gap:4px;padding:0 20px;background:#fff;border-bottom:2px solid var(--gold);position:sticky;top:52px;z-index:90;}
+.tabb{background:none;border:0;border-bottom:3px solid transparent;padding:12px 18px;font-size:12.5px;font-weight:700;color:#777;cursor:pointer;font-family:inherit;margin-bottom:-2px;}
+.tabb:hover{color:var(--navy);}
+.tabb.on{color:var(--navy);border-bottom-color:var(--gold);}
+.dec-projs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.dp{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:var(--navy);text-align:left;line-height:1.5;}
+.dp span{display:block;font-size:9px;color:var(--gold);letter-spacing:2px;}
+.dp em{display:block;font-style:normal;font-size:10px;color:var(--sub);font-weight:400;}
+.dp:hover{border-color:var(--navy);}
+.dp.on{border-color:var(--navy);background:#EEF2FF;}
+.dec-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px;}
+.dsum{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center;cursor:pointer;font-family:inherit;}
+.dsum b{display:block;font-size:20px;color:var(--navy);}
+.dsum small{font-size:10px;color:var(--sub);}
+.dsum:hover{border-color:var(--navy);}
+.dsum.on{border-color:var(--navy);background:#EEF2FF;}
+.dec-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.dbox{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.dbox h4{font-size:11px;font-weight:700;color:var(--navy);letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--gold);}
+.dbox.warn{background:#FFF8E8;border-color:#F0D9A0;}
+.drow{padding:6px 0;border-bottom:1px dashed #e5e5e5;font-size:12px;line-height:1.6;cursor:pointer;}
+.drow:last-child{border-bottom:none;}
+.drow:hover{background:rgba(27,42,107,0.04);}
+.drow small{color:var(--sub);}
+.dec-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.dec-bar select,.dec-bar input{font-size:12px;padding:7px 10px;border:1px solid #ccc;border-radius:4px;background:#fff;outline:none;font-family:inherit;}
+.dec-bar input{min-width:200px;}
+.dec-wrap{overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:8px;}
+.dec-table{width:100%;border-collapse:collapse;min-width:900px;}
+.dec-table th{background:#EEF1F8;color:var(--navy);font-size:10px;font-weight:700;text-align:left;padding:8px 10px;border-bottom:2px solid var(--gold);white-space:nowrap;}
+.dec-table td{padding:9px 10px;border-bottom:1px solid #eee;vertical-align:top;font-size:12px;line-height:1.6;}
+.dec-table tr.item{cursor:pointer;}
+.dec-table tr.item:hover td{background:#F5F7FF;}
+.dec-table tr.catrow td{background:#F8F9FC;color:var(--navy);font-weight:700;font-size:11px;letter-spacing:1px;padding:6px 10px;}
+.dchip{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:12px;color:#fff;white-space:nowrap;}
+.d-confirming{background:#E65100;}.d-decided{background:#2E7D32;}.d-review{background:#6A1B9A;}.d-hold{background:#888;}.d-done{background:#1B2A6B;}
+.dchg{display:inline-block;font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:#EDE7F6;color:#4527A0;margin-left:4px;white-space:nowrap;}
+.dsub{color:var(--sub);font-size:11px;}
+.dissue{color:#B35A00;}
+.hrow{padding:7px 0;border-bottom:1px dashed #ddd;font-size:12px;line-height:1.6;}
+.hrow:last-child{border-bottom:none;}
+.hrow b{display:inline-block;min-width:44px;color:var(--navy);}
+.hrow small{display:block;color:var(--sub);font-size:10px;}
+.stdcat{margin-bottom:12px;}
+.stdcat h5{font-size:11px;color:var(--navy);margin-bottom:4px;}
+.stdcat label{display:inline-flex;align-items:center;gap:5px;font-size:12px;margin:3px 14px 3px 0;cursor:pointer;}
+@media(max-width:700px){.dec-cols{grid-template-columns:1fr;}}
+@media(max-width:600px){.hdr-user{display:none;}.hdr-nav a{padding:0 10px;}.fg,.step-head{grid-template-columns:1fr;}.tabs{padding:0 10px;}}
 </style>
 </head>
 <body>
@@ -142,14 +191,39 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <button class="btn-logout" onclick="doLogout()">ログアウト</button>
     </div>
   </div>
-  <div class="main">
+  <div class="tabs">
+    <button class="tabb on" id="tab-progress" onclick="switchTab('progress')">開発進捗</button>
+    <button class="tabb" id="tab-dec" onclick="switchTab('dec')">決定事項</button>
+  </div>
+
+  <!-- 開発進捗（従来どおり） -->
+  <div class="main" id="view-progress">
     <div class="page-title">開発プロジェクト管理</div>
     <div class="page-sub">編集したいプロジェクトの「編集」を押すと、そのプロジェクトの編集画面が開きます。写真の追加や並べ替え、工程の更新をして、「保存する」を押すとお客様向けページに反映されます。</div>
     <div class="card-grid" id="proj-grid"><div style="padding:3rem;color:var(--sub);">読み込み中...</div></div>
   </div>
+
+  <!-- 決定事項 -->
+  <div class="main wide" id="view-dec" style="display:none;">
+    <div class="page-title">開発の決定事項</div>
+    <div class="page-sub">設備・床・色など、決めたことと確認中のことを、プロジェクトごとに管理します。決定内容を変えて保存すると、変更前→変更後が履歴に残ります。この内容はお客様向けページには表示されません。</div>
+    <div class="dec-projs" id="dec-projs"></div>
+    <div class="dec-sum" id="dec-sum"></div>
+    <div class="dec-cols">
+      <div class="dbox warn"><h4>確認中・要対応の事項</h4><div id="dec-open"></div></div>
+      <div class="dbox"><h4>最近の変更</h4><div id="dec-recent"></div></div>
+    </div>
+    <div class="dec-bar">
+      <select id="dec-cat" onchange="decFilterChange()"></select>
+      <input type="text" id="dec-q" placeholder="項目・決定内容・業者で検索..." oninput="decFilterChange()"/>
+      <button class="btn btn-gold" style="margin-left:auto;" onclick="openDec()">＋ 項目を追加</button>
+      <button class="btn btn-navy" onclick="openStd()">標準項目をまとめて追加</button>
+    </div>
+    <div class="dec-wrap" id="dec-list"></div>
+  </div>
 </div>
 
-<!-- 編集画面 -->
+<!-- 編集画面（開発進捗） -->
 <div class="modal-bg" id="modal">
   <div class="modal">
     <div class="modal-head"><div><h3 id="modal-title">プロジェクトを編集</h3><div class="modal-sub" id="modal-sub"></div></div><button class="modal-close" onclick="closeEdit()">✕</button></div>
@@ -162,9 +236,73 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
   </div>
 </div>
 
+<!-- 決定事項：項目の編集 -->
+<div class="modal-bg" id="dmodal">
+  <div class="modal">
+    <div class="modal-head"><div><h3 id="dm-head">決定事項を追加</h3><div class="modal-sub" id="dm-sub"></div></div><button class="modal-close" onclick="closeDec()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs"><div class="fs-title">項目</div>
+        <div class="fg">
+          <div class="fr"><label>分類</label><select id="dm-cat"></select></div>
+          <div class="fr"><label>項目名 *</label><input id="dm-title" placeholder="例：キッチン／床材／外壁の色"/></div>
+        </div>
+        <div class="fg">
+          <div class="fr"><label>状態</label><select id="dm-state"></select></div>
+          <div class="fr"><label>進捗（手配・施工）</label><select id="dm-progress"></select></div>
+        </div>
+      </div>
+      <div class="fs"><div class="fs-title">最新の決定内容</div>
+        <div class="fr"><label>決定内容</label><textarea id="dm-decision" placeholder="例：LIXIL リシェント W2550"></textarea></div>
+        <div class="fg">
+          <div class="fr"><label>型番・シリーズ・色</label><input id="dm-spec" placeholder="例：品番○○／ホワイト"/></div>
+          <div class="fr"><label>メーカー・業者</label><input id="dm-maker"/></div>
+        </div>
+        <div class="fg">
+          <div class="fr"><label>金額（円）</label><input id="dm-cost" type="number"/></div>
+          <div class="fr"><label>担当者</label><input id="dm-assignee"/></div>
+        </div>
+        <div class="fr"><label>期限</label><input id="dm-due" type="date"/></div>
+      </div>
+      <div class="fs"><div class="fs-title">確認中の事項</div>
+        <div class="fr"><textarea id="dm-issues" placeholder="例：施主にサンプルを確認中／在庫・納期を業者に確認中"></textarea></div>
+      </div>
+      <div class="fs"><div class="fs-title">変更理由・メモ（履歴に残ります）</div>
+        <div class="fr"><input id="dm-reason" placeholder="例：施主の要望で変更／廃番のため"/></div>
+        <div class="hint">決定内容・型番・状態・進捗・確認中の事項を変えて保存すると、変更前→変更後が自動で履歴に残ります。</div>
+      </div>
+      <div class="fs" id="dm-hist-wrap"><div class="fs-title">履歴</div><div id="dm-hist"></div></div>
+      <div class="fs" id="dm-copy-wrap"><div class="fs-title">他のプロジェクトにコピー</div>
+        <div class="fg"><div class="fr"><select id="dm-copy-proj"></select></div><div class="fr"><button type="button" class="btn btn-navy" onclick="copyDec()">コピーして追加</button></div></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-s" id="dm-del" onclick="delDec()" style="margin-right:auto;">削除</button>
+      <button class="btn" onclick="closeDec()">キャンセル</button>
+      <button class="btn btn-gold" onclick="saveDec()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 決定事項：標準項目 -->
+<div class="modal-bg" id="smodal">
+  <div class="modal">
+    <div class="modal-head"><div><h3>標準項目をまとめて追加</h3><div class="modal-sub" id="std-sub"></div></div><button class="modal-close" onclick="closeStd()">✕</button></div>
+    <div class="modal-body">
+      <div class="hint" style="margin:0 0 12px;">追加したい項目にチェックを入れてください。追加した項目は「確認中」になります。同じ分類・同じ項目名がすでにある場合は追加しません。</div>
+      <div id="std-list"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-s" onclick="stdAll(true)">すべて選択</button>
+      <button class="btn btn-s" style="margin-right:auto;" onclick="stdAll(false)">すべて解除</button>
+      <button class="btn" onclick="closeStd()">キャンセル</button>
+      <button class="btn btn-gold" onclick="addStd()">選んだ項目を追加</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,collection,doc,setDoc,onSnapshot,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,doc,setDoc,addDoc,updateDoc,deleteDoc,writeBatch,onSnapshot,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
@@ -193,18 +331,27 @@ const showLoading=(v,t='処理中...')=>{$('loading').className='loading-overlay
 const toast=t=>{const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>{e.style.display='none';},2600);};
 
 let dbData={},draft=null,editId=null,baseJson='',openVer='',act=null,drag=null,lb={list:[],i:0};
+let decs=[],unsubs=[];
 
 // ---- ログイン ----
 onAuthStateChanged(auth,user=>{
   if(user){
     $('login-screen').style.display='none';$('main-app').style.display='block';$('user-email').textContent=user.email;
+    unsubs.forEach(f=>{try{f();}catch(e){}});unsubs=[];
     setTimeout(()=>{
-      onSnapshot(collection(db,'dev_projects'),snap=>{
+      unsubs.push(onSnapshot(collection(db,'dev_projects'),snap=>{
         dbData={};snap.docs.forEach(d=>{dbData[d.id]={id:d.id,...d.data()};});
-        renderGrid();
-      });
+        renderGrid();renderDec();
+      }));
+      unsubs.push(onSnapshot(collection(db,'dev_decisions'),snap=>{
+        decs=snap.docs.map(d=>({id:d.id,...d.data()}));
+        renderGrid();renderDec();
+      },err=>{console.error(err);$('dec-list').innerHTML='<div style="padding:20px;color:var(--red);">決定事項を読み込めませんでした（権限がない可能性があります）</div>';}));
     },0);
-  }else{$('login-screen').style.display='flex';$('main-app').style.display='none';}
+  }else{
+    unsubs.forEach(f=>{try{f();}catch(e){}});unsubs=[];dbData={};decs=[];
+    $('login-screen').style.display='flex';$('main-app').style.display='none';
+  }
 });
 window.doLogin=async function(){
   const email=$('login-email').value.trim(),pass=$('login-pass').value;
@@ -229,6 +376,7 @@ function merged(id){
 function renderGrid(){
   $('proj-grid').innerHTML=DEFAULTS.map(d=>{
     const p=merged(d.id),cur=p.steps.find(s=>s.status==='current'),n=p.steps.reduce((s,x)=>s+x.photos.length,0);
+    const di=decs.filter(x=>x.projectId===p.id),dc=di.filter(x=>x.state==='confirming'||x.state==='review').length;
     return `<div class="pcard">
       <div class="pcard-photo ${p.photo?'has':''}" ${p.photo?`onclick="openLBCard('${p.id}')"`:''}>
         ${p.photo?`<img src="${esc(ldyOpt(p.photo,700))}" alt=""/>`:'<div class="pcard-ph">外観写真なし</div>'}
@@ -240,8 +388,9 @@ function renderGrid(){
         <div class="pdesc">${esc(p.desc||'')}</div>
         ${cur?`<span class="pnow">現在：${esc(cur.text)}</span>`:''}
         <div class="pmeta">工程 ${p.steps.length}件／現場写真 ${n}枚／完成予定 ${esc(p.completion||'—')}</div>
+        <div class="pmeta">決定事項 ${di.length}件${dc?`（確認中・再検討中 ${dc}件）`:''}</div>
       </div>
-      <div class="pcard-actions"><button class="btn btn-navy" onclick="openEdit('${p.id}')">編集</button></div>
+      <div class="pcard-actions"><button class="btn" onclick="goDec('${p.id}')">決定事項</button><button class="btn btn-navy" onclick="openEdit('${p.id}')">編集</button></div>
     </div>`;
   }).join('');
 }
@@ -393,6 +542,211 @@ document.addEventListener('keydown',e=>{
   if(!$('lb').classList.contains('open'))return;
   if(e.key==='ArrowLeft')lbMove(-1);if(e.key==='ArrowRight')lbMove(1);if(e.key==='Escape')closeLB();
 });
+
+// =====================================================================
+// 決定事項（お客様向けページには出さない。専用コレクション dev_decisions に保存）
+// =====================================================================
+const CATS=['設備','床・内装','壁・天井','外壁・屋根','建具・サッシ','照明・電気','水回り','外構','色・デザイン','契約・申請','その他'];
+const DST={confirming:'確認中',decided:'決定',review:'再検討中',hold:'保留',done:'施工・完了'};
+const DPR=['未手配','見積・手配中','発注済','納品済','施工済'];
+const STD={
+  '設備':['キッチン','ユニットバス','トイレ','洗面化粧台','給湯器','エアコン','インターホン','換気設備'],
+  '床・内装':['床材（シリーズ・色）','壁クロス','天井','巾木・廻り縁','収納'],
+  '外壁・屋根':['外壁材','屋根材','防水'],
+  '建具・サッシ':['サッシ','玄関ドア','室内ドア'],
+  '照明・電気':['照明器具','スイッチ・コンセント'],
+  '外構':['駐車場・舗装','フェンス・門扉','植栽','ポスト・宅配ボックス'],
+  '色・デザイン':['外観の色','内装のアクセントカラー'],
+  '契約・申請':['確認申請','検査','引渡し書類']
+};
+let decProj='p1',decFilter='all',decEditId=null,decOld=null,decOpenVer='';
+const numOrNull=v=>{const t=String(v==null?'':v).trim();if(t==='')return null;const n=parseInt(t,10);return isNaN(n)?null:n;};
+const tsOf=x=>x&&x.seconds?x.seconds*1000:0;
+const fmtMD=ms=>{if(!ms)return '—';const d=new Date(ms);return (d.getMonth()+1)+'/'+d.getDate();};
+const fmtFull=ms=>{if(!ms)return '';const d=new Date(ms);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+const who=e=>String(e||'').split('@')[0];
+const nl=s=>esc(s).replace(/\n/g,'<br>');
+const catHtml=(v)=>CATS.map(c=>'<option'+(c===v?' selected':'')+'>'+c+'</option>').join('');
+$('dec-cat').innerHTML='<option value="">分類：すべて</option>'+catHtml('');
+$('dm-cat').innerHTML=catHtml('設備');
+$('dm-state').innerHTML=Object.entries(DST).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+$('dm-progress').innerHTML='<option value="">未設定</option>'+DPR.map(x=>'<option>'+x+'</option>').join('');
+$('dm-copy-proj').innerHTML=DEFAULTS.map(d=>'<option value="'+d.id+'">'+esc(d.num)+'　'+esc(d.name)+'</option>').join('');
+
+window.switchTab=function(t){
+  $('view-progress').style.display=t==='progress'?'':'none';
+  $('view-dec').style.display=t==='dec'?'':'none';
+  $('tab-progress').classList.toggle('on',t==='progress');
+  $('tab-dec').classList.toggle('on',t==='dec');
+  if(t==='dec')renderDec();
+};
+window.goDec=function(id){decProj=id;decFilter='all';switchTab('dec');window.scrollTo(0,0);};
+window.decSetProj=function(id){decProj=id;decFilter='all';renderDec();};
+window.decSetFilter=function(k){decFilter=k;renderDec();};
+window.decFilterChange=function(){renderDecList();};
+
+const items=()=>decs.filter(x=>x.projectId===decProj);
+function renderDec(){
+  if(!$('view-dec'))return;
+  renderDecProjs();renderDecSum();renderDecOpen();renderDecRecent();renderDecList();
+}
+function renderDecProjs(){
+  $('dec-projs').innerHTML=DEFAULTS.map(d=>{
+    const p=merged(d.id),n=decs.filter(x=>x.projectId===d.id),c=n.filter(x=>x.state==='confirming'||x.state==='review').length;
+    return '<button class="dp'+(decProj===d.id?' on':'')+'" onclick="decSetProj(\''+d.id+'\')"><span>'+esc(p.num)+'</span>'+esc(p.name)+'<em>'+n.length+'件'+(c?'／確認中・再検討中 '+c+'件':'')+'</em></button>';
+  }).join('');
+}
+function renderDecSum(){
+  const it=items();
+  const tiles=[['all','すべて',it.length],['confirming','確認中',0],['review','再検討中',0],['decided','決定',0],['hold','保留',0],['done','施工・完了',0]];
+  $('dec-sum').innerHTML=tiles.map(([k,l,n])=>{
+    const c=k==='all'?n:it.filter(x=>x.state===k).length;
+    return '<button class="dsum'+(decFilter===k?' on':'')+'" onclick="decSetFilter(\''+k+'\')"><b>'+c+'</b><small>'+l+'</small></button>';
+  }).join('');
+}
+function renderDecOpen(){
+  const list=items().filter(x=>x.state!=='done'&&(x.state==='confirming'||x.state==='review'||(x.openIssues||'').trim()))
+    .sort((a,b)=>{const da=a.due||'9999',db2=b.due||'9999';return da.localeCompare(db2);});
+  $('dec-open').innerHTML=list.length?list.slice(0,8).map(x=>
+    '<div class="drow" onclick="openDec(\''+x.id+'\')"><span class="dchip d-'+esc(x.state)+'">'+esc(DST[x.state]||x.state)+'</span> <b>'+esc(x.title)+'</b>'+
+    (x.due?' <small>期限 '+esc(x.due.slice(5).replace('-','/'))+'</small>':'')+
+    ((x.openIssues||'').trim()?'<br><span class="dissue">'+nl(x.openIssues)+'</span>':'')+'</div>'
+  ).join('')+(list.length>8?'<div class="dsub" style="padding-top:6px;">ほか '+(list.length-8)+'件</div>':'')
+  :'<div class="dsub">確認中の事項はありません。</div>';
+}
+function renderDecRecent(){
+  const ev=[];
+  items().forEach(x=>(x.history||[]).forEach(h=>{if(h.kind!=='登録')ev.push({x,h});}));
+  ev.sort((a,b)=>(b.h.ts||0)-(a.h.ts||0));
+  $('dec-recent').innerHTML=ev.length?ev.slice(0,8).map(({x,h})=>
+    '<div class="drow" onclick="openDec(\''+x.id+'\')"><small>'+esc(fmtMD(h.ts))+'</small> <b>'+esc(x.title)+'</b> <span class="dchg" style="margin-left:0;">'+esc(h.kind)+'</span><br>'+esc(h.text)+(h.reason?'<br><small>理由：'+esc(h.reason)+'</small>':'')+'</div>'
+  ).join(''):'<div class="dsub">変更の記録はまだありません。</div>';
+}
+function renderDecList(){
+  const cat=$('dec-cat').value||'',q=($('dec-q').value||'').trim().toLowerCase();
+  let it=items().filter(x=>{
+    if(decFilter!=='all'&&x.state!==decFilter)return false;
+    if(cat&&x.category!==cat)return false;
+    if(q){const t=[x.title,x.decision,x.spec,x.maker,x.openIssues,x.assignee].join(' ').toLowerCase();if(!t.includes(q))return false;}
+    return true;
+  });
+  if(!it.length){$('dec-list').innerHTML='<div style="padding:30px;text-align:center;color:#999;">'+(items().length?'該当する項目がありません':'まだ項目がありません。「＋ 項目を追加」か「標準項目をまとめて追加」から始めてください。')+'</div>';return;}
+  const order=c=>{const i=CATS.indexOf(c);return i<0?99:i;};
+  it.sort((a,b)=>order(a.category)-order(b.category)||tsOf(a.createdAt)-tsOf(b.createdAt));
+  let h='<table class="dec-table"><tr><th>項目</th><th>最新の決定</th><th>状態</th><th>進捗</th><th>確認中の事項</th><th>期限・担当</th><th>更新</th></tr>',last=null;
+  it.forEach(x=>{
+    if(x.category!==last){last=x.category;h+='<tr class="catrow"><td colspan="7">'+esc(x.category||'その他')+'</td></tr>';}
+    const chg=(x.history||[]).filter(e=>e.kind==='変更').length;
+    h+='<tr class="item" onclick="openDec(\''+x.id+'\')">'+
+      '<td><b>'+esc(x.title)+'</b></td>'+
+      '<td>'+(x.decision?nl(x.decision):'<span class="dsub">未決定</span>')+(x.spec?'<br><span class="dsub">'+esc(x.spec)+'</span>':'')+(x.maker?'<br><span class="dsub">'+esc(x.maker)+'</span>':'')+(x.cost!=null&&x.cost!==''?'<br><span class="dsub">¥'+Number(x.cost).toLocaleString()+'</span>':'')+'</td>'+
+      '<td><span class="dchip d-'+esc(x.state)+'">'+esc(DST[x.state]||x.state||'—')+'</span>'+(chg?'<span class="dchg">変更'+chg+'回</span>':'')+'</td>'+
+      '<td>'+esc(x.progress||'—')+'</td>'+
+      '<td>'+((x.openIssues||'').trim()?'<span class="dissue">'+nl(x.openIssues)+'</span>':'<span class="dsub">—</span>')+'</td>'+
+      '<td>'+(x.due?esc(x.due.slice(5).replace('-','/')):'—')+(x.assignee?'<br><span class="dsub">'+esc(x.assignee)+'</span>':'')+'</td>'+
+      '<td><span class="dsub">'+esc(fmtMD(tsOf(x.updatedAt)))+(x.updatedBy?'<br>'+esc(who(x.updatedBy)):'')+'</span></td></tr>';
+  });
+  $('dec-list').innerHTML=h+'</table>';
+}
+
+// ---- 項目の追加・編集 ----
+const sv=(id,v)=>{const e=$(id);if(e)e.value=(v==null?'':v);};
+window.openDec=function(id){
+  const x=id?decs.find(d=>d.id===id):null;
+  if(id&&!x)return;
+  decEditId=id||null;decOld=x?JSON.parse(JSON.stringify(x)):null;decOpenVer=x?verOf(x):'';
+  const pid=x?x.projectId:decProj;
+  $('dm-head').textContent=x?'決定事項を編集':'決定事項を追加';
+  $('dm-sub').textContent=merged(pid).num+'　'+merged(pid).name;
+  sv('dm-cat',x?x.category:'設備');sv('dm-title',x?x.title:'');sv('dm-state',x?x.state:'confirming');sv('dm-progress',x?x.progress:'');
+  sv('dm-decision',x?x.decision:'');sv('dm-spec',x?x.spec:'');sv('dm-maker',x?x.maker:'');sv('dm-cost',x&&x.cost!=null?x.cost:'');sv('dm-assignee',x?x.assignee:'');sv('dm-due',x?x.due:'');
+  sv('dm-issues',x?x.openIssues:'');sv('dm-reason','');
+  $('dm-hist-wrap').style.display=x?'':'none';$('dm-copy-wrap').style.display=x?'':'none';$('dm-del').style.display=x?'':'none';
+  $('dm-hist').innerHTML=x?histHtml(x.history):'';
+  $('dmodal').querySelector('.modal-body').scrollTop=0;
+  $('dmodal').classList.add('open');
+};
+function histHtml(h){
+  const l=(h||[]).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+  return l.length?l.map(e=>'<div class="hrow"><b>'+esc(e.kind||'')+'</b> '+esc(e.text||'')+(e.reason?'<br><small>理由：'+esc(e.reason)+'</small>':'')+'<small>'+esc(fmtFull(e.ts))+'　'+esc(who(e.by))+'</small></div>').join(''):'<div class="dsub">履歴はありません。</div>';
+}
+window.closeDec=function(){$('dmodal').classList.remove('open');decEditId=null;decOld=null;};
+function readDec(){
+  return {category:$('dm-cat').value,title:$('dm-title').value.trim(),decision:$('dm-decision').value.trim(),spec:$('dm-spec').value.trim(),maker:$('dm-maker').value.trim(),cost:numOrNull($('dm-cost').value),assignee:$('dm-assignee').value.trim(),due:$('dm-due').value,state:$('dm-state').value,progress:$('dm-progress').value,openIssues:$('dm-issues').value.trim()};
+}
+function buildHistory(old,nw,reason,me){
+  const h=[],ts=Date.now();
+  const add=(kind,text)=>h.push({ts,by:me,kind,text,reason:h.length===0?(reason||''):''});
+  const v=s=>(s==null||s==='')?'（未設定）':s;
+  if(!old){add('登録',nw.decision?('決定内容：'+nw.decision):'項目を登録');return h;}
+  if((old.decision||'')!==nw.decision)add(old.decision?'変更':'決定',v(old.decision)+' → '+v(nw.decision));
+  if((old.spec||'')!==nw.spec)add('仕様',v(old.spec)+' → '+v(nw.spec));
+  if((old.maker||'')!==nw.maker)add('業者',v(old.maker)+' → '+v(nw.maker));
+  if((old.state||'')!==nw.state)add('状態',(DST[old.state]||old.state||'—')+' → '+DST[nw.state]);
+  if((old.progress||'')!==nw.progress)add('進捗',v(old.progress)+' → '+v(nw.progress));
+  if((old.openIssues||'')!==nw.openIssues)add('確認事項',nw.openIssues?'更新：'+nw.openIssues:'解消（'+old.openIssues+'）');
+  if(!h.length&&reason)add('メモ',reason);
+  return h;
+}
+window.saveDec=async function(){
+  const nw=readDec();
+  if(!nw.title){alert('項目名は必須です');return;}
+  const me=(auth.currentUser||{}).email||'';
+  const cur=decEditId?decs.find(d=>d.id===decEditId):null;
+  if(decEditId&&!cur){alert('この項目はすでに削除されています');closeDec();return;}
+  if(cur&&verOf(cur)!==decOpenVer&&cur.updatedBy!==me&&!confirm(MSG))return;
+  const newH=buildHistory(decOld,nw,$('dm-reason').value.trim(),me);
+  const hist=(((cur&&cur.history)||[]).concat(newH)).slice(-200);
+  showLoading(true,'保存中...');
+  try{
+    if(cur)await updateDoc(doc(db,'dev_decisions',decEditId),{...nw,history:hist,updatedAt:serverTimestamp(),updatedBy:me});
+    else await addDoc(collection(db,'dev_decisions'),{...nw,projectId:decProj,history:hist,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),updatedBy:me});
+    closeDec();toast('保存しました');
+  }catch(e){alert('保存失敗: '+e.message);console.error(e);}
+  showLoading(false);
+};
+window.delDec=async function(){
+  if(!decEditId)return;
+  if(!confirm('この項目と履歴を削除します。元に戻せません。よろしいですか？'))return;
+  showLoading(true,'削除中...');
+  try{await deleteDoc(doc(db,'dev_decisions',decEditId));closeDec();toast('削除しました');}
+  catch(e){alert('削除失敗: '+e.message);}
+  showLoading(false);
+};
+window.copyDec=async function(){
+  const x=decOld;if(!x)return;
+  const to=$('dm-copy-proj').value,me=(auth.currentUser||{}).email||'';
+  if(!to)return;
+  const from=merged(x.projectId).name;
+  showLoading(true,'コピー中...');
+  try{
+    await addDoc(collection(db,'dev_decisions'),{projectId:to,category:x.category||'その他',title:x.title,decision:x.decision||'',spec:x.spec||'',maker:x.maker||'',cost:x.cost!=null?x.cost:null,assignee:x.assignee||'',due:'',state:x.state||'confirming',progress:'',openIssues:'',history:[{ts:Date.now(),by:me,kind:'登録',text:'「'+from+'」からコピー',reason:''}],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),updatedBy:me});
+    toast('「'+merged(to).name+'」にコピーしました');
+  }catch(e){alert('コピー失敗: '+e.message);}
+  showLoading(false);
+};
+
+// ---- 標準項目の一括追加 ----
+window.openStd=function(){
+  const exist=new Set(items().map(x=>x.category+'|'+x.title));
+  $('std-sub').textContent=merged(decProj).num+'　'+merged(decProj).name;
+  $('std-list').innerHTML=Object.entries(STD).map(([c,ts])=>'<div class="stdcat"><h5>'+esc(c)+'</h5>'+ts.map(t=>{const has=exist.has(c+'|'+t);return '<label'+(has?' style="color:#aaa;"':'')+'><input type="checkbox" data-c="'+esc(c)+'" data-t="'+esc(t)+'"'+(has?' disabled':'')+'/>'+esc(t)+(has?'（登録済み）':'')+'</label>';}).join('')+'</div>').join('');
+  $('smodal').classList.add('open');
+};
+window.closeStd=function(){$('smodal').classList.remove('open');};
+window.stdAll=function(v){document.querySelectorAll('#std-list input:not(:disabled)').forEach(i=>{i.checked=v;});};
+window.addStd=async function(){
+  const sel=Array.from(document.querySelectorAll('#std-list input:checked')).map(i=>({c:i.dataset.c,t:i.dataset.t}));
+  if(!sel.length){alert('追加する項目を選んでください');return;}
+  const me=(auth.currentUser||{}).email||'';
+  showLoading(true,'追加中...');
+  try{
+    const batch=writeBatch(db);
+    sel.forEach(s=>batch.set(doc(collection(db,'dev_decisions')),{projectId:decProj,category:s.c,title:s.t,decision:'',spec:'',maker:'',cost:null,assignee:'',due:'',state:'confirming',progress:'',openIssues:'',history:[{ts:Date.now(),by:me,kind:'登録',text:'項目を登録',reason:''}],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),updatedBy:me}));
+    await batch.commit();closeStd();toast(sel.length+'件を追加しました');
+  }catch(e){alert('追加失敗: '+e.message);console.error(e);}
+  showLoading(false);
+};
 </script>
 </body>
 </html>
