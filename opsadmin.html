@@ -214,7 +214,10 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .rb-co{font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px;}
 .rb-co.LDY{background:var(--navy);color:#fff;}.rb-co.MK{background:#26A69A;color:#fff;}
 .rb-s{color:var(--sub);font-size:11px;white-space:nowrap;}
-@media(max-width:600px){.recent-bar{padding:8px 10px;}.rb-row{grid-template-columns:70px 1fr;}.rb-s{display:none;}}
+.rb-row.c{grid-template-columns:150px 1fr auto;}
+.rb-bd{display:inline-block;font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;color:#fff;margin-top:2px;}
+.rb-bd.over{background:#C62828;}.rb-bd.d30{background:#E65100;}.rb-bd.d90{background:#B8860B;}.rb-bd.ok{background:#1B2A6B;}.rb-bd.none{background:#999;}
+@media(max-width:600px){.recent-bar{padding:8px 10px;}.rb-row.c{grid-template-columns:104px 1fr;}.rb-row.c>div:last-child{grid-column:1/-1;text-align:left!important;}}
 </style>
 </head>
 <body>
@@ -251,7 +254,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="recent-bar">
-    <div class="rb-head" onclick="toggleRecent()"><span id="rb-arrow">▼</span>最近更新された項目（更新が新しい順）<span id="rb-count" style="font-weight:400;color:var(--sub);"></span></div>
+    <div class="rb-head" onclick="toggleRecent()"><span id="rb-arrow">▼</span>入居者の契約更新期日（近い順）<span id="rb-count" style="font-weight:400;color:var(--sub);"></span><select id="rb-range" onclick="event.stopPropagation()" onchange="renderRecent()" style="margin-left:auto;font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;"><option value="all">すべて</option><option value="over">期限を過ぎたもの</option><option value="30">30日以内</option><option value="90">90日以内</option><option value="183">6ヶ月以内</option></select></div>
     <div class="rb-scroll" id="recent-list"></div>
   </div>
   <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button><div id="co-filter" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 0;flex-wrap:wrap;"></div></div>
@@ -2191,9 +2194,8 @@ window.deleteLU=async function(id){
 };
 
 // 一覧表示
-// ===== 最近更新された項目（ページ最上部） =====
+// ===== 入居者の契約更新期日（ページ最上部） =====
 let recentOpen=true;
-const recMs=o=>{const t=o&&o.updatedAt;if(t&&t.seconds!=null)return t.seconds*1000;if(t===null)return Date.now();const c=o&&o.createdAt;return c&&c.seconds?c.seconds*1000:0;};
 window.toggleRecent=function(){
   recentOpen=!recentOpen;
   document.getElementById('recent-list').style.display=recentOpen?'':'none';
@@ -2202,21 +2204,25 @@ window.toggleRecent=function(){
 window.jumpRecent=function(kind,bldId){jumpTo(kind,bldId);};
 function renderRecent(){
   const el=document.getElementById('recent-list');if(!el)return;
-  const rows=[];
+  const range=(document.getElementById('rb-range')||{}).value||'all';
   const bn=id=>{const b=rb.find(x=>x.id===id);return b?(b.name||''):'';};
-  blds.forEach(b=>rows.push({ms:recMs(b),kind:'rent',k:'賃貸ビル',name:b.name||'',sub:b.mgmtType==='own'?'自社管理':'管理委託',co:coOf(b),bid:b.id}));
-  units.forEach(u=>rows.push({ms:recMs(u),kind:'rent',k:'賃貸区分',name:bn(u.bldId)+'／'+(u.name||''),sub:(u.status||'')+(u.tenant?'　'+u.tenant:''),co:bldCo(u.bldId),bid:u.bldId}));
-  lblds.forEach(b=>rows.push({ms:recMs(b),kind:'lodge',k:'旅館業・民泊 施設',name:b.name||'',sub:b.mgmtType==='own'?'自社管理':'管理委託',co:coOf(b),bid:b.id,l:1}));
-  lunits.forEach(u=>rows.push({ms:recMs(u),kind:'lodge',k:'旅館業・民泊 区分',name:bn(u.bldId)+'／'+(u.name||''),sub:u.opStatus||'',co:bldCo(u.bldId),bid:u.bldId,l:1}));
-  rows.sort((a,b)=>b.ms-a.ms);
-  const cnt=document.getElementById('rb-count');if(cnt)cnt.textContent='　'+rows.length+'件（スクロールで古い順に表示）';
-  if(!rows.length){el.innerHTML='<div style="padding:10px;color:#999;font-size:12px;">まだデータがありません。</div>';return;}
-  el.innerHTML=rows.slice(0,150).map(r=>{
-    const d=r.ms?new Date(r.ms):null;
-    const date=d?(d.getMonth()+1)+'/'+d.getDate():'—',time=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'';
-    return '<div class="rb-row" onclick="jumpRecent(\''+r.kind+'\',\''+r.bid+'\')"><div class="rb-d">'+esc(date)+'<small>'+esc(time)+'</small></div>'+
-      '<div><span class="rb-k'+(r.l?' l':'')+'">'+esc(r.k)+'</span><b>'+esc(r.name)+'</b><span class="rb-co '+esc(r.co)+'">'+esc(r.co)+'</span></div>'+
-      '<div class="rb-s">'+esc(r.sub)+'</div></div>';
+  let rows=units.filter(u=>u.status==='契約中'||u.status==='解約予告中').map(u=>{const end=lastEnd(u);return {u,end,d:daysUntil(end)};});
+  rows.sort((a,b)=>{if(!a.end&&!b.end)return 0;if(!a.end)return 1;if(!b.end)return -1;return a.end.localeCompare(b.end);});
+  const total=rows.length;
+  if(range==='over')rows=rows.filter(r=>r.d!==null&&r.d<0);
+  else if(range!=='all')rows=rows.filter(r=>r.d!==null&&r.d<=parseInt(range,10));
+  const cnt=document.getElementById('rb-count');
+  if(cnt)cnt.textContent='　'+rows.length+'件'+(range!=='all'?'／契約中 '+total+'件':'')+'（契約中・解約予告中の区分）';
+  if(!rows.length){el.innerHTML='<div style="padding:10px;color:#999;font-size:12px;">'+(total?'該当する区分はありません。':'契約中の区分がありません。')+'</div>';return;}
+  el.innerHTML=rows.map(({u,end,d})=>{
+    const cls=d===null?'none':d<0?'over':d<=30?'d30':d<=90?'d90':'ok';
+    const label=d===null?'期日未設定':d<0?Math.abs(d)+'日超過':d===0?'本日':'あと'+d+'日';
+    const nr=(u.renewals||[]).length,co=bldCo(u.bldId);
+    return '<div class="rb-row c" onclick="jumpRecent(\'rent\',\''+u.bldId+'\')">'+
+      '<div class="rb-d">'+esc(end?end.replace(/-/g,'/'):'—')+'<small><span class="rb-bd '+cls+'">'+label+'</span></small></div>'+
+      '<div><span class="rb-k">'+esc(u.contractType||'—')+'</span><b>'+esc(bn(u.bldId)+'／'+(u.name||''))+'</b><span class="rb-co '+esc(co)+'">'+esc(co)+'</span>'+
+        '<br><span class="rb-s">'+esc(u.tenant||'契約者未登録')+(u.status==='解約予告中'?'　解約予告中':'')+(nr?'　更新'+nr+'回':'　初回契約')+'</span></div>'+
+      '<div class="rb-s" style="text-align:right;">'+(u.rent?yen(u.rent)+'<br>':'')+'<button class="btn btn-sm btn-navy" onclick="event.stopPropagation();openUnitModal(\''+u.bldId+'\',\''+u.id+'\')">更新を記録</button></div></div>';
   }).join('');
 }
 
