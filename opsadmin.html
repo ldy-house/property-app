@@ -201,6 +201,20 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .co-badge{font-size:11px;font-weight:700;padding:3px 12px;border-radius:12px;}
 .co-badge.co-LDY{background:var(--navy);color:#fff;}
 .co-badge.co-MK{background:#26A69A;color:#fff;}
+.recent-bar{background:#fff;border-bottom:1px solid var(--border);padding:8px 20px 10px;}
+.rb-head{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;font-weight:700;color:var(--navy);letter-spacing:.5px;user-select:none;}
+.rb-scroll{max-height:200px;overflow-y:auto;margin-top:6px;border:1px solid #eee;border-radius:6px;}
+.rb-row{display:grid;grid-template-columns:92px 1fr auto;gap:10px;align-items:center;padding:6px 10px;border-bottom:1px solid #f0f0f0;cursor:pointer;font-size:12px;line-height:1.5;}
+.rb-row:last-child{border-bottom:none;}
+.rb-row:hover{background:#F5F7FF;}
+.rb-d{color:var(--navy);font-weight:700;font-size:11px;line-height:1.4;}
+.rb-d small{display:block;color:var(--sub);font-weight:400;}
+.rb-k{display:inline-block;font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:#EEF1F8;color:var(--navy);margin-right:6px;}
+.rb-k.l{background:#EDE7F6;color:#4527A0;}
+.rb-co{font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px;}
+.rb-co.LDY{background:var(--navy);color:#fff;}.rb-co.MK{background:#26A69A;color:#fff;}
+.rb-s{color:var(--sub);font-size:11px;white-space:nowrap;}
+@media(max-width:600px){.recent-bar{padding:8px 10px;}.rb-row{grid-template-columns:70px 1fr;}.rb-s{display:none;}}
 </style>
 </head>
 <body>
@@ -235,6 +249,10 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   <div class="header">
     <div class="hdr-left"><span class="hdr-lmark">LDY</span><nav class="hdr-nav"><a href="pjadmin.html">開発管理</a><a href="ldyadmin.html">在庫管理</a><a href="opsadmin.html" class="on">管理委託</a><a href="attend.html">勤怠管理</a></nav><span class="role-badge" id="role-badge"></span></div>
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
+  </div>
+  <div class="recent-bar">
+    <div class="rb-head" onclick="toggleRecent()"><span id="rb-arrow">▼</span>最近更新された項目（更新が新しい順）<span id="rb-count" style="font-weight:400;color:var(--sub);"></span></div>
+    <div class="rb-scroll" id="recent-list"></div>
   </div>
   <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button><div id="co-filter" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 0;flex-wrap:wrap;"></div></div>
   <div id="view-rent">
@@ -526,6 +544,16 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>礼金（円）</label><input id="u-reikin" type="number" placeholder="0"/></div>
           <div class="fr"><label>初回保証委託料（円）</label><input id="u-hosho-first" type="number" placeholder="242000"/></div>
         </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">更新料</div>
+          <div class="fg">
+            <div class="fr"><label>更新料の有無</label>
+              <select id="u-koshin-umu"><option value="">未設定</option><option>有</option><option>無</option></select>
+            </div>
+            <div class="fr"><label>更新事務手数料（円）</label><input id="u-koshin-tesuryo" type="number" placeholder="11000"/></div>
+          </div>
+          <div class="fr"><label>更新料</label><input id="u-koshin-ryo" placeholder="例：新賃料の1ヶ月分"/></div>
+        </div>
       </div>
 
       <div class="fs">
@@ -540,17 +568,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>保険期間 開始</label><input id="u-kasai-start" type="date"/></div>
           <div class="fr"><label>保険期間 終了</label><input id="u-kasai-end" type="date"/></div>
         </div>
-      </div>
-
-      <div class="fs">
-        <div class="fs-title">更新料</div>
-        <div class="fg">
-          <div class="fr"><label>更新料の有無</label>
-            <select id="u-koshin-umu"><option value="">未設定</option><option>有</option><option>無</option></select>
-          </div>
-          <div class="fr"><label>事務手数料（円）</label><input id="u-koshin-tesuryo" type="number" placeholder="11000"/></div>
-        </div>
-        <div class="fr"><label>更新料</label><input id="u-koshin-ryo" placeholder="例：新賃料の1ヶ月分"/></div>
       </div>
 
       <div class="fs">
@@ -1648,6 +1665,7 @@ window.render=function(){
   if(!document.getElementById('bld-wrap'))return;
   window.phReg=[];
   renderLodge();
+  renderRecent();
   const kw=(document.getElementById('f-keyword').value||'').trim().toLowerCase();
   const st=document.getElementById('f-status').value||'';
   const sortVal=document.getElementById('f-sort').value||'name';
@@ -1812,6 +1830,7 @@ function unitHtml(u){
           '<div class="kn-row"><span class="kn-lbl">保証委託料</span><span class="kn-val">'+yen(u.hoshoFirst)+'</span></div>'+
           '<div class="kn-row full"><span class="kn-lbl">賃料の支払時期</span><span class="kn-val">'+esc(u.payTiming||'—')+'</span></div>'+
           '<div class="kn-row full"><span class="kn-lbl">賃料の支払方法</span><span class="kn-val">'+esc(u.payMethod||'—')+'</span></div>'+
+          '<div class="kn-row full"><span class="kn-lbl">更新料</span><span class="kn-val">'+esc(u.koshinUmu||'—')+(u.koshinRyo?'／'+esc(u.koshinRyo):'')+(u.koshinTesuryo?'／事務手数料 '+yen(u.koshinTesuryo):'')+'</span></div>'+
         '</div>'+
         ((u.rentHistory&&u.rentHistory.length)?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">改定履歴：'+u.rentHistory.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(r=>esc(r.date||'—')+' '+yen(r.rent)+(r.note?'('+esc(r.note)+')':'')).join('　→　')+'</div>':'')+
         (u.rentPayments?(()=>{
@@ -1829,12 +1848,6 @@ function unitHtml(u){
           '<div class="kn-row"><span class="kn-lbl">加入状況</span><span class="kn-val">'+esc(u.kasaiStatus||'—')+'</span></div>'+
           '<div class="kn-row"><span class="kn-lbl">保険会社</span><span class="kn-val">'+esc(u.kasaiCompany||'—')+'</span></div>'+
           '<div class="kn-row full"><span class="kn-lbl">保険期間</span><span class="kn-val">'+(esc(u.kasaiStart||'—')+' 〜 '+esc(u.kasaiEnd||'—'))+'</span></div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="unit-sub">'+
-        '<div class="unit-sub-t">更新料</div>'+
-        '<div class="kn-grid" style="grid-template-columns:1fr;">'+
-          '<div class="kn-row"><span class="kn-lbl">更新料</span><span class="kn-val">'+esc(u.koshinUmu||'—')+(u.koshinRyo?'／'+esc(u.koshinRyo):'')+(u.koshinTesuryo?'／事務手数料 '+yen(u.koshinTesuryo):'')+'</span></div>'+
         '</div>'+
       '</div>'+
       (u.hoshoName?'<div class="unit-sub" style="grid-column:1/-1;">'+
@@ -2178,6 +2191,35 @@ window.deleteLU=async function(id){
 };
 
 // 一覧表示
+// ===== 最近更新された項目（ページ最上部） =====
+let recentOpen=true;
+const recMs=o=>{const t=o&&o.updatedAt;if(t&&t.seconds!=null)return t.seconds*1000;if(t===null)return Date.now();const c=o&&o.createdAt;return c&&c.seconds?c.seconds*1000:0;};
+window.toggleRecent=function(){
+  recentOpen=!recentOpen;
+  document.getElementById('recent-list').style.display=recentOpen?'':'none';
+  document.getElementById('rb-arrow').textContent=recentOpen?'▼':'▶';
+};
+window.jumpRecent=function(kind,bldId){jumpTo(kind,bldId);};
+function renderRecent(){
+  const el=document.getElementById('recent-list');if(!el)return;
+  const rows=[];
+  const bn=id=>{const b=rb.find(x=>x.id===id);return b?(b.name||''):'';};
+  blds.forEach(b=>rows.push({ms:recMs(b),kind:'rent',k:'賃貸ビル',name:b.name||'',sub:b.mgmtType==='own'?'自社管理':'管理委託',co:coOf(b),bid:b.id}));
+  units.forEach(u=>rows.push({ms:recMs(u),kind:'rent',k:'賃貸区分',name:bn(u.bldId)+'／'+(u.name||''),sub:(u.status||'')+(u.tenant?'　'+u.tenant:''),co:bldCo(u.bldId),bid:u.bldId}));
+  lblds.forEach(b=>rows.push({ms:recMs(b),kind:'lodge',k:'旅館業・民泊 施設',name:b.name||'',sub:b.mgmtType==='own'?'自社管理':'管理委託',co:coOf(b),bid:b.id,l:1}));
+  lunits.forEach(u=>rows.push({ms:recMs(u),kind:'lodge',k:'旅館業・民泊 区分',name:bn(u.bldId)+'／'+(u.name||''),sub:u.opStatus||'',co:bldCo(u.bldId),bid:u.bldId,l:1}));
+  rows.sort((a,b)=>b.ms-a.ms);
+  const cnt=document.getElementById('rb-count');if(cnt)cnt.textContent='　'+rows.length+'件（スクロールで古い順に表示）';
+  if(!rows.length){el.innerHTML='<div style="padding:10px;color:#999;font-size:12px;">まだデータがありません。</div>';return;}
+  el.innerHTML=rows.slice(0,150).map(r=>{
+    const d=r.ms?new Date(r.ms):null;
+    const date=d?(d.getMonth()+1)+'/'+d.getDate():'—',time=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'';
+    return '<div class="rb-row" onclick="jumpRecent(\''+r.kind+'\',\''+r.bid+'\')"><div class="rb-d">'+esc(date)+'<small>'+esc(time)+'</small></div>'+
+      '<div><span class="rb-k'+(r.l?' l':'')+'">'+esc(r.k)+'</span><b>'+esc(r.name)+'</b><span class="rb-co '+esc(r.co)+'">'+esc(r.co)+'</span></div>'+
+      '<div class="rb-s">'+esc(r.sub)+'</div></div>';
+  }).join('');
+}
+
 function renderLodge(){
   const wrap=document.getElementById('lbld-wrap');if(!wrap)return;
   const kw=(document.getElementById('lf-keyword').value||'').trim().toLowerCase();
