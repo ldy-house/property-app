@@ -2446,11 +2446,13 @@ window.saveLBulk=async function(){
       if(r.del){batch.delete(doc(db,'managed_units',r.id));n++;return;}
       const f={};
       BK.forEach(k=>{const nv=(r[k]||'').trim(),ov=(r.orig[k]||'').trim();if(nv!==ov)f[k]=nv;});
+      if(r.extra)Object.assign(f,r.extra);
       if(Object.keys(f).length){f.updatedAt=serverTimestamp();batch.update(doc(db,'managed_units',r.id),f);n++;upd++;}
     }else{
       const nm=(r.name||'').trim();if(!nm)return;
       const o={biz:'lodging',bldId:bulkBld,company:bldCo(bulkBld),createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
       BK.forEach(k=>{o[k]=(r[k]||'').trim();});
+      if(r.extra)Object.assign(o,r.extra);
       if(!o.opStatus)o.opStatus='営業中';
       batch.set(doc(collection(db,'managed_units')),o);n++;add++;
     }
@@ -2617,20 +2619,44 @@ window.saveRBulk=async function(){
   showLoading(false);
 };
 
-// ===== CSV取り込み（区画の一括追加・編集） =====
-// [ヘッダー名, フィールド, 型(t=文字 d=日付 n=数値 e=選択肢), 選択肢]
+// ===== CSV取り込み・ダウンロード（区画の一括追加・編集） =====
+// [見出し, フィールド, 型(t=文字 d=日付 n=数値 e=選択肢 m=コード対応), 選択肢]
 const CSV_R={
-  cols:[['区画名','name','t'],['契約状況','status','e',RST],['面積','size','t'],['用途（大分類）','use1','t'],['用途（詳細）','use2','t'],['契約者名','tenant','t'],['契約種別','contractType','e',RTY],['契約始期','start','d'],['契約終期','end','d'],['賃料','rent','n'],['管理費・共益費','kanri','n'],['敷金','shikikin','n']],
-  extra:[['敷金備考','shikikinNote','t'],['敷金の保管者','shikikinHolder','e',['オーナー','自社（LDY）']],['礼金','reikin','n'],['初回保証委託料','hoshoFirst','n'],['更新料の有無','koshinUmu','e',['有','無']],['更新料','koshinRyo','t'],['更新事務手数料','koshinTesuryo','n'],['賃料の支払時期','payTiming','t'],['賃料の支払方法','payMethod','t'],['解約予告（貸主→借主）','noticeLessor','t'],['解約予告（借主→貸主）','noticeLessee','t'],['予告方法','noticeMethod','t']],
-  sample:['101号室','契約中','約25㎡','住居','ワンルーム','山田 太郎','普通借家','2026/04/01','2028/03/31','80000','5000','160000']
+  base:RBK,
+  cols:[
+    ['区画名','name','t'],['契約状況','status','e',RST],['面積','size','t'],['用途（大分類）','use1','t'],['用途（詳細）','use2','t'],
+    ['契約者区分','tenantType','e',['個人','法人']],['契約者名','tenant','t'],['契約者フリガナ','tenantKana','t'],['国籍','nationality','t'],['契約者電話番号','tenantTel','t'],['担当者名（法人）','tenantContact','t'],['担当者電話番号（法人）','tenantContactTel','t'],
+    ['契約種別','contractType','e',RTY],['契約始期','start','d'],['契約終期','end','d'],
+    ['賃料','rent','n'],['管理費・共益費','kanri','n'],['賃料の支払時期','payTiming','t'],['賃料の支払方法','payMethod','t'],
+    ['敷金','shikikin','n'],['敷金備考','shikikinNote','t'],['敷金の保管者','shikikinHolder','e',['オーナー','自社（LDY）']],['礼金','reikin','n'],['初回保証委託料','hoshoFirst','n'],
+    ['更新料の有無','koshinUmu','e',['有','無']],['更新料','koshinRyo','t'],['更新事務手数料','koshinTesuryo','n'],
+    ['解約予告（貸主→借主）','noticeLessor','t'],['解約予告（借主→貸主）','noticeLessee','t'],['予告方法','noticeMethod','t'],
+    ['火災保険 加入状況','kasaiStatus','e',['未加入','加入済み']],['火災保険 保険会社','kasaiCompany','t'],['火災保険 期間開始','kasaiStart','d'],['火災保険 期間終了','kasaiEnd','d'],
+    ['保証会社 名称','hoshoName','t'],['保証会社 電話番号','hoshoTel','t'],['保証会社 所在地','hoshoAddr','t'],['保証会社 委託料','hoshoFee','n'],['保証会社 委託料の周期','hoshoCycle','t'],
+    ['鍵 引継ぎ状況','keyStatus','m',{normal:'通常',inherited:'入居中受託'}],['鍵 預かり本数','keyReceived','n'],['鍵 引渡し本数','keyHanded','n'],['鍵 備考','keyNote','t'],
+    ['リフォーム工事 開始','reformStart','d'],['リフォーム工事 終了','reformEnd','d'],['リフォーム備考','reformNote','t'],
+    ['備考','memo','t']
+  ],
+  hide:()=>[],
+  sample:{name:'101号室',status:'契約中',size:'約25㎡',use1:'住居',use2:'ワンルーム',tenantType:'個人',tenant:'山田 太郎',tenantKana:'ヤマダ タロウ',contractType:'普通借家',start:'2026/04/01',end:'2028/03/31',rent:'80000',kanri:'5000',shikikin:'160000'}
 };
+const LIC_KEYS=['licType','licNo','licOffice','licDate','licExp','licNote'];
 const CSV_L={
-  cols:[['区画名','name','t'],['営業状況','opStatus','e',OPS],['面積','size','t'],['定員','capacity','n'],['間取り・タイプ','use','t'],['免許種別','licType','e',LIC],['許可・届出番号','licNo','t'],['期限','licExp','d']],
-  extra:[],
-  sample:['201号室','営業中','約25㎡','4','1K','特区民泊','第○○号','2030/03/31']
+  base:BK,
+  cols:[
+    ['区画名','name','t'],['営業状況','opStatus','e',OPS],['面積','size','t'],['定員','capacity','n'],['間取り・タイプ','use','t'],
+    ['免許種別','licType','e',LIC],['許可・届出番号','licNo','t'],['届出先','licOffice','t'],['取得日・届出日','licDate','d'],['有効期限','licExp','d'],['免許備考','licNote','t'],
+    ['備考','memo','t']
+  ],
+  hide:()=>bkScopeUnit()?[]:LIC_KEYS,
+  sample:{name:'201号室',opStatus:'営業中',size:'約25㎡',capacity:'4',use:'1K',licType:'特区民泊',licNo:'第○○号',licExp:'2030/03/31'}
 };
-const CSV_ALIAS={'管理費':'管理費・共益費','共益費':'管理費・共益費','用途（大）':'用途（大分類）','用途(大分類)':'用途（大分類）','用途(詳細)':'用途（詳細）','賃料（円）':'賃料','賃料(円)':'賃料','契約者':'契約者名','許可・届出・認定番号':'許可・届出番号','有効期限':'期限','免許':'免許種別','種別':'契約種別'};
+// 古い見出しや別表記も受け付ける
+const CSV_ALIAS={'管理費':'管理費・共益費','共益費':'管理費・共益費','用途（大）':'用途（大分類）','用途(大分類)':'用途（大分類）','用途(詳細)':'用途（詳細）','賃料（円）':'賃料','賃料(円)':'賃料','契約者':'契約者名','フリガナ':'契約者フリガナ','許可・届出・認定番号':'許可・届出番号','期限':'有効期限','有効期限・更新期限':'有効期限','免許':'免許種別'};
 const csvHan=s=>String(s==null?'':s).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[／]/g,'/').replace(/[－ー]/g,'-');
+const csvKey=s=>String(s==null?'':s).replace(/\s/g,'');
+const csvCols=cfg=>{const h=cfg.hide();return cfg.cols.filter(c=>!h.includes(c[1]));};
+function csvCell(v){const s=v==null?'':String(v);return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
 
 function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
@@ -2651,13 +2677,14 @@ async function readCsvFile(file){
   try{return new TextDecoder('utf-8',{fatal:true}).decode(buf);}
   catch(e){return new TextDecoder('shift_jis').decode(buf);}
 }
-// 戻り値: 正規化した文字列 ／ ''=空欄 ／ null=不正
+// 戻り値: 正規化した値 ／ ''=空欄 ／ null=不正
 function csvNorm(type,raw,opts){
   const v=String(raw==null?'':raw).trim();
   if(v==='')return'';
   if(type==='t')return v;
   if(type==='d'){const m=csvHan(v).match(/^(\d{4})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})日?$/);return m?m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0'):null;}
   if(type==='n'){const t=csvHan(v).replace(/[,，¥￥円\s]/g,'');return /^-?\d+$/.test(t)?t:null;}
+  if(type==='m'){const k=Object.keys(opts).find(c=>c===v||opts[c]===v);return k||null;}
   if(type==='e'){
     let x=v;
     if(opts===RTY){if(x==='普通')x='普通借家';if(x==='定期')x='定期借家';}
@@ -2667,13 +2694,26 @@ function csvNorm(type,raw,opts){
   return v;
 }
 window.downloadCsvTemplate=function(kind){
-  const cfg=kind==='r'?CSV_R:CSV_L,all=[...cfg.cols,...cfg.extra];
-  const esc2=s=>/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
-  const head=all.map(c=>esc2(c[0])).join(',');
-  const sample=all.map((c,i)=>esc2(cfg.sample[i]||'')).join(',');
-  const blob=new Blob(['\uFEFF'+head+'\r\n'+sample+'\r\n'],{type:'text/csv;charset=utf-8'});
+  const cfg=kind==='r'?CSV_R:CSV_L,cols=csvCols(cfg);
+  const lines=[cols.map(c=>csvCell(c[0])).join(','),cols.map(c=>csvCell(cfg.sample[c[1]]||'')).join(',')];
+  const blob=new Blob(['\uFEFF'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=(kind==='r'?'賃貸':'旅館業民泊')+'_区分取り込みひな形.csv';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+window.exportCsv=function(kind){
+  const R=kind==='r',cfg=R?CSV_R:CSV_L;
+  const bid=R?rbBld:bulkBld;
+  const b=(R?blds:lblds).find(x=>x.id===bid);if(!b)return;
+  const us=(R?units:lunits).filter(u=>u.bldId===bid).slice().sort(byName);
+  if(!us.length){alert('この建物には、まだ区分がありません');return;}
+  const cols=csvCols(cfg);
+  const val=(u,c)=>{const v=u[c[1]];return (c[2]==='m'&&v)?(c[3][v]||v):v;};
+  const lines=[cols.map(c=>csvCell(c[0])).join(',')];
+  us.forEach(u=>lines.push(cols.map(c=>csvCell(val(u,c))).join(',')));
+  const blob=new Blob(['\uFEFF'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=((b.name||'建物').replace(/[\\\/:*?"<>|]/g,'_'))+'_区分一覧_'+new Date().toISOString().slice(0,10)+'.csv';
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
 window.importCsv=async function(kind,ev){
@@ -2682,13 +2722,10 @@ window.importCsv=async function(kind,ev){
   let rows;
   try{rows=parseCSV(await readCsvFile(file));}catch(e){alert('CSVを読み込めませんでした: '+e.message);return;}
   if(rows.length<2){alert('データ行がありません（1行目はヘッダーにしてください）');return;}
-  let all=[...cfg.cols,...cfg.extra];
-  if(!R&&!bkScopeUnit())all=all.filter(c=>!['licType','licNo','licExp'].includes(c[1]));
-  const idx={};
+  const cols=csvCols(cfg),idx={};
   rows[0].forEach((h,i)=>{
-    let k=csvHan(h).replace(/\s/g,'');
-    k=CSV_ALIAS[k]||k;
-    const c=all.find(x=>x[0]===k);if(c)idx[c[1]]=i;
+    let k=csvKey(csvHan(h));k=CSV_ALIAS[k]||k;
+    const c=cols.find(x=>csvKey(csvHan(x[0]))===csvKey(csvHan(k)));if(c)idx[c[1]]=i;
   });
   if(idx.name==null){alert('「区画名」列が見つかりません。ひな形のヘッダー行を使ってください');return;}
   const errs=[];let added=0,updated=0;
@@ -2697,7 +2734,7 @@ window.importCsv=async function(kind,ev){
     const nm=String(cells[idx.name]||'').trim();
     if(!nm){errs.push(line+'行目: 区画名が空のため無視しました');continue;}
     const vals={};
-    all.forEach(c=>{
+    cols.forEach(c=>{
       if(c[1]==='name'||idx[c[1]]==null)return;
       const n=csvNorm(c[2],cells[idx[c[1]]],c[3]);
       if(n===null)errs.push(line+'行目: 「'+c[0]+'」の値「'+cells[idx[c[1]]]+'」が不正なため無視しました');
@@ -2706,35 +2743,19 @@ window.importCsv=async function(kind,ev){
     let row=target.find(r=>!r.del&&(r.name||'').trim()===nm);
     if(row)updated++;
     else{row=R?newRBulkRow(nm,null):newBulkRow(nm);target.push(row);added++;}
-    const extraKeys=R?cfg.extra.map(c=>c[1]):[];
     Object.keys(vals).forEach(k=>{
-      if(extraKeys.includes(k)){
-        const isNum=cfg.extra.find(c=>c[1]===k)[2]==='n';
+      if(cfg.base.includes(k))row[k]=vals[k];
+      else{
+        const c=cols.find(x=>x[1]===k);
         row.extra=row.extra||{};
-        row.extra[k]=isNum?numOrNull(vals[k]):vals[k];
-      }else row[k]=vals[k];
+        row.extra[k]=c[2]==='n'?numOrNull(vals[k]):vals[k];
+      }
     });
   }
   const msg='CSVから '+added+'件を追加、'+updated+'件を更新しました（まだ保存されていません。表を確認して「まとめて保存する」を押してください）'+(errs.length?'／警告 '+errs.length+'件':'');
   document.getElementById(R?'rbk-preview':'lbk-preview').textContent=msg;
   R?renderRBulk():renderBulk();
   if(errs.length)alert(errs.slice(0,15).join('\n')+(errs.length>15?'\n…ほか '+(errs.length-15)+'件':''));
-};
-  function csvCell(v){const s=v==null?'':String(v);return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
-window.exportCsv=function(kind){
-  const R=kind==='r',cfg=R?CSV_R:CSV_L;
-  const bid=R?rbBld:bulkBld;
-  const b=(R?blds:lblds).find(x=>x.id===bid);if(!b)return;
-  const us=(R?units:lunits).filter(u=>u.bldId===bid).slice().sort(byName);
-  if(!us.length){alert('この建物には、まだ区分がありません');return;}
-  let all=[...cfg.cols,...cfg.extra];
-  if(!R&&!bkScopeUnit())all=all.filter(c=>!['licType','licNo','licExp'].includes(c[1]));
-  const lines=[all.map(c=>csvCell(c[0])).join(',')];
-  us.forEach(u=>lines.push(all.map(c=>csvCell(u[c[1]])).join(',')));
-  const blob=new Blob(['\uFEFF'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=((b.name||'建物').replace(/[\\\/:*?"<>|]/g,'_'))+'_区分一覧_'+new Date().toISOString().slice(0,10)+'.csv';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
   function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
 </script>
