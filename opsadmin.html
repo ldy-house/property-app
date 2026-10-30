@@ -831,6 +831,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
 <!-- 賃貸：区分の一括追加・編集 -->
 <div class="modal-bg" id="rbk-modal">
+  <button type="button" class="btn btn-sm btn-gold" onclick="exportCsv('r')">現在の区分をCSVでダウンロード</button>
   <div class="modal wide">
     <div class="modal-head"><div><h3>区分を一括で追加・編集</h3><div class="modal-sub" id="rbk-sub"></div></div><button class="modal-close" onclick="closeRBulk()">✕</button></div>
     <div class="modal-body">
@@ -885,6 +886,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
 <!-- 旅館業・民泊：区分の一括追加・編集 -->
 <div class="modal-bg" id="lbk-modal">
+  <button type="button" class="btn btn-sm btn-gold" onclick="exportCsv('l')">現在の区分をCSVでダウンロード</button>
   <div class="modal wide">
     <div class="modal-head"><div><h3>区分を一括で追加・編集</h3><div class="modal-sub" id="lbk-sub"></div></div><button class="modal-close" onclick="closeLBulk()">✕</button></div>
     <div class="modal-body">
@@ -2717,6 +2719,22 @@ window.importCsv=async function(kind,ev){
   document.getElementById(R?'rbk-preview':'lbk-preview').textContent=msg;
   R?renderRBulk():renderBulk();
   if(errs.length)alert(errs.slice(0,15).join('\n')+(errs.length>15?'\n…ほか '+(errs.length-15)+'件':''));
+};
+  function csvCell(v){const s=v==null?'':String(v);return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+window.exportCsv=function(kind){
+  const R=kind==='r',cfg=R?CSV_R:CSV_L;
+  const bid=R?rbBld:bulkBld;
+  const b=(R?blds:lblds).find(x=>x.id===bid);if(!b)return;
+  const us=(R?units:lunits).filter(u=>u.bldId===bid).slice().sort(byName);
+  if(!us.length){alert('この建物には、まだ区分がありません');return;}
+  let all=[...cfg.cols,...cfg.extra];
+  if(!R&&!bkScopeUnit())all=all.filter(c=>!['licType','licNo','licExp'].includes(c[1]));
+  const lines=[all.map(c=>csvCell(c[0])).join(',')];
+  us.forEach(u=>lines.push(all.map(c=>csvCell(u[c[1]])).join(',')));
+  const blob=new Blob(['\uFEFF'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=((b.name||'建物').replace(/[\\\/:*?"<>|]/g,'_'))+'_区分一覧_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
   function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
 </script>
