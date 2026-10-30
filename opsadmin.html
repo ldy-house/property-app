@@ -845,6 +845,13 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fr"><label>既存の区分をコピーして追加する場合、コピー元を選択（任意）</label><select id="rbk-tpl"></select></div>
         <div class="days-auto" id="rbk-preview">コピー元を選ぶと、面積・用途・契約種別・賃料・管理費・敷金・更新料・支払時期などを引き継ぎます。契約者・日付・保険・保証会社・鍵・ライフラインなどは引き継ぎません。</div>
+      　<div class="fr" style="margin-top:10px;"><label>CSVから取り込み（区画名が同じ行は更新、違う行は新規追加）</label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button type="button" class="btn btn-sm" onclick="downloadCsvTemplate('r')">ひな形をダウンロード</button>
+    <button type="button" class="btn btn-sm btn-navy" onclick="document.getElementById('rbk-csv').click()">CSVを選択</button>
+  </div>
+  <input type="file" id="rbk-csv" accept=".csv,text/csv" style="display:none;" onchange="importCsv('r',event)"/>
+</div>
       </div>
       <div class="fs">
         <div class="fs-title">全行にまとめて反映（入力した項目だけ）</div>
@@ -891,6 +898,13 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genBulkRows()">表に追加</button>
         </div>
         <div class="days-auto" id="lbk-preview">例：頭=空欄・開始=101・個数=3・後ろ=号室 → 101号室、102号室、103号室</div>
+        <div class="fr" style="margin-top:10px;"><label>CSVから取り込み（区画名が同じ行は更新、違う行は新規追加）</label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button type="button" class="btn btn-sm" onclick="downloadCsvTemplate('l')">ひな形をダウンロード</button>
+    <button type="button" class="btn btn-sm btn-navy" onclick="document.getElementById('lbk-csv').click()">CSVを選択</button>
+  </div>
+  <input type="file" id="lbk-csv" accept=".csv,text/csv" style="display:none;" onchange="importCsv('l',event)"/>
+</div>
       </div>
       <div class="fs">
         <div class="fs-title">全行にまとめて反映（入力した項目だけ）</div>
@@ -2572,6 +2586,7 @@ window.saveRBulk=async function(){
         else if(RBK_NUM.includes(k)||k==='shikikin')f[k]=numOrNull(nv);
         else f[k]=nv;
       });
+      if(r.extra)Object.assign(f,r.extra);
       if('rent' in f){
         const hist=histOf(u);
         if(f.rent!=null)setLatestRent(hist,f.rent,u.start);
@@ -2600,7 +2615,110 @@ window.saveRBulk=async function(){
   showLoading(false);
 };
 
-function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
+// ===== CSV取り込み（区画の一括追加・編集） =====
+// [ヘッダー名, フィールド, 型(t=文字 d=日付 n=数値 e=選択肢), 選択肢]
+const CSV_R={
+  cols:[['区画名','name','t'],['契約状況','status','e',RST],['面積','size','t'],['用途（大分類）','use1','t'],['用途（詳細）','use2','t'],['契約者名','tenant','t'],['契約種別','contractType','e',RTY],['契約始期','start','d'],['契約終期','end','d'],['賃料','rent','n'],['管理費・共益費','kanri','n'],['敷金','shikikin','n']],
+  extra:[['敷金備考','shikikinNote','t'],['敷金の保管者','shikikinHolder','e',['オーナー','自社（LDY）']],['礼金','reikin','n'],['初回保証委託料','hoshoFirst','n'],['更新料の有無','koshinUmu','e',['有','無']],['更新料','koshinRyo','t'],['更新事務手数料','koshinTesuryo','n'],['賃料の支払時期','payTiming','t'],['賃料の支払方法','payMethod','t'],['解約予告（貸主→借主）','noticeLessor','t'],['解約予告（借主→貸主）','noticeLessee','t'],['予告方法','noticeMethod','t']],
+  sample:['101号室','契約中','約25㎡','住居','ワンルーム','山田 太郎','普通借家','2026/04/01','2028/03/31','80000','5000','160000']
+};
+const CSV_L={
+  cols:[['区画名','name','t'],['営業状況','opStatus','e',OPS],['面積','size','t'],['定員','capacity','n'],['間取り・タイプ','use','t'],['免許種別','licType','e',LIC],['許可・届出番号','licNo','t'],['期限','licExp','d']],
+  extra:[],
+  sample:['201号室','営業中','約25㎡','4','1K','特区民泊','第○○号','2030/03/31']
+};
+const CSV_ALIAS={'管理費':'管理費・共益費','共益費':'管理費・共益費','用途（大）':'用途（大分類）','用途(大分類)':'用途（大分類）','用途(詳細)':'用途（詳細）','賃料（円）':'賃料','賃料(円)':'賃料','契約者':'契約者名','許可・届出・認定番号':'許可・届出番号','有効期限':'期限','免許':'免許種別','種別':'契約種別'};
+const csvHan=s=>String(s==null?'':s).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[／]/g,'/').replace(/[－ー]/g,'-');
+
+function parseCSV(text){
+  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+    else if(c==='"')q=true;
+    else if(c===','){row.push(f);f='';}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);f='';rows.push(row);row=[];}
+    else f+=c;
+  }
+  if(f!==''||row.length){row.push(f);rows.push(row);}
+  return rows.filter(r=>r.some(x=>String(x).trim()!==''));
+}
+async function readCsvFile(file){
+  const buf=await file.arrayBuffer();
+  try{return new TextDecoder('utf-8',{fatal:true}).decode(buf);}
+  catch(e){return new TextDecoder('shift_jis').decode(buf);}
+}
+// 戻り値: 正規化した文字列 ／ ''=空欄 ／ null=不正
+function csvNorm(type,raw,opts){
+  const v=String(raw==null?'':raw).trim();
+  if(v==='')return'';
+  if(type==='t')return v;
+  if(type==='d'){const m=csvHan(v).match(/^(\d{4})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})日?$/);return m?m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0'):null;}
+  if(type==='n'){const t=csvHan(v).replace(/[,，¥￥円\s]/g,'');return /^-?\d+$/.test(t)?t:null;}
+  if(type==='e'){
+    let x=v;
+    if(opts===RTY){if(x==='普通')x='普通借家';if(x==='定期')x='定期借家';}
+    if(opts===LIC){const hit=LIC.find(l=>l===x)||LIC.find(l=>l.includes(x));if(hit)x=hit;}
+    return opts.includes(x)?x:null;
+  }
+  return v;
+}
+window.downloadCsvTemplate=function(kind){
+  const cfg=kind==='r'?CSV_R:CSV_L,all=[...cfg.cols,...cfg.extra];
+  const esc2=s=>/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+  const head=all.map(c=>esc2(c[0])).join(',');
+  const sample=all.map((c,i)=>esc2(cfg.sample[i]||'')).join(',');
+  const blob=new Blob(['\uFEFF'+head+'\r\n'+sample+'\r\n'],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(kind==='r'?'賃貸':'旅館業民泊')+'_区分取り込みひな形.csv';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+window.importCsv=async function(kind,ev){
+  const file=ev.target.files[0];ev.target.value='';if(!file)return;
+  const R=kind==='r',cfg=R?CSV_R:CSV_L,target=R?rbRows:bulkRows;
+  let rows;
+  try{rows=parseCSV(await readCsvFile(file));}catch(e){alert('CSVを読み込めませんでした: '+e.message);return;}
+  if(rows.length<2){alert('データ行がありません（1行目はヘッダーにしてください）');return;}
+  let all=[...cfg.cols,...cfg.extra];
+  if(!R&&!bkScopeUnit())all=all.filter(c=>!['licType','licNo','licExp'].includes(c[1]));
+  const idx={};
+  rows[0].forEach((h,i)=>{
+    let k=csvHan(h).replace(/\s/g,'');
+    k=CSV_ALIAS[k]||k;
+    const c=all.find(x=>x[0]===k);if(c)idx[c[1]]=i;
+  });
+  if(idx.name==null){alert('「区画名」列が見つかりません。ひな形のヘッダー行を使ってください');return;}
+  const errs=[];let added=0,updated=0;
+  for(let ri=1;ri<rows.length;ri++){
+    const cells=rows[ri],line=ri+1;
+    const nm=String(cells[idx.name]||'').trim();
+    if(!nm){errs.push(line+'行目: 区画名が空のため無視しました');continue;}
+    const vals={};
+    all.forEach(c=>{
+      if(c[1]==='name'||idx[c[1]]==null)return;
+      const n=csvNorm(c[2],cells[idx[c[1]]],c[3]);
+      if(n===null)errs.push(line+'行目: 「'+c[0]+'」の値「'+cells[idx[c[1]]]+'」が不正なため無視しました');
+      else if(n!=='')vals[c[1]]=n;
+    });
+    let row=target.find(r=>!r.del&&(r.name||'').trim()===nm);
+    if(row)updated++;
+    else{row=R?newRBulkRow(nm,null):newBulkRow(nm);target.push(row);added++;}
+    const extraKeys=R?cfg.extra.map(c=>c[1]):[];
+    Object.keys(vals).forEach(k=>{
+      if(extraKeys.includes(k)){
+        const isNum=cfg.extra.find(c=>c[1]===k)[2]==='n';
+        row.extra=row.extra||{};
+        row.extra[k]=isNum?numOrNull(vals[k]):vals[k];
+      }else row[k]=vals[k];
+    });
+  }
+  const msg='CSVから '+added+'件を追加、'+updated+'件を更新しました（まだ保存されていません。表を確認して「まとめて保存する」を押してください）'+(errs.length?'／警告 '+errs.length+'件':'');
+  document.getElementById(R?'rbk-preview':'lbk-preview').textContent=msg;
+  R?renderRBulk():renderBulk();
+  if(errs.length)alert(errs.slice(0,15).join('\n')+(errs.length>15?'\n…ほか '+(errs.length-15)+'件':''));
+};
+  function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
 </script>
 </body>
 </html>
