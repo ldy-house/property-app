@@ -221,6 +221,26 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .bk-table .stk{position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 #e5e5e5;}
 .bk-table th.stk{background:#EEF1F8;}
 .bk-table tr.bk-del td.stk{background:#FFF0F0;}
+.lg-wrap{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:auto;max-height:70vh;}
+.lg-table{width:100%;border-collapse:collapse;font-size:12px;min-width:920px;}
+.lg-table th{background:#EEF1F8;color:var(--navy);font-size:10px;font-weight:700;text-align:left;padding:7px 9px;border-bottom:2px solid var(--gold);white-space:nowrap;position:sticky;top:0;z-index:1;}
+.lg-table td{padding:6px 9px;border-bottom:1px solid #eee;vertical-align:top;line-height:1.5;}
+.lg-table td.n,.lg-table th.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.lg-table tr.row{cursor:pointer;}
+.lg-table tr.row:hover td{background:#F5F7FF;}
+.lg-table tr.pay td{background:#FFFF99;font-weight:700;}
+.lg-table tr.settled td{color:#777;}
+.lg-table tr.tot td{background:#F8F9FC;font-weight:700;}
+.neg{color:#C62828;}
+.lg-head{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border);}
+.lg-bal{font-size:18px;font-weight:700;color:var(--navy);}
+.lg-h{font-size:12px;font-weight:700;color:var(--navy);margin:18px 0 8px;letter-spacing:1px;}
+.lg-badge{display:inline-block;font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:#E8EAF6;color:var(--navy);}
+.lg-badge.due{background:#C62828;color:#fff;}
+.lg-badge.ok{background:#E8F5E9;color:#2E7D32;}
+.lg-sum td{padding:5px 10px;border-bottom:1px dashed #ddd;font-size:13px;}
+.lg-sum td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;}
+.lg-sum tr.big td{font-size:15px;color:var(--navy);border-bottom:2px solid var(--gold);}
 </style>
 </head>
 <body>
@@ -260,7 +280,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="rb-head" onclick="toggleRecent()"><span id="rb-arrow">▼</span>入居者の契約更新期日（近い順）<span id="rb-count" style="font-weight:400;color:var(--sub);"></span><select id="rb-range" onclick="event.stopPropagation()" onchange="renderRecent()" style="margin-left:auto;font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;"><option value="all">すべて</option><option value="over">期限を過ぎたもの</option><option value="30">30日以内</option><option value="90">90日以内</option><option value="183">6ヶ月以内</option></select></div>
     <div class="rb-scroll" id="recent-list"></div>
   </div>
-  <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button><div id="co-filter" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 0;flex-wrap:wrap;"></div></div>
+  <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button><button class="vt" id="vt-ledger" onclick="switchView('ledger')">出納・精算</button><div id="co-filter" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 0;flex-wrap:wrap;"></div></div>
   <div id="view-rent">
   <div class="stats-bar">
     <div class="stat-item"><div class="stat-num" id="s-bld">0</div><div class="stat-label">管理棟数</div></div>
@@ -309,6 +329,35 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
   <p class="count-info" id="lcount-info"></p>
   <div class="bld-wrap" id="lbld-wrap"></div>
+  </div>
+  <div id="view-ledger" style="display:none;">
+    <div id="lg-over">
+      <div class="stats-bar">
+        <div class="stat-item"><div class="stat-num" id="lgs-n">0</div><div class="stat-label">対象のビル・施設</div></div>
+        <div class="stat-item"><div class="stat-num" id="lgs-bal">0</div><div class="stat-label">預り金残高の合計（円）</div></div>
+        <div class="stat-item"><div class="stat-num" id="lgs-open">0</div><div class="stat-label">未精算の明細</div></div>
+        <div class="stat-item"><div class="stat-num" id="lgs-due">0</div><div class="stat-label">精算の時期を過ぎたビル</div></div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="lg-q" placeholder="ビル名・オーナー名で検索..." oninput="renderLedger()"/>
+        <span style="font-size:11px;color:var(--sub);">オーナーから受託している物件が対象です（自社管理の物件は出ません）</span>
+      </div>
+      <div style="padding:14px 20px;"><div class="lg-wrap" id="lg-ov-list"></div></div>
+    </div>
+    <div id="lg-det" style="display:none;">
+      <div class="lg-head" id="lg-head"></div>
+      <div class="toolbar">
+        <select id="lg-unit" onchange="renderLedger()"></select>
+        <select id="lg-cat" onchange="renderLedger()"></select>
+        <input type="date" id="lg-from" onchange="renderLedger()" style="min-width:0;"/> ～ <input type="date" id="lg-to" onchange="renderLedger()" style="min-width:0;"/>
+        <label style="font-size:12px;"><input type="checkbox" id="lg-unsettled" onchange="renderLedger()"/> 未精算のみ</label>
+      </div>
+      <div style="padding:14px 20px;">
+        <div class="lg-wrap" id="lg-table"></div>
+        <div class="lg-h">精算の履歴</div>
+        <div class="lg-wrap" id="lg-stl" style="max-height:none;"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -832,6 +881,134 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
 </div>
 
+<!-- 出納：明細の入力 -->
+<div class="modal-bg" id="lgm-modal">
+  <div class="modal">
+    <div class="modal-head"><div><h3 id="lgm-head">入出金を追加</h3><div class="modal-sub" id="lgm-sub"></div></div><button class="modal-close" onclick="closeLgEntry()">✕</button></div>
+    <div class="modal-body">
+      <div id="lgm-warn" style="display:none;background:#FFF3E0;border:1px solid #FFCC80;border-radius:6px;padding:8px 12px;font-size:12px;margin-bottom:12px;color:#B35A00;">精算済みの明細です。変更すると、発行済みの精算書と合わなくなります。</div>
+      <div class="fs">
+        <div class="fs-title">明細</div>
+        <div class="fg">
+          <div class="fr"><label>日付 *</label><input id="lgm-date" type="date"/></div>
+          <div class="fr"><label>区分（どの部屋の入出金か）</label><select id="lgm-unit"></select></div>
+        </div>
+        <div class="fg">
+          <div class="fr"><label>種別 *</label><select id="lgm-cat" onchange="lgCatChange()"></select></div>
+          <div class="fr" id="lgm-month-wrap"><label>対象月（家賃・管理費の何月分か）</label><input id="lgm-month" type="month"/></div>
+        </div>
+        <div class="days-auto" id="lgm-hint"></div>
+        <div class="fg" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px;">
+          <div class="fr"><label>入金（円）</label><input id="lgm-in" type="number" min="0"/></div>
+          <div class="fr"><label>出金（円）</label><input id="lgm-out" type="number" min="0"/></div>
+          <div class="fr"><label>自社収益（円）</label><input id="lgm-fee" type="number" min="0"/></div>
+        </div>
+        <div class="fr" style="margin-top:8px;"><label>摘要</label><input id="lgm-memo" placeholder="例：301号室 火災保険振込"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-red" id="lgm-del" onclick="delLgEntry()" style="margin-right:auto;">削除</button>
+      <button class="btn" onclick="closeLgEntry()">キャンセル</button>
+      <button class="btn btn-navy" id="lgm-again" onclick="saveLgEntry(true)">保存して続けて入力</button>
+      <button class="btn btn-gold" onclick="saveLgEntry(false)">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 出納：精算設定 -->
+<div class="modal-bg" id="lgs-modal">
+  <div class="modal">
+    <div class="modal-head"><div><h3>精算の設定</h3><div class="modal-sub" id="lgs-sub"></div></div><button class="modal-close" onclick="closeLgSettings()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs">
+        <div class="fs-title">精算の時期（オーナーごと）</div>
+        <div class="fr"><label>精算の周期</label><select id="lgs-cycle"><option value="">未設定</option><option value="monthly">毎月</option><option value="quarterly">四半期ごと</option><option value="semi">半年ごと</option><option value="annual">年1回</option><option value="adhoc">随時（オーナーによる）</option></select></div>
+        <div class="fr"><label>精算・送金のルール（メモ）</label><input id="lgs-note" placeholder="例：毎月15日にオーナーへ送金／3・6・9・12月末に精算"/></div>
+      </div>
+      <div class="fs">
+        <div class="fs-title">管理料の自動計算（精算時の目安）</div>
+        <div class="fr"><label>計算方法</label><select id="lgs-feecalc"><option value="manual">自動計算しない（精算時に手入力）</option><option value="rate">入金額に対する割合（%）</option><option value="fixed">定額</option></select></div>
+        <div class="fg">
+          <div class="fr"><label>割合（%）</label><input id="lgs-rate" type="number" step="0.1" placeholder="例：5"/></div>
+          <div class="fr"><label>定額（円）</label><input id="lgs-fixed" type="number" placeholder="例：22000"/></div>
+        </div>
+        <div class="fg">
+          <div class="fr"><label>割合の計算の対象</label><select id="lgs-base"><option value="rent">家賃の入金だけ</option><option value="rent_kanri">家賃＋管理費・共益費の入金</option></select></div>
+          <div class="fr"><label>管理料の消費税</label><select id="lgs-tax"><option value="incl">税込の金額で設定している</option><option value="excl">税別の金額で設定している（10%を足す）</option></select></div>
+        </div>
+        <div style="font-size:10px;color:var(--sub);margin-top:6px;">精算のときに、ここで設定した方法で管理料を計算して表示します。金額は精算画面で直せます。</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeLgSettings()">キャンセル</button>
+      <button class="btn btn-gold" onclick="saveLgSettings()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 出納：精算する -->
+<div class="modal-bg" id="lst-modal">
+  <div class="modal">
+    <div class="modal-head"><div><h3>精算する</h3><div class="modal-sub" id="lst-sub"></div></div><button class="modal-close" onclick="closeLgStl()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs">
+        <div class="fs-title">対象の期間</div>
+        <div class="fg">
+          <div class="fr"><label>期間の開始（前回の精算の翌日から）</label><input id="lst-from" type="date" disabled/></div>
+          <div class="fr"><label>精算日（この日までの明細を精算します）</label><input id="lst-to" type="date" onchange="lstCalc(false)"/></div>
+        </div>
+      </div>
+      <div class="fs">
+        <div class="fs-title">管理料</div>
+        <div class="fr"><label>今回追加する管理料（自社収益・円）</label><input id="lst-fee" type="number" min="0" oninput="lstCalc(true)"/></div>
+        <div class="days-auto" id="lst-feehint"></div>
+      </div>
+      <div class="fs">
+        <div class="fs-title">計算結果</div>
+        <table class="lg-sum" style="width:100%;border-collapse:collapse;" id="lst-sum"></table>
+        <div class="fr" style="margin-top:10px;"><label>メモ（精算書に載ります）</label><input id="lst-memo" placeholder="例：2025年7月分"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeLgStl()">キャンセル</button>
+      <button class="btn btn-gold" onclick="doSettle()">精算を確定する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 出納：Excelから取込 -->
+<div class="modal-bg" id="lim-modal">
+  <div class="modal wide">
+    <div class="modal-head"><div><h3>Excelから取り込む</h3><div class="modal-sub" id="lim-sub"></div></div><button class="modal-close" onclick="closeLgImp()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs">
+        <div class="fs-title">1. Excelの行をコピーして貼り付け</div>
+        <textarea id="lim-text" style="width:100%;height:130px;font-size:12px;padding:8px;border:1.5px solid #ddd;border-radius:4px;font-family:inherit;" placeholder="日付・入金・出金・自社収益・残高・摘要の列を含む行を、そのままコピーして貼り付けてください"></textarea>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px;">
+          <div class="fr"><label>日付の列</label><input id="lim-c-date" type="number" value="1" min="1"/></div>
+          <div class="fr"><label>入金の列</label><input id="lim-c-in" type="number" value="3" min="1"/></div>
+          <div class="fr"><label>出金の列</label><input id="lim-c-out" type="number" value="4" min="1"/></div>
+          <div class="fr"><label>自社収益の列</label><input id="lim-c-fee" type="number" value="5" min="1"/></div>
+          <div class="fr"><label>残高の列（確認用）</label><input id="lim-c-bal" type="number" value="6" min="0"/></div>
+          <div class="fr"><label>摘要の列</label><input id="lim-c-memo" type="number" value="7" min="1"/></div>
+        </div>
+        <div style="font-size:10px;color:var(--sub);margin-top:6px;">列の番号は、左端を1として数えます。日付が読み取れない行（見出しなど）は、自動で飛ばします。</div>
+        <button type="button" class="btn btn-navy" style="margin-top:8px;" onclick="parseLgImp()">読み取る</button>
+      </div>
+      <div class="fs" id="lim-prev-wrap" style="display:none;">
+        <div class="fs-title">2. 内容を確認して、必要なら直す</div>
+        <div id="lim-carry" style="margin-bottom:10px;"></div>
+        <div style="overflow:auto;max-height:340px;" id="lim-prev"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="lim-msg" style="margin-right:auto;font-size:12px;color:var(--sub);"></span>
+      <button class="btn" onclick="closeLgImp()">キャンセル</button>
+      <button class="btn btn-gold" id="lim-go" onclick="doLgImp()" disabled>この内容で取り込む</button>
+    </div>
+  </div>
+</div>
+
 <!-- 賃貸：区分の一括追加・編集 -->
 <div class="modal-bg" id="rbk-modal">
   <div class="modal wide">
@@ -930,7 +1107,7 @@ import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https:
 const FC={apiKey:"AIzaSyDkmtJQhOITvYuB0615DIHc1fd8ju_D3F8",authDomain:"ldy-house.firebaseapp.com",projectId:"ldy-house",storageBucket:"ldy-house.firebasestorage.app",messagingSenderId:"1000570179268",appId:"1:1000570179268:web:47ebb6b077088f39f88391"};
 const app=initializeApp(FC),db=getFirestore(app),auth=getAuth(app);
 let blds=[],units=[],lblds=[],lunits=[],properties=[],currentRole='staff';
-let rb=[],ru=[],allowedCo=['LDY','MK'],coSel='all',unsubs=[];
+let rb=[],ru=[],rl=[],rsl=[],allowedCo=['LDY','MK'],coSel='all',unsubs=[];
 let editBldId=null,editUnitId=null,unitParentBldId=null;
 let openBlds=new Set();
 
@@ -1014,7 +1191,7 @@ window.migrateCompany=async function(){
   }catch(e){alert('失敗: '+e.message);console.error(e);}
   showLoading(false);
 };
-function stopSync(){unsubs.forEach(f=>{try{f();}catch(e){}});unsubs=[];rb=[];ru=[];properties=[];applyCo();}
+function stopSync(){unsubs.forEach(f=>{try{f();}catch(e){}});unsubs=[];rb=[];ru=[];rl=[];rsl=[];properties=[];applyCo();}
 function startSync(){
   stopSync();
   // 1社だけの権限の人は、その会社のデータだけを問い合わせる（ルール側でも同じ条件で制限できる）
@@ -1022,6 +1199,8 @@ function startSync(){
   const onErr=e=>{console.error(e);};
   unsubs.push(onSnapshot(q('managed_buildings'),snap=>{rb=snap.docs.map(d=>({id:d.id,...d.data()}));applyCo();renderCoFilter();render();},onErr));
   unsubs.push(onSnapshot(q('managed_units'),snap=>{ru=snap.docs.map(d=>({id:d.id,...d.data()}));applyCo();render();},onErr));
+  unsubs.push(onSnapshot(q('managed_ledger'),snap=>{rl=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
+  unsubs.push(onSnapshot(q('managed_settlements'),snap=>{rsl=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
   // 在庫物件は LDY の権限がある人だけ読み込む
   if(allowedCo.includes('LDY'))unsubs.push(onSnapshot(collection(db,'properties'),snap=>{properties=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
 }
@@ -1665,6 +1844,7 @@ window.render=function(){
   window.phReg=[];
   renderLodge();
   renderRecent();
+  renderLedger();
   const kw=(document.getElementById('f-keyword').value||'').trim().toLowerCase();
   const st=document.getElementById('f-status').value||'';
   const sortVal=document.getElementById('f-sort').value||'name';
@@ -1832,14 +2012,7 @@ function unitHtml(u){
           '<div class="kn-row full"><span class="kn-lbl">更新料</span><span class="kn-val">'+esc(u.koshinUmu||'—')+(u.koshinRyo?'／'+esc(u.koshinRyo):'')+(u.koshinTesuryo?'／事務手数料 '+yen(u.koshinTesuryo):'')+'</span></div>'+
         '</div>'+
         ((u.rentHistory&&u.rentHistory.length)?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">改定履歴：'+u.rentHistory.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(r=>esc(r.date||'—')+' '+yen(r.rent)+(r.note?'('+esc(r.note)+')':'')).join('　→　')+'</div>':'')+
-        (u.rentPayments?(()=>{
-          const yr=new Date().getFullYear();
-          const cells=Array.from({length:12},(_,i)=>i+1).map(m=>{
-            const paid=!!u.rentPayments[monthKey(yr,m)];
-            return '<div class="pay-mini-cell'+(paid?' paid':'')+'">'+m+'</div>';
-          }).join('');
-          return '<div style="margin-top:6px;"><div style="font-size:9px;color:var(--sub);margin-bottom:3px;">'+yr+'年 入金チェック</div><div class="pay-mini">'+cells+'</div></div>';
-        })():'')+
+        unitPayMini(u)+
       '</div>'+
       '<div class="unit-sub">'+
         '<div class="unit-sub-t">火災保険（賃借人加入）</div>'+
@@ -1859,6 +2032,7 @@ function unitHtml(u){
         '</div>'+
       '</div>':'')+
       unitUtilHtml(u)+
+      unitLedgerHtml(u)+
       ((u.keyReceived||u.keyReceived===0||u.keyHanded||u.keyHanded===0||u.keyNote||u.keyStatus)?'<div class="unit-sub" style="grid-column:1/-1;">'+
         '<div class="unit-sub-t">鍵管理</div>'+
         '<div class="kn-grid">'+
@@ -1950,8 +2124,11 @@ const LUF=[['lu-name','name'],['lu-status','opStatus'],['lu-size','size'],['lu-c
 window.switchView=function(v){
   document.getElementById('view-rent').style.display=v==='rent'?'':'none';
   document.getElementById('view-lodge').style.display=v==='lodge'?'':'none';
+  document.getElementById('view-ledger').style.display=v==='ledger'?'':'none';
   document.getElementById('vt-rent').classList.toggle('on',v==='rent');
   document.getElementById('vt-lodge').classList.toggle('on',v==='lodge');
+  document.getElementById('vt-ledger').classList.toggle('on',v==='ledger');
+  if(v==='ledger')renderLedger();
 };
 
 // 修繕履歴・清掃やり取り（旅館業側・共通）
@@ -2619,6 +2796,430 @@ window.saveRBulk=async function(){
   showLoading(true);
   try{await batch.commit();openBlds.add(rbBld);closeRBulk();}
   catch(e){alert('保存失敗: '+e.message);console.error(e);}
+  showLoading(false);
+};
+
+// ===== 出納・精算 =====
+const LGC=[['rent','家賃入金','in'],['kanri','管理費・共益費入金','in'],['shiki','敷金入金','in'],['reikin','礼金・更新料入金','in'],['fire_in','火災保険料の入金（入居者から）','in'],['owner_in','オーナーからの入金','in'],['other_in','その他の入金','in'],['fire_out','火災保険料の支払','out'],['guar_out','保証会社への支払','out'],['xfer_fee','振込手数料','mix'],['clean','クリーニング費','out'],['repair','修繕費','out'],['key','鍵交換費','out'],['other_out','その他の出金','out'],['mgmt_fee','管理料（業務委託料）','fee'],['office_fee','事務手数料・その他の自社収益','fee'],['owner_pay','オーナー送金','out'],['carry','繰越（開始時の残高）','in']];
+const LGN=Object.fromEntries(LGC.map(c=>[c[0],c[1]]));
+const LGDIR=Object.fromEntries(LGC.map(c=>[c[0],c[2]]));
+const LGHINT={in:'「入金」に金額を入れます。',out:'「出金」に金額を入れます。',fee:'「自社収益」に金額を入れます（オーナーの残高から差し引かれます）。',mix:'実際に払った額を「出金」、オーナーに請求する額を「自社収益」に入れます。'};
+const CYC={monthly:['毎月',1],quarterly:['四半期ごと',3],semi:['半年ごと',6],annual:['年1回',12],adhoc:['随時',0]};
+const yen0=n=>Number(n||0).toLocaleString();
+const todayJ=()=>new Date(Date.now()+9*36e5).toISOString().slice(0,10);
+const lgNet=e=>(+e.inAmt||0)-(+e.outAmt||0)-(+e.feeAmt||0);
+const entMs=e=>e.ord||(e.createdAt&&e.createdAt.seconds?e.createdAt.seconds*1000:0);
+const lgSort=(a,b)=>(a.date||'').localeCompare(b.date||'')||entMs(a)-entMs(b);
+const findBld=id=>blds.find(x=>x.id===id)||lblds.find(x=>x.id===id)||null;
+const unitsOfAny=bid=>units.filter(u=>u.bldId===bid).concat(lunits.filter(u=>u.bldId===bid)).sort(byName);
+const lgEntries=bid=>rl.filter(e=>e.bldId===bid).slice().sort(lgSort);
+const unitNameOf=e=>(unitsOfAny(e.bldId).find(u=>u.id===e.unitId)||{}).name||e.unitName||'';
+const negCls=n=>n<0?' neg':'';
+let lgBld=null,lgEditId=null,lgLastDate='';
+function lgAddM(iso,m){const [y,mo,d]=iso.split('-').map(Number);const t=new Date(Date.UTC(y,mo-1+m,1));const last=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();t.setUTCDate(Math.min(d,last));return t.toISOString().slice(0,10);}
+function lgNext(b,last){const c=CYC[b.settleCycle];if(!c||!c[1]||!last||!last.to)return '';return lgAddM(last.to,c[1]);}
+function lgCatOptions(sel,withAll){return (withAll?'<option value="">種別：すべて</option>':'')+LGC.map(c=>'<option value="'+c[0]+'"'+(c[0]===sel?' selected':'')+'>'+esc(c[1])+'</option>').join('');}
+document.getElementById('lgm-cat').innerHTML=lgCatOptions('rent',false);
+document.getElementById('lg-cat').innerHTML=lgCatOptions('',true);
+
+// ---- 区分カードへの反映 ----
+function unitPayMini(u){
+  const yr=new Date().getFullYear();
+  const led=new Set(rl.filter(e=>e.unitId===u.id&&e.cat==='rent'&&e.month&&(+e.inAmt||0)>0).map(e=>e.month));
+  const man=u.rentPayments;
+  if(!man&&!led.size)return '';
+  const cells=Array.from({length:12},(_,i)=>i+1).map(m=>{const k=monthKey(yr,m);const paid=!!(man&&man[k])||led.has(k);return '<div class="pay-mini-cell'+(paid?' paid':'')+'">'+m+'</div>';}).join('');
+  return '<div style="margin-top:6px;"><div style="font-size:9px;color:var(--sub);margin-bottom:3px;">'+yr+'年 入金チェック（出納帳の家賃入金も反映）</div><div class="pay-mini">'+cells+'</div></div>';
+}
+function unitLedgerHtml(u){
+  const es=rl.filter(e=>e.unitId===u.id).sort((a,b)=>lgSort(b,a)).slice(0,8);
+  if(!es.length)return '';
+  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入出金の履歴（出納帳より・直近8件）</div>'+
+    es.map(e=>'<div style="font-size:11px;padding:3px 0;border-bottom:1px dashed #eee;display:flex;gap:10px;"><span style="min-width:78px;font-weight:700;">'+esc((e.date||'').replace(/-/g,'/'))+'</span><span style="flex:1;">'+esc(LGN[e.cat]||e.cat||'')+(e.month?'（'+esc(e.month.replace('-','年')+'月分')+'）':'')+(e.memo?'　<span style="color:var(--sub);">'+esc(e.memo)+'</span>':'')+'</span><span style="white-space:nowrap;">'+((+e.inAmt)?'入金 '+yen0(e.inAmt):'')+((+e.outAmt)?'出金 '+yen0(e.outAmt):'')+((+e.feeAmt)?' 自社収益 '+yen0(e.feeAmt):'')+'</span></div>').join('')+
+    '<div style="margin-top:6px;font-size:11px;"><a href="#" onclick="openLedger(\''+u.bldId+'\');return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div></div>';
+}
+
+// ---- 一覧 ----
+function lgOverRows(){
+  const q=(document.getElementById('lg-q').value||'').trim().toLowerCase();
+  const today=todayJ();
+  return [...blds.map(b=>({b,kind:'賃貸'})),...lblds.map(b=>({b,kind:'旅館業・民泊'}))]
+    .filter(x=>x.b.mgmtType!=='own').filter(x=>!q||((x.b.name||'')+(x.b.owner||'')).toLowerCase().includes(q))
+    .sort((x,y)=>byName(x.b,y.b)).map(({b,kind})=>{
+      const es=lgEntries(b.id),bal=es.reduce((a,e)=>a+lgNet(e),0),open=es.filter(e=>!e.stlId).length;
+      const last=rsl.filter(s=>s.bldId===b.id).sort((x,y)=>(y.to||'').localeCompare(x.to||''))[0]||null;
+      const next=lgNext(b,last);
+      return {b,kind,bal,open,last,next,due:!!(open&&next&&next<=today),n:es.length};
+    });
+}
+function renderLgOver(){
+  const rows=lgOverRows();
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('lgs-n',rows.length);set('lgs-bal',yen0(rows.reduce((a,r)=>a+r.bal,0)));set('lgs-open',rows.reduce((a,r)=>a+r.open,0));set('lgs-due',rows.filter(r=>r.due).length);
+  const el=document.getElementById('lg-ov-list');
+  if(!rows.length){el.innerHTML='<div style="padding:30px;text-align:center;color:#999;">対象のビル・施設がありません</div>';return;}
+  el.innerHTML='<table class="lg-table"><tr><th>ビル・施設</th><th>オーナー</th><th>精算の周期</th><th>最終精算日</th><th>次回の目安</th><th class="n">預り金残高</th><th class="n">未精算の明細</th><th></th></tr>'+
+    rows.map(r=>{const co=coOf(r.b);
+      return '<tr class="row" onclick="openLedger(\''+r.b.id+'\')"><td><b>'+esc(r.b.name||'')+'</b> <span class="lg-badge">'+esc(r.kind)+'</span> <span class="rb-co '+esc(co)+'" style="margin-left:2px;">'+esc(co)+'</span></td>'+
+        '<td>'+esc(r.b.owner||'—')+'</td><td>'+esc((CYC[r.b.settleCycle]||['未設定'])[0])+'</td>'+
+        '<td>'+(r.last?esc(r.last.to.replace(/-/g,'/')):'—')+'</td>'+
+        '<td>'+(r.next?esc(r.next.replace(/-/g,'/'))+(r.due?' <span class="lg-badge due">精算の時期</span>':''):'—')+'</td>'+
+        '<td class="n'+negCls(r.bal)+'">¥'+yen0(r.bal)+'</td><td class="n">'+r.open+'</td><td><button class="btn btn-sm btn-navy" onclick="event.stopPropagation();openLedger(\''+r.b.id+'\')">台帳を開く</button></td></tr>';
+    }).join('')+'</table>';
+}
+
+// ---- 台帳 ----
+window.openLedger=function(bid){lgBld=bid;fillLgFilters();switchView('ledger');renderLedger();window.scrollTo(0,0);};
+window.lgBack=function(){lgBld=null;renderLedger();};
+function fillLgFilters(){
+  const us=unitsOfAny(lgBld);
+  document.getElementById('lg-unit').innerHTML='<option value="">区分：すべて</option><option value="__none">区分なし（全体）</option>'+us.map(u=>'<option value="'+u.id+'">'+esc(u.name||'')+'</option>').join('');
+  document.getElementById('lg-cat').value='';setVal('lg-from','');setVal('lg-to','');document.getElementById('lg-unsettled').checked=false;
+}
+function renderLedger(){
+  const v=document.getElementById('view-ledger');if(!v||v.style.display==='none')return;
+  if(lgBld&&!findBld(lgBld))lgBld=null;
+  document.getElementById('lg-over').style.display=lgBld?'none':'';
+  document.getElementById('lg-det').style.display=lgBld?'':'none';
+  if(lgBld)renderLgDetail();else renderLgOver();
+}
+function renderLgDetail(){
+  const b=findBld(lgBld);if(!b)return;
+  const all=lgEntries(b.id),today=todayJ();
+  let run=0;const bal={};all.forEach(e=>{run+=lgNet(e);bal[e.id]=run;});
+  const open=all.filter(e=>!e.stlId).length;
+  const stls=rsl.filter(s=>s.bldId===b.id).sort((x,y)=>(y.to||'').localeCompare(x.to||'')),last=stls[0]||null,next=lgNext(b,last);
+  document.getElementById('lg-head').innerHTML='<button class="btn btn-sm" onclick="lgBack()">← ビル一覧</button><b style="font-size:15px;color:var(--navy);">'+esc(b.name||'')+'</b><span class="rb-co '+esc(coOf(b))+'">'+esc(coOf(b))+'</span>'+
+    '<span style="font-size:11px;color:var(--sub);">オーナー：'+esc(b.owner||'—')+'　精算：'+esc((CYC[b.settleCycle]||['未設定'])[0])+(b.settleNote?'（'+esc(b.settleNote)+'）':'')+(next?'　次回の目安：'+esc(next.replace(/-/g,'/')):'')+'</span>'+
+    '<span style="margin-left:auto;font-size:11px;color:var(--sub);">預り金残高</span><span class="lg-bal'+negCls(run)+'">¥'+yen0(run)+'</span>'+
+    '<button class="btn btn-gold btn-sm" onclick="openLgEntry()">＋ 入出金を追加</button><button class="btn btn-navy btn-sm" onclick="openLgImp()">Excelから取込</button><button class="btn btn-navy btn-sm" onclick="openLgStl()">精算する'+(open?'（未精算 '+open+'件）':'')+'</button><button class="btn btn-sm" onclick="openLgSettings()">精算の設定</button>';
+  const fu=document.getElementById('lg-unit').value,fc=document.getElementById('lg-cat').value,ff=document.getElementById('lg-from').value,ft=document.getElementById('lg-to').value,fo=document.getElementById('lg-unsettled').checked;
+  const rows=all.filter(e=>(!fu||(fu==='__none'?!e.unitId:e.unitId===fu))&&(!fc||e.cat===fc)&&(!ff||(e.date||'')>=ff)&&(!ft||(e.date||'')<=ft)&&(!fo||!e.stlId));
+  const sm=k=>rows.reduce((a,e)=>a+(+e[k]||0),0);
+  const stlTo={};stls.forEach(s=>{stlTo[s.id]=s.to;});
+  document.getElementById('lg-table').innerHTML=rows.length?'<table class="lg-table"><tr><th>日付</th><th>区分</th><th>種別</th><th>対象月</th><th>摘要</th><th class="n">入金</th><th class="n">出金</th><th class="n">自社収益</th><th class="n">残高</th><th>精算</th></tr>'+
+    rows.map(e=>'<tr class="row'+(e.cat==='owner_pay'?' pay':'')+(e.stlId?' settled':'')+'" onclick="openLgEntry(\''+e.id+'\')"><td style="white-space:nowrap;">'+esc((e.date||'').replace(/-/g,'/'))+'</td><td>'+esc(unitNameOf(e)||'—')+'</td><td>'+esc(LGN[e.cat]||e.cat||'')+'</td><td>'+esc(e.month?e.month.replace('-','/'):'')+'</td><td>'+esc(e.memo||'')+'</td>'+
+      '<td class="n">'+((+e.inAmt)?yen0(e.inAmt):'')+'</td><td class="n">'+((+e.outAmt)?yen0(e.outAmt):'')+'</td><td class="n">'+((+e.feeAmt)?yen0(e.feeAmt):'')+'</td><td class="n'+negCls(bal[e.id])+'">'+yen0(bal[e.id])+'</td>'+
+      '<td style="white-space:nowrap;">'+(e.stlId?'<span class="lg-badge ok">済 '+esc((stlTo[e.stlId]||'').slice(5).replace('-','/'))+'</span>':'<span class="lg-badge">未</span>')+'</td></tr>').join('')+
+    '<tr class="tot"><td colspan="5">表示中の合計（'+rows.length+'件）</td><td class="n">'+yen0(sm('inAmt'))+'</td><td class="n">'+yen0(sm('outAmt'))+'</td><td class="n">'+yen0(sm('feeAmt'))+'</td><td></td><td></td></tr></table>'
+    :'<div style="padding:30px;text-align:center;color:#999;">明細がありません。「＋ 入出金を追加」か「Excelから取込」から始めてください。</div>';
+  document.getElementById('lg-stl').innerHTML=stls.length?'<table class="lg-table" style="min-width:760px;"><tr><th>期間</th><th class="n">前回繰越</th><th class="n">入金</th><th class="n">出金</th><th class="n">自社収益（管理料含む）</th><th class="n">送金額</th><th class="n">次回繰越</th><th>メモ</th><th></th></tr>'+
+    stls.map(s=>'<tr><td style="white-space:nowrap;">'+esc((s.from||'').replace(/-/g,'/'))+' 〜 '+esc((s.to||'').replace(/-/g,'/'))+'</td><td class="n">'+yen0(s.open)+'</td><td class="n">'+yen0(s.income)+'</td><td class="n">'+yen0(s.expense)+'</td><td class="n">'+yen0(s.feeTotal)+'</td><td class="n"><b>'+yen0(s.remit)+'</b></td><td class="n'+negCls(s.carry)+'">'+yen0(s.carry)+'</td><td>'+esc(s.memo||'')+'</td><td style="white-space:nowrap;"><button class="btn btn-sm btn-navy" onclick="openStatement(\''+s.id+'\')">精算書</button> <button class="btn btn-sm btn-red" onclick="cancelStl(\''+s.id+'\')">取消</button></td></tr>').join('')+'</table>'
+    :'<div style="padding:18px;text-align:center;color:#999;">まだ精算していません。</div>';
+}
+
+// ---- 明細の入力 ----
+function lgFillUnitSel(sel){
+  const us=unitsOfAny(lgBld);
+  document.getElementById('lgm-unit').innerHTML='<option value="">（区分なし・全体）</option>'+us.map(u=>'<option value="'+u.id+'">'+esc(u.name||'')+'</option>').join('');
+  document.getElementById('lgm-unit').value=sel||'';
+}
+window.lgCatChange=function(){
+  const c=document.getElementById('lgm-cat').value;
+  document.getElementById('lgm-hint').textContent=LGHINT[LGDIR[c]]||'';
+  document.getElementById('lgm-month-wrap').style.display=(c==='rent'||c==='kanri')?'':'none';
+};
+window.openLgEntry=function(id){
+  const b=findBld(lgBld);if(!b)return;
+  const e=id?rl.find(x=>x.id===id):null;
+  if(id&&!e)return;
+  lgEditId=id||null;
+  document.getElementById('lgm-head').textContent=e?'入出金を編集':'入出金を追加';
+  document.getElementById('lgm-sub').textContent=b.name||'';
+  lgFillUnitSel(e?e.unitId:'');
+  setVal('lgm-date',e?e.date:(lgLastDate||todayJ()));
+  setVal('lgm-cat',e?e.cat:'rent');if(!document.getElementById('lgm-cat').value)setVal('lgm-cat','rent');
+  setVal('lgm-month',e?e.month:'');
+  setVal('lgm-in',e&&e.inAmt?e.inAmt:'');setVal('lgm-out',e&&e.outAmt?e.outAmt:'');setVal('lgm-fee',e&&e.feeAmt?e.feeAmt:'');setVal('lgm-memo',e?e.memo:'');
+  document.getElementById('lgm-warn').style.display=(e&&e.stlId)?'':'none';
+  document.getElementById('lgm-del').style.display=e?'':'none';
+  document.getElementById('lgm-again').style.display=e?'none':'';
+  lgCatChange();
+  document.getElementById('lgm-modal').classList.add('open');
+};
+window.closeLgEntry=function(){document.getElementById('lgm-modal').classList.remove('open');lgEditId=null;};
+window.saveLgEntry=async function(again){
+  const b=findBld(lgBld);if(!b)return;
+  const date=document.getElementById('lgm-date').value;
+  if(!date){alert('日付を入力してください');return;}
+  const cat=document.getElementById('lgm-cat').value;
+  const inAmt=numOrNull(document.getElementById('lgm-in').value)||0,outAmt=numOrNull(document.getElementById('lgm-out').value)||0,feeAmt=numOrNull(document.getElementById('lgm-fee').value)||0;
+  if(!inAmt&&!outAmt&&!feeAmt){alert('入金・出金・自社収益のどれかに金額を入れてください');return;}
+  const unitId=document.getElementById('lgm-unit').value||'';
+  const un=unitId?(unitsOfAny(b.id).find(u=>u.id===unitId)||{}).name||'':'';
+  const month=(cat==='rent'||cat==='kanri')?(document.getElementById('lgm-month').value||''):'';
+  const me=(auth.currentUser||{}).email||'';
+  const obj={bldId:b.id,company:coOf(b),date,unitId,unitName:un,cat,month,inAmt,outAmt,feeAmt,memo:document.getElementById('lgm-memo').value.trim(),updatedAt:serverTimestamp(),updatedBy:me};
+  showLoading(true);
+  try{
+    if(lgEditId)await updateDoc(doc(db,'managed_ledger',lgEditId),obj);
+    else await addDoc(collection(db,'managed_ledger'),{...obj,stlId:null,ord:Date.now(),createdAt:serverTimestamp()});
+    lgLastDate=date;
+    if(again&&!lgEditId){setVal('lgm-in','');setVal('lgm-out','');setVal('lgm-fee','');setVal('lgm-memo','');setVal('lgm-month','');lgFillUnitSel('');document.getElementById('lgm-in').focus();}
+    else closeLgEntry();
+  }catch(e){alert('保存失敗: '+e.message);console.error(e);}
+  showLoading(false);
+};
+window.delLgEntry=async function(){
+  if(!lgEditId)return;
+  if(currentRole!=='admin'){alert('削除は管理者だけができます。金額の間違いは、修正して保存してください。');return;}
+  const e=rl.find(x=>x.id===lgEditId);
+  if(!confirm('この明細を削除します。元に戻せません。'+(e&&e.stlId?'\n※精算済みの明細です。発行済みの精算書と合わなくなります。':'')+'\nよろしいですか？'))return;
+  showLoading(true);
+  try{await deleteDoc(doc(db,'managed_ledger',lgEditId));closeLgEntry();}catch(err){alert('削除失敗: '+err.message);}
+  showLoading(false);
+};
+
+// ---- 精算の設定 ----
+window.openLgSettings=function(){
+  const b=findBld(lgBld);if(!b)return;
+  document.getElementById('lgs-sub').textContent=b.name||'';
+  setVal('lgs-cycle',b.settleCycle||'');setVal('lgs-note',b.settleNote||'');setVal('lgs-feecalc',b.feeCalc||'manual');
+  setVal('lgs-rate',b.feeRate);setVal('lgs-fixed',b.feeFixed);setVal('lgs-base',b.feeBase||'rent');setVal('lgs-tax',b.feeTax2||'incl');
+  document.getElementById('lgs-modal').classList.add('open');
+};
+window.closeLgSettings=function(){document.getElementById('lgs-modal').classList.remove('open');};
+window.saveLgSettings=async function(){
+  const b=findBld(lgBld);if(!b)return;
+  const f={settleCycle:document.getElementById('lgs-cycle').value,settleNote:document.getElementById('lgs-note').value.trim(),feeCalc:document.getElementById('lgs-feecalc').value,feeRate:numOrFloat(document.getElementById('lgs-rate').value),feeFixed:numOrNull(document.getElementById('lgs-fixed').value),feeBase:document.getElementById('lgs-base').value,feeTax2:document.getElementById('lgs-tax').value};
+  showLoading(true);
+  try{await updateDoc(doc(db,'managed_buildings',b.id),f);closeLgSettings();}catch(e){alert('保存失敗: '+e.message);}
+  showLoading(false);
+};
+function numOrFloat(v){const t=String(v==null?'':v).trim();if(t==='')return null;const n=parseFloat(t);return isNaN(n)?null:n;}
+
+// ---- 精算 ----
+function lgFeeCalc(b,base){
+  const t=b.feeCalc||'manual';let v=0;
+  if(t==='rate')v=base*(+b.feeRate||0)/100;else if(t==='fixed')v=+b.feeFixed||0;
+  if(t!=='manual'&&b.feeTax2==='excl')v=v*1.1;
+  return Math.floor(v+1e-9);
+}
+function stlCalc(b,to){
+  const all=lgEntries(b.id);
+  const unsettled=all.filter(e=>!e.stlId&&(e.date||'')<=to);
+  const open=all.filter(e=>e.stlId).reduce((a,e)=>a+lgNet(e),0);
+  const sum=(arr,k)=>arr.reduce((a,e)=>a+(+e[k]||0),0);
+  const inc=sum(unsettled,'inAmt'),out=sum(unsettled,'outAmt'),feeRec=sum(unsettled,'feeAmt');
+  const mgmtRec=sum(unsettled.filter(e=>e.cat==='mgmt_fee'),'feeAmt');
+  const base=sum(unsettled.filter(e=>e.cat==='rent'||(b.feeBase==='rent_kanri'&&e.cat==='kanri')),'inAmt');
+  const calc=lgFeeCalc(b,base);
+  const lastS=rsl.filter(s=>s.bldId===b.id).sort((x,y)=>(y.to||'').localeCompare(x.to||''))[0]||null;
+  const from=unsettled.length?unsettled[0].date:to;
+  return {unsettled,open,inc,out,feeRec,mgmtRec,base,calc,feeNew:Math.max(0,calc-mgmtRec),from,lastTo:lastS?lastS.to:''};
+}
+window.openLgStl=function(){
+  const b=findBld(lgBld);if(!b)return;
+  document.getElementById('lst-sub').textContent=b.name||'';
+  setVal('lst-to',todayJ());setVal('lst-memo','');
+  lstCalc(false);
+  document.getElementById('lst-modal').classList.add('open');
+};
+window.closeLgStl=function(){document.getElementById('lst-modal').classList.remove('open');};
+window.lstCalc=function(userFee){
+  const b=findBld(lgBld);if(!b)return;
+  const to=document.getElementById('lst-to').value||todayJ();
+  const c=stlCalc(b,to);
+  setVal('lst-from',c.from);
+  if(!userFee)setVal('lst-fee',c.feeNew);
+  const feeNew=numOrNull(document.getElementById('lst-fee').value)||0;
+  const remitRaw=c.open+c.inc-c.out-c.feeRec-feeNew;
+  document.getElementById('lst-feehint').textContent=(b.feeCalc&&b.feeCalc!=='manual')?('自動計算：'+(b.feeCalc==='rate'?'入金額 ¥'+yen0(c.base)+' × '+(b.feeRate||0)+'%':'定額 ¥'+yen0(b.feeFixed))+(b.feeTax2==='excl'?' ＋消費税10%':'')+' ＝ ¥'+yen0(c.calc)+(c.mgmtRec?'（すでに登録済みの管理料 ¥'+yen0(c.mgmtRec)+' を差し引いた額を入れています）':'')):'管理料の自動計算は設定されていません。必要な額を入れてください（「精算の設定」で計算方法を設定できます）。';
+  const r=(l,v,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+'><td>'+l+'</td><td class="n'+negCls(v)+'">¥'+yen0(v)+'</td></tr>';
+  document.getElementById('lst-sum').innerHTML=r('前回までの繰越',c.open)+r('＋ 入金（'+c.unsettled.filter(e=>+e.inAmt).length+'件）',c.inc)+r('− 出金（'+c.unsettled.filter(e=>+e.outAmt).length+'件）',c.out)+r('− 自社収益（登録済み）',c.feeRec)+r('− 今回追加する管理料',feeNew)+r(remitRaw>0?'オーナーへの送金額':'送金額（マイナスのため送金なし・次回へ繰越）',remitRaw,'big');
+  document.getElementById('lst-modal').dataset.n=c.unsettled.length;
+};
+window.doSettle=async function(){
+  const b=findBld(lgBld);if(!b)return;
+  const to=document.getElementById('lst-to').value;if(!to){alert('精算日を入力してください');return;}
+  const c=stlCalc(b,to);
+  if(!c.unsettled.length){alert('精算する明細がありません');return;}
+  const feeNew=numOrNull(document.getElementById('lst-fee').value)||0;
+  const remitRaw=c.open+c.inc-c.out-c.feeRec-feeNew,remit=remitRaw>0?remitRaw:0;
+  if(!confirm('この内容で精算します。\n\n送金額：¥'+yen0(remit)+(remit?'':'（送金なし）')+'\n対象の明細：'+c.unsettled.length+'件\n\n確定すると、管理料とオーナー送金の明細が台帳に自動で追加されます。よろしいですか？'))return;
+  const me=(auth.currentUser||{}).email||'',co=coOf(b),now=Date.now();
+  const stlRef=doc(collection(db,'managed_settlements'));
+  const memo=document.getElementById('lst-memo').value.trim();
+  const base={bldId:b.id,company:co,unitId:'',unitName:'',month:'',stlId:stlRef.id,auto:true,updatedBy:me,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+  const news=[];
+  if(feeNew>0)news.push({...base,date:to,cat:'mgmt_fee',inAmt:0,outAmt:0,feeAmt:feeNew,memo:'管理料（'+c.from+'〜'+to+'）',ord:now});
+  if(remit>0)news.push({...base,date:to,cat:'owner_pay',inAmt:0,outAmt:remit,feeAmt:0,memo:'オーナー送金',ord:now+1});
+  const stl={bldId:b.id,company:co,from:c.from,to,open:c.open,income:c.inc,expense:c.out,feeTotal:c.feeRec+feeNew,remit,carry:remit>0?0:remitRaw,memo,count:c.unsettled.length+news.length,by:me,createdAt:serverTimestamp()};
+  showLoading(true);
+  try{
+    const writes=[['set',stlRef,stl],...news.map(n=>['set',doc(collection(db,'managed_ledger')),n]),...c.unsettled.map(e=>['upd',doc(db,'managed_ledger',e.id),{stlId:stlRef.id}])];
+    for(let i=0;i<writes.length;i+=400){
+      const batch=writeBatch(db);
+      writes.slice(i,i+400).forEach(([t,ref,d])=>{if(t==='set')batch.set(ref,d);else batch.update(ref,d);});
+      await batch.commit();
+    }
+    closeLgStl();
+    const stlLocal={...stl,id:stlRef.id,createdAt:null};
+    const ents=c.unsettled.map(e=>({...e,stlId:stlRef.id})).concat(news.map(n=>({...n,id:'tmp'})));
+    showStatement(b,stlLocal,ents);
+  }catch(e){alert('精算に失敗しました（一部だけ反映されている可能性があります）: '+e.message);console.error(e);}
+  showLoading(false);
+};
+window.cancelStl=async function(id){
+  const s0=rsl.find(x=>x.id===id);if(!s0)return;
+  if(!confirm('この精算（'+s0.from+'〜'+s0.to+'）を取り消します。\n自動で追加された管理料・オーナー送金の明細は削除し、その他の明細は「未精算」に戻します。よろしいですか？'))return;
+  showLoading(true);
+  try{
+    const es=rl.filter(e=>e.stlId===id);
+    const writes=[['del',doc(db,'managed_settlements',id)],...es.map(e=>e.auto?['del',doc(db,'managed_ledger',e.id)]:['upd',doc(db,'managed_ledger',e.id),{stlId:null}])];
+    for(let i=0;i<writes.length;i+=400){
+      const batch=writeBatch(db);
+      writes.slice(i,i+400).forEach(([t,ref,d])=>{if(t==='del')batch.delete(ref);else batch.update(ref,d);});
+      await batch.commit();
+    }
+  }catch(e){alert('取消に失敗しました: '+e.message);console.error(e);}
+  showLoading(false);
+};
+
+// ---- 精算書 ----
+window.openStatement=function(id){
+  const s0=rsl.find(x=>x.id===id),b=s0?findBld(s0.bldId):null;
+  if(!s0||!b)return;
+  showStatement(b,s0,rl.filter(e=>e.stlId===id));
+};
+function showStatement(b,stl,es){
+  es=es.slice().sort(lgSort);
+  const G=['家賃','管理費・共益費','敷金','礼金・更新料','火災保険','その他'];
+  const grp=e=>({rent:'家賃',kanri:'管理費・共益費',shiki:'敷金',reikin:'礼金・更新料',fire_in:'火災保険'}[e.cat]||'その他');
+  const mat={};
+  es.filter(e=>(+e.inAmt||0)>0&&e.cat!=='carry').forEach(e=>{const un=unitNameOf(e)||'（区分なし）';mat[un]=mat[un]||{};const g=grp(e);mat[un][g]=(mat[un][g]||0)+(+e.inAmt);});
+  const names=Object.keys(mat).sort((a,b2)=>a.localeCompare(b2,'ja',{numeric:true}));
+  const colTot=G.map(g=>names.reduce((a,n)=>a+(mat[n][g]||0),0));
+  const sumBy=(k,excl)=>{const m={};es.filter(e=>(+e[k]||0)>0&&!excl.includes(e.cat)).forEach(e=>{m[e.cat]=(m[e.cat]||0)+(+e[k]);});return m;};
+  const outM=sumBy('outAmt',['owner_pay','carry']),feeM=sumBy('feeAmt',[]);
+  const td='style="padding:5px 8px;border-bottom:1px solid #ccc;"',tn='style="padding:5px 8px;border-bottom:1px solid #ccc;text-align:right;white-space:nowrap;"';
+  let run=+stl.open||0;
+  const rowsHtml=es.map(e=>{run+=lgNet(e);return '<tr><td '+td+'>'+esc((e.date||'').replace(/-/g,'/'))+'</td><td '+td+'>'+esc(unitNameOf(e)||'')+'</td><td '+td+'>'+esc(LGN[e.cat]||'')+(e.month?'（'+esc(e.month.replace('-','/'))+'分）':'')+'</td><td '+td+'>'+esc(e.memo||'')+'</td><td '+tn+'>'+((+e.inAmt)?yen0(e.inAmt):'')+'</td><td '+tn+'>'+((+e.outAmt)?yen0(e.outAmt):'')+'</td><td '+tn+'>'+((+e.feeAmt)?yen0(e.feeAmt):'')+'</td><td '+tn+'>'+yen0(run)+'</td></tr>';}).join('');
+  const html='<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>精算書 '+esc(b.name||'')+' '+esc(stl.to||'')+'</title><style>body{font-family:"Hiragino Kaku Gothic Pro","Yu Gothic",Meiryo,sans-serif;color:#1a1a2e;font-size:12px;margin:24px;}h1{font-size:20px;color:#1B2A6B;border-bottom:3px solid #C9A84C;padding-bottom:6px;margin:0 0 12px;}h2{font-size:13px;color:#1B2A6B;margin:20px 0 6px;border-left:4px solid #C9A84C;padding-left:8px;}table{border-collapse:collapse;width:100%;}th{background:#EEF1F8;color:#1B2A6B;font-size:11px;text-align:left;padding:5px 8px;border-bottom:2px solid #C9A84C;}.big td{font-size:15px;font-weight:700;color:#1B2A6B;}@media print{.noprint{display:none}body{margin:10mm}}</style></head><body>'+
+    '<div class="noprint" style="margin-bottom:10px;"><button onclick="window.print()" style="padding:8px 18px;font-size:13px;">印刷 / PDFで保存</button></div>'+
+    '<h1>精算書</h1><table style="margin-bottom:6px;"><tr><td>物件：<b>'+esc(b.name||'')+'</b></td><td>オーナー：<b>'+esc(b.owner||'')+(b.ownerType==='法人'?' 御中':' 様')+'</b></td></tr><tr><td>対象期間：'+esc((stl.from||'').replace(/-/g,'/'))+' 〜 '+esc((stl.to||'').replace(/-/g,'/'))+'</td><td>管理会社：'+esc(coOf(b))+'　発行日：'+esc(todayJ().replace(/-/g,'/'))+'</td></tr>'+(stl.memo?'<tr><td colspan="2">'+esc(stl.memo)+'</td></tr>':'')+'</table>'+
+    '<h2>精算の概要</h2><table style="width:60%;"><tr><td '+td+'>前回までの繰越</td><td '+tn+'>¥'+yen0(stl.open)+'</td></tr><tr><td '+td+'>入金の合計</td><td '+tn+'>¥'+yen0(stl.income)+'</td></tr><tr><td '+td+'>出金の合計</td><td '+tn+'>− ¥'+yen0(stl.expense)+'</td></tr><tr><td '+td+'>管理料・手数料など（自社収益）</td><td '+tn+'>− ¥'+yen0(stl.feeTotal)+'</td></tr><tr class="big"><td '+td+'>お振込金額</td><td '+tn+'>¥'+yen0(stl.remit)+'</td></tr>'+((+stl.carry)?'<tr><td '+td+'>次回への繰越</td><td '+tn+'>¥'+yen0(stl.carry)+'</td></tr>':'')+'</table>'+
+    '<h2>入金の内訳（区分別）</h2>'+(names.length?'<table><tr><th>区分</th>'+G.map(g=>'<th style="text-align:right;">'+g+'</th>').join('')+'<th style="text-align:right;">合計</th></tr>'+names.map(n=>'<tr><td '+td+'>'+esc(n)+'</td>'+G.map(g=>'<td '+tn+'>'+(mat[n][g]?yen0(mat[n][g]):'')+'</td>').join('')+'<td '+tn+'><b>'+yen0(G.reduce((a,g)=>a+(mat[n][g]||0),0))+'</b></td></tr>').join('')+'<tr><td '+td+'><b>合計</b></td>'+colTot.map(v=>'<td '+tn+'><b>'+(v?yen0(v):'')+'</b></td>').join('')+'<td '+tn+'><b>'+yen0(colTot.reduce((a,v)=>a+v,0))+'</b></td></tr></table>':'<div>入金はありません</div>')+
+    '<h2>出金・自社収益の内訳</h2><table style="width:60%;">'+(Object.keys(outM).length+Object.keys(feeM).length?Object.entries(outM).map(([k,v])=>'<tr><td '+td+'>'+esc(LGN[k]||k)+'（出金）</td><td '+tn+'>¥'+yen0(v)+'</td></tr>').join('')+Object.entries(feeM).map(([k,v])=>'<tr><td '+td+'>'+esc(LGN[k]||k)+'（自社収益）</td><td '+tn+'>¥'+yen0(v)+'</td></tr>').join(''):'<tr><td>なし</td></tr>')+'</table>'+
+    '<h2>明細</h2><table><tr><th>日付</th><th>区分</th><th>種別</th><th>摘要</th><th style="text-align:right;">入金</th><th style="text-align:right;">出金</th><th style="text-align:right;">自社収益</th><th style="text-align:right;">残高</th></tr>'+rowsHtml+'</table></body></html>';
+  const w=window.open('','_blank');
+  if(!w){alert('精算書を開けませんでした。ポップアップのブロックを解除してください。');return;}
+  w.document.write(html);w.document.close();
+}
+
+// ---- Excelから取込 ----
+let limRows=[],limSheetFirst=null;
+const lgDate=s=>{const m=String(s||'').trim().match(/^(\d{4})[.\/\-年](\d{1,2})[.\/\-月](\d{1,2})/);return m?m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0'):'';};
+const lgNorm=s=>String(s==null?'':s).replace(/[,\s¥円￥]/g,'').replace(/[−－ー‐–]/g,'-');
+const lgAbs=s=>{const t=lgNorm(s);if(t===''||t==='-')return 0;const n=parseFloat(t);return isNaN(n)?0:Math.abs(n);};
+const lgSigned=s=>{const t=lgNorm(s);if(t===''||t==='-')return null;const n=parseFloat(t);return isNaN(n)?null:n;};
+function lgGuessUnit(memo,bid){
+  const m=String(memo||'').match(/(\d{3,4})\s*(?:号室|号|室)/)||String(memo||'').match(/^\s*(\d{3,4})[\s　・]/);
+  if(!m)return '';
+  const hit=unitsOfAny(bid).find(u=>String(u.name||'').replace(/\D/g,'')===m[1]);
+  return hit?hit.id:'';
+}
+function lgGuessMonth(memo){
+  const m=String(memo||'').match(/(\d{4})[.\/年](\d{1,2})(?:[.\/](\d{1,2}))?\s*月度/);
+  if(!m)return '';
+  const mm=m[3]||m[2];return m[1]+'-'+String(mm).padStart(2,'0');
+}
+function lgGuessCat(memo,i,o,f){
+  const t=String(memo||'');
+  if(/オーナー.*送金/.test(t))return 'owner_pay';
+  if(/業務委託料|弊社管理費|管理料/.test(t))return 'mgmt_fee';
+  if(/事務手数料/.test(t))return 'office_fee';
+  if(/手数料/.test(t))return 'xfer_fee';
+  if(/保証会社|保証|保证/.test(t))return o?'guar_out':'other_in';
+  if(/火災保険|火灾保险|火災保|火保/.test(t))return i?'fire_in':'fire_out';
+  if(/家賃|家贅|賃料/.test(t))return 'rent';
+  if(/共益費|管理費/.test(t))return i?'kanri':'other_out';
+  if(/敷金/.test(t))return 'shiki';
+  if(/礼金|更新料/.test(t))return 'reikin';
+  if(/クリーニング/.test(t))return 'clean';
+  if(/修繕|修理/.test(t))return 'repair';
+  if(/鍵/.test(t))return 'key';
+  if(i)return 'other_in';
+  if(o)return 'other_out';
+  return f?'office_fee':'other_out';
+}
+window.openLgImp=function(){
+  const b=findBld(lgBld);if(!b)return;
+  document.getElementById('lim-sub').textContent=b.name||'';
+  setVal('lim-text','');limRows=[];limSheetFirst=null;
+  document.getElementById('lim-prev-wrap').style.display='none';document.getElementById('lim-go').disabled=true;document.getElementById('lim-msg').textContent='';
+  document.getElementById('lim-modal').classList.add('open');
+};
+window.closeLgImp=function(){document.getElementById('lim-modal').classList.remove('open');};
+window.parseLgImp=function(){
+  const b=findBld(lgBld);if(!b)return;
+  const col=id=>(parseInt(document.getElementById(id).value,10)||0)-1;
+  const cD=col('lim-c-date'),cI=col('lim-c-in'),cO=col('lim-c-out'),cF=col('lim-c-fee'),cB=col('lim-c-bal'),cM=col('lim-c-memo');
+  const lines=document.getElementById('lim-text').value.split(/\r?\n/);
+  limRows=[];let prevDate='';
+  lines.forEach(line=>{
+    const c=line.split('\t');let date=lgDate(c[cD]);
+    const inA=lgAbs(c[cI]),outA0=lgAbs(c[cO]),feeA0=lgAbs(c[cF]),memo=String(c[cM]==null?'':c[cM]).trim();
+    if(!inA&&!outA0&&!feeA0)return;
+    if(!date){if(!prevDate)return;date=prevDate;}else prevDate=date;
+    const cat=lgGuessCat(memo,inA,outA0,feeA0);
+    let outA=outA0,feeA=feeA0;
+    if((cat==='mgmt_fee'||cat==='office_fee')&&!inA&&!feeA&&outA){feeA=outA;outA=0;}
+    limRows.push({date,inA,outA,feeA,memo,sheetBal:cB>=0?lgSigned(c[cB]):null,unitId:lgGuessUnit(memo,b.id),cat,month:(cat==='rent'||cat==='kanri')?lgGuessMonth(memo):'',skip:false});
+  });
+  if(!limRows.length){alert('読み取れる行がありません。日付の列の番号と、貼り付けた内容を確認してください。');return;}
+  const first=limRows.find(r=>r.sheetBal!=null);
+  const hasExisting=lgEntries(b.id).length>0;
+  limSheetFirst=first?(first.sheetBal-(first.inA-first.outA-first.feeA)):null;
+  document.getElementById('lim-carry').innerHTML=(limSheetFirst!=null&&!hasExisting)?'<label style="font-size:12px;"><input type="checkbox" id="lim-carry-on" checked onchange="renderLgImp()"/> 最初の行の前に、繰越残高として <b>¥'+yen0(limSheetFirst)+'</b> を追加する（シートの残高に合わせるため）</label>':(hasExisting?'<span style="font-size:11px;color:var(--sub);">すでに台帳に明細があるため、繰越は追加しません。シートの残高との比較は、貼り付けた行の中だけで行います。</span>':'');
+  document.getElementById('lim-prev-wrap').style.display='';
+  renderLgImp();
+};
+window.limSet=function(i,k,v){if(limRows[i]){limRows[i][k]=v;if(k==='cat'){const r0=limRows[i];if((v==='mgmt_fee'||v==='office_fee')&&!r0.inA&&!r0.feeA&&r0.outA){r0.feeA=r0.outA;r0.outA=0;}const c=v==='rent'||v==='kanri';if(!c)limRows[i].month='';else if(!limRows[i].month)limRows[i].month=lgGuessMonth(limRows[i].memo);renderLgImp();}}};
+window.limSkip=function(i,v){if(limRows[i]){limRows[i].skip=v;renderLgImp();}};
+window.renderLgImp=function(){
+  const b=findBld(lgBld);if(!b)return;
+  const us=unitsOfAny(b.id);
+  const carryOn=document.getElementById('lim-carry-on')&&document.getElementById('lim-carry-on').checked;
+  let run=carryOn?limSheetFirst:(limSheetFirst!=null&&!lgEntries(b.id).length?0:null);
+  let mism=0,used=0;
+  const rows=limRows.map((r,i)=>{
+    let calc='',bad=false;
+    if(!r.skip){used++;if(run!=null){run+=r.inA-r.outA-r.feeA;calc=run;}else if(r.sheetBal!=null){calc='';}}
+    if(!r.skip&&calc!==''&&r.sheetBal!=null&&Math.round(calc)!==Math.round(r.sheetBal)){bad=true;mism++;}
+    const uopt='<option value="">（なし）</option>'+us.map(u=>'<option value="'+u.id+'"'+(u.id===r.unitId?' selected':'')+'>'+esc(u.name||'')+'</option>').join('');
+    return '<tr style="'+(r.skip?'opacity:.4;':'')+(bad?'background:#FFF0F0;':'')+'"><td style="white-space:nowrap;">'+esc(r.date.replace(/-/g,'/'))+'</td>'+
+      '<td><select style="width:96px;" onchange="limSet('+i+',\'unitId\',this.value)">'+uopt+'</select></td>'+
+      '<td><select style="width:170px;" onchange="limSet('+i+',\'cat\',this.value)">'+lgCatOptions(r.cat,false)+'</select></td>'+
+      '<td><input type="month" value="'+esc(r.month)+'" style="width:120px;" '+((r.cat==='rent'||r.cat==='kanri')?'':'disabled ')+'onchange="limSet('+i+',\'month\',this.value)"/></td>'+
+      '<td style="min-width:200px;">'+esc(r.memo)+'</td><td class="n">'+(r.inA?yen0(r.inA):'')+'</td><td class="n">'+(r.outA?yen0(r.outA):'')+'</td><td class="n">'+(r.feeA?yen0(r.feeA):'')+'</td>'+
+      '<td class="n">'+(r.sheetBal!=null?yen0(r.sheetBal):'')+'</td><td class="n'+(bad?' neg':'')+'">'+(calc!==''?yen0(calc):'')+(bad?' ⚠':'')+'</td>'+
+      '<td><label style="font-size:11px;"><input type="checkbox" '+(r.skip?'checked ':'')+'onchange="limSkip('+i+',this.checked)"/> 除く</label></td></tr>';
+  }).join('');
+  document.getElementById('lim-prev').innerHTML='<table class="lg-table" style="min-width:1100px;"><tr><th>日付</th><th>区分</th><th>種別</th><th>対象月</th><th>摘要</th><th class="n">入金</th><th class="n">出金</th><th class="n">自社収益</th><th class="n">シートの残高</th><th class="n">計算した残高</th><th></th></tr>'+rows+'</table>';
+  document.getElementById('lim-msg').textContent=used+'件を取り込みます'+(mism?'（残高がシートと合わない行が '+mism+'件あります。区分・金額を確認してください）':(limRows.some(r=>r.sheetBal!=null)&&run!=null?'（残高はシートと一致しています）':''));
+  document.getElementById('lim-go').disabled=!used;
+};
+window.doLgImp=async function(){
+  const b=findBld(lgBld);if(!b)return;
+  const list=limRows.filter(r=>!r.skip);if(!list.length)return;
+  const carryOn=document.getElementById('lim-carry-on')&&document.getElementById('lim-carry-on').checked;
+  if(!confirm(list.length+'件の明細'+(carryOn?'と、繰越残高 ¥'+yen0(limSheetFirst):'')+'を取り込みます。よろしいですか？'))return;
+  const me=(auth.currentUser||{}).email||'',co=coOf(b),base=Date.now();
+  const unitName=id=>(unitsOfAny(b.id).find(u=>u.id===id)||{}).name||'';
+  const docs=[];
+  let k=0;
+  if(carryOn)docs.push({bldId:b.id,company:co,date:list[0].date,unitId:'',unitName:'',cat:'carry',month:'',inAmt:limSheetFirst>0?limSheetFirst:0,outAmt:limSheetFirst<0?-limSheetFirst:0,feeAmt:0,memo:'繰越残高（取込時）',stlId:null,ord:base+(k++),auto:false,updatedBy:me});
+  list.forEach(r=>docs.push({bldId:b.id,company:co,date:r.date,unitId:r.unitId||'',unitName:unitName(r.unitId),cat:r.cat,month:(r.cat==='rent'||r.cat==='kanri')?(r.month||''):'',inAmt:r.inA,outAmt:r.outA,feeAmt:r.feeA,memo:r.memo,stlId:null,ord:base+(k++),updatedBy:me}));
+  showLoading(true);
+  try{
+    for(let i=0;i<docs.length;i+=400){
+      const batch=writeBatch(db);
+      docs.slice(i,i+400).forEach(d=>batch.set(doc(collection(db,'managed_ledger')),{...d,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+      await batch.commit();
+    }
+    closeLgImp();
+  }catch(e){alert('取込に失敗しました（一部だけ反映されている可能性があります）: '+e.message);console.error(e);}
   showLoading(false);
 };
 
