@@ -218,6 +218,9 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .rb-bd{display:inline-block;font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;color:#fff;margin-top:2px;}
 .rb-bd.over{background:#C62828;}.rb-bd.d30{background:#E65100;}.rb-bd.d90{background:#B8860B;}.rb-bd.ok{background:#1B2A6B;}.rb-bd.none{background:#999;}
 @media(max-width:600px){.recent-bar{padding:8px 10px;}.rb-row.c{grid-template-columns:104px 1fr;}.rb-row.c>div:last-child{grid-column:1/-1;text-align:left!important;}}
+.bk-table .stk{position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 #e5e5e5;}
+.bk-table th.stk{background:#EEF1F8;}
+.bk-table tr.bk-del td.stk{background:#FFF0F0;}
 </style>
 </head>
 <body>
@@ -831,9 +834,8 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
 <!-- 賃貸：区分の一括追加・編集 -->
 <div class="modal-bg" id="rbk-modal">
-  <button type="button" class="btn btn-sm btn-gold" onclick="exportCsv('r')">現在の区分をCSVでダウンロード</button>
   <div class="modal wide">
-    <div class="modal-head"><div><h3>区分を一括で追加・編集</h3><div class="modal-sub" id="rbk-sub"></div></div><button class="modal-close" onclick="closeRBulk()">✕</button></div>
+    <div class="modal-head"><div><h3>区分を一括で追加・編集（全項目）</h3><div class="modal-sub" id="rbk-sub"></div></div><button class="modal-close" onclick="closeRBulk()">✕</button></div>
     <div class="modal-body">
       <div class="fs">
         <div class="fs-title">連番でまとめて追加</div>
@@ -845,36 +847,22 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genRBulkRows()">表に追加</button>
         </div>
         <div class="fr"><label>既存の区分をコピーして追加する場合、コピー元を選択（任意）</label><select id="rbk-tpl"></select></div>
-        <div class="days-auto" id="rbk-preview">コピー元を選ぶと、面積・用途・契約種別・賃料・管理費・敷金・更新料・支払時期などを引き継ぎます。契約者・日付・保険・保証会社・鍵・ライフラインなどは引き継ぎません。</div>
-      　<div class="fr" style="margin-top:10px;"><label>CSVから取り込み（区画名が同じ行は更新、違う行は新規追加）</label>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button type="button" class="btn btn-sm" onclick="downloadCsvTemplate('r')">ひな形をダウンロード</button>
-    <button type="button" class="btn btn-sm btn-navy" onclick="document.getElementById('rbk-csv').click()">CSVを選択</button>
-  </div>
-  <input type="file" id="rbk-csv" accept=".csv,text/csv" style="display:none;" onchange="importCsv('r',event)"/>
-</div>
+        <div class="days-auto" id="rbk-preview">コピー元を選ぶと、面積・用途・契約種別・賃料・管理費・敷金・礼金・更新料・支払時期などを引き継ぎます。契約者・契約日・火災保険・保証会社・鍵・リフォーム・備考は引き継ぎません。</div>
       </div>
       <div class="fs">
-        <div class="fs-title">全行にまとめて反映（入力した項目だけ）</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
-          <div class="fr"><label>契約状況</label><select id="rbk-all-status"></select></div>
-          <div class="fr"><label>契約種別</label><select id="rbk-all-type"></select></div>
-          <div class="fr"><label>面積</label><input id="rbk-all-size" placeholder="例：約52.92㎡"/></div>
-          <div class="fr"><label>用途（大分類）</label><input id="rbk-all-use1" placeholder="例：店舗"/></div>
-          <div class="fr"><label>用途（詳細）</label><input id="rbk-all-use2" placeholder="例：飲食店"/></div>
-          <div class="fr"><label>賃料（円）</label><input id="rbk-all-rent" type="number"/></div>
-          <div class="fr"><label>管理費・共益費（円）</label><input id="rbk-all-kanri" type="number"/></div>
-          <div class="fr"><label>敷金（円）</label><input id="rbk-all-shiki" type="number"/></div>
-          <div class="fr"><label>契約始期</label><input id="rbk-all-start" type="date"/></div>
-          <div class="fr"><label>契約終期</label><input id="rbk-all-end" type="date"/></div>
+        <div class="fs-title">項目を選んで、全行にまとめて反映</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
+          <div class="fr"><label>反映する項目</label><select id="rbk-all-col" onchange="rbkAllBuild()"></select></div>
+          <div class="fr"><label>入力する内容</label><span id="rbk-all-val"></span></div>
+          <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="applyAllRBulk()">全行に反映</button>
         </div>
-        <button type="button" class="btn btn-navy" onclick="applyAllRBulk()">全行に反映</button>
       </div>
       <div class="fs">
-        <div class="fs-title">区分一覧</div>
+        <div class="fs-title">区分一覧（下のタブで項目のグループを切り替えます。区画名は常に左に表示されます）</div>
+        <div id="rbk-groups" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
         <div style="overflow-x:auto;" id="rbk-table"></div>
         <button type="button" class="btn btn-sm btn-navy" style="margin-top:8px;" onclick="addRBulkRow()">＋ 1行追加</button>
-        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ここでは基本項目だけ編集できます。賃料を変えると、最新の賃料改定履歴の金額が変わります（値上げの記録を残したい場合は、各区分の「編集」から履歴を追加してください）。火災保険・保証会社・鍵などは、各区分の「編集」から入力してください。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ここでは区分のすべての入力項目を編集できます。賃料を変えると、最新の賃料改定履歴の金額が変わります。「更新後の始期・終期」は、最新の更新履歴を直します（なければ新しく追加します）。賃料改定の履歴の追加・入金チェック・やり取りの記録・電気水道ガスは、各区分の「編集」から入力してください。</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -886,7 +874,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
 <!-- 旅館業・民泊：区分の一括追加・編集 -->
 <div class="modal-bg" id="lbk-modal">
-  <button type="button" class="btn btn-sm btn-gold" onclick="exportCsv('l')">現在の区分をCSVでダウンロード</button>
   <div class="modal wide">
     <div class="modal-head"><div><h3>区分を一括で追加・編集</h3><div class="modal-sub" id="lbk-sub"></div></div><button class="modal-close" onclick="closeLBulk()">✕</button></div>
     <div class="modal-body">
@@ -900,13 +887,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genBulkRows()">表に追加</button>
         </div>
         <div class="days-auto" id="lbk-preview">例：頭=空欄・開始=101・個数=3・後ろ=号室 → 101号室、102号室、103号室</div>
-        <div class="fr" style="margin-top:10px;"><label>CSVから取り込み（区画名が同じ行は更新、違う行は新規追加）</label>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button type="button" class="btn btn-sm" onclick="downloadCsvTemplate('l')">ひな形をダウンロード</button>
-    <button type="button" class="btn btn-sm btn-navy" onclick="document.getElementById('lbk-csv').click()">CSVを選択</button>
-  </div>
-  <input type="file" id="lbk-csv" accept=".csv,text/csv" style="display:none;" onchange="importCsv('l',event)"/>
-</div>
       </div>
       <div class="fs">
         <div class="fs-title">全行にまとめて反映（入力した項目だけ）</div>
@@ -924,7 +904,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fs-title">区分一覧</div>
         <div style="overflow-x:auto;" id="lbk-table"></div>
         <button type="button" class="btn btn-sm btn-navy" style="margin-top:8px;" onclick="addBulkRow()">＋ 1行追加</button>
-        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ここでは基本項目だけ編集できます。ライフライン・修繕・保健所とのやり取りなどは、各区分の「編集」から入力してください。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ここでは区分の主な入力項目を編集できます。ライフライン・修繕・保健所とのやり取りは、各区分の「編集」から入力してください。</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -2237,7 +2217,7 @@ function renderRecent(){
     return '<div class="rb-row c" onclick="jumpRecent(\'rent\',\''+u.bldId+'\')">'+
       '<div class="rb-d">'+esc(end?end.replace(/-/g,'/'):'—')+'<small><span class="rb-bd '+cls+'">'+label+'</span></small></div>'+
       '<div><span class="rb-k">'+esc(u.contractType||'—')+'</span><b>'+esc(bn(u.bldId)+'／'+(u.name||''))+'</b><span class="rb-co '+esc(co)+'">'+esc(co)+'</span>'+
-        '<br><span class="rb-s">'+esc(u.tenant||'契約者未登録')+(u.status==='解約予告中'?'　解約予告中':'')+(nr?'　更新'+nr+'回':'　初回契約')+'</span></div>'+
+        '<br><span class="rb-s">'+esc(u.tenant||'契約者未登録')+(u.tenantKana?'（'+esc(u.tenantKana)+'）':'')+(u.tenantTel?'　'+esc(u.tenantTel):'')+(u.status==='解約予告中'?'　解約予告中':'')+(nr?'　更新'+nr+'回':'　初回契約')+'</span></div>'+
       '<div class="rb-s" style="text-align:right;">'+(u.rent?yen(u.rent)+'<br>':'')+'<button class="btn btn-sm btn-navy" onclick="event.stopPropagation();openUnitModal(\''+u.bldId+'\',\''+u.id+'\')">更新を記録</button></div></div>';
   }).join('');
 }
@@ -2372,7 +2352,7 @@ function cleanerHtml(b){
 }
 
 // ===== 区分の一括追加・編集（旅館業・民泊） =====
-const BK=['name','opStatus','size','capacity','use','licType','licNo','licExp'];
+const BK=['name','opStatus','size','capacity','use','licType','licNo','licOffice','licDate','licExp','licNote','memo'];
 let bulkRows=[],bulkBld=null;
 const bkScopeUnit=()=>{const b=lblds.find(x=>x.id===bulkBld);return !(b&&b.licScope==='building');};
 window.openLBulk=function(bldId){
@@ -2420,7 +2400,7 @@ window.bkDel=function(i){
 };
 function renderBulk(){
   const su=bkScopeUnit();
-  const head='<tr><th>#</th><th>区画名 *</th><th>営業状況</th><th>面積</th><th>定員</th><th>間取り・タイプ</th>'+(su?'<th>免許種別</th><th>許可・届出番号</th><th>期限</th>':'')+'<th></th></tr>';
+  const head='<tr><th>#</th><th>区画名 *</th><th>営業状況</th><th>面積</th><th>定員</th><th>間取り・タイプ</th>'+(su?'<th>免許種別</th><th>許可・届出番号</th><th>届出先</th><th>取得・届出日</th><th>期限</th><th>免許の備考</th>':'')+'<th>備考</th><th></th></tr>';
   const body=bulkRows.map((r,i)=>{
     const I=(k,t,w,ph)=>'<input type="'+t+'" value="'+esc(r[k])+'"'+(ph?' placeholder="'+ph+'"':'')+' style="width:'+w+'" oninput="bkSet('+i+',\''+k+'\',this.value)"/>';
     const S=(k,arr,empty)=>'<select style="width:100%" onchange="bkSet('+i+',\''+k+'\',this.value)">'+(empty?'<option value="">'+empty+'</option>':'')+arr.map(x=>'<option'+(r[k]===x?' selected':'')+'>'+x+'</option>').join('')+'</select>';
@@ -2430,10 +2410,10 @@ function renderBulk(){
       '<td>'+I('size','text','90px')+'</td>'+
       '<td>'+I('capacity','number','60px')+'</td>'+
       '<td>'+I('use','text','110px')+'</td>'+
-      (su?'<td style="min-width:170px;">'+S('licType',LIC,'未設定')+'</td><td>'+I('licNo','text','120px')+'</td><td>'+I('licExp','date','130px')+'</td>':'')+
+      (su?'<td style="min-width:170px;">'+S('licType',LIC,'未設定')+'</td><td>'+I('licNo','text','120px')+'</td><td>'+I('licOffice','text','120px')+'</td><td>'+I('licDate','date','130px')+'</td><td>'+I('licExp','date','130px')+'</td><td>'+I('licNote','text','160px')+'</td>':'')+'<td>'+I('memo','text','180px')+'</td>'+
       '<td style="white-space:nowrap;"><button type="button" class="btn btn-sm '+(r.del?'':'btn-red')+'" onclick="bkDel('+i+')">'+(r.id?(r.del?'取消':'削除'):'行を消す')+'</button></td></tr>';
   }).join('');
-  document.getElementById('lbk-table').innerHTML='<table class="bk-table">'+head+(body||'<tr><td colspan="10" style="text-align:center;color:#aaa;padding:16px;">区分がありません。上の「連番でまとめて追加」か「＋ 1行追加」で追加してください。</td></tr>')+'</table>';
+  document.getElementById('lbk-table').innerHTML='<table class="bk-table">'+head+(body||'<tr><td colspan="14" style="text-align:center;color:#aaa;padding:16px;">区分がありません。上の「連番でまとめて追加」か「＋ 1行追加」で追加してください。</td></tr>')+'</table>';
 }
 window.saveLBulk=async function(){
   const b=lblds.find(x=>x.id===bulkBld);if(!b)return;
@@ -2446,13 +2426,11 @@ window.saveLBulk=async function(){
       if(r.del){batch.delete(doc(db,'managed_units',r.id));n++;return;}
       const f={};
       BK.forEach(k=>{const nv=(r[k]||'').trim(),ov=(r.orig[k]||'').trim();if(nv!==ov)f[k]=nv;});
-      if(r.extra)Object.assign(f,r.extra);
       if(Object.keys(f).length){f.updatedAt=serverTimestamp();batch.update(doc(db,'managed_units',r.id),f);n++;upd++;}
     }else{
       const nm=(r.name||'').trim();if(!nm)return;
       const o={biz:'lodging',bldId:bulkBld,company:bldCo(bulkBld),createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
       BK.forEach(k=>{o[k]=(r[k]||'').trim();});
-      if(r.extra)Object.assign(o,r.extra);
       if(!o.opStatus)o.opStatus='営業中';
       batch.set(doc(collection(db,'managed_units')),o);n++;add++;
     }
@@ -2492,12 +2470,25 @@ window.copyLU=function(id){
   renderLogsL('luh');renderRepairsL('lu');renderUtil('lu');
 };
 
-// ===== 賃貸：区分の一括追加・編集 =====
+// ===== 賃貸：区分の一括追加・編集（全項目） =====
 const RST=['契約中','解約予告中','募集中','退去済'],RTY=['普通借家','定期借家'];
-const RBK=['name','status','size','use1','use2','tenant','contractType','start','end','rent','kanri','shikikin'];
-const RBK_NUM=['rent','kanri','shikikin'];
-const RCOPY=['noticeLessor','noticeLessee','noticeMethod','shikikinNote','shikikinHolder','reikin','hoshoFirst','koshinUmu','koshinRyo','koshinTesuryo','payTiming','payMethod'];
-let rbRows=[],rbBld=null;
+const KEYOPT=[['','未設定'],['normal','通常（預かり→引渡し）'],['inherited','入居中に管理受託']];
+const YN=[['','未設定'],['有','有'],['無','無']];
+// [キー, 見出し, 種類, 選択肢, 幅]
+const RCOLS={
+  basic:{label:'基本',cols:[['status','契約状況','sel',RST.map(x=>[x,x]),100],['size','面積','text',null,90],['use1','用途（大分類）','text',null,100],['use2','用途（詳細）','text',null,110],['memo','備考','text',null,220]]},
+  ten:{label:'契約者',cols:[['tenantType','区分','sel',[['個人','個人'],['法人','法人']],70],['tenant','契約者名（会社名）','text',null,150],['tenantKana','フリガナ','text',null,150],['nationality','国籍（個人）','text',null,90],['tenantTel','電話番号','text',null,120],['tenantContact','担当者名（法人）','text',null,120],['tenantContactTel','担当者電話','text',null,120]]},
+  term:{label:'契約期間',cols:[['contractType','契約種別','sel',RTY.map(x=>[x,x]),96],['start','初回 始期','date',null,128],['end','初回 終期','date',null,128],['renStart','更新後 始期（最新）','date',null,128],['renEnd','更新後 終期（最新）','date',null,128],['noticeLessor','解約予告 貸主→借主','text',null,130],['noticeLessee','解約予告 借主→貸主','text',null,130],['noticeMethod','予告方法','text',null,100]]},
+  money:{label:'賃料・一時金',cols:[['rent','賃料（円）','number',null,100],['kanri','管理費・共益費（円）','number',null,110],['payTiming','賃料の支払時期','text',null,190],['payMethod','賃料の支払方法','text',null,110],['shikikin','敷金（円）','number',null,100],['shikikinNote','敷金の備考','text',null,110],['shikikinHolder','敷金の保管者','sel',[['','未設定'],['オーナー','オーナー'],['自社（LDY）','自社（LDY）']],110],['reikin','礼金（円）','number',null,90],['hoshoFirst','初回保証委託料（円）','number',null,110],['koshinUmu','更新料の有無','sel',YN,80],['koshinTesuryo','更新事務手数料（円）','number',null,110],['koshinRyo','更新料','text',null,150]]},
+  ins:{label:'保険・保証会社',cols:[['kasaiStatus','火災保険','sel',[['','未設定'],['未加入','未加入'],['加入済み','加入済み']],100],['kasaiCompany','保険会社','text',null,120],['kasaiStart','保険期間 開始','date',null,128],['kasaiEnd','保険期間 終了','date',null,128],['hoshoName','保証会社名','text',null,130],['hoshoTel','保証会社 電話','text',null,120],['hoshoAddr','保証会社 所在地','text',null,180],['hoshoFee','委託料（円）','number',null,90],['hoshoCycle','委託料の周期','text',null,100]]},
+  etc:{label:'鍵・リフォーム',cols:[['keyStatus','鍵の引継ぎ','sel',KEYOPT,180],['keyReceived','預かり（本）','number',null,70],['keyHanded','引渡し（本）','number',null,70],['keyNote','鍵の備考','text',null,160],['reformStart','リフォーム開始','date',null,128],['reformEnd','リフォーム終了','date',null,128],['reformNote','リフォーム備考','text',null,180]]}
+};
+const RALL=Object.entries(RCOLS).flatMap(([g,v])=>v.cols.map(c=>c.concat([g])));
+const RKEYS=RALL.map(c=>c[0]);
+const RNUM=new Set(RALL.filter(c=>c[2]==='number').map(c=>c[0]));
+// コピー元から引き継がない項目（契約者・日付・保険・保証会社・鍵・リフォーム・備考など）
+const RCOPY_EXCL=new Set(['status','tenant','tenantKana','nationality','tenantTel','tenantContact','tenantContactTel','start','end','renStart','renEnd','kasaiStatus','kasaiCompany','kasaiStart','kasaiEnd','hoshoName','hoshoTel','hoshoAddr','hoshoFee','hoshoCycle','keyStatus','keyReceived','keyHanded','keyNote','reformStart','reformEnd','reformNote','memo']);
+let rbRows=[],rbBld=null,rbGroup='basic';
 const numOrNull=v=>{const t=String(v==null?'':v).trim();if(t==='')return null;const n=parseInt(t,10);return isNaN(n)?null:n;};
 function histOf(u){return (u.rentHistory&&u.rentHistory.length)?JSON.parse(JSON.stringify(u.rentHistory)):(u.rent?[{date:u.start||'',rent:u.rent,note:'（旧データから自動移行）'}]:[]);}
 function setLatestRent(hist,rent,dateIfNew){
@@ -2505,33 +2496,37 @@ function setLatestRent(hist,rent,dateIfNew){
   if(best<0){if(!hist.length)hist.push({date:dateIfNew||'',rent:'',note:''});best=hist.length-1;}
   hist[best].rent=rent;return hist;
 }
+const sortedRen=u=>(u.renewals||[]).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||'')).map(x=>({...x}));
 window.openRBulk=function(bldId){
   const b=blds.find(x=>x.id===bldId);if(!b)return;
-  rbBld=bldId;
+  rbBld=bldId;rbGroup='basic';
   rbRows=units.filter(u=>u.bldId===bldId).slice().sort(byName).map(u=>{
-    const o={};RBK.forEach(k=>{const v=k==='status'?u.status:k==='shikikin'?u.shikikin:u[k];o[k]=v==null?'':String(v);});
-    return {id:u.id,orig:o,...o,del:false,extra:null};
+    const ren=sortedRen(u),lr=ren.length?ren[ren.length-1]:null;
+    const o={name:u.name==null?'':String(u.name)};
+    RKEYS.forEach(k=>{const v=k==='renStart'?(lr?lr.start:''):k==='renEnd'?(lr?lr.end:''):u[k];o[k]=v==null?'':String(v);});
+    return {id:u.id,orig:{...o},...o,del:false};
   });
   document.getElementById('rbk-sub').textContent=b.name||'';
-  document.getElementById('rbk-all-status').innerHTML=optsHtml(RST,'変更しない');
-  document.getElementById('rbk-all-type').innerHTML=optsHtml(RTY,'変更しない');
   const all=units.slice().sort((x,y)=>{const bx=(blds.find(k=>k.id===x.bldId)||{}).name||'',by=(blds.find(k=>k.id===y.bldId)||{}).name||'';return bx.localeCompare(by,'ja')||byName(x,y);});
   document.getElementById('rbk-tpl').innerHTML='<option value="">コピーしない</option>'+all.map(u=>'<option value="'+u.id+'">'+esc(((blds.find(k=>k.id===u.bldId)||{}).name||'')+'／'+(u.name||''))+'</option>').join('');
-  ['rbk-prefix','rbk-suffix','rbk-all-size','rbk-all-use1','rbk-all-use2','rbk-all-rent','rbk-all-kanri','rbk-all-shiki','rbk-all-start','rbk-all-end'].forEach(i=>setVal(i,''));
-  setVal('rbk-start','101');setVal('rbk-count','5');
-  renderRBulk();
+  document.getElementById('rbk-all-col').innerHTML=RALL.map(c=>'<option value="'+c[0]+'">【'+RCOLS[c[5]].label+'】'+esc(c[1])+'</option>').join('');
+  ['rbk-prefix','rbk-suffix'].forEach(i=>setVal(i,''));setVal('rbk-start','101');setVal('rbk-count','5');
+  rbkAllBuild();renderRBulk();
   document.getElementById('rbk-modal').classList.add('open');
 };
 window.closeRBulk=function(){document.getElementById('rbk-modal').classList.remove('open');};
+window.rbkGroup=function(g){rbGroup=g;renderRBulk();};
+window.rbkAllBuild=function(){
+  const k=document.getElementById('rbk-all-col').value,c=RALL.find(x=>x[0]===k);if(!c)return;
+  document.getElementById('rbk-all-val').innerHTML=c[2]==='sel'
+    ?'<select id="rbk-all-in" style="width:100%;font-size:13px;padding:8px 10px;border:1.5px solid #ddd;border-radius:4px;">'+c[3].map(o=>'<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>').join('')+'</select>'
+    :'<input id="rbk-all-in" type="'+c[2]+'" style="width:100%;font-size:13px;padding:8px 10px;border:1.5px solid #ddd;border-radius:4px;"/>';
+};
 function newRBulkRow(name,tpl){
-  const o={};RBK.forEach(k=>{o[k]='';});o.name=name||'';o.status='募集中';o.contractType='普通借家';
-  let extra=null;
-  if(tpl){
-    ['size','use1','use2','contractType','kanri','shikikin'].forEach(k=>{if(tpl[k]!=null&&tpl[k]!=='')o[k]=String(tpl[k]);});
-    if(tpl.rent!=null)o.rent=String(tpl.rent);
-    extra={};RCOPY.forEach(k=>{if(tpl[k]!=null&&tpl[k]!=='')extra[k]=tpl[k];});
-  }
-  return {id:null,orig:{},...o,del:false,extra};
+  const o={name:name||''};RKEYS.forEach(k=>{o[k]='';});
+  o.status='募集中';o.contractType='普通借家';o.tenantType='個人';
+  if(tpl)RKEYS.forEach(k=>{if(RCOPY_EXCL.has(k))return;const v=tpl[k];if(v!=null&&v!=='')o[k]=String(v);});
+  return {id:null,orig:{},...o,del:false};
 }
 window.addRBulkRow=function(){rbRows.push(newRBulkRow('',null));renderRBulk();};
 window.genRBulkRows=function(){
@@ -2546,30 +2541,30 @@ window.genRBulkRows=function(){
   renderRBulk();
 };
 window.applyAllRBulk=function(){
-  const v={status:document.getElementById('rbk-all-status').value,contractType:document.getElementById('rbk-all-type').value,size:document.getElementById('rbk-all-size').value.trim(),use1:document.getElementById('rbk-all-use1').value.trim(),use2:document.getElementById('rbk-all-use2').value.trim(),rent:document.getElementById('rbk-all-rent').value.trim(),kanri:document.getElementById('rbk-all-kanri').value.trim(),shikikin:document.getElementById('rbk-all-shiki').value.trim(),start:document.getElementById('rbk-all-start').value,end:document.getElementById('rbk-all-end').value};
-  const keys=Object.keys(v).filter(k=>v[k]);
-  if(!keys.length){alert('反映する項目を入力してください');return;}
-  rbRows.forEach(r=>{if(!r.del)keys.forEach(k=>{r[k]=v[k];});});
-  renderRBulk();
+  const k=document.getElementById('rbk-all-col').value,inp=document.getElementById('rbk-all-in');if(!k||!inp)return;
+  const v=inp.value;
+  if(!confirm('「'+RALL.find(c=>c[0]===k)[1]+'」を、削除予定以外の全行（'+rbRows.filter(r=>!r.del).length+'行）に「'+(v===''?'（空欄）':v)+'」で反映します。よろしいですか？'))return;
+  rbRows.forEach(r=>{if(!r.del)r[k]=v;});
+  const g=RALL.find(c=>c[0]===k)[5];rbGroup=g;renderRBulk();
 };
 window.rbkSet=function(i,k,v){if(rbRows[i])rbRows[i][k]=v;};
 window.rbkDel=function(i){const r=rbRows[i];if(!r)return;if(!r.id)rbRows.splice(i,1);else r.del=!r.del;renderRBulk();};
 function renderRBulk(){
-  const head='<tr><th>#</th><th>区画名 *</th><th>契約状況</th><th>面積</th><th>用途（大）</th><th>用途（詳細）</th><th>契約者名</th><th>契約種別</th><th>契約始期</th><th>契約終期</th><th>賃料（円）</th><th>管理費（円）</th><th>敷金（円）</th><th></th></tr>';
+  const g=RCOLS[rbGroup],cols=g.cols;
+  document.getElementById('rbk-groups').innerHTML=Object.entries(RCOLS).map(([k,v])=>'<button type="button" class="co-btn'+(rbGroup===k?' on':'')+'" onclick="rbkGroup(\''+k+'\')">'+v.label+'</button>').join('');
+  const head='<tr><th class="stk">#／区画名 *</th>'+cols.map(c=>'<th>'+esc(c[1])+'</th>').join('')+'<th></th></tr>';
   const body=rbRows.map((r,i)=>{
-    const I=(k,t,w,ph)=>'<input type="'+t+'" value="'+esc(r[k])+'"'+(ph?' placeholder="'+ph+'"':'')+' style="width:'+w+'" oninput="rbkSet('+i+',\''+k+'\',this.value)"/>';
-    const S=(k,arr)=>'<select style="width:100%" onchange="rbkSet('+i+',\''+k+'\',this.value)">'+arr.map(x=>'<option'+(r[k]===x?' selected':'')+'>'+x+'</option>').join('')+'</select>';
-    return '<tr class="'+(r.del?'bk-del':'')+'"><td style="white-space:nowrap;">'+(i+1)+(r.id?'':' <span class="lic-chip">新規</span>')+'</td>'+
-      '<td>'+I('name','text','110px','例：101号室')+'</td>'+
-      '<td style="width:100px;">'+S('status',RST)+'</td>'+
-      '<td>'+I('size','text','80px')+'</td><td>'+I('use1','text','80px')+'</td><td>'+I('use2','text','90px')+'</td>'+
-      '<td>'+I('tenant','text','110px')+'</td>'+
-      '<td style="width:96px;">'+S('contractType',RTY)+'</td>'+
-      '<td>'+I('start','date','124px')+'</td><td>'+I('end','date','124px')+'</td>'+
-      '<td>'+I('rent','number','90px')+'</td><td>'+I('kanri','number','80px')+'</td><td>'+I('shikikin','number','90px')+'</td>'+
+    const cell=c=>{
+      const k=c[0],t=c[2],w=c[4]+'px';
+      if(t==='sel')return '<select style="width:'+w+'" onchange="rbkSet('+i+',\''+k+'\',this.value)">'+c[3].map(o=>'<option value="'+esc(o[0])+'"'+(String(r[k])===String(o[0])?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select>';
+      return '<input type="'+t+'" value="'+esc(r[k])+'" style="width:'+w+'" oninput="rbkSet('+i+',\''+k+'\',this.value)"/>';
+    };
+    return '<tr class="'+(r.del?'bk-del':'')+'"><td class="stk" style="white-space:nowrap;"><span style="color:var(--sub);font-size:10px;">'+(i+1)+'</span>'+(r.id?'':' <span class="lic-chip">新規</span>')+' <input type="text" value="'+esc(r.name)+'" placeholder="例：101号室" style="width:118px;" oninput="rbkSet('+i+',\'name\',this.value)"/></td>'+
+      cols.map(c=>'<td>'+cell(c)+'</td>').join('')+
       '<td style="white-space:nowrap;"><button type="button" class="btn btn-sm '+(r.del?'':'btn-red')+'" onclick="rbkDel('+i+')">'+(r.id?(r.del?'取消':'削除'):'行を消す')+'</button></td></tr>';
   }).join('');
-  document.getElementById('rbk-table').innerHTML='<table class="bk-table" style="min-width:1240px;">'+head+(body||'<tr><td colspan="14" style="text-align:center;color:#aaa;padding:16px;">区分がありません。上の「連番でまとめて追加」か「＋ 1行追加」で追加してください。</td></tr>')+'</table>';
+  const minw=190+cols.reduce((a,c)=>a+c[4]+14,0)+90;
+  document.getElementById('rbk-table').innerHTML='<table class="bk-table" style="min-width:'+minw+'px;">'+head+(body||'<tr><td colspan="'+(cols.length+2)+'" style="text-align:center;color:#aaa;padding:16px;">区分がありません。上の「連番でまとめて追加」か「＋ 1行追加」で追加してください。</td></tr>')+'</table>';
 }
 window.saveRBulk=async function(){
   const b=blds.find(x=>x.id===rbBld);if(!b)return;
@@ -2583,31 +2578,39 @@ window.saveRBulk=async function(){
       if(r.del){batch.delete(doc(db,'managed_units',r.id));n++;return;}
       const u=units.find(x=>x.id===r.id);if(!u)return;
       const f={};
-      RBK.forEach(k=>{
+      const nn=(r.name||'').trim();if(nn!==(r.orig.name||'').trim())f.name=nn;
+      RKEYS.forEach(k=>{
+        if(k==='renStart'||k==='renEnd')return;
         const nv=String(r[k]==null?'':r[k]).trim(),ov=String(r.orig[k]==null?'':r.orig[k]).trim();
         if(nv===ov)return;
-        if(k==='status')f.status=nv;
-        else if(RBK_NUM.includes(k)||k==='shikikin')f[k]=numOrNull(nv);
-        else f[k]=nv;
+        f[k]=RNUM.has(k)?numOrNull(nv):nv;
       });
-      if(r.extra)Object.assign(f,r.extra);
       if('rent' in f){
         const hist=histOf(u);
         if(f.rent!=null)setLatestRent(hist,f.rent,u.start);
         f.rentHistory=hist.filter(x=>x.date||x.rent);
       }
+      if(r.renStart!==r.orig.renStart||r.renEnd!==r.orig.renEnd){
+        const ren=sortedRen(u),s2=(r.renStart||'').trim(),e2=(r.renEnd||'').trim();
+        if(!s2&&!e2)ren.pop();
+        else if(ren.length){ren[ren.length-1].start=s2;ren[ren.length-1].end=e2;}
+        else ren.push({start:s2,end:e2,note:''});
+        f.renewals=ren;
+      }
       if(Object.keys(f).length){f.updatedAt=serverTimestamp();batch.update(doc(db,'managed_units',r.id),f);n++;}
     }else{
       const nm=(r.name||'').trim();if(!nm)return;
-      const o={bldId:rbBld,company:co,tenantType:'個人',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),...(r.extra||{})};
-      RBK.forEach(k=>{
+      const o={bldId:rbBld,company:co,name:nm,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+      RKEYS.forEach(k=>{
+        if(k==='renStart'||k==='renEnd')return;
         const v=String(r[k]==null?'':r[k]).trim();
-        if(k==='status')o.status=v||'募集中';
-        else if(RBK_NUM.includes(k)||k==='shikikin')o[k]=numOrNull(v);
-        else o[k]=v;
+        o[k]=RNUM.has(k)?numOrNull(v):v;
       });
+      if(!o.status)o.status='募集中';if(!o.tenantType)o.tenantType='個人';if(!o.contractType)o.contractType='普通借家';
       if(o.tenant&&o.status==='募集中')o.status='契約中';
       o.rentHistory=o.rent!=null?[{date:o.start||'',rent:o.rent,note:''}]:[];
+      const s2=(r.renStart||'').trim(),e2=(r.renEnd||'').trim();
+      o.renewals=(s2||e2)?[{start:s2,end:e2,note:''}]:[];
       batch.set(doc(collection(db,'managed_units')),o);n++;
     }
   });
@@ -2619,145 +2622,7 @@ window.saveRBulk=async function(){
   showLoading(false);
 };
 
-// ===== CSV取り込み・ダウンロード（区画の一括追加・編集） =====
-// [見出し, フィールド, 型(t=文字 d=日付 n=数値 e=選択肢 m=コード対応), 選択肢]
-const CSV_R={
-  base:RBK,
-  cols:[
-    ['区画名','name','t'],['契約状況','status','e',RST],['面積','size','t'],['用途（大分類）','use1','t'],['用途（詳細）','use2','t'],
-    ['契約者区分','tenantType','e',['個人','法人']],['契約者名','tenant','t'],['契約者フリガナ','tenantKana','t'],['国籍','nationality','t'],['契約者電話番号','tenantTel','t'],['担当者名（法人）','tenantContact','t'],['担当者電話番号（法人）','tenantContactTel','t'],
-    ['契約種別','contractType','e',RTY],['契約始期','start','d'],['契約終期','end','d'],
-    ['賃料','rent','n'],['管理費・共益費','kanri','n'],['賃料の支払時期','payTiming','t'],['賃料の支払方法','payMethod','t'],
-    ['敷金','shikikin','n'],['敷金備考','shikikinNote','t'],['敷金の保管者','shikikinHolder','e',['オーナー','自社（LDY）']],['礼金','reikin','n'],['初回保証委託料','hoshoFirst','n'],
-    ['更新料の有無','koshinUmu','e',['有','無']],['更新料','koshinRyo','t'],['更新事務手数料','koshinTesuryo','n'],
-    ['解約予告（貸主→借主）','noticeLessor','t'],['解約予告（借主→貸主）','noticeLessee','t'],['予告方法','noticeMethod','t'],
-    ['火災保険 加入状況','kasaiStatus','e',['未加入','加入済み']],['火災保険 保険会社','kasaiCompany','t'],['火災保険 期間開始','kasaiStart','d'],['火災保険 期間終了','kasaiEnd','d'],
-    ['保証会社 名称','hoshoName','t'],['保証会社 電話番号','hoshoTel','t'],['保証会社 所在地','hoshoAddr','t'],['保証会社 委託料','hoshoFee','n'],['保証会社 委託料の周期','hoshoCycle','t'],
-    ['鍵 引継ぎ状況','keyStatus','m',{normal:'通常',inherited:'入居中受託'}],['鍵 預かり本数','keyReceived','n'],['鍵 引渡し本数','keyHanded','n'],['鍵 備考','keyNote','t'],
-    ['リフォーム工事 開始','reformStart','d'],['リフォーム工事 終了','reformEnd','d'],['リフォーム備考','reformNote','t'],
-    ['備考','memo','t']
-  ],
-  hide:()=>[],
-  sample:{name:'101号室',status:'契約中',size:'約25㎡',use1:'住居',use2:'ワンルーム',tenantType:'個人',tenant:'山田 太郎',tenantKana:'ヤマダ タロウ',contractType:'普通借家',start:'2026/04/01',end:'2028/03/31',rent:'80000',kanri:'5000',shikikin:'160000'}
-};
-const LIC_KEYS=['licType','licNo','licOffice','licDate','licExp','licNote'];
-const CSV_L={
-  base:BK,
-  cols:[
-    ['区画名','name','t'],['営業状況','opStatus','e',OPS],['面積','size','t'],['定員','capacity','n'],['間取り・タイプ','use','t'],
-    ['免許種別','licType','e',LIC],['許可・届出番号','licNo','t'],['届出先','licOffice','t'],['取得日・届出日','licDate','d'],['有効期限','licExp','d'],['免許備考','licNote','t'],
-    ['備考','memo','t']
-  ],
-  hide:()=>bkScopeUnit()?[]:LIC_KEYS,
-  sample:{name:'201号室',opStatus:'営業中',size:'約25㎡',capacity:'4',use:'1K',licType:'特区民泊',licNo:'第○○号',licExp:'2030/03/31'}
-};
-// 古い見出しや別表記も受け付ける
-const CSV_ALIAS={'管理費':'管理費・共益費','共益費':'管理費・共益費','用途（大）':'用途（大分類）','用途(大分類)':'用途（大分類）','用途(詳細)':'用途（詳細）','賃料（円）':'賃料','賃料(円)':'賃料','契約者':'契約者名','フリガナ':'契約者フリガナ','許可・届出・認定番号':'許可・届出番号','期限':'有効期限','有効期限・更新期限':'有効期限','免許':'免許種別'};
-const csvHan=s=>String(s==null?'':s).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[／]/g,'/').replace(/[－ー]/g,'-');
-const csvKey=s=>String(s==null?'':s).replace(/\s/g,'');
-const csvCols=cfg=>{const h=cfg.hide();return cfg.cols.filter(c=>!h.includes(c[1]));};
-function csvCell(v){const s=v==null?'':String(v);return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
-
-function parseCSV(text){
-  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-  const rows=[];let row=[],f='',q=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i];
-    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
-    else if(c==='"')q=true;
-    else if(c===','){row.push(f);f='';}
-    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);f='';rows.push(row);row=[];}
-    else f+=c;
-  }
-  if(f!==''||row.length){row.push(f);rows.push(row);}
-  return rows.filter(r=>r.some(x=>String(x).trim()!==''));
-}
-async function readCsvFile(file){
-  const buf=await file.arrayBuffer();
-  try{return new TextDecoder('utf-8',{fatal:true}).decode(buf);}
-  catch(e){return new TextDecoder('shift_jis').decode(buf);}
-}
-// 戻り値: 正規化した値 ／ ''=空欄 ／ null=不正
-function csvNorm(type,raw,opts){
-  const v=String(raw==null?'':raw).trim();
-  if(v==='')return'';
-  if(type==='t')return v;
-  if(type==='d'){const m=csvHan(v).match(/^(\d{4})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})日?$/);return m?m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0'):null;}
-  if(type==='n'){const t=csvHan(v).replace(/[,，¥￥円\s]/g,'');return /^-?\d+$/.test(t)?t:null;}
-  if(type==='m'){const k=Object.keys(opts).find(c=>c===v||opts[c]===v);return k||null;}
-  if(type==='e'){
-    let x=v;
-    if(opts===RTY){if(x==='普通')x='普通借家';if(x==='定期')x='定期借家';}
-    if(opts===LIC){const hit=LIC.find(l=>l===x)||LIC.find(l=>l.includes(x));if(hit)x=hit;}
-    return opts.includes(x)?x:null;
-  }
-  return v;
-}
-window.downloadCsvTemplate=function(kind){
-  const cfg=kind==='r'?CSV_R:CSV_L,cols=csvCols(cfg);
-  const lines=[cols.map(c=>csvCell(c[0])).join(','),cols.map(c=>csvCell(cfg.sample[c[1]]||'')).join(',')];
-  const blob=new Blob(['\uFEFF'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=(kind==='r'?'賃貸':'旅館業民泊')+'_区分取り込みひな形.csv';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-};
-window.exportCsv=function(kind){
-  const R=kind==='r',cfg=R?CSV_R:CSV_L;
-  const bid=R?rbBld:bulkBld;
-  const b=(R?blds:lblds).find(x=>x.id===bid);if(!b)return;
-  const us=(R?units:lunits).filter(u=>u.bldId===bid).slice().sort(byName);
-  if(!us.length){alert('この建物には、まだ区分がありません');return;}
-  const cols=csvCols(cfg);
-  const val=(u,c)=>{const v=u[c[1]];return (c[2]==='m'&&v)?(c[3][v]||v):v;};
-  const lines=[cols.map(c=>csvCell(c[0])).join(',')];
-  us.forEach(u=>lines.push(cols.map(c=>csvCell(val(u,c))).join(',')));
-  const blob=new Blob(['\uFEFF'+lines.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=((b.name||'建物').replace(/[\\\/:*?"<>|]/g,'_'))+'_区分一覧_'+new Date().toISOString().slice(0,10)+'.csv';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-};
-window.importCsv=async function(kind,ev){
-  const file=ev.target.files[0];ev.target.value='';if(!file)return;
-  const R=kind==='r',cfg=R?CSV_R:CSV_L,target=R?rbRows:bulkRows;
-  let rows;
-  try{rows=parseCSV(await readCsvFile(file));}catch(e){alert('CSVを読み込めませんでした: '+e.message);return;}
-  if(rows.length<2){alert('データ行がありません（1行目はヘッダーにしてください）');return;}
-  const cols=csvCols(cfg),idx={};
-  rows[0].forEach((h,i)=>{
-    let k=csvKey(csvHan(h));k=CSV_ALIAS[k]||k;
-    const c=cols.find(x=>csvKey(csvHan(x[0]))===csvKey(csvHan(k)));if(c)idx[c[1]]=i;
-  });
-  if(idx.name==null){alert('「区画名」列が見つかりません。ひな形のヘッダー行を使ってください');return;}
-  const errs=[];let added=0,updated=0;
-  for(let ri=1;ri<rows.length;ri++){
-    const cells=rows[ri],line=ri+1;
-    const nm=String(cells[idx.name]||'').trim();
-    if(!nm){errs.push(line+'行目: 区画名が空のため無視しました');continue;}
-    const vals={};
-    cols.forEach(c=>{
-      if(c[1]==='name'||idx[c[1]]==null)return;
-      const n=csvNorm(c[2],cells[idx[c[1]]],c[3]);
-      if(n===null)errs.push(line+'行目: 「'+c[0]+'」の値「'+cells[idx[c[1]]]+'」が不正なため無視しました');
-      else if(n!=='')vals[c[1]]=n;
-    });
-    let row=target.find(r=>!r.del&&(r.name||'').trim()===nm);
-    if(row)updated++;
-    else{row=R?newRBulkRow(nm,null):newBulkRow(nm);target.push(row);added++;}
-    Object.keys(vals).forEach(k=>{
-      if(cfg.base.includes(k))row[k]=vals[k];
-      else{
-        const c=cols.find(x=>x[1]===k);
-        row.extra=row.extra||{};
-        row.extra[k]=c[2]==='n'?numOrNull(vals[k]):vals[k];
-      }
-    });
-  }
-  const msg='CSVから '+added+'件を追加、'+updated+'件を更新しました（まだ保存されていません。表を確認して「まとめて保存する」を押してください）'+(errs.length?'／警告 '+errs.length+'件':'');
-  document.getElementById(R?'rbk-preview':'lbk-preview').textContent=msg;
-  R?renderRBulk():renderBulk();
-  if(errs.length)alert(errs.slice(0,15).join('\n')+(errs.length>15?'\n…ほか '+(errs.length-15)+'件':''));
-};
-  function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
+function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
 </script>
 </body>
 </html>
