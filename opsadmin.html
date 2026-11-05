@@ -465,12 +465,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fr"><label>備考</label><textarea id="b-memo" placeholder="1行1項目で入力"></textarea></div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
-          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料 請求・支払チェック（月次）</div>
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳から自動で表示します）　<a href="#" onclick="goLedgerFromBld();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
           <div class="pay-year-nav">
             <button type="button" onclick="feePayYearMove(-1)">◀</button>
             <span class="pay-year-label" id="fee-pay-year-label"></span>
             <button type="button" onclick="feePayYearMove(1)">▶</button>
-            <span style="font-size:10px;color:var(--sub);">クリックで支払済/未払を切替</span>
+            <span style="font-size:10px;color:var(--sub);">出納帳に「管理料」の明細がある月が「済」になります</span>
           </div>
           <div class="pay-grid" id="fee-pay-grid"></div>
         </div>
@@ -580,7 +580,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <button type="button" class="btn btn-sm btn-navy" onclick="addRentHistory()">＋ 改定履歴を追加</button>
         </div>
         <div style="margin-top:10px;">
-          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料 支払チェック（月次・自社集金の場合）</label>
+          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料の入金状況（出納帳から自動で表示します。入力は「出納・精算」で行います）　<a href="#" onclick="goLedgerFromUnit();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></label>
           <div class="pay-year-nav">
             <button type="button" onclick="rentPayYearMove(-1)">◀</button>
             <span class="pay-year-label" id="rent-pay-year-label"></span>
@@ -760,12 +760,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fr"><label>売上の精算方法</label><input id="lb-settle" placeholder="例：毎月末締め、翌月10日にオーナーへ送金"/></div>
         <div class="fr"><label>備考</label><textarea id="lb-memo" placeholder="1行1項目で入力"></textarea></div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
-          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料 請求・支払チェック（月次）</div>
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳から自動で表示します）　<a href="#" onclick="goLedgerFromLb();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
           <div class="pay-year-nav">
             <button type="button" onclick="lFeeYearMove(-1)">◀</button>
             <span class="pay-year-label" id="lfee-pay-year-label"></span>
             <button type="button" onclick="lFeeYearMove(1)">▶</button>
-            <span style="font-size:10px;color:var(--sub);">クリックで支払済/未払を切替</span>
+            <span style="font-size:10px;color:var(--sub);">出納帳に「管理料」の明細がある月が「済」になります</span>
           </div>
           <div class="pay-grid" id="lfee-pay-grid"></div>
         </div>
@@ -895,7 +895,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fg">
           <div class="fr"><label>種別 *</label><select id="lgm-cat" onchange="lgCatChange()"></select></div>
-          <div class="fr" id="lgm-month-wrap"><label>対象月（家賃・管理費の何月分か）</label><input id="lgm-month" type="month"/></div>
+          <div class="fr" id="lgm-month-wrap"><label>対象月（家賃・管理費・管理料の何月分か）</label><input id="lgm-month" type="month"/></div>
         </div>
         <div class="days-auto" id="lgm-hint"></div>
         <div class="fg" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px;">
@@ -1441,13 +1441,13 @@ function renderPayGrid(gridElId,yearLabelElId,paymentsObj,year,toggleFnName){
   ge.innerHTML=Array.from({length:12},(_,i)=>i+1).map(m=>{
     const k=monthKey(year,m);
     const paid=!!paymentsObj[k];
-    return '<div class="pay-cell'+(paid?' paid':'')+'" onclick="'+toggleFnName+'(\''+k+'\')">'+m+'月<br>'+(paid?'済':'未')+'</div>';
+    return '<div class="pay-cell'+(paid?' paid':'')+'"'+(toggleFnName?' onclick="'+toggleFnName+'(\''+k+'\')"':' style="cursor:default;"')+'>'+m+'月<br>'+(paid?'済':'未')+'</div>';
   }).join('');
 }
-window.feePayYearMove=function(d){feePayYear+=d;renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');};
-window.toggleFeePay=function(k){feePayments[k]=!feePayments[k];renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');};
-window.rentPayYearMove=function(d){rentPayYear+=d;renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');};
-window.toggleRentPay=function(k){rentPayments[k]=!rentPayments[k];renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');};
+window.feePayYearMove=function(d){feePayYear+=d;renderFeeRO();};
+window.toggleFeePay=function(){};
+window.rentPayYearMove=function(d){rentPayYear+=d;renderRentRO();};
+window.toggleRentPay=function(){};
 
 window.addRentHistory=function(){rentHistory.push({date:'',rent:'',note:''});renderRentHistory();};
 window.removeRentHistory=function(i){rentHistory.splice(i,1);renderRentHistory();};
@@ -1530,7 +1530,7 @@ window.openBldModal=function(id=null){
   setV('b-fee-tax','');setV('b-auto-renew','');setV('b-owner-type','個人');setV('b-cashflow','');setV('b-mgmt','consign');toggleMgmt('b');fillCo('b-company','');
   document.getElementById('b-days-display').innerHTML='';
   toggleOwnerType();toggleCashflow();renderEquipBlocks();renderBldImgList();
-  renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');
+  renderFeeRO();
   renderLinkedPropertyOptions('');renderLinkedLodgingOptions('');
   if(id){
     const b=blds.find(x=>x.id===id);if(!b)return;
@@ -1549,7 +1549,7 @@ window.openBldModal=function(id=null){
     renderBldImgList();
     renderLinkedPropertyOptions(b.linkedPropertyId||'');renderLinkedLodgingOptions(b.linkedLodgingId||'');
     updateBldDays();toggleOwnerType();toggleCashflow();renderEquipBlocks();
-    renderPayGrid('fee-pay-grid','fee-pay-year-label',feePayments,feePayYear,'toggleFeePay');
+    renderFeeRO();
   }
   document.getElementById('bld-modal').classList.add('open');
 };
@@ -1682,7 +1682,6 @@ window.saveBld=async function(){if(editBldId&&verOf(blds.find(x=>x.id===editBldI
     utilities:getUtil('b'),renewals:cleanRenewals('b'),company:document.getElementById('b-company').value,mgmtType:document.getElementById('b-mgmt').value,linkedLodgingId:document.getElementById('b-linked-lodging').value||null,
     photos:currentBldPhotos,
     linkedPropertyId:document.getElementById('b-linked-property').value||null,
-    feePayments,
     memo:g('b-memo'),updatedAt:serverTimestamp()};
   try{
     if(editBldId){await updateDoc(doc(db,'managed_buildings',editBldId),obj);await syncUnitCo(editBldId,obj.company);}
@@ -1734,7 +1733,7 @@ window.openUnitModal=function(bldId,unitId=null){
   toggleTenantType();toggleKeyStatus();
   if(!unitId)rentHistory.push({date:'',rent:'',note:''});
   renderRentHistory();renderContactLog();
-  renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');
+  renderRentRO();
   if(unitId){
     const u=units.find(x=>x.id===unitId);if(!u)return;
     setV('u-name',u.name);setV('u-size',u.size);setV('u-use1',u.use1);setV('u-use2',u.use2);
@@ -1760,7 +1759,7 @@ window.openUnitModal=function(bldId,unitId=null){
     contactLog=u.contactLog?JSON.parse(JSON.stringify(u.contactLog)):[];
     utilState.u=cloneUtil(u.utilities);renderUtil('u');renewals.u=JSON.parse(JSON.stringify(u.renewals||[]));renderRenewals('u');
     updateUnitDays();updateKeyDisplay();toggleTenantType();toggleKeyStatus();renderRentHistory();renderContactLog();
-    renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');
+    renderRentRO();
   }
   document.getElementById('unit-modal').classList.add('open');
 };
@@ -1810,7 +1809,6 @@ window.saveUnit=async function(){if(editUnitId&&verOf(units.find(x=>x.id===editU
     rent:n('u-rent'),kanri:n('u-kanri'),
     rentHistory:rentHistory.filter(r=>r.date||r.rent),
     contactLog:contactLog.filter(c=>c.date||c.method||c.content),
-    rentPayments,
     shikikin:n('u-shikikin'),shikikinNote:g('u-shikikin-note'),
     shikikinHolder:document.getElementById('u-shikikin-holder').value,
     reikin:n('u-reikin'),hoshoFirst:n('u-hosho-first'),
@@ -1933,14 +1931,7 @@ window.render=function(){
              '<div class="kn-row"><span class="kn-lbl">資金フロー</span><span class="kn-val">—</span></div>')+
             '<div class="kn-row full"><span class="kn-lbl">業務範囲</span><span class="kn-val">'+esc(b.scope||'—')+'</span></div>'+
           '</div>'+
-          (b.feePayments?(()=>{
-            const yr=new Date().getFullYear();
-            const cells=Array.from({length:12},(_,i)=>i+1).map(m=>{
-              const paid=!!b.feePayments[monthKey(yr,m)];
-              return '<div class="pay-mini-cell'+(paid?' paid':'')+'">'+m+'</div>';
-            }).join('');
-            return '<div style="margin-top:6px;"><div style="font-size:9px;color:var(--sub);margin-bottom:3px;">'+yr+'年 管理料 入金チェック</div><div class="pay-mini">'+cells+'</div></div>';
-          })():'')+
+          feePayMini(b)+
           (bmemos.length?'<div style="font-size:11px;color:#777;margin-top:6px;border-top:1px solid #eee;padding-top:6px;"><ul style="padding-left:14px;line-height:1.7;">'+bmemos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
         '</div>')+
         ((b.equip&&b.equip.length)?'<div class="osec">'+
@@ -2193,8 +2184,8 @@ lbDrop.addEventListener('drop',async e=>{
 });
 
 // 管理料チェック
-window.lFeeYearMove=function(d){lFeeYear+=d;renderPayGrid('lfee-pay-grid','lfee-pay-year-label',lFeePay,lFeeYear,'toggleLFeePay');};
-window.toggleLFeePay=function(k){lFeePay[k]=!lFeePay[k];renderPayGrid('lfee-pay-grid','lfee-pay-year-label',lFeePay,lFeeYear,'toggleLFeePay');};
+window.lFeeYearMove=function(d){lFeeYear+=d;renderLFeeRO();};
+window.toggleLFeePay=function(){};
 function updateLBDays(){
   const d=daysUntil(formLastEnd('lb','lb-end'));
   const el=document.getElementById('lb-days-display');if(!el)return;
@@ -2284,7 +2275,7 @@ window.openLBModal=function(id=null){
   }
   fillLBLinks(b?b.linkedRentId||'':'',b?b.linkedPropertyId||'':'');
   renderLBImgList();renderRenewals('lb');renderUtil('lb');renderRepairsL('lb');renderLogsL('lbh');renderLogsL('lbc');updateLBDays();toggleMgmt('lb');toggleLicScope();
-  renderPayGrid('lfee-pay-grid','lfee-pay-year-label',lFeePay,lFeeYear,'toggleLFeePay');
+  renderLFeeRO();
   editLBVer=id?verOf(b):null;
   document.getElementById('lb-modal').classList.add('open');
 };
@@ -2301,7 +2292,7 @@ window.saveLB=async function(){
   obj.linkedPropertyId=document.getElementById('lb-linked-property').value||null;
   obj.renewals=cleanRenewals('lb');obj.repairs=cleanRepairsL('lb');obj.utilities=getUtil('lb');
   obj.hcLog=logsL.lbh.filter(c=>c.date||c.method||c.who||c.content);obj.cleanLog=logsL.lbc.filter(c=>c.date||c.method||c.content);
-  obj.photos=lPhotos;obj.feePayments=lFeePay;obj.updatedAt=serverTimestamp();
+  obj.photos=lPhotos;obj.updatedAt=serverTimestamp();
   try{
     if(editLBId){await updateDoc(doc(db,'managed_buildings',editLBId),obj);await syncUnitCo(editLBId,obj.company);}
     else{obj.createdAt=serverTimestamp();const ref=await addDoc(collection(db,'managed_buildings'),obj);openL.add(ref.id);}
@@ -2459,7 +2450,7 @@ function renderLodge(){
           '<div class="kn-row full"><span class="kn-lbl">精算方法</span><span class="kn-val">'+esc(b.settle||'—')+'</span></div>'+
           '<div class="kn-row full"><span class="kn-lbl">業務範囲</span><span class="kn-val">'+esc(b.scope||'—')+'</span></div>'+
         '</div>'+
-        (b.feePayments?(()=>{const yr=new Date().getFullYear();const cells=Array.from({length:12},(_,i)=>i+1).map(m=>'<div class="pay-mini-cell'+(b.feePayments[monthKey(yr,m)]?' paid':'')+'">'+m+'</div>').join('');return '<div style="margin-top:6px;"><div style="font-size:9px;color:var(--sub);margin-bottom:3px;">'+yr+'年 管理料 入金チェック</div><div class="pay-mini">'+cells+'</div></div>';})():'')+
+        feePayMini(b)+
         (memos.length?'<div style="font-size:11px;color:#777;margin-top:6px;border-top:1px solid #eee;padding-top:6px;"><ul style="padding-left:14px;line-height:1.7;">'+memos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
         '</div>')+
         (bScope?'<div class="osec"><div class="osec-t">免許・届出（1棟まるごと）</div><div class="kn-grid">'+
@@ -2633,7 +2624,7 @@ window.copyUnit=function(id){
   const cur=currentRentFromHistory();
   rentHistory=[{date:'',rent:cur||'',note:''}];rentPayments={};contactLog=[];renewals.u=[];utilState.u=newUtil();
   renderRentHistory();renderContactLog();renderRenewals('u');renderUtil('u');
-  renderPayGrid('rent-pay-grid','rent-pay-year-label',rentPayments,rentPayYear,'toggleRentPay');
+  renderRentRO();
   toggleTenantType();toggleKeyStatus();updateUnitDays();updateKeyDisplay();
 };
 window.copyLU=function(id){
@@ -2917,7 +2908,7 @@ function lgFillUnitSel(sel){
 window.lgCatChange=function(){
   const c=document.getElementById('lgm-cat').value;
   document.getElementById('lgm-hint').textContent=LGHINT[LGDIR[c]]||'';
-  document.getElementById('lgm-month-wrap').style.display=(c==='rent'||c==='kanri')?'':'none';
+  document.getElementById('lgm-month-wrap').style.display=(c==='rent'||c==='kanri'||c==='mgmt_fee')?'':'none';
 };
 window.openLgEntry=function(id){
   const b=findBld(lgBld);if(!b)return;
@@ -2947,7 +2938,7 @@ window.saveLgEntry=async function(again){
   if(!inAmt&&!outAmt&&!feeAmt){alert('入金・出金・自社収益のどれかに金額を入れてください');return;}
   const unitId=document.getElementById('lgm-unit').value||'';
   const un=unitId?(unitsOfAny(b.id).find(u=>u.id===unitId)||{}).name||'':'';
-  const month=(cat==='rent'||cat==='kanri')?(document.getElementById('lgm-month').value||''):'';
+  const month=(cat==='rent'||cat==='kanri'||cat==='mgmt_fee')?(document.getElementById('lgm-month').value||''):'';
   const me=(auth.currentUser||{}).email||'';
   const obj={bldId:b.id,company:coOf(b),date,unitId,unitName:un,cat,month,inAmt,outAmt,feeAmt,memo:document.getElementById('lgm-memo').value.trim(),updatedAt:serverTimestamp(),updatedBy:me};
   showLoading(true);
@@ -3222,6 +3213,29 @@ window.doLgImp=async function(){
   }catch(e){alert('取込に失敗しました（一部だけ反映されている可能性があります）: '+e.message);console.error(e);}
   showLoading(false);
 };
+
+// ===== 入金状況の表示（出納帳から。編集はしない） =====
+function feeMonthsOf(bid){
+  const m={};
+  rl.filter(e=>e.bldId===bid&&e.cat==='mgmt_fee'&&(+e.feeAmt||0)>0).forEach(e=>{const k=e.month||(e.date||'').slice(0,7);if(k)m[k]=true;});
+  return m;
+}
+function renderRentRO(){
+  const led={};
+  if(editUnitId)rl.filter(e=>e.unitId===editUnitId&&e.cat==='rent'&&e.month&&(+e.inAmt||0)>0).forEach(e=>{led[e.month]=true;});
+  renderPayGrid('rent-pay-grid','rent-pay-year-label',Object.assign({},rentPayments,led),rentPayYear,'');
+}
+function renderFeeRO(){renderPayGrid('fee-pay-grid','fee-pay-year-label',Object.assign({},feePayments,editBldId?feeMonthsOf(editBldId):{}),feePayYear,'');}
+function renderLFeeRO(){renderPayGrid('lfee-pay-grid','lfee-pay-year-label',Object.assign({},lFeePay,editLBId?feeMonthsOf(editLBId):{}),lFeeYear,'');}
+function feePayMini(b){
+  const yr=new Date().getFullYear(),led=feeMonthsOf(b.id),man=b.feePayments;
+  if(!man&&!Object.keys(led).length)return '';
+  const cells=Array.from({length:12},(_,i)=>i+1).map(m=>{const k=monthKey(yr,m);const paid=!!(man&&man[k])||!!led[k];return '<div class="pay-mini-cell'+(paid?' paid':'')+'">'+m+'</div>';}).join('');
+  return '<div style="margin-top:6px;"><div style="font-size:9px;color:var(--sub);margin-bottom:3px;">'+yr+'年 管理料の徴収状況（出納帳より）</div><div class="pay-mini">'+cells+'</div></div>';
+}
+window.goLedgerFromUnit=function(){const b=unitParentBldId;closeUnitModal();if(b)openLedger(b);};
+window.goLedgerFromBld=function(){const b=editBldId;if(!b){alert('ビルを保存してから、出納帳を開いてください');return;}closeBldModal();openLedger(b);};
+window.goLedgerFromLb=function(){const b=editLBId;if(!b){alert('施設を保存してから、出納帳を開いてください');return;}closeLBModal();openLedger(b);};
 
 function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
 </script>
