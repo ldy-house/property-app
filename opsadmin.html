@@ -341,6 +341,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="toolbar">
         <input type="text" id="lg-q" placeholder="ビル名・オーナー名で検索..." oninput="renderLedger()"/>
         <span style="font-size:11px;color:var(--sub);">オーナーから受託している物件が対象です（自社管理の物件は出ません）</span>
+        <button class="btn btn-sm" style="margin-left:auto;" onclick="openCoInfo()">管理会社の情報</button>
       </div>
       <div style="padding:14px 20px;"><div class="lg-wrap" id="lg-ov-list"></div></div>
     </div>
@@ -919,11 +920,40 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
 </div>
 
+<!-- 管理会社の情報 -->
+<div class="modal-bg" id="co-modal">
+  <div class="modal">
+    <div class="modal-head"><div><h3>管理会社の情報</h3><div class="modal-sub">送金明細書の右上（管理会社欄）に印字されます</div></div><button class="modal-close" onclick="closeCoInfo()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs">
+        <div class="fr"><label>管理会社</label><select id="co-sel" onchange="coInfoLoad()"></select></div>
+        <div class="fr"><label>会社名 *</label><input id="co-name" placeholder="例：株式会社LDY"/></div>
+        <div class="fg">
+          <div class="fr"><label>郵便番号</label><input id="co-zip" placeholder="例：104-0061"/></div>
+          <div class="fr"></div>
+        </div>
+        <div class="fr"><label>住所</label><input id="co-addr" placeholder="例：東京都中央区銀座○-○-○"/></div>
+        <div class="fg">
+          <div class="fr"><label>電話番号</label><input id="co-tel" placeholder="例：03-0000-0000"/></div>
+          <div class="fr"><label>FAX</label><input id="co-fax" placeholder="例：03-0000-0001"/></div>
+        </div>
+        <div style="font-size:10px;color:var(--sub);margin-top:8px;">担当者名は、建物の編集画面の「自社の担当者名」で設定します。</div>
+        <div id="co-ro" style="display:none;font-size:11px;color:#C62828;margin-top:8px;">変更できるのは管理者だけです（表示のみ）。</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeCoInfo()">閉じる</button>
+      <button class="btn btn-gold" id="co-save" onclick="saveCoInfo()">保存する</button>
+    </div>
+  </div>
+</div>
+
 <!-- 出納：精算設定 -->
 <div class="modal-bg" id="lgs-modal">
   <div class="modal">
     <div class="modal-head"><div><h3>精算の設定</h3><div class="modal-sub" id="lgs-sub"></div></div><button class="modal-close" onclick="closeLgSettings()">✕</button></div>
     <div class="modal-body">
+      <div id="lgs-ref" style="display:none;background:#FFFBEA;border:1px solid #E8D08A;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#6b5a1a;"></div>
       <div class="fs">
         <div class="fs-title">精算の時期（オーナーごと）</div>
         <div class="fr"><label>精算の周期</label><select id="lgs-cycle"><option value="">未設定</option><option value="monthly">毎月</option><option value="quarterly">四半期ごと</option><option value="semi">半年ごと</option><option value="annual">年1回</option><option value="adhoc">随時（オーナーによる）</option></select></div>
@@ -1215,6 +1245,7 @@ function startSync(){
   unsubs.push(onSnapshot(q('managed_units'),snap=>{ru=snap.docs.map(d=>({id:d.id,...d.data()}));applyCo();render();},onErr));
   unsubs.push(onSnapshot(q('managed_ledger'),snap=>{rl=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
   unsubs.push(onSnapshot(q('managed_settlements'),snap=>{rsl=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
+  unsubs.push(onSnapshot(q('managed_company'),snap=>{rco={};snap.docs.forEach(d=>{rco[d.id]=d.data();});},onErr));
   // 在庫物件は LDY の権限がある人だけ読み込む
   if(allowedCo.includes('LDY'))unsubs.push(onSnapshot(collection(db,'properties'),snap=>{properties=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
 }
@@ -2821,7 +2852,8 @@ const lgEntries=bid=>rl.filter(e=>e.bldId===bid).slice().sort(lgSort);
 const unitNameOf=e=>(unitsOfAny(e.bldId).find(u=>u.id===e.unitId)||{}).name||e.unitName||'';
 const negCls=n=>n<0?' neg':'';
 let lgOwner=null,lgEditId=null,lgLastDate='',lgLastBld='';
-// 管理会社の情報（送金明細書の右上に印字されます）。住所・電話・FAXはここに入力してください。
+let rco={};   // 管理会社の情報（managed_company/{LDY|MK}）
+// 管理会社の情報の初期値。画面の「管理会社の情報」で保存した内容があれば、そちらを優先します。
 const CO_INFO={
   LDY:{name:'株式会社LDY',zip:'',addr:'',tel:'',fax:''},
   MK:{name:'M&K corporation',zip:'',addr:'',tel:'',fax:''}
@@ -2862,6 +2894,12 @@ function lgGroups(){
   const arr=[...m.values()];
   arr.forEach(g=>g.blds.sort(byName));
   return arr.sort((x,y)=>(x.name||'').localeCompare(y.name||'','ja',{numeric:true}));
+}
+// 送金明細書に印字する管理会社の情報（保存済みの内容を優先。未保存なら初期値）
+function coInfo(co){
+  const base=CO_INFO[co]||{name:co,zip:'',addr:'',tel:'',fax:''},d=rco[co];
+  if(!d)return base;
+  return {name:d.name||base.name,zip:d.zip||'',addr:d.addr||'',tel:d.tel||'',fax:d.fax||''};
 }
 function lgGroup(key){return lgGroups().find(g=>g.key===key)||null;}
 function lgGroupOfBld(bid){return lgGroups().find(g=>g.ids.has(bid))||null;}
@@ -2936,7 +2974,7 @@ function renderLgDetail(){
   document.getElementById('lg-head').innerHTML='<button class="btn btn-sm" onclick="lgBack()">← オーナー一覧</button><b style="font-size:15px;color:var(--navy);">'+esc(g.name)+'</b><span class="rb-co '+esc(g.co)+'">'+esc(g.co)+'</span>'+
     '<span style="font-size:11px;color:var(--sub);">建物：'+esc(g.blds.map(b=>b.name||'').join('、'))+'　精算：'+esc((CYC[set.settleCycle]||['未設定'])[0])+(set.settleNote?'（'+esc(set.settleNote)+'）':'')+'　振込手数料：'+((+set.xferFee)?'¥'+yen0(set.xferFee):'なし')+(next?'　次回の目安：'+esc(next.replace(/-/g,'/')):'')+'</span>'+
     '<span style="margin-left:auto;font-size:11px;color:var(--sub);">預り金残高</span><span class="lg-bal'+negCls(run)+'">¥'+yen0(run)+'</span>'+
-    '<button class="btn btn-gold btn-sm" onclick="openLgEntry()">＋ 入出金を追加</button><button class="btn btn-navy btn-sm" onclick="openLgImp()">Excelから取込</button><button class="btn btn-navy btn-sm" onclick="openLgStl()">精算する'+(open?'（未精算 '+open+'件）':'')+'</button><button class="btn btn-sm" onclick="openLgSettings()">精算の設定</button>';
+    '<button class="btn btn-gold btn-sm" onclick="openLgEntry()">＋ 入出金を追加</button><button class="btn btn-navy btn-sm" onclick="openLgImp()">Excelから取込</button><button class="btn btn-navy btn-sm" onclick="openLgStl()">精算する'+(open?'（未精算 '+open+'件）':'')+'</button><button class="btn btn-sm" onclick="openLgSettings()">精算の設定</button><button class="btn btn-sm" onclick="openCoInfo(\''+g.co+'\')">管理会社の情報</button>';
   const fb=document.getElementById('lg-bld').value,fu=document.getElementById('lg-unit').value,fc=document.getElementById('lg-cat').value,ff=document.getElementById('lg-from').value,ft=document.getElementById('lg-to').value,fo=document.getElementById('lg-unsettled').checked;
   const rows=all.filter(e=>(!fb||e.bldId===fb)&&(!fu||(fu==='__none'?!e.unitId:e.unitId===fu))&&(!fc||e.cat===fc)&&(!ff||(e.date||'')>=ff)&&(!ft||(e.date||'')<=ft)&&(!fo||!e.stlId));
   const sm=k=>rows.reduce((a,e)=>a+(+e[k]||0),0);
@@ -3022,6 +3060,40 @@ window.delLgEntry=async function(){
   showLoading(false);
 };
 
+
+// ---- 管理会社の情報（送金明細書の右上に印字） ----
+window.openCoInfo=function(co){
+  const sel=document.getElementById('co-sel');
+  sel.innerHTML=allowedCo.map(c=>'<option value="'+c+'">'+esc(c)+'</option>').join('');
+  const want=co||defaultCo();
+  sel.value=allowedCo.includes(want)?want:allowedCo[0];
+  coInfoLoad();
+  const ro=currentRole!=='admin';
+  ['co-name','co-zip','co-addr','co-tel','co-fax'].forEach(id=>{document.getElementById(id).disabled=ro;});
+  document.getElementById('co-save').style.display=ro?'none':'';
+  document.getElementById('co-ro').style.display=ro?'':'none';
+  document.getElementById('co-modal').classList.add('open');
+};
+window.coInfoLoad=function(){
+  const i=coInfo(document.getElementById('co-sel').value);
+  setVal('co-name',i.name);setVal('co-zip',i.zip);setVal('co-addr',i.addr);setVal('co-tel',i.tel);setVal('co-fax',i.fax);
+};
+window.closeCoInfo=function(){document.getElementById('co-modal').classList.remove('open');};
+window.saveCoInfo=async function(){
+  if(currentRole!=='admin'){alert('管理会社の情報の変更は管理者だけができます');return;}
+  const co=document.getElementById('co-sel').value,v=id=>document.getElementById(id).value.trim();
+  if(!v('co-name')){alert('会社名を入力してください');return;}
+  const data={company:co,name:v('co-name'),zip:v('co-zip'),addr:v('co-addr'),tel:v('co-tel'),fax:v('co-fax'),updatedAt:serverTimestamp(),updatedBy:(auth.currentUser||{}).email||''};
+  showLoading(true);
+  try{
+    const batch=writeBatch(db);
+    batch.set(doc(db,'managed_company',co),data);
+    await batch.commit();
+    closeCoInfo();
+  }catch(e){alert('保存に失敗しました: '+e.message+(/permission/i.test(e.message)?'\n\nFirestoreのセキュリティルールに managed_company の許可を追加してください。':''));console.error(e);}
+  showLoading(false);
+};
+
 // ---- 精算の設定（オーナー単位。オーナーの全建物に同じ値を保存する） ----
 window.openLgSettings=function(){
   const g=curGroup();if(!g)return;
@@ -3030,6 +3102,10 @@ window.openLgSettings=function(){
   setVal('lgs-cycle',b.settleCycle||'');setVal('lgs-note',b.settleNote||'');setVal('lgs-feecalc',b.feeCalc||'manual');
   setVal('lgs-rate',b.feeRate);setVal('lgs-fixed',b.feeFixed);setVal('lgs-base',b.feeBase||'rent');setVal('lgs-tax',b.feeTax2||'incl');
   setVal('lgs-xfer',b.xferFee);
+  const refs=g.blds.map(x=>{const a=[];if(x.fee)a.push('管理料「'+x.fee+'」'+(x.feeTax?'（'+x.feeTax+'）':''));if(x.remit)a.push('送金日「'+x.remit+'」');return a.length?(esc(x.name||'')+'：'+a.map(esc).join('／')):'';}).filter(Boolean);
+  const rf=document.getElementById('lgs-ref');
+  rf.style.display=refs.length?'':'none';
+  rf.innerHTML=refs.length?'<b>建物の契約情報に登録されている内容（参考）</b><br>'+refs.join('<br>')+'<br><span style="font-size:10px;">※ 計算には使われません。下の項目に設定した内容で精算します。</span>':'';
   document.getElementById('lgs-modal').classList.add('open');
 };
 window.closeLgSettings=function(){document.getElementById('lgs-modal').classList.remove('open');};
@@ -3155,7 +3231,7 @@ window.openStatement=function(id){
 };
 function showStatement(g,stl,es){
   es=es.slice().sort(lgSort);
-  const ci=CO_INFO[g.co]||{name:g.co,zip:'',addr:'',tel:'',fax:''};
+  const ci=coInfo(g.co);
   const set=ownerSettings(g);
   let bl=[...new Set(es.filter(e=>!e.auto).map(e=>e.bldId))].map(id=>findBld(id)).filter(Boolean);
   if(!bl.length)bl=g.blds.slice();
@@ -3236,31 +3312,32 @@ function showStatement(g,stl,es){
     '.kv td:first-child{background:#EEF1F8;color:#1B2A6B;font-weight:700;width:1%;white-space:nowrap}'+
     '.n{text-align:right;white-space:nowrap}.c{text-align:center}'+
     '.h{font-weight:700;color:#1B2A6B;margin:.7em 0 .25em;border-left:.3em solid #C9A84C;padding-left:.5em}'+
-    'tr{page-break-inside:avoid}tr.tot td{background:#F5F6FA;font-weight:700}'+
+    'tr{page-break-inside:avoid}tr.tot td{background:#F5F6FA;font-weight:700}thead{display:table-header-group}.cmp{line-height:1.25}.cmp td,.cmp th{padding:.1em .5em}.keep{break-inside:avoid;page-break-inside:avoid}'+
     '.ab{display:flex;gap:1em;align-items:flex-start}.ab .a{flex:0 0 38%}.ab .b{flex:1}'+
     '.big{font-size:1.5em;font-weight:700;color:#1B2A6B}'+
     '@media print{body{background:#fff}.bar{display:none}.paper{margin:0;padding:0;box-shadow:none}}'+
     '</style></head><body>'+
-    '<div class="bar"><button onclick="window.print()">印刷 / PDFで保存（A4）</button></div>'+
+    '<div class="bar"><button onclick="window.print()">印刷 / PDFで保存（A4 縦）</button> <span id="pgn" style="font-size:12px;color:#555;margin-left:10px;"></span></div>'+
     '<div class="paper"><div id="sheet">'+
     '<h1>送金明細書</h1>'+
     '<div class="meta">対象期間：'+esc(fd(stl.from))+' 〜 '+esc(fd(stl.to))+'　　発行日：'+esc(fd(todayJ()))+'</div>'+
     '<div class="two"><div><table class="kv"><tr><td>物件名</td><td>'+bl.map(b=>esc(b.name||'')).join('<br>')+'</td></tr><tr><td>オーナー</td><td>'+ownerLabel+'</td></tr></table></div>'+
     '<div><table class="kv"><tr><td>管理会社</td><td>'+esc(ci.name)+'</td></tr><tr><td>住所</td><td>'+(ci.zip?'〒'+esc(ci.zip)+' ':'')+esc(ci.addr)+'</td></tr><tr><td>電話・FAX</td><td>TEL '+esc(ci.tel)+'　FAX '+esc(ci.fax)+'</td></tr><tr><td>担当者名</td><td>'+esc(staff)+'</td></tr></table></div></div>'+
     '<div class="h">家賃収入の内訳</div>'+
-    '<table><tr><th>区分</th><th>入居契約者名</th><th>該当月</th><th>家賃</th><th>共益費</th><th>小計</th></tr>'+rentRows+'<tr class="tot"><td colspan="3" class="c">合計</td><td class="n">'+yen0(sRent)+'</td><td class="n">'+yen0(sKanri)+'</td><td class="n">'+yen0(sRent+sKanri)+'</td></tr></table>'+
+    '<table class="rent'+(rrows.length>12?' cmp':'')+'"><thead><tr><th>区分</th><th>入居契約者名</th><th>該当月</th><th>家賃</th><th>共益費</th><th>小計</th></tr></thead><tbody>'+rentRows+'<tr class="tot"><td colspan="3" class="c">合計</td><td class="n">'+yen0(sRent)+'</td><td class="n">'+yen0(sKanri)+'</td><td class="n">'+yen0(sRent+sKanri)+'</td></tr></tbody></table>'+
+    '<div class="keep">'+
     '<div class="ab"><div class="a"><div class="h">入金の内訳（A）</div><table><tr><th>内訳</th><th>金額</th></tr>'+aHtml+'</table></div>'+
     '<div class="b"><div class="h">経費の内訳（B）</div><table><tr><th>内訳</th><th>金額</th><th>備考</th></tr>'+bHtml+'</table></div></div>'+
     '<table class="kv" style="margin-top:.8em"><tr><td>振込予定日</td><td>'+esc(payTxt)+'</td></tr>'+
     '<tr><td>送金金額（A−B）</td><td><span class="big">¥'+yen0(remit)+'</span>'+(remit<=0&&carry?'<span style="margin-left:1em;font-size:.9em;color:#C62828;">次回へ繰越 ¥'+yen0(carry)+'</span>':'')+'</td></tr>'+
     '<tr><td>受取口座</td><td>'+bankHtml+'</td></tr>'+
     '<tr><td>備考</td><td style="white-space:pre-wrap;height:4em;vertical-align:top">'+esc(stl.memo||'')+'</td></tr></table>'+
-    '</div></div></body></html>';
+    '</div></div></div></body></html>';
   const w=window.open('','_blank');
   if(!w){alert('送金明細書を開けませんでした。ポップアップのブロックを解除してください。');return;}
   w.document.write(html);w.document.close();
-  // A4の1枚に収まるまで文字サイズを少しずつ縮める（最小62%。それでも収まらない場合だけ2枚目にまたがる）
-  const fit=()=>{try{const sh=w.document.getElementById('sheet');if(!sh)return;const MAX=1030;let k=1;sh.style.setProperty('--k',k);while(sh.offsetHeight>MAX&&k>0.62){k=Math.round((k-0.04)*100)/100;sh.style.setProperty('--k',k);}}catch(e){}};
+  // A4縦の1枚に収まるまで文字を少しだけ縮める（最小85%。それでも収まらないときは縮めず、2枚目以降に続ける）
+  const fit=()=>{try{const sh=w.document.getElementById('sheet');if(!sh)return;const MAX=1030;let k=1;sh.style.setProperty('--k',k);while(sh.offsetHeight>MAX&&k>0.85){k=Math.round((k-0.03)*100)/100;sh.style.setProperty('--k',k);}if(sh.offsetHeight>MAX){k=1;sh.style.setProperty('--k',k);}const n=Math.max(1,Math.ceil(sh.offsetHeight/MAX));const p=w.document.getElementById('pgn');if(p)p.textContent=n>1?'部屋数が多いため '+n+'枚に分かれます（見出しは各ページに付きます）':'A4縦 1枚に収まっています';}catch(e){}};
   fit();setTimeout(fit,150);
   try{if(w.document.fonts&&w.document.fonts.ready)w.document.fonts.ready.then(fit);}catch(e){}
 }
