@@ -241,6 +241,8 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .lg-sum td{padding:5px 10px;border-bottom:1px dashed #ddd;font-size:13px;}
 .lg-sum td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;}
 .lg-sum tr.big td{font-size:15px;color:var(--navy);border-bottom:2px solid var(--gold);}
+.lgt{padding:8px 18px;border:1px solid #ccd2e3;border-bottom:none;border-radius:8px 8px 0 0;background:#fff;font-size:13px;font-weight:700;color:#777;cursor:pointer;font-family:inherit;}
+.lgt.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 </style>
 </head>
 <body>
@@ -331,6 +333,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   <div class="bld-wrap" id="lbld-wrap"></div>
   </div>
   <div id="view-ledger" style="display:none;">
+    <div style="display:flex;gap:6px;padding:10px 20px 0;"><button class="lgt on" id="lgt-owner" onclick="lgSetTab('owner')">オーナー別の台帳</button><button class="lgt" id="lgt-alloc" onclick="lgSetTab('alloc')">入金の振分け<span id="lgt-n"></span></button></div>
     <div id="lg-over">
       <div class="stats-bar">
         <div class="stat-item"><div class="stat-num" id="lgs-n">0</div><div class="stat-label">対象のオーナー</div></div>
@@ -343,6 +346,14 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <span style="font-size:11px;color:var(--sub);">オーナーから受託している物件が対象です（自社管理の物件は出ません）</span>
       </div>
       <div style="padding:14px 20px;"><div class="lg-wrap" id="lg-ov-list"></div></div>
+    </div>
+    <div id="lg-alloc" style="display:none;">
+      <div class="toolbar">
+        <span id="dp-filter" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
+        <span style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-navy btn-sm" onclick="openDpImp()">銀行の入金データを取り込む</button><button class="btn btn-sm" onclick="openGzSet()">保証会社の設定</button></span>
+      </div>
+      <div style="padding:8px 20px 0;font-size:11px;color:var(--sub);">保証会社からの一括入金などを、区分ごとに振り分けます。確定すると、それぞれのオーナーの台帳に「家賃」「共益費」の入金が追加されます。</div>
+      <div style="padding:10px 20px 14px;" id="dp-list"></div>
     </div>
     <div id="lg-det" style="display:none;">
       <div class="lg-head" id="lg-head"></div>
@@ -919,6 +930,51 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
 </div>
 
+<!-- 銀行の入金データの取り込み -->
+<div class="modal-bg" id="dpi-modal">
+  <div class="modal" style="max-width:980px;">
+    <div class="modal-head"><div><h3>銀行の入金データを取り込む</h3><div class="modal-sub">入金の行だけを取り込みます。保証会社の一括入金などは、取り込み後に区分ごとへ振り分けます</div></div><button class="modal-close" onclick="closeDpImp()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs">
+        <div class="fr"><label>管理会社（どの会社の口座の入金か）</label><select id="dpi-co" onchange="if(document.getElementById('dpi-text').value.trim())dpiRead()"></select></div>
+        <div style="font-size:11px;color:var(--sub);margin:8px 0 6px;">銀行からダウンロードしたCSV（またはExcel）の、項目名の行を含めた範囲をコピーして、下に貼り付けてください。日付・入金額・振込人名義（摘要）の列は、項目名から自動で読み取ります。すでに取り込んだ入金は、重複として自動で外します。</div>
+        <textarea id="dpi-text" rows="5" placeholder="ここに貼り付け（日付・入金・摘要 などの項目名の行から）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
+        <details style="margin-top:8px;font-size:12px;"><summary style="cursor:pointer;">列を指定する（項目名の行がないとき）</summary>
+          <div class="fg" style="margin-top:6px;"><div class="fr"><label>日付の列（番号）</label><input id="dpi-c-date" type="number" min="1" placeholder="例：1"/></div><div class="fr"><label>入金額の列（番号）</label><input id="dpi-c-in" type="number" min="1" placeholder="例：3"/></div></div>
+          <div class="fr"><label>振込人名義・摘要の列（番号）</label><input id="dpi-c-memo" type="number" min="1" placeholder="例：2"/></div>
+        </details>
+        <div style="margin-top:8px;"><button class="btn btn-navy" onclick="dpiRead()">読み取る</button></div>
+      </div>
+      <div id="dpi-prev"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeDpImp()">閉じる</button>
+      <button class="btn btn-gold" id="dpi-ok" onclick="doDpImp()" disabled>この内容で取り込む</button>
+    </div>
+  </div>
+</div>
+
+<!-- 保証会社の設定 -->
+<div class="modal-bg" id="gz-modal">
+  <div class="modal">
+    <div class="modal-head"><div><h3>保証会社の設定</h3><div class="modal-sub">銀行の入金が保証会社からのものかを判定し、区分へ自動で振り分けるための設定です</div></div><button class="modal-close" onclick="closeGzSet()">✕</button></div>
+    <div class="modal-body">
+      <div class="fs">
+        <div class="fr"><label>管理会社</label><select id="gz-co" onchange="gzLoad()"></select></div>
+        <div style="font-size:11px;color:var(--sub);margin:8px 0;">保証会社名は、区分の「保証会社名」と同じ名前にしてください（その保証会社が登録されている契約中の区分に振り分けます）。振込人名義は、銀行のデータに出る文字の一部（例：「ジャパン」）で構いません。</div>
+        <datalist id="gz-names"></datalist>
+        <div id="gz-list"></div>
+        <button class="btn btn-sm btn-navy" id="gz-add" onclick="gzAdd()">＋ 保証会社を追加</button>
+        <div id="gz-ro" style="display:none;font-size:11px;color:#C62828;margin-top:8px;">変更できるのは管理者だけです（表示のみ）。</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeGzSet()">閉じる</button>
+      <button class="btn btn-gold" id="gz-save" onclick="saveGzSet()">保存する</button>
+    </div>
+  </div>
+</div>
+
 <!-- 管理会社の設定（マスタ） -->
 <div class="modal-bg" id="co-modal">
   <div class="modal">
@@ -1265,7 +1321,7 @@ window.migrateCompany=async function(){
   }catch(e){alert('失敗: '+e.message);console.error(e);}
   showLoading(false);
 };
-function stopSync(){unsubs.forEach(f=>{try{f();}catch(e){}});unsubs=[];rb=[];ru=[];rl=[];rsl=[];properties=[];applyCo();}
+function stopSync(){unsubs.forEach(f=>{try{f();}catch(e){}});unsubs=[];rb=[];ru=[];rl=[];rsl=[];rdp=[];properties=[];applyCo();}
 function startSync(){
   stopSync();
   // 1社だけの権限の人は、その会社のデータだけを問い合わせる（ルール側でも同じ条件で制限できる）
@@ -1276,6 +1332,7 @@ function startSync(){
   unsubs.push(onSnapshot(q('managed_ledger'),snap=>{rl=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
   unsubs.push(onSnapshot(q('managed_settlements'),snap=>{rsl=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
   unsubs.push(onSnapshot(q('managed_company'),snap=>{rco={};snap.docs.forEach(d=>{rco[d.id]=d.data();});allowedCo=normCo(userCoRaw);if(coSel!=='all'&&!allowedCo.includes(coSel))coSel='all';applyCo();renderCoFilter();render();},onErr));
+  unsubs.push(onSnapshot(q('managed_deposits'),snap=>{rdp=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
   // 在庫物件は LDY の権限がある人だけ読み込む
   if(allowedCo.includes('LDY'))unsubs.push(onSnapshot(collection(db,'properties'),snap=>{properties=snap.docs.map(d=>({id:d.id,...d.data()}));render();},onErr));
 }
@@ -3017,6 +3074,384 @@ window.lbkXlCopy=function(onlyHeader){
   xlCopy([cols.map(c=>c.label).join('\t')].concat(rows.map(r=>cols.map(c=>xlCell(c,r[c.k])).join('\t'))).join('\n'),'lbk-xl-msg',onlyHeader?'項目名の行':'現在の一覧');
 };
 
+// ===== 入金の振分け（銀行のCSV → 保証会社の一括入金などを、区分ごとに振り分ける） =====
+let rdp=[];                       // 入金の一覧（managed_deposits）
+let lgTab='owner';                // 出納画面のタブ：'owner'＝オーナー別の台帳／'alloc'＝入金の振分け
+let adId=null,ad=null,adFilter='open',dpiRows=[];   // 展開中の入金ID／振分けの下書き／表示の絞り込み／取り込みの読み取り結果
+
+// ---- 保証会社の設定（managed_company/{会社}.guarantors に保存：[{name,keys,auto}]） ----
+const gzList=co=>((rco[co]&&rco[co].guarantors)||[]).filter(g=>g&&g.name);
+const gzKeys=g=>(Array.isArray(g.keys)?g.keys:String(g.keys||'').split(/[,、，\n]/)).map(k=>xlKey(k)).filter(Boolean);
+const gzOfPayer=(co,payer)=>{const n=xlKey(payer);return gzList(co).find(g=>gzKeys(g).some(k=>n.includes(k)))||null;};
+const gzMatchUnit=(g,u)=>{const a=xlKey(g.name),b=xlKey(u.hoshoName);return !!a&&!!b&&(a.includes(b)||b.includes(a));};
+
+// ---- 区分・想定額 ----
+function allocUnits(co){
+  const bs=rb.filter(b=>b.biz!=='lodging'&&b.mgmtType!=='own'&&coOf(b)===co);
+  const bm=Object.fromEntries(bs.map(b=>[b.id,b]));
+  return ru.filter(u=>u.biz!=='lodging'&&bm[u.bldId]).map(u=>({u,b:bm[u.bldId]}))
+    .sort((x,y)=>(x.b.name||'').localeCompare(y.b.name||'','ja',{numeric:true})||(x.u.name||'').localeCompare(y.u.name||'','ja',{numeric:true}));
+}
+// その月の想定額（賃料の履歴があれば、その月に有効な賃料）
+function unitExpected(u,m){
+  const hs=(u.rentHistory||[]).filter(x=>x&&x.rent!==''&&x.rent!=null&&(!x.date||String(x.date).slice(0,7)<=m)).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+  const h=hs[hs.length-1];
+  const rent=h?(+h.rent||0):(+u.rent||0),kanri=+u.kanri||0;
+  return {rent,kanri,total:rent+kanri};
+}
+const unitActive=(u,m)=>['契約中','解約予告中'].includes(u.status)&&(!u.start||String(u.start).slice(0,7)<=m);
+// 保証会社は月末〜翌月初めに「翌月分」をまとめて振り込むことが多いので、20日以降の入金は翌月分を初期値にする
+function depMonthDefault(date){
+  const m=String(date||'').match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return '';
+  let y=+m[1],mo=+m[2];if(+m[3]>=20){mo++;if(mo>12){mo=1;y++;}}
+  return y+'-'+String(mo).padStart(2,'0');
+}
+// 振込人名義が契約者（名前・フリガナ）と一致する区分（個別入金の候補）
+function depTenantUnits(d){
+  const n=xlKey(d.payer);if(n.length<3)return [];
+  return allocUnits(d.company).filter(x=>[x.u.tenantKana,x.u.tenant].some(t=>{const k=xlKey(t);return k.length>=3&&(n.includes(k)||k.includes(n));}));
+}
+function depInfo(d){
+  const gz=gzOfPayer(d.company,d.payer);
+  if(gz)return {kind:'hosho',gz,tenantUnits:[]};
+  const t=depTenantUnits(d);
+  return {kind:t.length?'tenant':'other',gz:null,tenantUnits:t};
+}
+// 部分集合の和：valsの中から、合計がtargetになる組み合わせ（個数が最小）を探す。見つからなければnull
+const gcd2=(a,b)=>b?gcd2(b,a%b):a;
+function subsetExact(vals,target){
+  const g=vals.reduce((a,b)=>gcd2(a,b),target);if(!g||target<=0)return null;
+  const v=vals.map(x=>x/g),T=target/g,n=v.length;
+  if(n>250||n*(T+1)>4e7)return null;
+  const INF=1e9,best=new Int32Array(T+1).fill(INF);best[0]=0;
+  const take=new Uint8Array(n*(T+1));
+  for(let i=0;i<n;i++){for(let s=T;s>=v[i];s--){if(best[s-v[i]]+1<best[s]){best[s]=best[s-v[i]]+1;take[i*(T+1)+s]=1;}}}
+  if(best[T]>=INF)return null;
+  const pick=[];let s=T;
+  for(let i=n-1;i>=0&&s>0;i--){if(take[i*(T+1)+s]){pick.push(i);s-=v[i];}}
+  return s===0?pick:null;
+}
+// 振分けの提案：保証会社なら、登録されている契約中の全区分の想定額を合計して入金額と比べる
+function allocSuggest(d,m){
+  const info=depInfo(d);let list=[],note='',exact=false;
+  if(info.kind==='hosho')list=allocUnits(d.company).filter(x=>unitActive(x.u,m)&&gzMatchUnit(info.gz,x.u)&&unitExpected(x.u,m).total>0);
+  else if(info.kind==='tenant')list=info.tenantUnits;
+  const rows=list.map(x=>({uid:x.u.id,inc:true,amt:unitExpected(x.u,m).total}));
+  const E=rows.reduce((a,r)=>a+r.amt,0);
+  if(info.kind==='hosho'){
+    if(!rows.length)note='「'+info.gz.name+'」が登録されている契約中の区分が見つかりません。区分の「保証会社名」を確認するか、下の「区分を追加」で選んでください。';
+    else if(E===d.amount){exact=true;note='契約中の全'+rows.length+'室の想定額（賃料＋共益費）の合計が、入金額と一致しました。';}
+    else if(E>d.amount){
+      const pick=subsetExact(rows.map(r=>r.amt),E-d.amount);
+      if(pick){pick.forEach(i=>{rows[i].inc=false;});note='入金額に合わせて '+pick.length+'室 を除いた候補です（入らなかった部屋の想定です）。除いた部屋が正しいか確認してください。';}
+      else note='想定額の合計（¥'+yen0(E)+'）が入金額より ¥'+yen0(E-d.amount)+' 多く、ちょうど合う組み合わせは見つかりませんでした。入らなかった部屋のチェックを外すか、金額を直してください。';
+    }else note='入金額が想定額の合計（¥'+yen0(E)+'）より ¥'+yen0(d.amount-E)+' 多いです。足りない区分を「区分を追加」で足すか、金額を直してください。';
+  }else if(info.kind==='tenant'){
+    if(rows.length===1){rows[0].amt=d.amount;note='振込人名義が契約者と一致する区分です。';}
+    else note='振込人名義が契約者と一致する区分が '+rows.length+'室 あります。該当する部屋を選んでください。';
+  }else note='振込人名義から区分を特定できませんでした。下の「区分を追加」で選んでください。';
+  return {rows,exact,note,info};
+}
+// 振分け行 → 台帳の明細（家賃・共益費）。金額が想定額と違うときは、賃料を先に充てる
+function allocEntries(d,rows,m){
+  const um=Object.fromEntries(allocUnits(d.company).map(x=>[x.u.id,x]));
+  const me=(auth.currentUser||{}).email||'',now=Date.now(),info=depInfo(d);
+  const out=[];let k=0;
+  rows.forEach(r=>{
+    const x=um[r.uid];if(!x)return;
+    const e=unitExpected(x.u,m);
+    let rent,kanri;
+    if(r.amt>=e.total){kanri=e.kanri;rent=r.amt-kanri;}else{rent=Math.min(r.amt,e.rent);kanri=r.amt-rent;}
+    const base={bldId:x.b.id,company:d.company,date:d.date,unitId:x.u.id,unitName:x.u.name||'',month:m,outAmt:0,feeAmt:0,stlId:null,depositId:d.id,memo:(info.gz?'保証会社「'+info.gz.name+'」':'銀行入金')+' '+String(d.date).replace(/-/g,'/')+'分から振分け',updatedAt:serverTimestamp(),updatedBy:me,createdAt:serverTimestamp()};
+    if(rent>0)out.push({...base,cat:'rent',inAmt:rent,ord:now+k++});
+    if(kanri>0)out.push({...base,cat:'kanri',inAmt:kanri,ord:now+k++});
+  });
+  return out;
+}
+
+// ---- タブ ----
+window.lgSetTab=function(t){lgTab=t;adId=null;ad=null;renderLedger();};
+const depOpen=()=>rdp.filter(d=>allowedCo.includes(d.company)&&(coSel==='all'||coSel===d.company)&&d.status==='open');
+function renderAlloc(force){
+  const box=document.getElementById('lg-alloc');if(!box)return;
+  const ae=document.activeElement;
+  if(!force&&ae&&box.contains(ae)&&(ae.tagName==='INPUT'||ae.tagName==='SELECT'))return;   // 入力中は再描画しない
+  const all=rdp.filter(d=>allowedCo.includes(d.company)&&(coSel==='all'||coSel===d.company));
+  const nOpen=all.filter(d=>d.status==='open').length;
+  const cnt={open:nOpen,done:all.filter(d=>d.status==='done').length,ignored:all.filter(d=>d.status==='ignored').length};
+  document.getElementById('dp-filter').innerHTML=[['open','未振分け'],['done','振分け済み'],['ignored','対象外'],['all','すべて']].map(([k,l])=>'<button class="co-btn'+(adFilter===k?' on':'')+'" onclick="allocFilter(\''+k+'\')">'+l+(k==='all'?'':'（'+cnt[k]+'）')+'</button>').join('');
+  const list=all.filter(d=>adFilter==='all'||d.status===adFilter).sort((x,y)=>String(y.date||'').localeCompare(String(x.date||''))||(+y.amount||0)-(+x.amount||0));
+  const el=document.getElementById('dp-list');
+  if(!list.length){el.innerHTML='<div style="padding:30px;text-align:center;color:#999;">'+(adFilter==='open'?'未振分けの入金はありません。「銀行の入金データを取り込む」から、銀行のCSVを取り込めます。':'該当する入金がありません')+'</div>';return;}
+  const um={};all.forEach(d=>{if(!um[d.company])um[d.company]=Object.fromEntries(allocUnits(d.company).map(x=>[x.u.id,x]));});
+  el.innerHTML=list.map(d=>{
+    const info=depInfo(d),isOpen=adId===d.id;
+    const kindBadge=info.kind==='hosho'?'<span class="lg-badge ok">保証会社：'+esc(info.gz.name)+'</span>':(info.kind==='tenant'?'<span class="lg-badge">個別入金（契約者と一致）</span>':'<span class="lg-badge due">要確認</span>');
+    const st=d.status==='done'?'<span class="lg-badge ok">振分け済み</span>':(d.status==='ignored'?'<span class="lg-badge">対象外</span>':'<span class="lg-badge due">未振分け</span>');
+    let body='';
+    if(isOpen&&d.status==='open'&&ad)body=allocEditorHtml(d,um[d.company]||{});
+    else if(isOpen&&d.status==='done')body=allocDoneHtml(d,um[d.company]||{});
+    else if(isOpen&&d.status==='ignored')body='<div style="padding:12px 16px;"><button class="btn btn-sm" onclick="allocRestore(\''+d.id+'\')">未振分けに戻す</button>'+(currentRole==='admin'?' <button class="btn btn-sm btn-red" onclick="allocDelete(\''+d.id+'\')">この入金を削除</button>':'')+'</div>';
+    return '<div style="background:#fff;border:1px solid #E3E7EF;border-radius:8px;margin-bottom:10px;overflow:hidden;'+(isOpen?'box-shadow:0 2px 10px rgba(27,42,107,.12);':'')+'">'+
+      '<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;flex-wrap:wrap;" onclick="allocOpen(\''+d.id+'\')">'+
+      '<span style="white-space:nowrap;">'+esc(String(d.date||'').replace(/-/g,'/'))+'</span><b style="font-size:15px;color:var(--navy);">¥'+yen0(d.amount)+'</b>'+
+      '<span style="flex:1;min-width:160px;color:#555;">'+esc(d.payer||'')+'</span>'+kindBadge+st+'<span class="rb-co '+esc(d.company)+'">'+esc(d.company)+'</span></div>'+body+'</div>';
+  }).join('');
+}
+window.allocFilter=function(k){adFilter=k;adId=null;ad=null;renderAlloc(true);};
+window.allocOpen=function(id){
+  if(adId===id){adId=null;ad=null;renderAlloc(true);return;}
+  const d=rdp.find(x=>x.id===id);if(!d)return;
+  adId=id;ad=null;
+  if(d.status==='open'){const m=depMonthDefault(d.date),s=allocSuggest(d,m);ad={month:m,rows:s.rows,note:s.note,exact:s.exact};}
+  renderAlloc(true);
+};
+window.allocAuto=function(){
+  const d=rdp.find(x=>x.id===adId);if(!d||!ad)return;
+  const m=document.getElementById('ad-month').value||ad.month,s=allocSuggest(d,m);
+  ad={month:m,rows:s.rows,note:s.note,exact:s.exact};renderAlloc(true);
+};
+window.allocMonth=function(v){if(ad&&v){ad.month=v;allocAuto();}};
+window.allocToggle=function(i,v){if(ad&&ad.rows[i]){ad.rows[i].inc=v;renderAlloc(true);}};
+window.allocAmt=function(i,v){
+  if(!ad||!ad.rows[i])return;
+  const n=Math.round(parseFloat(String(v).normalize('NFKC').replace(/[,，¥￥円\s]/g,'')));
+  ad.rows[i].amt=isNaN(n)?0:n;allocSums();
+};
+window.allocDel=function(i){if(ad){ad.rows.splice(i,1);renderAlloc(true);}};
+window.allocAdd=function(uid){
+  const d=rdp.find(x=>x.id===adId);if(!d||!ad||!uid)return;
+  const x=allocUnits(d.company).find(y=>y.u.id===uid);if(!x)return;
+  ad.rows.push({uid,inc:true,amt:unitExpected(x.u,ad.month).total});renderAlloc(true);
+};
+function allocSums(){
+  const d=rdp.find(x=>x.id===adId);if(!d||!ad)return;
+  const sum=ad.rows.filter(r=>r.inc).reduce((a,r)=>a+(+r.amt||0),0),diff=d.amount-sum;
+  const set=(id,t,c)=>{const e=document.getElementById(id);if(e){e.textContent=t;if(c!=null)e.style.color=c;}};
+  set('ad-sum','¥'+yen0(sum));set('ad-diff',(diff===0?'¥0（一致）':'¥'+yen0(diff)+(diff>0?'（足りない）':'（多い）')),diff===0?'#2E7D32':'#C62828');
+  const b=document.getElementById('ad-ok');if(b)b.disabled=!(diff===0&&ad.rows.some(r=>r.inc&&r.amt>0));
+}
+function allocEditorHtml(d,um){
+  const rows=ad.rows.map((r,i)=>{
+    const x=um[r.uid];if(!x)return '';
+    const e=unitExpected(x.u,ad.month);
+    return '<tr style="'+(r.inc?'':'opacity:.45;')+'"><td><input type="checkbox" '+(r.inc?'checked ':'')+'onchange="allocToggle('+i+',this.checked)"/></td><td>'+esc(x.b.name||'')+'</td><td>'+esc(x.u.name||'')+'</td><td>'+esc(x.u.tenant||'')+'</td>'+
+      '<td class="n">'+yen0(e.total)+'</td><td class="n"><input type="text" value="'+(+r.amt||0)+'" style="width:100px;text-align:right;" oninput="allocAmt('+i+',this.value)"/></td><td><button class="btn btn-sm" onclick="allocDel('+i+')">✕</button></td></tr>';
+  }).join('');
+  const used=new Set(ad.rows.map(r=>r.uid));
+  const opts='<option value="">＋ 区分を追加…</option>'+Object.values(um).filter(x=>!used.has(x.u.id)).map(x=>'<option value="'+x.u.id+'">'+esc((x.b.name||'')+' ／ '+(x.u.name||'')+(x.u.tenant?'（'+x.u.tenant+'）':''))+'</option>').join('');
+  const sum=ad.rows.filter(r=>r.inc).reduce((a,r)=>a+(+r.amt||0),0),diff=d.amount-sum;
+  return '<div style="border-top:1px solid #E3E7EF;padding:12px 16px;background:#FAFBFE;">'+
+    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px;"><label style="font-size:12px;font-weight:700;">対象月</label><input type="month" id="ad-month" value="'+esc(ad.month)+'" onchange="allocMonth(this.value)"/><button class="btn btn-sm btn-navy" onclick="allocAuto()">自動で振り分け直す</button><span style="font-size:11px;color:var(--sub);">20日以降の入金は、翌月分を初期値にしています</span></div>'+
+    '<div style="font-size:12px;margin-bottom:8px;padding:6px 10px;border-radius:6px;background:'+(ad.exact?'#E8F5E9':'#FFF8E1')+';">'+esc(ad.note||'')+'</div>'+
+    '<div style="overflow-x:auto;"><table class="lg-table" style="min-width:640px;"><tr><th></th><th>建物</th><th>区分</th><th>契約者</th><th class="n">想定額</th><th class="n">振分額</th><th></th></tr>'+(rows||'<tr><td colspan="7" style="text-align:center;color:#999;padding:14px;">振り分ける区分がありません</td></tr>')+'</table></div>'+
+    '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;"><select onchange="allocAdd(this.value)" style="max-width:340px;">'+opts+'</select>'+
+    '<span style="font-size:12px;">振分け合計 <b id="ad-sum">¥'+yen0(sum)+'</b>　入金 <b>¥'+yen0(d.amount)+'</b>　差額 <b id="ad-diff" style="color:'+(diff===0?'#2E7D32':'#C62828')+';">'+(diff===0?'¥0（一致）':'¥'+yen0(diff)+(diff>0?'（足りない）':'（多い）'))+'</b></span>'+
+    '<span style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-sm" onclick="allocIgnore(\''+d.id+'\')">対象外にする</button><button class="btn btn-gold" id="ad-ok" '+((diff===0&&ad.rows.some(r=>r.inc&&r.amt>0))?'':'disabled ')+'onclick="allocConfirm()">この内容で振り分けを確定</button></span></div>'+
+    '<div style="font-size:10px;color:var(--sub);margin-top:6px;">確定すると、区分ごとに「家賃」「共益費」の入金明細が、それぞれのオーナーの台帳に追加されます（取り消しもできます）。</div></div>';
+}
+function allocDoneHtml(d,um){
+  const rows=(d.allocs||[]).map(a=>{const x=um[a.uid];return '<tr><td>'+esc(x?x.b.name:'')+'</td><td>'+esc(x?x.u.name:'（削除済みの区分）')+'</td><td class="n">'+yen0(a.amt)+'</td></tr>';}).join('');
+  return '<div style="border-top:1px solid #E3E7EF;padding:12px 16px;background:#FAFBFE;"><div style="font-size:12px;margin-bottom:6px;">対象月：<b>'+esc(String(d.month||'').replace('-','/'))+'</b>　'+(d.allocs||[]).length+'室に振り分け済み</div>'+
+    '<div style="overflow-x:auto;"><table class="lg-table" style="min-width:420px;"><tr><th>建物</th><th>区分</th><th class="n">金額</th></tr>'+rows+'</table></div>'+
+    '<div style="margin-top:10px;"><button class="btn btn-sm btn-red" onclick="allocUndo(\''+d.id+'\')">振分けを取り消す</button></div></div>';
+}
+window.allocConfirm=async function(){
+  const d=rdp.find(x=>x.id===adId);if(!d||!ad)return;
+  const rows=ad.rows.filter(r=>r.inc&&r.amt>0),sum=rows.reduce((a,r)=>a+r.amt,0);
+  if(!rows.length||sum!==d.amount){alert('振分けの合計が入金額と一致していません');return;}
+  const m=ad.month;if(!m){alert('対象月を入力してください');return;}
+  const ents=allocEntries(d,rows,m);
+  if(!ents.length){alert('振り分ける区分が見つかりません');return;}
+  showLoading(true);
+  try{
+    const refs=ents.map(()=>doc(collection(db,'managed_ledger')));
+    const batch=writeBatch(db);
+    ents.forEach((e,i)=>batch.set(refs[i],e));
+    batch.update(doc(db,'managed_deposits',d.id),{status:'done',month:m,allocs:rows.map(r=>({uid:r.uid,amt:r.amt})),entryIds:refs.map(r=>r.id),doneAt:serverTimestamp(),doneBy:(auth.currentUser||{}).email||''});
+    await batch.commit();
+    adId=null;ad=null;
+  }catch(e){alert('振分けに失敗しました: '+e.message);console.error(e);}
+  showLoading(false);
+};
+window.allocUndo=async function(id){
+  const d=rdp.find(x=>x.id===id);if(!d)return;
+  const es=rl.filter(e=>e.depositId===id);
+  if(es.some(e=>e.stlId)){alert('精算済みの明細が含まれているため、取り消せません。先に、その精算を取り消してください。');return;}
+  if(!confirm('この入金の振分けを取り消します。台帳に追加した '+es.length+'件の明細を削除し、入金を「未振分け」に戻します。よろしいですか？'))return;
+  showLoading(true);
+  try{
+    const batch=writeBatch(db);
+    es.forEach(e=>batch.delete(doc(db,'managed_ledger',e.id)));
+    batch.update(doc(db,'managed_deposits',id),{status:'open',month:'',allocs:[],entryIds:[],doneAt:null,doneBy:''});
+    await batch.commit();adId=null;ad=null;
+  }catch(e){alert('取消に失敗しました: '+e.message);}
+  showLoading(false);
+};
+window.allocIgnore=async function(id){
+  if(!confirm('この入金を「対象外」にします（振分けの対象から外します）。あとで元に戻せます。'))return;
+  try{await updateDoc(doc(db,'managed_deposits',id),{status:'ignored'});adId=null;ad=null;}catch(e){alert('更新に失敗しました: '+e.message);}
+};
+window.allocRestore=async function(id){try{await updateDoc(doc(db,'managed_deposits',id),{status:'open'});adId=null;ad=null;}catch(e){alert('更新に失敗しました: '+e.message);}};
+window.allocDelete=async function(id){
+  if(currentRole!=='admin')return;
+  if(!confirm('この入金の記録を削除します。元に戻せません。'))return;
+  try{await deleteDoc(doc(db,'managed_deposits',id));adId=null;ad=null;}catch(e){alert('削除に失敗しました: '+e.message);}
+};
+
+// ---- 銀行のCSV（コピー＆貼り付け）の読み取り ----
+const DP_ALIAS={
+  date:['日付','年月日','取引日','お取引日','日','勘定日','入出金日','計上日','取扱日'],
+  inA:['入金','入金額','入金金額','お預入金額','お預り金額','預入金額','お預入','預入','お預け入れ','受入金額','入金円'],
+  amt:['金額','取引金額'],
+  typ:['入出金区分','入払区分','取引区分','入出金','入払'],
+  memo:['摘要','内容','お取引内容','取引内容','振込人','振込人名','振込名義','名義','依頼人名','相手先','備考','適用','摘要内容','取引先','摘要1','摘要2']
+};
+const dpNum=v=>{const n=String(v==null?'':v).normalize('NFKC').replace(/[,，¥￥円\s]/g,'').replace(/^\((.*)\)$/,'-$1');const x=parseFloat(n);return isNaN(x)?0:x;};
+function dpDate(v){
+  const t=String(v==null?'':v).trim().split(/[\sT]/)[0];
+  let d=xlDate(t);if(d)return d;
+  const m=t.normalize('NFKC').match(/^(\d{2})[\/.\-](\d{1,2})[\/.\-](\d{1,2})$/);
+  return m?xlIso(2000+ +m[1],+m[2],+m[3]):'';
+}
+function dpParse(text,ov){
+  const data=xlParse(text);
+  if(!data.length)return {err:'貼り付けた内容が空です'};
+  const hk=c=>[xlKey(c),xlShort(c)];
+  const find=(h,names)=>{const ks=names.map(xlKey);return h.findIndex(c=>hk(c).some(k=>ks.includes(k)));};
+  let hr=-1,iD=-1,iI=-1,iA=-1,iT=-1,iM=[];
+  for(let r=0;r<Math.min(8,data.length);r++){
+    const h=data[r];const d=find(h,DP_ALIAS.date),i=find(h,DP_ALIAS.inA),a=find(h,DP_ALIAS.amt);
+    if(d>=0&&(i>=0||a>=0)){hr=r;iD=d;iI=i;iA=a;iT=find(h,DP_ALIAS.typ);const ks=DP_ALIAS.memo.map(xlKey);iM=h.map((c,ci)=>hk(c).some(k=>ks.includes(k))?ci:-1).filter(ci=>ci>=0);break;}
+  }
+  const ovD=(parseInt(ov.date,10)||0)-1,ovI=(parseInt(ov.inA,10)||0)-1,ovM=(parseInt(ov.memo,10)||0)-1;
+  if(ovD>=0&&ovI>=0){iD=ovD;iI=ovI;iA=-1;iT=-1;if(ovM>=0)iM=[ovM];}
+  if(iD<0||(iI<0&&iA<0))return {err:'日付と入金額の列を読み取れませんでした。1行目の項目名（日付・入金・摘要など）を含めて貼り付けるか、下の「列を指定する」で列の番号を入れてください。'};
+  if(!iM.length){const used=new Set([iD,iI,iA,iT]);const w=Math.max(...data.map(r=>r.length));iM=[...Array(w).keys()].filter(ci=>!used.has(ci)&&data.some(r=>isNaN(dpNum(r[ci]))||/[^\d.,\s\-¥￥円]/.test(String(r[ci]||''))));}
+  const rows=[];let skipped=0,outs=0;
+  data.slice(hr<0?0:hr+1).forEach(c=>{
+    const date=dpDate(c[iD]);if(!date){skipped++;return;}
+    let amount=0;
+    if(iI>=0)amount=Math.abs(dpNum(c[iI]));
+    else{const v=dpNum(c[iA]),t=iT>=0?String(c[iT]||''):'';amount=iT>=0?((/入/.test(t)&&!/出/.test(t))?Math.abs(v):0):(v>0?v:0);}
+    if(amount<=0){outs++;return;}
+    rows.push({date,amount:Math.round(amount),payer:iM.map(ci=>String(c[ci]==null?'':c[ci]).trim()).filter(Boolean).join(' ')});
+  });
+  return {rows,skipped,outs};
+}
+window.openDpImp=function(){
+  const sel=document.getElementById('dpi-co');
+  sel.innerHTML=allowedCo.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+  sel.value=(coSel!=='all'&&allowedCo.includes(coSel))?coSel:(allowedCo.includes(defaultCo())?defaultCo():allowedCo[0]);
+  sel.disabled=allowedCo.length<2;
+  setVal('dpi-text','');['dpi-c-date','dpi-c-in','dpi-c-memo'].forEach(i=>setVal(i,''));
+  dpiRows=[];document.getElementById('dpi-prev').innerHTML='';document.getElementById('dpi-ok').disabled=true;
+  document.getElementById('dpi-modal').classList.add('open');
+};
+window.closeDpImp=function(){document.getElementById('dpi-modal').classList.remove('open');};
+window.dpiRead=function(){
+  const co=document.getElementById('dpi-co').value;
+  const r=dpParse(document.getElementById('dpi-text').value,{date:document.getElementById('dpi-c-date').value,inA:document.getElementById('dpi-c-in').value,memo:document.getElementById('dpi-c-memo').value});
+  const prev=document.getElementById('dpi-prev');
+  if(r.err){dpiRows=[];prev.innerHTML='<div style="color:#C62828;font-size:12px;">'+esc(r.err)+'</div>';document.getElementById('dpi-ok').disabled=true;return;}
+  // すでに取り込んだ入金（日付・金額・名義が同じ）は重複として外す
+  const have={};rdp.forEach(d=>{if(d.fp)have[d.fp]=(have[d.fp]||0)+1;});
+  const seen={};
+  dpiRows=r.rows.map(x=>{
+    const fp=co+'|'+x.date+'|'+x.amount+'|'+xlKey(x.payer).slice(0,30);
+    seen[fp]=(seen[fp]||0)+1;
+    const dup=seen[fp]<=(have[fp]||0);
+    return {...x,company:co,fp,dup,inc:!dup};
+  });
+  renderDpi(r);
+};
+function renderDpi(r){
+  const co=document.getElementById('dpi-co').value;
+  const prev=document.getElementById('dpi-prev');
+  const tot=dpiRows.filter(x=>x.inc).reduce((a,x)=>a+x.amount,0);
+  const hosho=dpiRows.filter(x=>x.inc&&gzOfPayer(co,x.payer)).length,dup=dpiRows.filter(x=>x.dup).length;
+  prev.innerHTML='<div style="font-size:12px;margin:8px 0;">入金 <b>'+dpiRows.length+'件</b>を読み取りました（取り込む：'+dpiRows.filter(x=>x.inc).length+'件・¥'+yen0(tot)+'／うち保証会社 '+hosho+'件'+(dup?'／取り込み済みの重複 '+dup+'件':'')+(r&&r.outs?'／出金などを除外 '+r.outs+'件':'')+(r&&r.skipped?'／日付を読めない行 '+r.skipped+'件':'')+'）</div>'+
+    '<div style="max-height:300px;overflow:auto;"><table class="lg-table" style="min-width:620px;"><tr><th></th><th>日付</th><th class="n">入金額</th><th>振込人名義・摘要</th><th>判定</th></tr>'+
+    dpiRows.map((x,i)=>{const g=gzOfPayer(co,x.payer),t=!g&&depTenantUnits({company:co,payer:x.payer}).length;
+      return '<tr style="'+(x.inc?'':'opacity:.45;')+'"><td><input type="checkbox" '+(x.inc?'checked ':'')+'onchange="dpiToggle('+i+',this.checked)"/></td><td style="white-space:nowrap;">'+esc(x.date.replace(/-/g,'/'))+'</td><td class="n">'+yen0(x.amount)+'</td><td>'+esc(x.payer)+'</td><td>'+(x.dup?'<span class="lg-badge">取り込み済み</span>':(g?'<span class="lg-badge ok">保証会社：'+esc(g.name)+'</span>':(t?'<span class="lg-badge">個別入金</span>':'<span class="lg-badge due">要確認</span>')))+'</td></tr>';}).join('')+'</table></div>';
+  document.getElementById('dpi-ok').disabled=!dpiRows.some(x=>x.inc);
+}
+window.dpiToggle=function(i,v){if(dpiRows[i]){dpiRows[i].inc=v;renderDpi(null);}};
+window.doDpImp=async function(){
+  const list=dpiRows.filter(x=>x.inc);if(!list.length)return;
+  const co=document.getElementById('dpi-co').value,me=(auth.currentUser||{}).email||'';
+  showLoading(true);
+  try{
+    const writes=[];let autos=0;
+    list.forEach(x=>{
+      const ref=doc(collection(db,'managed_deposits'));
+      const dep={company:co,date:x.date,amount:x.amount,payer:x.payer,fp:x.fp,status:'open',month:'',allocs:[],entryIds:[],createdAt:serverTimestamp(),createdBy:me};
+      const info=depInfo({company:co,payer:x.payer});
+      // 「合計が一致したら自動で確定」の設定がある保証会社は、全室の合計と一致した入金をそのまま振り分ける
+      if(info.kind==='hosho'&&info.gz.auto){
+        const m=depMonthDefault(x.date),d2={...dep,id:ref.id},s=allocSuggest(d2,m);
+        if(s.exact&&s.rows.length){
+          const ents=allocEntries(d2,s.rows,m),refs=ents.map(()=>doc(collection(db,'managed_ledger')));
+          ents.forEach((e,i)=>writes.push([refs[i],e]));
+          Object.assign(dep,{status:'done',month:m,allocs:s.rows.map(r=>({uid:r.uid,amt:r.amt})),entryIds:refs.map(r=>r.id),doneAt:serverTimestamp(),doneBy:me});autos++;
+        }
+      }
+      writes.push([ref,dep]);
+    });
+    for(let i=0;i<writes.length;i+=400){const batch=writeBatch(db);writes.slice(i,i+400).forEach(([r,d])=>batch.set(r,d));await batch.commit();}
+    closeDpImp();lgTab='alloc';adFilter='open';adId=null;ad=null;renderLedger();
+    if(autos)alert(list.length+'件を取り込み、うち '+autos+'件は保証会社の設定にしたがって自動で振り分けました。\n残りは「入金の振分け」で確認してください。');
+  }catch(e){alert('取り込みに失敗しました: '+e.message+(/permission/i.test(e.message)?'\n\nFirestoreのセキュリティルールに managed_deposits の許可を追加してください。':''));console.error(e);}
+  showLoading(false);
+};
+
+// ---- 保証会社の設定 ----
+let gzDraft=[];
+window.openGzSet=function(){
+  const sel=document.getElementById('gz-co');
+  sel.innerHTML=allowedCo.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+  sel.value=(coSel!=='all'&&allowedCo.includes(coSel))?coSel:(allowedCo.includes(defaultCo())?defaultCo():allowedCo[0]);
+  sel.disabled=allowedCo.length<2;
+  const ro=currentRole!=='admin';
+  document.getElementById('gz-ro').style.display=ro?'':'none';document.getElementById('gz-save').style.display=ro?'none':'';
+  gzLoad();document.getElementById('gz-modal').classList.add('open');
+};
+window.closeGzSet=function(){document.getElementById('gz-modal').classList.remove('open');};
+window.gzLoad=function(){
+  const co=document.getElementById('gz-co').value;
+  gzDraft=gzList(co).map(g=>({name:g.name,keys:gzKeys0(g),auto:!!g.auto}));
+  renderGz();
+};
+const gzKeys0=g=>(Array.isArray(g.keys)?g.keys:String(g.keys||'').split(/[,、，\n]/)).map(k=>String(k).trim()).filter(Boolean);
+function renderGz(){
+  const ro=currentRole!=='admin',co=document.getElementById('gz-co').value;
+  const names=[...new Set(ru.filter(u=>u.biz!=='lodging'&&u.hoshoName).map(u=>String(u.hoshoName).trim()))];
+  document.getElementById('gz-names').innerHTML=names.map(n=>'<option value="'+esc(n)+'"></option>').join('');
+  document.getElementById('gz-list').innerHTML=gzDraft.length?gzDraft.map((g,i)=>
+    '<div style="border:1px solid #E3E7EF;border-radius:6px;padding:10px;margin-bottom:8px;">'+
+    '<div class="fg"><div class="fr"><label>保証会社名（区分の「保証会社名」と同じ名前）</label><input list="gz-names" value="'+esc(g.name)+'" '+(ro?'disabled ':'')+'oninput="gzSet('+i+',\'name\',this.value)"/></div>'+
+    '<div class="fr"><label>銀行の振込人名義に含まれる文字（複数ならカンマ区切り）</label><input value="'+esc(g.keys.join(','))+'" placeholder="例：ジャパン,ｼﾞｬﾊﾟﾝ" '+(ro?'disabled ':'')+'oninput="gzSet('+i+',\'keys\',this.value)"/></div></div>'+
+    '<label style="font-size:12px;"><input type="checkbox" '+(g.auto?'checked ':'')+(ro?'disabled ':'')+'onchange="gzSet('+i+',\'auto\',this.checked)"/> 契約中の全室の合計と入金額が一致したら、取り込み時に自動で振り分けを確定する</label>'+
+    (ro?'':' <button class="btn btn-sm btn-red" style="float:right;" onclick="gzDel('+i+')">削除</button>')+'</div>').join(''):'<div style="color:#999;font-size:12px;padding:8px 0;">まだ登録がありません。</div>';
+  document.getElementById('gz-add').style.display=ro?'none':'';
+}
+window.gzSet=function(i,k,v){if(!gzDraft[i])return;gzDraft[i][k]=(k==='keys')?String(v).split(/[,、，]/).map(x=>x.trim()).filter(Boolean):v;};
+window.gzAdd=function(){gzDraft.push({name:'',keys:[],auto:false});renderGz();};
+window.gzDel=function(i){gzDraft.splice(i,1);renderGz();};
+window.saveGzSet=async function(){
+  if(currentRole!=='admin'){alert('保証会社の設定の変更は管理者だけができます');return;}
+  const co=document.getElementById('gz-co').value;
+  const list=gzDraft.filter(g=>String(g.name||'').trim()).map(g=>({name:String(g.name).trim(),keys:g.keys,auto:!!g.auto}));
+  if(list.some(g=>!g.keys.length)){alert('銀行の振込人名義に含まれる文字を、保証会社ごとに1つ以上入力してください（これで保証会社の入金かどうかを判定します）');return;}
+  showLoading(true);
+  try{
+    const batch=writeBatch(db);
+    batch.set(doc(db,'managed_company',co),{company:co,guarantors:list,updatedAt:serverTimestamp(),updatedBy:(auth.currentUser||{}).email||''},{merge:true});
+    await batch.commit();closeGzSet();
+  }catch(e){alert('保存に失敗しました: '+e.message+(/permission/i.test(e.message)?'\n\nFirestoreのセキュリティルールに managed_company の許可を追加してください。':''));console.error(e);}
+  showLoading(false);
+};
+
 // ===== 出納・精算 =====
 const LGC=[['rent','家賃入金','in'],['kanri','管理費・共益費入金','in'],['shiki','敷金入金','in'],['reikin','礼金・更新料入金','in'],['fire_in','火災保険料の入金（入居者から）','in'],['owner_in','オーナーからの入金','in'],['other_in','その他の入金','in'],['fire_out','火災保険料の支払','out'],['guar_out','保証会社への支払','out'],['xfer_fee','振込手数料','mix'],['clean','クリーニング費','out'],['repair','修繕費','out'],['key','鍵交換費','out'],['other_out','その他の出金','out'],['mgmt_fee','管理料（業務委託料）','fee'],['office_fee','事務手数料・その他の自社収益','fee'],['owner_pay','オーナー送金','out'],['carry','繰越（開始時の残高）','in']];
 const LGN=Object.fromEntries(LGC.map(c=>[c[0],c[1]]));
@@ -3122,7 +3557,7 @@ function renderLgOver(){
 }
 
 // ---- 台帳（オーナー単位。複数の建物の入出金をまとめて表示） ----
-window.openLedger=function(bid){const g=lgGroupOfBld(bid);if(!g)return;lgOwner=g.key;fillLgFilters();switchView('ledger');renderLedger();window.scrollTo(0,0);};
+window.openLedger=function(bid){const g=lgGroupOfBld(bid);if(!g)return;lgTab='owner';lgOwner=g.key;fillLgFilters();switchView('ledger');renderLedger();window.scrollTo(0,0);};
 window.lgBack=function(){lgOwner=null;renderLedger();};
 function fillLgFilters(){
   const g=curGroup();if(!g)return;
@@ -3137,9 +3572,14 @@ function fillLgFilters(){
 function renderLedger(){
   const v=document.getElementById('view-ledger');if(!v||v.style.display==='none')return;
   if(lgOwner&&!curGroup())lgOwner=null;
-  document.getElementById('lg-over').style.display=lgOwner?'none':'';
-  document.getElementById('lg-det').style.display=lgOwner?'':'none';
-  if(lgOwner)renderLgDetail();else renderLgOver();
+  const al=lgTab==='alloc';
+  document.getElementById('lgt-owner').className='lgt'+(al?'':' on');
+  document.getElementById('lgt-alloc').className='lgt'+(al?' on':'');
+  const n=depOpen().length;document.getElementById('lgt-n').textContent=n?'（未振分け '+n+'件）':'';
+  document.getElementById('lg-over').style.display=(!al&&!lgOwner)?'':'none';
+  document.getElementById('lg-det').style.display=(!al&&lgOwner)?'':'none';
+  document.getElementById('lg-alloc').style.display=al?'':'none';
+  if(al)renderAlloc();else if(lgOwner)renderLgDetail();else renderLgOver();
 }
 // HTMLのoninput/onchangeから呼べるように公開
 window.renderLedger=renderLedger;
@@ -3284,7 +3724,7 @@ window.saveCoInfo=async function(){
   showLoading(true);
   try{
     const batch=writeBatch(db);
-    batch.set(doc(db,'managed_company',co),data);
+    batch.set(doc(db,'managed_company',co),data,{merge:true});
     await batch.commit();
     coFillSel(co);
     document.getElementById('co-msg').textContent='「'+co+'」を保存しました。続けて他の会社も設定できます。';
