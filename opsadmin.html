@@ -350,7 +350,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div id="lg-alloc" style="display:none;">
       <div class="toolbar">
         <span id="dp-filter" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
-        <span style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-navy btn-sm" onclick="openDpImp()">銀行の入出金データを取り込む</button><button class="btn btn-sm" onclick="openGzSet()">振分けの設定</button></span>
+        <span style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-navy btn-sm" onclick="openDpImp()">銀行の入出金データを取り込む</button><button class="btn btn-sm" onclick="openGzSet()">振分けの設定</button><button class="btn btn-sm btn-navy" onclick="openYj()">弥生用CSV出力</button></span>
       </div>
       <div style="padding:8px 20px 0;font-size:11px;color:var(--sub);">保証会社・入居者・オーナーとの入出金を、区分や建物ごとに振り分けます（敷金・火災保険料・オーナー送金なども選べます）。確定すると、それぞれのオーナーの台帳に明細が追加されます。確定後も編集・取り消しができます。</div>
       <div style="padding:10px 20px 14px;" id="dp-list"></div>
@@ -936,12 +936,15 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="modal-head"><div><h3>銀行の入出金データを取り込む</h3><div class="modal-sub">入金・出金の両方を取り込みます。取り込み後に、区分・建物・オーナーごとへ振り分けます</div></div><button class="modal-close" onclick="closeDpImp()">✕</button></div>
     <div class="modal-body">
       <div class="fs">
-        <div class="fr"><label>管理会社（どの会社の口座の入金か）</label><select id="dpi-co" onchange="if(document.getElementById('dpi-text').value.trim())dpiRead()"></select></div>
+        <div class="fr"><label>管理会社（どの会社の口座の入金か）</label><select id="dpi-co" onchange="dpiCoChange()"></select></div>
         <div style="font-size:11px;color:var(--sub);margin:8px 0 6px;">銀行からダウンロードしたCSV（またはExcel）の、項目名の行を含めた範囲をコピーして、下に貼り付けてください。日付・入金額・振込人名義（摘要）の列は、項目名から自動で読み取ります。すでに取り込んだ入金は、重複として自動で外します。</div>
-        <textarea id="dpi-text" rows="5" placeholder="ここに貼り付け（日付・入金・摘要 などの項目名の行から）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
-        <details style="margin-top:8px;font-size:12px;"><summary style="cursor:pointer;">列を指定する（項目名の行がないとき）</summary>
-          <div class="fg" style="margin-top:6px;"><div class="fr"><label>日付の列（番号）</label><input id="dpi-c-date" type="number" min="1" placeholder="例：1"/></div><div class="fr"><label>入金額の列（番号）</label><input id="dpi-c-in" type="number" min="1" placeholder="例：3"/></div></div>
-          <div class="fr"><label>振込人名義・摘要の列（番号）</label><input id="dpi-c-memo" type="number" min="1" placeholder="例：2"/></div>
+        <div style="margin-bottom:6px;"><label style="font-size:12px;font-weight:700;">CSVファイルを選ぶ（Shift-JISも可）　<input type="file" accept=".csv,.txt,.tsv" onchange="dpiFile(event)"/></label></div><textarea id="dpi-text" rows="5" placeholder="ここに貼り付け（日付・入金・摘要 などの項目名の行から）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
+        <div class="fr" style="margin-top:8px;"><label>銀行テンプレ（口座ごとに、列の番号と勘定科目を保存できます。選ぶだけで取り込めます）</label><select id="dpi-tpl" onchange="dpiTplPick()"></select></div>
+        <div class="fg"><div class="fr"><label>銀行の勘定科目（弥生用）</label><input id="dpi-acct" placeholder="普通預金"/></div><div class="fr"><label>銀行の補助科目（弥生用）</label><input id="dpi-sub" placeholder="例：三井住友"/></div></div>
+        <details id="dpi-cols" style="margin-top:8px;font-size:12px;"><summary style="cursor:pointer;">列を指定する（テンプレなし／項目名の行がないとき。空欄なら項目名から自動で読み取ります）</summary>
+          <div class="fg" style="margin-top:6px;grid-template-columns:1fr 1fr 1fr;"><div class="fr"><label>日付の列（番号）</label><input id="dpi-c-date" type="number" min="1" placeholder="例：1"/></div><div class="fr"><label>入金額の列（番号）</label><input id="dpi-c-in" type="number" min="1" placeholder="例：3"/></div><div class="fr"><label>出金額の列（番号）</label><input id="dpi-c-out" type="number" min="1" placeholder="例：4"/></div></div>
+          <div class="fr"><label>振込人名義・摘要の列（番号。複数ならカンマ区切り 例：2,5）</label><input id="dpi-c-memo" placeholder="例：2"/></div>
+          <div class="fg" style="align-items:end;"><div class="fr"><label>テンプレ名（同じ名前なら上書き）</label><input id="dpi-tpl-name" placeholder="例：三井住友 普通"/></div><div class="fr" style="display:flex;gap:6px;"><button type="button" class="btn btn-sm btn-navy" onclick="dpiTplSave()">テンプレとして保存</button><button type="button" class="btn btn-sm btn-red" onclick="dpiTplDel()">削除</button></div></div>
         </details>
         <div style="margin-top:8px;"><button class="btn btn-navy" onclick="dpiRead()">読み取る</button></div>
       </div>
@@ -1215,6 +1218,14 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
 </div>
 
+<div class="modal-bg" id="yj-modal"><div class="modal"><div class="modal-head"><div><h3>弥生会計用の仕訳CSVを出力</h3><div class="modal-sub">振分け済みの銀行入出金を、仕訳（預金／預かり金）にして出力します</div></div><button class="modal-close" onclick="closeYj()">✕</button></div>
+<div class="modal-body"><div class="fs">
+<div class="fr"><label>管理会社</label><select id="yj-co" onchange="yjSum()"></select></div>
+<div class="fg"><div class="fr"><label>期間 開始</label><input type="date" id="yj-from" onchange="yjSum()"/></div><div class="fr"><label>期間 終了</label><input type="date" id="yj-to" onchange="yjSum()"/></div></div>
+<div class="fr"><label>反対勘定科目（補助科目は、建物名で付きます）</label><input id="yj-cp" value="賃貸管理物件預かり金" oninput="yjSum()"/></div>
+<div style="font-size:11px;color:var(--sub);">入金：借方＝預金（補助＝銀行）／貸方＝預かり金（補助＝建物名）、出金は逆。税区分は「対象外」、文字コードはShift-JISです。</div>
+<div id="yj-sum" style="margin-top:10px;font-size:13px;"></div></div></div>
+<div class="modal-foot"><button class="btn" onclick="closeYj()">閉じる</button><button class="btn btn-gold" id="yj-go" onclick="doYj()">CSVをダウンロード</button></div></div></div>
 <div class="lightbox" id="lightbox">
   <button class="lb-close" onclick="closeLB()">✕</button>
   <span class="lb-counter" id="lb-counter"></span>
@@ -3425,8 +3436,8 @@ function dpParse(text,ov){
     const h=data[r];const d=find(h,DP_ALIAS.date),i=find(h,DP_ALIAS.inA),o=find(h,DP_ALIAS.outA),a=find(h,DP_ALIAS.amt);
     if(d>=0&&(i>=0||o>=0||a>=0)){hr=r;iD=d;iI=i;iO=o;iA=a;iT=find(h,DP_ALIAS.typ);const ks=DP_ALIAS.memo.map(xlKey);iM=h.map((c,ci)=>hk(c).some(k=>ks.includes(k))?ci:-1).filter(ci=>ci>=0);break;}
   }
-  const ovD=(parseInt(ov.date,10)||0)-1,ovI=(parseInt(ov.inA,10)||0)-1,ovM=(parseInt(ov.memo,10)||0)-1;
-  if(ovD>=0&&ovI>=0){iD=ovD;iI=ovI;iO=-1;iA=-1;iT=-1;if(ovM>=0)iM=[ovM];}
+  const nn=v=>(parseInt(v,10)||0)-1,ovD=nn(ov.date),ovI=nn(ov.inA),ovO=nn(ov.outA),ovM=String(ov.memo||'').split(/[,、，\s]+/).map(nn).filter(x=>x>=0);
+  if(ovD>=0&&(ovI>=0||ovO>=0)){iD=ovD;iI=ovI;iO=ovO;iA=-1;iT=-1;if(ovM.length)iM=ovM;}
   if(iD<0||(iI<0&&iO<0&&iA<0))return {err:'日付と入金・出金額の列を読み取れませんでした。1行目の項目名（日付・入金・出金・摘要など）を含めて貼り付けるか、下の「列を指定する」で列の番号を入れてください。'};
   if(!iM.length){const used=new Set([iD,iI,iO,iA,iT]);const w=Math.max(...data.map(r=>r.length));iM=[...Array(w).keys()].filter(ci=>!used.has(ci)&&data.some(r=>isNaN(dpNum(r[ci]))||/[^\d.,\s\-¥￥円]/.test(String(r[ci]||''))));}
   const rows=[];let skipped=0,outs=0;
@@ -3451,14 +3462,55 @@ window.openDpImp=function(){
   sel.innerHTML=allowedCo.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
   sel.value=(coSel!=='all'&&allowedCo.includes(coSel))?coSel:(allowedCo.includes(defaultCo())?defaultCo():allowedCo[0]);
   sel.disabled=allowedCo.length<2;
-  setVal('dpi-text','');['dpi-c-date','dpi-c-in','dpi-c-memo'].forEach(i=>setVal(i,''));
+  setVal('dpi-text','');['dpi-c-date','dpi-c-in','dpi-c-out','dpi-c-memo','dpi-tpl-name','dpi-sub'].forEach(i=>setVal(i,''));setVal('dpi-acct','普通預金');
+  document.getElementById('dpi-cols').open=false;
   dpiRows=[];document.getElementById('dpi-prev').innerHTML='';document.getElementById('dpi-ok').disabled=true;
+  dpiTplFill();
   document.getElementById('dpi-modal').classList.add('open');
+};
+// ---- 銀行テンプレ（managed_company/{会社}.bankTemplates） ----
+const tplList=co=>((rco[co]&&rco[co].bankTemplates)||[]);
+const dv=i=>(document.getElementById(i).value||'').trim();
+function dpiTplFill(sel0){
+  const co=dv('dpi-co'),sel=document.getElementById('dpi-tpl'),L=tplList(co);
+  sel.innerHTML='<option value="">テンプレなし（項目名から自動／列を指定／貼り付け）</option>'+L.map((t,i)=>'<option value="'+i+'">'+esc(t.name)+'（'+esc(t.acct||'普通預金')+(t.sub?'・'+esc(t.sub):'')+'）</option>').join('');
+  sel.value=(sel0!=null&&L[sel0])?String(sel0):'';
+}
+window.dpiTplPick=function(){
+  const t=tplList(dv('dpi-co'))[document.getElementById('dpi-tpl').value];
+  if(t){setVal('dpi-acct',t.acct||'普通預金');setVal('dpi-sub',t.sub);setVal('dpi-c-date',t.cDate);setVal('dpi-c-in',t.cIn);setVal('dpi-c-out',t.cOut);setVal('dpi-c-memo',t.cMemo);setVal('dpi-tpl-name',t.name);}
+  else{['dpi-c-date','dpi-c-in','dpi-c-out','dpi-c-memo','dpi-tpl-name'].forEach(i=>setVal(i,''));}
+  if(dv('dpi-text'))dpiRead();
+};
+window.dpiCoChange=function(){dpiTplFill();window.dpiTplPick();};
+async function dpiTplWrite(list,keepName){
+  const co=dv('dpi-co');
+  const b=writeBatch(db);b.set(doc(db,'managed_company',co),{company:co,bankTemplates:list},{merge:true});await b.commit();
+  rco[co]=Object.assign({},rco[co]||{},{bankTemplates:list});
+  dpiTplFill(keepName?list.findIndex(x=>x.name===keepName):null);
+}
+window.dpiTplSave=async function(){
+  if(currentRole!=='admin'){alert('テンプレの保存は管理者だけができます');return;}
+  const name=dv('dpi-tpl-name');if(!name){alert('テンプレ名（例：三井住友 普通）を入力してください');return;}
+  const t={name,acct:dv('dpi-acct')||'普通預金',sub:dv('dpi-sub'),cDate:dv('dpi-c-date'),cIn:dv('dpi-c-in'),cOut:dv('dpi-c-out'),cMemo:dv('dpi-c-memo')};
+  try{await dpiTplWrite(tplList(dv('dpi-co')).filter(x=>x.name!==name).concat(t),name);}catch(e){alert('保存に失敗しました: '+e.message);}
+};
+window.dpiTplDel=async function(){
+  if(currentRole!=='admin'){alert('テンプレの削除は管理者だけができます');return;}
+  const i=document.getElementById('dpi-tpl').value,t=tplList(dv('dpi-co'))[i];if(!t)return;
+  if(!confirm('テンプレ「'+t.name+'」を削除します。よろしいですか？'))return;
+  try{await dpiTplWrite(tplList(dv('dpi-co')).filter((x,k)=>String(k)!==i),null);}catch(e){alert('削除に失敗しました: '+e.message);}
+};
+window.dpiFile=async function(e){
+  const f=e.target.files[0];if(!f)return;
+  const buf=await f.arrayBuffer();let t;
+  try{t=new TextDecoder('utf-8',{fatal:true}).decode(buf);}catch(x){t=new TextDecoder('shift_jis').decode(buf);}
+  setVal('dpi-text',t.replace(/^\uFEFF/,''));dpiRead();e.target.value='';
 };
 window.closeDpImp=function(){document.getElementById('dpi-modal').classList.remove('open');};
 window.dpiRead=function(){
-  const co=document.getElementById('dpi-co').value;
-  const r=dpParse(document.getElementById('dpi-text').value,{date:document.getElementById('dpi-c-date').value,inA:document.getElementById('dpi-c-in').value,memo:document.getElementById('dpi-c-memo').value});
+  const co=dv('dpi-co');
+  const r=dpParse(document.getElementById('dpi-text').value,{date:dv('dpi-c-date'),inA:dv('dpi-c-in'),outA:dv('dpi-c-out'),memo:dv('dpi-c-memo')});
   const prev=document.getElementById('dpi-prev');
   if(r.err){dpiRows=[];prev.innerHTML='<div style="color:#C62828;font-size:12px;">'+esc(r.err)+'</div>';document.getElementById('dpi-ok').disabled=true;return;}
   const have={};rdp.forEach(d=>{if(d.fp)have[d.fp]=(have[d.fp]||0)+1;});
@@ -3491,7 +3543,7 @@ window.doDpImp=async function(){
     const writes=[];let autos=0;
     list.forEach(x=>{
       const ref=doc(collection(db,'managed_deposits'));
-      const dep={company:co,dir:x.dir||'in',date:x.date,amount:x.amount,payer:x.payer,fp:x.fp,status:'open',month:'',allocs:[],entryIds:[],createdAt:serverTimestamp(),createdBy:me};
+      const dep={company:co,bankAcct:(document.getElementById('dpi-acct').value||'').trim()||'普通預金',bankSub:(document.getElementById('dpi-sub').value||'').trim(),dir:x.dir||'in',date:x.date,amount:x.amount,payer:x.payer,fp:x.fp,status:'open',month:'',allocs:[],entryIds:[],createdAt:serverTimestamp(),createdBy:me};
       const info=depInfo(dep);
       if(info.kind==='hosho'&&info.gz.auto&&dep.dir==='in'){
         const m=depMonthDefault(x.date),d2={...dep,id:ref.id},s=allocSuggest(d2,m);
@@ -3580,6 +3632,54 @@ window.saveGzSet=async function(){
   }catch(e){alert('保存に失敗しました: '+e.message+(/permission/i.test(e.message)?'\n\nFirestoreのセキュリティルールに managed_company の許可を追加してください。':''));console.error(e);}
   showLoading(false);
 };
+// ===== 弥生会計用CSV（仕訳日記帳インポート形式・Shift-JIS） =====
+let sjMap=null;
+function sjisBytes(str){
+  if(!sjMap){
+    sjMap=new Map();const td=new TextDecoder('shift_jis');
+    for(let a=0xA1;a<=0xDF;a++)sjMap.set(td.decode(new Uint8Array([a])),[a]);
+    for(let a=0x81;a<=0xFC;a++){if(a>0x9F&&a<0xE0)continue;for(let b=0x40;b<=0xFC;b++){if(b===0x7F)continue;const c=td.decode(new Uint8Array([a,b]));if(c.length===1&&c!=='\uFFFD'&&!sjMap.has(c))sjMap.set(c,[a,b]);}}
+  }
+  const out=[];
+  for(const ch of str){const cp=ch.codePointAt(0);if(cp<0x80){out.push(cp);continue;}const v=sjMap.get(ch);if(v)out.push(...v);else out.push(0x3F);}
+  return new Uint8Array(out);
+}
+const ymd=d=>{const m=String(d||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?(+m[1])+'/'+(+m[2])+'/'+(+m[3]):'';};
+function yjRows(){
+  const co=dv('yj-co'),f=dv('yj-from'),t=dv('yj-to'),cp=dv('yj-cp')||'賃貸管理物件預かり金';
+  const um=allocUMap(co),rows=[];let noBank=0,n=0;
+  rdp.filter(d=>d.company===co&&d.status==='done'&&(!f||d.date>=f)&&(!t||d.date<=t)).sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(d=>{
+    const out=depDir(d)==='out',bank=[d.bankAcct||'普通預金',d.bankSub||''];if(!d.bankAcct)noBank++;
+    (d.allocs||[]).forEach(a=>{
+      const x=um[a.uid],b=findBld(a.bid||(x&&x.b.id)),cpa=[cp,String((b&&b.name)||'').slice(0,20)];
+      const memo=[x?x.u.name:'',allocCatName(a.cat||'rentk').replace(/（.*）/,''),d.payer||''].filter(Boolean).join(' ').slice(0,60);
+      const dr=out?cpa:bank,cr=out?bank:cpa;
+      rows.push(['2000','','',ymd(d.date),dr[0],dr[1],'','対象外',a.amt,0,cr[0],cr[1],'','対象外',a.amt,0,memo,'','',0,'','',0,0,'no']);n++;
+    });
+  });
+  return {rows,noBank,n};
+}
+window.openYj=function(){
+  const sel=document.getElementById('yj-co');sel.innerHTML=allowedCo.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+  sel.value=(coSel!=='all'&&allowedCo.includes(coSel))?coSel:(allowedCo.includes(defaultCo())?defaultCo():allowedCo[0]);sel.disabled=allowedCo.length<2;
+  const t=todayJ();setVal('yj-from',t.slice(0,8)+'01');setVal('yj-to',t);
+  yjSum();document.getElementById('yj-modal').classList.add('open');
+};
+window.closeYj=function(){document.getElementById('yj-modal').classList.remove('open');};
+window.yjSum=function(){
+  const r=yjRows(),tot=r.rows.reduce((a,x)=>a+(+x[8]||0),0);
+  document.getElementById('yj-sum').innerHTML='仕訳 <b>'+r.n+'件</b>（金額合計 ¥'+yen0(tot)+'）'+(r.noBank?'<br><span style="color:#C62828;">銀行の勘定科目が未登録の入出金が '+r.noBank+'件あります（「普通預金」で出力します）。</span>':'');
+  document.getElementById('yj-go').disabled=!r.n;
+};
+window.doYj=function(){
+  const r=yjRows();if(!r.n)return;
+  const q=v=>{const t=String(v==null?'':v);return /[",\r\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t;};
+  const csv=r.rows.map(x=>x.map(q).join(',')).join('\r\n')+'\r\n';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([sjisBytes(csv)],{type:'text/csv'}));
+  a.download='弥生仕訳_'+dv('yj-co')+'_'+todayJ()+'.csv';document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+};
+
 // ===== 出納・精算 =====
 const LGC=[['rent','家賃入金','in'],['kanri','管理費・共益費入金','in'],['shiki','敷金入金','in'],['reikin','礼金・更新料入金','in'],['fire_in','火災保険料の入金（入居者から）','in'],['owner_in','オーナーからの入金','in'],['other_in','その他の入金','in'],['fire_out','火災保険料の支払','out'],['shiki_out','敷金の返還','out'],['guar_out','保証会社への支払','out'],['xfer_fee','振込手数料','mix'],['clean','クリーニング費','out'],['repair','修繕費','out'],['key','鍵交換費','out'],['other_out','その他の出金','out'],['mgmt_fee','管理料（業務委託料）','fee'],['office_fee','事務手数料・その他の自社収益','fee'],['owner_pay','オーナー送金','out'],['carry','繰越（開始時の残高）','in']];
 const LGN=Object.fromEntries(LGC.map(c=>[c[0],c[1]]));
