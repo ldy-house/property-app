@@ -2792,10 +2792,10 @@ window.copyLU=function(id){
 
 // ===== 賃貸：区分の一括追加・編集（全項目） =====
 const PM=[['','未設定'],['owner_direct','オーナー直接振込'],['mgmt_direct','管理会社直接振込'],['gz_owner','保証会社集金代行（オーナーに振込）'],['gz_mgmt','保証会社集金代行（管理会社に振込）']];
-const pmLabel=v=>{const p=PM.find(x=>x[0]===v);return p?p[1]:(v||'—');};
+const pmLabel=v=>{const p=PM.find(x=>x[0]===v);return p?p[1]:'—';};
 const viaMgmt=u=>!['owner_direct','gz_owner'].includes(u.payMethod);          // 賃料が管理会社の口座に入る
 const viaGz=u=>!['owner_direct','mgmt_direct','gz_owner'].includes(u.payMethod); // 保証会社から管理会社へ振り込まれる
-const ensurePM=v=>{const el=document.getElementById('u-pay-method');if(!el)return;[...el.options].filter(o=>o.dataset.legacy).forEach(o=>o.remove());if(v&&!PM.some(p=>p[0]===v)){const o=document.createElement('option');o.value=v;o.dataset.legacy='1';o.textContent=v+'（旧入力）';el.appendChild(o);}};
+const ensurePM=()=>{};
 const RST=['契約中','解約予告中','募集中','退去済'],RTY=['普通借家','定期借家'];
 const KEYOPT=[['','未設定'],['normal','通常（預かり→引渡し）'],['inherited','入居中に管理受託']];
 const YN=[['','未設定'],['有','有'],['無','無']];
