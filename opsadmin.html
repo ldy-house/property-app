@@ -333,7 +333,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   <div class="bld-wrap" id="lbld-wrap"></div>
   </div>
   <div id="view-ledger" style="display:none;">
-    <div style="display:flex;gap:6px;padding:10px 20px 0;"><button class="lgt on" id="lgt-owner" onclick="lgSetTab('owner')">オーナー別の台帳</button><button class="lgt" id="lgt-alloc" onclick="lgSetTab('alloc')">入出金の振分け<span id="lgt-n"></span></button></div>
+    <div style="display:flex;gap:6px;padding:10px 20px 0;"><button class="lgt on" id="lgt-owner" onclick="lgSetTab('owner')">オーナー別の台帳</button><button class="lgt" id="lgt-alloc" onclick="lgSetTab('alloc')">入出金の振分け<span id="lgt-n"></span></button><button class="lgt" id="lgt-chk" onclick="lgSetTab('chk')">家賃の入金確認</button></div>
     <div id="lg-over">
       <div class="stats-bar">
         <div class="stat-item"><div class="stat-num" id="lgs-n">0</div><div class="stat-label">対象のオーナー</div></div>
@@ -354,6 +354,21 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
       <div style="padding:8px 20px 0;font-size:11px;color:var(--sub);">保証会社・入居者・オーナーとの入出金を、区分や建物ごとに振り分けます（敷金・火災保険料・オーナー送金なども選べます）。確定すると、それぞれのオーナーの台帳に明細が追加されます。確定後も編集・取り消しができます。</div>
       <div style="padding:10px 20px 14px;" id="dp-list"></div>
+    </div>
+    <div id="lg-chk" style="display:none;">
+      <div class="stats-bar">
+        <div class="stat-item"><div class="stat-num" id="ck-n">0</div><div class="stat-label">対象の部屋</div></div>
+        <div class="stat-item"><div class="stat-num" id="ck-ok" style="color:#2E7D32;">0</div><div class="stat-label">入金OK</div></div>
+        <div class="stat-item"><div class="stat-num" id="ck-short" style="color:#E65100;">0</div><div class="stat-label">不足</div></div>
+        <div class="stat-item"><div class="stat-num" id="ck-none" style="color:#C62828;">0</div><div class="stat-label">未入金</div></div>
+        <div class="stat-item"><div class="stat-num" id="ck-over" style="color:#6A1B9A;">0</div><div class="stat-label">多い・二重の疑い</div></div>
+      </div>
+      <div class="toolbar">
+        <label style="font-size:12px;font-weight:700;">対象月 <input type="month" id="chk-m" onchange="renderChk()"/></label>
+        <select id="chk-f" onchange="renderChk()"><option value="">すべての部屋</option><option value="ng">問題のある部屋だけ</option></select>
+        <span style="font-size:11px;color:var(--sub);">契約中の区分の「賃料＋共益費」の想定額と、台帳の入金（家賃・共益費）を、対象月ごとに突き合わせます。行を押すと台帳が開きます</span>
+      </div>
+      <div style="padding:14px 20px;"><div class="lg-wrap" id="chk-list"></div></div>
     </div>
     <div id="lg-det" style="display:none;">
       <div class="lg-head" id="lg-head"></div>
@@ -3320,7 +3335,7 @@ function allocEditorHtml(d,um){
     const x=r.uid?um[r.uid]:null;
     const tgt=x?esc((x.b.name||'')+' ／ '+(x.u.name||'')+(x.u.tenant?'（'+x.u.tenant+'）':'')):(r.uid?'（削除済みの区分）':'<select onchange="allocBld('+i+',this.value)" style="max-width:240px;"><option value="">建物を選択…</option>'+bopt(r.bid)+'</select> <span style="font-size:10px;color:var(--sub);">建物全体（区分なし）</span>');
     const e=(r.cat==='rentk'&&x)?unitExpected(x.u,ad.month).total:null;
-    return '<tr style="'+(r.inc?'':'opacity:.45;')+'"><td><input type="checkbox" '+(r.inc?'checked ':'')+'onchange="allocToggle('+i+',this.checked)"/></td><td>'+tgt+'</td>'+
+    return '<tr style="'+(r.inc?'':'opacity:.45;')+'"><td><input type="checkbox" '+(r.inc?'checked ':'')+'onchange="allocToggle('+i+',this.checked)"/></td><td>'+tgt+allocWarn(r,x,d)+'</td>'+
       '<td><select onchange="allocCat('+i+',this.value)">'+allocCatOpts(d.dir,r.cat)+'</select></td><td class="n">'+(e!=null?yen0(e):'—')+'</td>'+
       '<td class="n"><input type="text" value="'+(+r.amt||0)+'" style="width:100px;text-align:right;" oninput="allocAmt('+i+',this.value)"/></td><td><button class="btn btn-sm" onclick="allocDel('+i+')">✕</button></td></tr>';
   }).join('');
@@ -3800,14 +3815,52 @@ function fillLgFilters(){
 function renderLedger(){
   const v=document.getElementById('view-ledger');if(!v||v.style.display==='none')return;
   if(lgOwner&&!curGroup())lgOwner=null;
-  const al=lgTab==='alloc';
-  document.getElementById('lgt-owner').className='lgt'+(al?'':' on');
+  const al=lgTab==='alloc',ck=lgTab==='chk',ow=!al&&!ck;
+  document.getElementById('lgt-owner').className='lgt'+(ow?' on':'');
   document.getElementById('lgt-alloc').className='lgt'+(al?' on':'');
+  document.getElementById('lgt-chk').className='lgt'+(ck?' on':'');
   const n=depOpen().length;document.getElementById('lgt-n').textContent=n?'（未振分け '+n+'件）':'';
-  document.getElementById('lg-over').style.display=(!al&&!lgOwner)?'':'none';
-  document.getElementById('lg-det').style.display=(!al&&lgOwner)?'':'none';
+  document.getElementById('lg-over').style.display=(ow&&!lgOwner)?'':'none';
+  document.getElementById('lg-det').style.display=(ow&&lgOwner)?'':'none';
   document.getElementById('lg-alloc').style.display=al?'':'none';
-  if(al)renderAlloc();else if(lgOwner)renderLgDetail();else renderLgOver();
+  document.getElementById('lg-chk').style.display=ck?'':'none';
+  if(al)renderAlloc();else if(ck)renderChk();else if(lgOwner)renderLgDetail();else renderLgOver();
+}
+// ---- 家賃の入金確認（対象月ごとに、想定額と入金額を突き合わせる） ----
+const CHK_ST={none:['未入金','background:#C62828;color:#fff;',0],short:['不足','background:#E65100;color:#fff;',1],over:['多い・二重の疑い','background:#6A1B9A;color:#fff;',2],ok:['入金OK','background:#E8F5E9;color:#2E7D32;',3]};
+function renderChk(){
+  const mi=document.getElementById('chk-m');if(!mi.value)mi.value=todayJ().slice(0,7);
+  const m=mi.value,f=document.getElementById('chk-f').value,rows=[];
+  allowedCo.filter(c=>coSel==='all'||coSel===c).forEach(co=>{
+    allocUnits(co).forEach(x=>{
+      const e=unitActive(x.u,m)?unitExpected(x.u,m).total:0;
+      const es=rl.filter(en=>en.unitId===x.u.id&&(en.cat==='rent'||en.cat==='kanri')&&en.month===m&&(+en.inAmt||0)>0);
+      const got=es.reduce((a,en)=>a+(+en.inAmt||0),0);
+      if(!e&&!got)return;
+      rows.push({x,e,got,st:!got?'none':(got<e?'short':(got>e?'over':'ok')),dates:[...new Set(es.map(en=>en.date))].sort()});
+    });
+  });
+  const cnt=k=>rows.filter(r=>r.st===k).length,set=(id,v)=>{document.getElementById(id).textContent=v;};
+  set('ck-n',rows.length);set('ck-ok',cnt('ok'));set('ck-short',cnt('short'));set('ck-none',cnt('none'));set('ck-over',cnt('over'));
+  const list=rows.filter(r=>!f||r.st!=='ok').sort((a,b)=>CHK_ST[a.st][2]-CHK_ST[b.st][2]||(a.x.b.name||'').localeCompare(b.x.b.name||'','ja',{numeric:true})||(a.x.u.name||'').localeCompare(b.x.u.name||'','ja',{numeric:true}));
+  document.getElementById('chk-list').innerHTML=list.length?'<table class="lg-table" style="min-width:820px;"><tr><th>建物</th><th>区分</th><th>契約者</th><th class="n">想定額</th><th class="n">入金額</th><th class="n">差額</th><th>状態</th><th>入金日</th></tr>'+
+    list.map(r=>{const d=r.got-r.e;return '<tr class="row" onclick="openLedger(\''+r.x.b.id+'\')"><td>'+esc(r.x.b.name||'')+'</td><td>'+esc(r.x.u.name||'')+'</td><td>'+esc(r.x.u.tenant||'')+(r.x.u.status!=='契約中'&&r.x.u.status!=='解約予告中'?' <span class="lg-badge">'+esc(r.x.u.status||'')+'</span>':'')+'</td><td class="n">'+yen0(r.e)+'</td><td class="n">'+yen0(r.got)+'</td><td class="n'+(d<0?' neg':'')+'">'+(d?(d>0?'+':'')+yen0(d):'')+'</td><td><span class="lg-badge" style="'+CHK_ST[r.st][1]+'">'+CHK_ST[r.st][0]+'</span>'+(r.dates.length>1?' <span style="font-size:10px;color:#6A1B9A;">'+r.dates.length+'回に分けて入金</span>':'')+'</td><td style="font-size:11px;">'+esc(r.dates.map(x=>x.slice(5).replace('-','/')).join('、'))+'</td></tr>';}).join('')+'</table>'
+    :'<div style="padding:30px;text-align:center;color:#999;">'+(rows.length?'問題のある部屋はありません':'この月に家賃の対象になる部屋がありません')+'</div>';
+}
+window.renderChk=renderChk;
+// 振分け中の行に、同じ月の入金済み額・不足・二重の注意を出す
+function allocWarn(r,x,d){
+  if(!x||!r.inc||!['rentk','rent','kanri'].includes(r.cat)||!ad.month)return '';
+  const e=unitActive(x.u,ad.month)?unitExpected(x.u,ad.month).total:0;
+  const got=rl.filter(en=>en.unitId===x.u.id&&(en.cat==='rent'||en.cat==='kanri')&&en.month===ad.month&&en.depositId!==d.id).reduce((a,en)=>a+(+en.inAmt||0),0);
+  const after=got+(+r.amt||0),mo=esc(ad.month.replace('-','/'));
+  const w=(c,t)=>'<div style="font-size:10px;font-weight:700;color:'+c+';">'+t+'</div>';
+  if(got>0&&after>e)return w('#C62828',mo+'分は既に ¥'+yen0(got)+' 入金済み。今回で合計 ¥'+yen0(after)+'（想定 ¥'+yen0(e)+'）→ 二重入金の可能性');
+  if(got>0)return w('#E65100',mo+'分は既に ¥'+yen0(got)+' 入金済み（今回で合計 ¥'+yen0(after)+'／想定 ¥'+yen0(e)+'）');
+  if(e&&r.amt<e)return w('#E65100','想定額より ¥'+yen0(e-r.amt)+' 少ない（不足。残りは後日、同じ月で振り分けてください）');
+  if(e&&r.amt>e)return w('#C62828','想定額より ¥'+yen0(r.amt-e)+' 多い（超過分は翌月分や別の種別に分けられます）');
+  if(!e)return w('#C62828',mo+'分の家賃の想定額がありません（契約中ではない区分です）');
+  return '';
 }
 // HTMLのoninput/onchangeから呼べるように公開
 window.renderLedger=renderLedger;
