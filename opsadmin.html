@@ -244,6 +244,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .lg-sum tr.big td{font-size:15px;color:var(--navy);border-bottom:2px solid var(--gold);}
 .lgt{padding:8px 18px;border:1px solid #ccd2e3;border-bottom:none;border-radius:8px 8px 0 0;background:#fff;font-size:13px;font-weight:700;color:#777;cursor:pointer;font-family:inherit;}
 .lgt.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+#rbk-xl-msg,#lbk-xl-msg{white-space:pre-wrap;max-height:220px;overflow:auto;line-height:1.6;}
 </style>
 </head>
 <body>
@@ -1148,14 +1149,10 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="days-auto" id="rbk-preview">コピー元を選ぶと、面積・用途・契約種別・賃料・管理費・敷金・礼金・更新料・支払時期などを引き継ぎます。契約者・契約日・火災保険・保証会社・鍵・リフォーム・備考は引き継ぎません。</div>
       </div>
       <div class="fs">
-        <div class="fs-title">Excelから取り込む（コピー＆貼り付け）</div>
-        <div style="font-size:11px;color:var(--sub);margin-bottom:6px;">Excelの1行目に項目名（区画名・契約者名・賃料 など）、2行目以降にデータを入れ、範囲をコピーして下に貼り付けます。区画名が同じ行は更新、新しい区画名は追加します。空欄のセルは、既存の内容を消しません。取り込み後は下の表で確認・修正してから保存します。</div>
-        <textarea id="rbk-xl" rows="4" placeholder="ここに貼り付け（Excelでコピーした範囲／CSV）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          <button type="button" class="btn btn-navy" onclick="rbkXlImport()">表に反映</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',false)">Excelテンプレをダウンロード（入力制限つき）</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルを読み込む<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'rent')"/></label>
-          <button type="button" class="btn btn-sm" onclick="rbkXlCopy(false)">現在の一覧をExcel用にコピー</button>
-          <button type="button" class="btn btn-sm" onclick="rbkXlCopy(true)">項目名の行だけコピー</button>
-        </div>
+        <div class="fs-title">Excelで一括入力（テンプレをダウンロード → 編集 → アップロード）</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;">① テンプレ（または現在の一覧）をダウンロード → ② Excelで編集（選択式・数字・日付は入力制限つき） → ③ 編集したファイルをアップロード。区画名が同じ行は更新、新しい区画名は追加です。空欄のセルは、既存の内容を消しません。アップロード後は、下の表で確認・修正してから保存します。</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',false)">Excelテンプレをダウンロード</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルをアップロード<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'rent')"/></label></div>
+        <textarea id="rbk-xl" style="display:none;"></textarea>
         <div class="days-auto" id="rbk-xl-msg"></div>
       </div>
       <div class="fs">
@@ -1210,14 +1207,10 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div id="lbk-bscope-note" style="display:none;font-size:10px;color:var(--sub);">この施設は「1棟まるごと」の免許のため、区分ごとの免許欄は表示しません。</div>
       </div>
       <div class="fs">
-        <div class="fs-title">Excelから取り込む（コピー＆貼り付け）</div>
-        <div style="font-size:11px;color:var(--sub);margin-bottom:6px;">Excelの1行目に項目名（区画名・契約者名・賃料 など）、2行目以降にデータを入れ、範囲をコピーして下に貼り付けます。区画名が同じ行は更新、新しい区画名は追加します。空欄のセルは、既存の内容を消しません。取り込み後は下の表で確認・修正してから保存します。</div>
-        <textarea id="lbk-xl" rows="4" placeholder="ここに貼り付け（Excelでコピーした範囲／CSV）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          <button type="button" class="btn btn-navy" onclick="lbkXlImport()">表に反映</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',false)">Excelテンプレをダウンロード（入力制限つき）</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルを読み込む<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'lodge')"/></label>
-          <button type="button" class="btn btn-sm" onclick="lbkXlCopy(false)">現在の一覧をExcel用にコピー</button>
-          <button type="button" class="btn btn-sm" onclick="lbkXlCopy(true)">項目名の行だけコピー</button>
-        </div>
+        <div class="fs-title">Excelで一括入力（テンプレをダウンロード → 編集 → アップロード）</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;">① テンプレ（または現在の一覧）をダウンロード → ② Excelで編集（選択式・数字・日付は入力制限つき） → ③ 編集したファイルをアップロード。区画名が同じ行は更新、新しい区画名は追加です。空欄のセルは、既存の内容を消しません。アップロード後は、下の表で確認・修正してから保存します。</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',false)">Excelテンプレをダウンロード</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルをアップロード<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'lodge')"/></label></div>
+        <textarea id="lbk-xl" style="display:none;"></textarea>
         <div class="days-auto" id="lbk-xl-msg"></div>
       </div>
       <div class="fs">
@@ -3031,7 +3024,7 @@ function xlApply(text,cols,rows,newRow){
       if(!h.k||h.k==='name')return;
       const raw=cells[ci];if(raw==null||String(raw).trim()==='')return;
       const c=xlConv(colBy[h.k],raw);
-      if(c.bad){bad.push((ri+2)+'行目「'+h.raw+'」'+String(raw).trim());return;}
+      if(c.bad){const cc=colBy[h.k];bad.push((ri+2)+'行目「'+h.raw+'」：「'+String(raw).trim()+'」→ '+(cc.t==='date'?'日付として読めません（例：2026/4/1）':cc.t==='number'?'数字として読めません':'選択肢にありません（選べる値：'+(cc.optPairs||[]).map(p=>p[1]).join('／')+'）'));return;}
       r[h.k]=c.v;if(!firstKey)firstKey=h.k;
     });
   });
@@ -3039,9 +3032,9 @@ function xlApply(text,cols,rows,newRow){
 }
 function xlMsg(r){
   return '取り込み：更新 '+r.updated+'件／新規 '+r.added+'件'+
-    (r.unknown.length?'／読み取れなかった項目：'+r.unknown.join('、'):'')+
-    (r.bad.length?'／形式が合わず空欄にした値 '+r.bad.length+'件（'+r.bad.slice(0,3).join('、')+(r.bad.length>3?' ほか':'')+'）':'')+
-    '。表の内容を確認して、「まとめて保存する」を押してください。';
+    (r.unknown.length?'\n読み取れなかった項目：'+r.unknown.join('、'):'')+
+    (r.bad.length?'\n形式が合わず反映しなかった値 '+r.bad.length+'件（既存の内容はそのままです。Excelを直して、もう一度アップロードしてください）：\n'+r.bad.map(b=>'・'+b).join('\n'):'')+
+    '\n表の内容を確認して、「まとめて保存する」を押してください。';
 }
 async function xlCopy(text,msgId,what){
   const msg=document.getElementById(msgId);msg.style.color='';
@@ -3070,12 +3063,6 @@ window.rbkXlImport=function(){
   const c=r.firstKey?RALL.find(x=>x[0]===r.firstKey):null;if(c)rbGroup=c[5];
   renderRBulk();setVal('rbk-xl','');
 };
-window.rbkXlCopy=function(onlyHeader){
-  const cols=onlyHeader?xlRentCols().filter(c=>XL_RENT_MAIN.includes(c.k)):xlRentCols();
-  const rows=onlyHeader?[]:rbRows.filter(r=>!r.del);
-  xlCopy([cols.map(c=>c.label).join('\t')].concat(rows.map(r=>cols.map(c=>xlCell(c,r[c.k])).join('\t'))).join('\n'),'rbk-xl-msg',onlyHeader?'項目名の行':'現在の一覧');
-};
-
 // ---- 旅館業・民泊 ----
 function xlLodgeCols(){
   const su=bkScopeUnit();
@@ -3100,10 +3087,6 @@ window.lbkXlImport=function(){
   if(r.err){msg.style.color='#C62828';msg.textContent=r.err;return;}
   msg.style.color='';msg.textContent=xlMsg(r);
   renderBulk();setVal('lbk-xl','');
-};
-window.lbkXlCopy=function(onlyHeader){
-  const cols=xlLodgeCols(),rows=onlyHeader?[]:bulkRows.filter(r=>!r.del);
-  xlCopy([cols.map(c=>c.label).join('\t')].concat(rows.map(r=>cols.map(c=>xlCell(c,r[c.k])).join('\t'))).join('\n'),'lbk-xl-msg',onlyHeader?'項目名の行':'現在の一覧');
 };
 
 // ===== 入金の振分け（銀行のCSV → 保証会社の一括入金などを、区分ごとに振り分ける） =====
