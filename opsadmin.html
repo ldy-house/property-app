@@ -352,7 +352,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div id="lg-alloc" style="display:none;">
       <div class="toolbar">
         <span id="dp-filter" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
-        <span style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-navy btn-sm" onclick="openDpImp()">銀行の入出金データを取り込む</button><button class="btn btn-sm" onclick="openGzSet()">振分けの設定</button><button class="btn btn-sm btn-navy" onclick="openYj()">弥生用CSV出力</button></span>
+        <span style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-navy btn-sm" onclick="openDpImp()">銀行の入出金データを取り込む</button><button class="btn btn-sm" onclick="openGzSet()">振分けの設定</button><button class="btn btn-sm btn-navy" onclick="openYj()">弥生用TXT出力</button></span>
       </div>
       <div style="padding:8px 20px 0;font-size:11px;color:var(--sub);">保証会社・入居者・オーナーとの入出金を、区分や建物ごとに振り分けます（敷金・火災保険料・オーナー送金なども選べます）。確定すると、それぞれのオーナーの台帳に明細が追加されます。確定後も編集・取り消しができます。</div>
       <div style="padding:10px 20px 14px;" id="dp-list"></div>
@@ -710,11 +710,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
       <div class="fs">
         <div class="fs-title">その他</div>
-        <div class="fg">
-          <div class="fr"><label>リフォーム工事 開始</label><input id="u-reform-start" type="date"/></div>
-          <div class="fr"><label>リフォーム工事 終了</label><input id="u-reform-end" type="date"/></div>
-        </div>
-        <div class="fr"><label>リフォーム備考（入居者が変わっても、区分に引き継がれます）</label><input id="u-reform-note" placeholder="例：この期間は賃料発生しない"/></div>
+        <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">リフォーム履歴（入居者が変わっても、区分に引き継がれます）</label><div id="reform-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addReform()">＋ リフォームを記録</button></div>
         <div class="fr"><label>備考</label><textarea id="u-memo" placeholder="1行1項目で入力&#10;例：3月の賃料は日割り"></textarea></div>
       </div>
     </div>
@@ -1238,14 +1234,15 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
 </div>
 
-<div class="modal-bg" id="yj-modal"><div class="modal"><div class="modal-head"><div><h3>弥生会計用の仕訳CSVを出力</h3><div class="modal-sub">振分け済みの銀行入出金を、仕訳（預金／預かり金）にして出力します</div></div><button class="modal-close" onclick="closeYj()">✕</button></div>
+<div class="modal-bg" id="yj-modal"><div class="modal"><div class="modal-head"><div><h3>弥生会計用の仕訳TXTを出力</h3><div class="modal-sub">振分け済みの銀行入出金を、仕訳（預金／預かり金）にして出力します</div></div><button class="modal-close" onclick="closeYj()">✕</button></div>
 <div class="modal-body"><div class="fs">
 <div class="fr"><label>管理会社</label><select id="yj-co" onchange="yjSum()"></select></div>
 <div class="fg"><div class="fr"><label>期間 開始</label><input type="date" id="yj-from" onchange="yjSum()"/></div><div class="fr"><label>期間 終了</label><input type="date" id="yj-to" onchange="yjSum()"/></div></div>
 <div class="fr"><label>反対勘定科目（補助科目は、建物名で付きます）</label><input id="yj-cp" value="賃貸管理物件預かり金" oninput="yjSum()"/></div>
+<label style="font-size:12px;display:block;margin-bottom:6px;"><input type="checkbox" id="yj-q"/> すべての項目を「 " 」で囲む（取り込めないときに試す）</label>
 <div style="font-size:11px;color:var(--sub);">入金：借方＝預金（補助＝銀行）／貸方＝預かり金（補助＝建物名）、出金は逆。税区分は「対象外」、文字コードはShift-JISです。</div>
 <div id="yj-sum" style="margin-top:10px;font-size:13px;"></div></div></div>
-<div class="modal-foot"><button class="btn" onclick="closeYj()">閉じる</button><button class="btn btn-gold" id="yj-go" onclick="doYj()">CSVをダウンロード</button></div></div></div>
+<div class="modal-foot"><button class="btn" onclick="closeYj()">閉じる</button><button class="btn btn-gold" id="yj-go" onclick="doYj()">TXTをダウンロード</button></div></div></div>
 <div class="lightbox" id="lightbox">
   <button class="lb-close" onclick="closeLB()">✕</button>
   <span class="lb-counter" id="lb-counter"></span>
@@ -1929,7 +1926,7 @@ window.openUnitModal=function(bldId,unitId=null){
 };
 let editUnitVer=null;
 const _openUnitV=window.openUnitModal;
-window.openUnitModal=function(b,u=null){_openUnitV(b,u);editUnitVer=u?verOf(units.find(x=>x.id===u)):null;const uu=u?units.find(x=>x.id===u):null;applicants=uu&&uu.applicants?JSON.parse(JSON.stringify(uu.applicants)):[];renderApplicants();document.getElementById('u-vacant-since').value=(uu&&uu.vacantSince)||'';};
+window.openUnitModal=function(b,u=null){_openUnitV(b,u);editUnitVer=u?verOf(units.find(x=>x.id===u)):null;const uu=u?units.find(x=>x.id===u):null;applicants=uu&&uu.applicants?JSON.parse(JSON.stringify(uu.applicants)):[];renderApplicants();document.getElementById('u-vacant-since').value=(uu&&uu.vacantSince)||'';reformBlocks=reformListOf(uu);renderReforms();};
 window.closeUnitModal=function(){document.getElementById('unit-modal').classList.remove('open');};
 function updateUnitDays(){
   const d=daysUntil(formLastEnd('u','u-end'));
@@ -1983,7 +1980,7 @@ window.saveUnit=async function(){if(editUnitId&&verOf(units.find(x=>x.id===editU
     hoshoName:g('u-hosho-name'),hoshoTel:g('u-hosho-tel'),hoshoAddr:g('u-hosho-addr'),
     hoshoFee:n('u-hosho-fee'),hoshoCycle:g('u-hosho-cycle'),
     applicants:applicants.filter(a=>a.date||a.name||a.note),vacantSince:g('u-vacant-since'),utilities:getUtil('u'),renewals:cleanRenewals('u'),
-    reformStart:g('u-reform-start'),reformEnd:g('u-reform-end'),reformNote:g('u-reform-note'),
+    reformLog:reformBlocks.filter(r=>r.start||r.end||r.content).map(r=>({...r,cost:(r.cost===''||r.cost==null)?null:Number(r.cost)})),reformStart:'',reformEnd:'',reformNote:'',
     keyReceived:n('u-key-received'),keyHanded:n('u-key-handed'),keyNote:g('u-key-note'),keyStatus:document.getElementById('u-key-status').value,
     memo:g('u-memo'),updatedAt:serverTimestamp()};
   try{
@@ -2201,13 +2198,7 @@ function unitHtml(u){
           (u.keyNote?'<div class="kn-row full"><span class="kn-lbl">備考</span><span class="kn-val">'+esc(u.keyNote)+'</span></div>':'')+
         '</div>'+
       '</div>':'')+
-      ((u.reformStart||u.reformEnd||u.reformNote)?'<div class="unit-sub" style="grid-column:1/-1;">'+
-        '<div class="unit-sub-t">リフォーム</div>'+
-        '<div class="kn-grid">'+
-          '<div class="kn-row"><span class="kn-lbl">期間</span><span class="kn-val">'+(esc(u.reformStart||'—')+' 〜 '+esc(u.reformEnd||'—'))+'</span></div>'+
-          (u.reformNote?'<div class="kn-row"><span class="kn-lbl">備考</span><span class="kn-val">'+esc(u.reformNote)+'</span></div>':'')+
-        '</div>'+
-      '</div>':'')+
+      reformHtml(u)+
       ((u.contactLog&&u.contactLog.length)?'<div class="unit-sub" style="grid-column:1/-1;">'+
         '<div class="unit-sub-t">賃借人とのやり取り（直近5件）</div>'+
         u.contactLog.slice().sort((a,b)=>((b.date||'')+(b.time||'')).localeCompare((a.date||'')+(a.time||''))).slice(0,5).map(c=>
@@ -2789,7 +2780,7 @@ window.copyUnit=function(id){
   ['u-tenant','u-tenant-kana','u-nationality','u-tenant-tel','u-tenant-contact','u-tenant-contact-tel','u-start','u-end','u-kasai-company','u-kasai-start','u-kasai-end','u-hosho-name','u-hosho-tel','u-hosho-addr','u-hosho-fee','u-hosho-cycle','u-reform-start','u-reform-end','u-reform-note','u-key-received','u-key-handed','u-key-note'].forEach(i=>sv(i,''));
   sv('u-status','募集中');sv('u-kasai-status','');sv('u-key-status','');
   const cur=currentRentFromHistory();
-  rentHistory=[{date:'',rent:cur||'',note:''}];rentPayments={};contactLog=[];renewals.u=[];utilState.u=newUtil();applicants=[];renderApplicants();document.getElementById('u-vacant-since').value='';
+  rentHistory=[{date:'',rent:cur||'',note:''}];rentPayments={};contactLog=[];renewals.u=[];utilState.u=newUtil();applicants=[];renderApplicants();document.getElementById('u-vacant-since').value='';reformBlocks=[];renderReforms();
   renderRentHistory();renderContactLog();renderRenewals('u');renderUtil('u');
   renderRentRO();
   toggleTenantType();toggleKeyStatus();updateUnitDays();updateKeyDisplay();
@@ -2821,7 +2812,7 @@ const RCOLS={
   term:{label:'契約期間',cols:[['contractType','契約種別','sel',RTY.map(x=>[x,x]),96],['start','初回 始期','date',null,128],['end','初回 終期','date',null,128],['renStart','更新後 始期（最新）','date',null,128],['renEnd','更新後 終期（最新）','date',null,128],['noticeLessor','解約予告 貸主→借主','text',null,130],['noticeLessee','解約予告 借主→貸主','text',null,130],['noticeMethod','予告方法','text',null,100]]},
   money:{label:'賃料・一時金',cols:[['rent','賃料（円）','number',null,100],['kanri','管理費・共益費（円）','number',null,110],['payTiming','賃料の支払時期','text',null,190],['payMethod','賃料の支払方法','sel',PM,190],['shikikin','敷金（円）','number',null,100],['shikikinNote','敷金の備考','text',null,110],['shikikinHolder','敷金の保管者','sel',[['','未設定'],['オーナー','オーナー'],['自社（LDY）','自社（LDY）']],110],['reikin','礼金（円）','number',null,90],['hoshoFirst','初回保証委託料（円）','number',null,110],['koshinUmu','更新料の有無','sel',YN,80],['koshinTesuryo','更新事務手数料（円）','number',null,110],['koshinRyo','更新料','text',null,150]]},
   ins:{label:'保険・保証会社',cols:[['kasaiStatus','火災保険','sel',[['','未設定'],['未加入','未加入'],['加入済み','加入済み']],100],['kasaiCompany','保険会社','text',null,120],['kasaiStart','保険期間 開始','date',null,128],['kasaiEnd','保険期間 終了','date',null,128],['hoshoName','保証会社名','text',null,130],['hoshoTel','保証会社 電話','text',null,120],['hoshoAddr','保証会社 所在地','text',null,180],['hoshoFee','委託料（円）','number',null,90],['hoshoCycle','保証会社備考','text',null,180]]},
-  etc:{label:'鍵・リフォーム',cols:[['keyStatus','鍵の引継ぎ','sel',KEYOPT,180],['keyReceived','預かり（本）','number',null,70],['keyHanded','引渡し（本）','number',null,70],['keyNote','鍵の備考','text',null,160],['reformStart','リフォーム開始','date',null,128],['reformEnd','リフォーム終了','date',null,128],['reformNote','リフォーム備考','text',null,180]]}
+  etc:{label:'鍵',cols:[['keyStatus','鍵の引継ぎ','sel',KEYOPT,180],['keyReceived','預かり（本）','number',null,70],['keyHanded','引渡し（本）','number',null,70],['keyNote','鍵の備考','text',null,160]]}
 };
 const RALL=Object.entries(RCOLS).flatMap(([g,v])=>v.cols.map(c=>c.concat([g])));
 const RKEYS=RALL.map(c=>c[0]);
@@ -3688,14 +3679,16 @@ window.closeYj=function(){document.getElementById('yj-modal').classList.remove('
 window.yjSum=function(){
   const r=yjRows(),tot=r.rows.reduce((a,x)=>a+(+x[8]||0),0);
   document.getElementById('yj-sum').innerHTML='仕訳 <b>'+r.n+'件</b>（金額合計 ¥'+yen0(tot)+'）'+(r.noBank?'<br><span style="color:#C62828;">銀行の勘定科目が未登録の入出金が '+r.noBank+'件あります（「普通預金」で出力します）。</span>':'');
+  const subs=new Set();r.rows.forEach(x=>{[[x[4],x[5]],[x[10],x[11]]].forEach(([a,b])=>{if(b)subs.add(a+' ／ '+b);});});
+  document.getElementById('yj-sum').innerHTML+=subs.size?'<div style="margin-top:8px;font-size:11px;color:var(--sub);">弥生に登録しておく勘定科目／補助科目（未登録だと取り込めないことがあります）：<br>'+[...subs].map(esc).join('<br>')+'</div>':'';
   document.getElementById('yj-go').disabled=!r.n;
 };
 window.doYj=function(){
   const r=yjRows();if(!r.n)return;
-  const q=v=>{const t=String(v==null?'':v);return /[",\r\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t;};
+  const qa=document.getElementById('yj-q').checked,q=v=>{const t=String(v==null?'':v);return (qa||/[",\r\n]/.test(t))?'"'+t.replace(/"/g,'""')+'"':t;};
   const csv=r.rows.map(x=>x.map(q).join(',')).join('\r\n')+'\r\n';
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([sjisBytes(csv)],{type:'text/csv'}));
-  a.download='弥生仕訳_'+dv('yj-co')+'_'+todayJ()+'.csv';document.body.appendChild(a);a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([sjisBytes(csv)],{type:'text/plain'}));
+  a.download='弥生仕訳_'+dv('yj-co')+'_'+todayJ()+'.txt';document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
 };
 
@@ -3811,34 +3804,78 @@ window.moveOutUnit=async function(id){
   try{await updateDoc(doc(db,'managed_units',id),clr);openBlds.add(u.bldId);}catch(e){alert('保存に失敗しました: '+e.message);console.error(e);}
   showLoading(false);
 };
-function pastHtml(u){
-  const ps=(u.pastTenants||[]).slice().sort((a,b)=>(b.moveOut||'').localeCompare(a.moveOut||''));
-  if(!ps.length)return '';
+function reformListOf(u){
+  if(!u)return [];
+  if(u.reformLog)return JSON.parse(JSON.stringify(u.reformLog));
+  if(u.reformStart||u.reformEnd||u.reformNote)return [{start:u.reformStart||'',end:u.reformEnd||'',content:u.reformNote||'',vendor:'',cost:null,payer:'',note:''}];
+  return [];
+}
+let reformBlocks=[];
+window.addReform=function(){reformBlocks.unshift({start:'',end:'',content:'',vendor:'',cost:'',payer:'',note:''});renderReforms();};
+window.removeReform=function(i){reformBlocks.splice(i,1);renderReforms();};
+window.updateReform=function(i,f,v){if(reformBlocks[i])reformBlocks[i][f]=v;};
+function renderReforms(){
+  const el=document.getElementById('reform-blocks');if(!el)return;
+  const I=(i,f,t,ph,v)=>'<input type="'+t+'" value="'+esc(v==null?'':v)+'" placeholder="'+ph+'" oninput="updateReform('+i+',\''+f+'\',this.value)"/>';
+  el.innerHTML=reformBlocks.map((r,i)=>
+    '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">リフォーム '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeReform('+i+')">削除</button></div>'+
+    '<div class="fg"><div class="fr"><label>工事 開始</label>'+I(i,'start','date','',r.start)+'</div><div class="fr"><label>工事 終了</label>'+I(i,'end','date','',r.end)+'</div></div>'+
+    '<div class="fr"><label>リフォーム内容</label>'+I(i,'content','text','例：クロス全面張替え・水回り交換',r.content)+'</div>'+
+    '<div class="fg"><div class="fr"><label>施工業者</label>'+I(i,'vendor','text','',r.vendor)+'</div><div class="fr"><label>金額（円）</label>'+I(i,'cost','number','0',r.cost)+'</div></div>'+
+    '<div class="fg"><div class="fr"><label>費用負担</label><select onchange="updateReform('+i+',\'payer\',this.value)">'+['','オーナー','自社（LDY）','賃借人','その他'].map(o=>'<option value="'+o+'"'+((r.payer||'')===o?' selected':'')+'>'+(o||'未設定')+'</option>').join('')+'</select></div><div class="fr"><label>備考</label>'+I(i,'note','text','例：この期間は賃料発生しない',r.note)+'</div></div></div>'
+  ).join('');
+}
+const reformLine=r=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(r.start||'—')+(r.end?' 〜 '+esc(r.end):'')+'</b>　'+esc(r.content||'')+((r.cost!=null&&r.cost!=='')?' <span class="kn-days">'+yen(r.cost)+'</span>':'')+(r.vendor?'　業者 '+esc(r.vendor):'')+(r.payer?'　負担 '+esc(r.payer):'')+(r.note?'　'+esc(r.note):'')+'</div>';
+function reformHtml(u){
+  const rs=reformListOf(u).sort((a,b)=>(b.start||b.end||'').localeCompare(a.start||a.end||''));
+  if(!rs.length)return '';
+  const total=rs.reduce((a,r)=>a+(Number(r.cost)||0),0);
+  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">リフォーム履歴（'+rs.length+'件'+(total?'／合計 '+yen(total):'')+'）　※入居者が変わっても引き継がれます</div>'+rs.map(reformLine).join('')+'</div>';
+}
+const inRange=(d,from,to)=>!!d&&(!from||d>=from)&&(!to||d<=to);
+const reformIn=(u,from,to)=>reformListOf(u).filter(r=>inRange(r.start||r.end,from,to)).sort((a,b)=>(a.start||a.end||'').localeCompare(b.start||b.end||''));
+const secT=t=>'<div style="font-size:10px;font-weight:700;color:var(--teal);margin-top:6px;">'+t+'</div>';
+function tenancyBody(p,u,from,to){
   const r=(l,v)=>(v===''||v==null)?'':'<div class="kn-row"><span class="kn-lbl">'+l+'</span><span class="kn-val">'+v+'</span></div>';
-  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">前入居者の履歴（'+ps.length+'件）</div>'+ps.map(p=>{
-    const ren=(p.renewals||[]).map(x=>esc(x.start||'—')+'〜'+esc(x.end||'—')).join('、');
-    const rh=(p.rentHistory||[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(x=>esc(x.date||'—')+' '+yen(x.rent)).join('　→　');
-    const cl=(p.contactLog||[]).slice().sort((a,b)=>((b.date||'')+(b.time||'')).localeCompare((a.date||'')+(a.time||''))).map(c=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(c.date||'—')+(c.time?' '+esc(c.time):'')+'</b>'+(c.method?' <span style="color:var(--teal);">['+esc(c.method)+']</span>':'')+(c.content?' '+esc(c.content):'')+'</div>').join('');
-    return '<details style="margin:4px 0;border:1px solid #E3E7F0;border-radius:5px;padding:4px 8px;background:#fff;"><summary style="cursor:pointer;font-size:11px;font-weight:700;">'+esc(p.tenant||'（契約者名なし）')+'　'+esc(p.start||'—')+' 〜 '+esc(p.moveOut||'—')+'（退去）'+(p.rent?'　賃料 '+yen(p.rent):'')+'</summary>'+
-      '<div class="kn-grid" style="margin-top:6px;">'+r('契約者',esc((p.tenant||'')+(p.tenantKana?'（'+p.tenantKana+'）':'')+(p.tenantType==='法人'?'　法人':'')))+r('電話',esc(p.tenantTel))+r('国籍',esc(p.nationality))+r('担当者',esc((p.tenantContact||'')+(p.tenantContactTel?'／'+p.tenantContactTel:'')))+
-      r('初回契約',esc((p.start||'—')+' 〜 '+(p.end||'—')))+r('更新',ren)+r('契約種別',esc(p.contractType))+r('賃料・共益費',yen(p.rent)+' ／ '+yen(p.kanri))+r('敷金',(p.shikikin!=null?yen(p.shikikin):'')+(p.shikikinNote?'（'+esc(p.shikikinNote)+'）':''))+r('礼金',p.reikin!=null?yen(p.reikin):'')+
-      r('保証会社',esc((p.hoshoName||'')+(p.hoshoTel?'／'+p.hoshoTel:'')+(p.hoshoCycle?'　'+p.hoshoCycle:'')))+r('火災保険',esc((p.kasaiStatus||'')+(p.kasaiCompany?'／'+p.kasaiCompany:'')+((p.kasaiStart||p.kasaiEnd)?'　'+(p.kasaiStart||'—')+'〜'+(p.kasaiEnd||'—'):'')))+r('支払方法',p.payMethod?esc(pmLabel(p.payMethod)):'')+r('鍵',esc((p.keyReceived!=null||p.keyHanded!=null)?'預かり '+(p.keyReceived??'—')+'本／引渡し '+(p.keyHanded??'—')+'本':'')+(p.keyNote?' '+p.keyNote:''))+'</div>'+
-      (rh?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">賃料改定履歴：'+rh+'</div>':'')+(cl?'<div style="margin-top:6px;"><div style="font-size:10px;font-weight:700;color:var(--teal);">賃借人とのやり取り</div>'+cl+'</div>':'')+'</details>';
-  }).join('')+'</div>';
+  const ren=(p.renewals||[]).map(x=>esc(x.start||'—')+'〜'+esc(x.end||'—')).join('、');
+  const rh=(p.rentHistory||[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(x=>esc(x.date||'—')+' '+yen(x.rent)).join('　→　');
+  const cl=(p.contactLog||[]).slice().sort((a,b)=>((b.date||'')+(b.time||'')).localeCompare((a.date||'')+(a.time||''))).map(c=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(c.date||'—')+(c.time?' '+esc(c.time):'')+'</b>'+(c.method?' <span style="color:var(--teal);">['+esc(c.method)+']</span>':'')+(c.content?' '+esc(c.content):'')+'</div>').join('');
+  const rf=reformIn(u,from,to).map(reformLine).join('');
+  return '<div class="kn-grid">'+r('契約者',esc((p.tenant||'')+(p.tenantKana?'（'+p.tenantKana+'）':'')+(p.tenantType==='法人'?'　法人':'')))+r('電話',esc(p.tenantTel))+r('国籍',esc(p.nationality))+r('担当者',esc((p.tenantContact||'')+(p.tenantContactTel?'／'+p.tenantContactTel:'')))+
+    r('初回契約',esc((p.start||'—')+' 〜 '+(p.end||'—')))+r('更新',ren)+r('契約種別',esc(p.contractType))+r('賃料・共益費',yen(p.rent)+' ／ '+yen(p.kanri))+r('敷金',(p.shikikin!=null?yen(p.shikikin):'')+(p.shikikinNote?'（'+esc(p.shikikinNote)+'）':''))+r('礼金',p.reikin!=null?yen(p.reikin):'')+
+    r('保証会社',esc((p.hoshoName||'')+(p.hoshoTel?'／'+p.hoshoTel:'')+(p.hoshoCycle?'　'+p.hoshoCycle:'')))+r('火災保険',esc((p.kasaiStatus||'')+(p.kasaiCompany?'／'+p.kasaiCompany:'')+((p.kasaiStart||p.kasaiEnd)?'　'+(p.kasaiStart||'—')+'〜'+(p.kasaiEnd||'—'):'')))+r('支払方法',p.payMethod?esc(pmLabel(p.payMethod)):'')+r('鍵',esc((p.keyReceived!=null||p.keyHanded!=null)?'預かり '+(p.keyReceived??'—')+'本／引渡し '+(p.keyHanded??'—')+'本':'')+(p.keyNote?' '+p.keyNote:''))+'</div>'+
+    (rh?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">賃料改定履歴：'+rh+'</div>':'')+
+    (rf?secT('この期間のリフォーム')+rf:'')+(cl?secT('賃借人とのやり取り')+cl:'');
 }
-function unitExtraHtml(u){
-  let h='';
-  const vl=(u.vacancyLog||[]).slice().sort((a,b)=>(b.from||'').localeCompare(a.from||''));
-  const vac=u.vacantSince&&u.status!=='契約中'&&u.status!=='解約予告中';
-  if(vac||vl.length){
-    const dd=daysUntil(u.vacantSince);
-    h+='<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">空室期間</div>'+(vac?'<div style="font-size:11px;font-weight:700;color:var(--orange);">現在 空室中：'+esc(u.vacantSince)+' 〜（'+(dd==null?'':Math.max(0,-dd))+'日）</div>':'')+
-      vl.slice(0,5).map(v=>'<div style="font-size:10.5px;padding:2px 0;">'+esc(v.from||'—')+' 〜 '+esc(v.to||'—')+'（'+Math.round((new Date(v.to)-new Date(v.from))/86400000)+'日）</div>').join('')+'</div>';
-  }
-  const ap=(u.applicants||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  if(ap.length)h+='<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居者の募集・応募（'+ap.length+'件）</div>'+ap.slice(0,8).map(a=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(a.date||'—')+'</b> <span style="color:var(--teal);">['+esc(a.status||'')+']</span> '+esc(a.name||'')+(a.tel?'／'+esc(a.tel):'')+(a.desired?'　希望入居日 '+esc(a.desired):'')+(a.note?'　'+esc(a.note):'')+'</div>').join('')+'</div>';
-  return h+pastHtml(u);
+function tlItem(kind,title,sub,body,open){
+  const c=kind==='vac'?'#E65100':(kind==='cur'?'#2E7D32':'var(--navy)');
+  return '<details'+(open?' open':'')+' style="margin:5px 0;border:1px solid #E3E7F0;border-left:4px solid '+c+';border-radius:5px;padding:5px 9px;background:#fff;"><summary style="cursor:pointer;font-size:11.5px;font-weight:700;color:'+c+';">'+title+'<span style="font-weight:400;color:var(--sub);">　'+sub+'</span></summary><div style="margin-top:6px;">'+body+'</div></details>';
 }
+// 入居・募集の履歴：古い順（上）→ 新しい順（下）。最新だけ開き、ほかはたたむ
+function unitTimeline(u){
+  const items=[],used=new Set(),ap=(u.applicants||[]);
+  (u.pastTenants||[]).forEach(p=>items.push({key:p.start||p.moveOut||'',kind:'ten',title:'入居者：'+esc(p.tenant||'（契約者名なし）'),sub:esc(p.start||'—')+' 〜 '+esc(p.moveOut||'—')+'（退去）'+(p.rent?'　賃料 '+yen(p.rent):''),body:tenancyBody(p,u,p.start,p.moveOut)}));
+  const vl=(u.vacancyLog||[]).map(v=>({from:v.from,to:v.to}));
+  const cur=u.tenant||u.status==='契約中'||u.status==='解約予告中';
+  if(u.vacantSince&&!cur)vl.push({from:u.vacantSince,to:'',now:true});
+  vl.forEach(v=>{
+    const aps=ap.filter(a=>inRange(a.date,v.from,v.to));aps.forEach(a=>used.add(a));
+    const rh=(u.rentHistory||[]).filter(x=>inRange(x.date,v.from,v.to)).map(x=>esc(x.date||'—')+' '+yen(x.rent)+(x.note?'（'+esc(x.note)+'）':'')).join('　→　');
+    const rf=reformIn(u,v.from,v.to).map(reformLine).join('');
+    const n=v.now?Math.max(0,-(daysUntil(v.from)||0)):Math.round((new Date(v.to)-new Date(v.from))/86400000);
+    const body=(aps.length?secT('応募（'+aps.length+'件）')+aps.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(a=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(a.date||'—')+'</b> <span style="color:var(--teal);">['+esc(a.status||'')+']</span> '+esc(a.name||'')+(a.tel?'／'+esc(a.tel):'')+(a.desired?'　希望入居日 '+esc(a.desired):'')+(a.note?'　'+esc(a.note):'')+'</div>').join(''):'')+
+      (rh?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">募集賃料の変更：'+rh+'</div>':'')+(rf?secT('この期間のリフォーム')+rf:'');
+    items.push({key:v.from||'',kind:'vac',title:'空室・募集期間',sub:esc(v.from||'—')+' 〜 '+(v.now?'（現在 '+n+'日）':esc(v.to||'—')+'（'+n+'日）'),body:body||'<div style="font-size:10.5px;color:var(--sub);">この期間の記録はありません</div>'});
+  });
+  if(cur)items.push({key:u.start||'9999',kind:'cur',title:'現在の入居者：'+esc(u.tenant||'（契約者名なし）'),sub:esc(u.start||'—')+' 〜 '+esc(lastEnd(u)||'—'),body:tenancyBody(u,u,u.start,'')});
+  const rest=ap.filter(a=>!used.has(a));
+  const restHtml=rest.length?'<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居者の募集・応募（'+rest.length+'件）</div>'+rest.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8).map(a=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(a.date||'—')+'</b> <span style="color:var(--teal);">['+esc(a.status||'')+']</span> '+esc(a.name||'')+(a.tel?'／'+esc(a.tel):'')+(a.desired?'　希望入居日 '+esc(a.desired):'')+(a.note?'　'+esc(a.note):'')+'</div>').join('')+'</div>':'';
+  if(items.length===0||(items.length===1&&items[0].kind==='cur'))return restHtml;
+  items.sort((a,b)=>String(a.key).localeCompare(String(b.key)));
+  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居・募集の履歴（上が古く、下が新しい。▶を押すと詳細が開きます）</div>'+items.map((x,i)=>tlItem(x.kind,x.title,x.sub,x.body,i===items.length-1)).join('')+'</div>'+restHtml;
+}
+const unitExtraHtml=unitTimeline;
 
 // ===== 出納・精算 =====
 const LGC=[['rent','家賃入金','in'],['kanri','管理費・共益費入金','in'],['shiki','敷金入金','in'],['reikin','礼金・更新料入金','in'],['fire_in','火災保険料の入金（入居者から）','in'],['owner_in','オーナーからの入金','in'],['other_in','その他の入金','in'],['fire_out','火災保険料の支払','out'],['shiki_out','敷金の返還','out'],['guar_out','保証会社への支払','out'],['xfer_fee','振込手数料','mix'],['clean','クリーニング費','out'],['repair','修繕費','out'],['key','鍵交換費','out'],['other_out','その他の出金','out'],['mgmt_fee','管理料（業務委託料）','fee'],['office_fee','事務手数料・その他の自社収益','fee'],['owner_pay','オーナー送金','out'],['carry','繰越（開始時の残高）','in']];
