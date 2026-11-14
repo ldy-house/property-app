@@ -6,6 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>管理委託物件｜株式会社LDY</title>
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
 :root{--navy:#1B2A6B;--navy-dark:#111C4E;--gold:#C9A84C;--gold-light:#E8D08A;--bg:#F0F2F8;--border:#DDD;--text:#1a1a2e;--sub:#777;--red:#C62828;--orange:#E65100;--purple:#6A1B9A;--green:#2E7D32;--teal:#00695C;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -366,7 +367,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="toolbar">
         <label style="font-size:12px;font-weight:700;">対象月 <input type="month" id="chk-m" onchange="renderChk()"/></label>
         <select id="chk-f" onchange="renderChk()"><option value="">すべての部屋</option><option value="ng">問題のある部屋だけ</option></select>
-        <span style="font-size:11px;color:var(--sub);">契約中の区分の「賃料＋共益費」の想定額と、台帳の入金（家賃・共益費）を、対象月ごとに突き合わせます。行を押すと台帳が開きます</span>
+        <span style="font-size:11px;color:var(--sub);">契約中の区分の「賃料＋共益費」の想定額と、台帳の入金（家賃・共益費）を、対象月ごとに突き合わせます。行を押すと台帳が開きます</span><span id="chk-ex" style="font-size:11px;color:#6A1B9A;margin-left:8px;"></span>
       </div>
       <div style="padding:14px 20px;"><div class="lg-wrap" id="chk-list"></div></div>
     </div>
@@ -598,7 +599,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fg">
           <div class="fr"><label>賃料の支払時期</label><input id="u-pay-timing" placeholder="例：翌月分を毎月27日までに支払う"/></div>
-          <div class="fr"><label>賃料の支払方法</label><input id="u-pay-method" placeholder="例：集金代行"/></div>
+          <div class="fr"><label>賃料の支払方法（オーナーに直接入る方法は、家賃の入金確認・振分けの対象外）</label><select id="u-pay-method"><option value="">未設定</option><option value="owner_direct">オーナー直接振込</option><option value="mgmt_direct">管理会社直接振込</option><option value="gz_owner">保証会社集金代行（オーナーに振込）</option><option value="gz_mgmt">保証会社集金代行（管理会社に振込）</option></select></div>
         </div>
         <div>
           <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料改定履歴（上の「賃料」は、最新の履歴に連動します。値上げ・値下げの都度、日付つきで追加）</label>
@@ -1151,7 +1152,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div style="font-size:11px;color:var(--sub);margin-bottom:6px;">Excelの1行目に項目名（区画名・契約者名・賃料 など）、2行目以降にデータを入れ、範囲をコピーして下に貼り付けます。区画名が同じ行は更新、新しい区画名は追加します。空欄のセルは、既存の内容を消しません。取り込み後は下の表で確認・修正してから保存します。</div>
         <textarea id="rbk-xl" rows="4" placeholder="ここに貼り付け（Excelでコピーした範囲／CSV）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          <button type="button" class="btn btn-navy" onclick="rbkXlImport()">表に反映</button>
+          <button type="button" class="btn btn-navy" onclick="rbkXlImport()">表に反映</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',false)">Excelテンプレをダウンロード（入力制限つき）</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルを読み込む<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'rent')"/></label>
           <button type="button" class="btn btn-sm" onclick="rbkXlCopy(false)">現在の一覧をExcel用にコピー</button>
           <button type="button" class="btn btn-sm" onclick="rbkXlCopy(true)">項目名の行だけコピー</button>
         </div>
@@ -1213,7 +1214,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div style="font-size:11px;color:var(--sub);margin-bottom:6px;">Excelの1行目に項目名（区画名・契約者名・賃料 など）、2行目以降にデータを入れ、範囲をコピーして下に貼り付けます。区画名が同じ行は更新、新しい区画名は追加します。空欄のセルは、既存の内容を消しません。取り込み後は下の表で確認・修正してから保存します。</div>
         <textarea id="lbk-xl" rows="4" placeholder="ここに貼り付け（Excelでコピーした範囲／CSV）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          <button type="button" class="btn btn-navy" onclick="lbkXlImport()">表に反映</button>
+          <button type="button" class="btn btn-navy" onclick="lbkXlImport()">表に反映</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',false)">Excelテンプレをダウンロード（入力制限つき）</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルを読み込む<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'lodge')"/></label>
           <button type="button" class="btn btn-sm" onclick="lbkXlCopy(false)">現在の一覧をExcel用にコピー</button>
           <button type="button" class="btn btn-sm" onclick="lbkXlCopy(true)">項目名の行だけコピー</button>
         </div>
@@ -1906,7 +1907,7 @@ window.openUnitModal=function(bldId,unitId=null){
     setV('u-reikin',u.reikin);setV('u-hosho-first',u.hoshoFirst);
     setV('u-kasai-status',u.kasaiStatus);setV('u-kasai-company',u.kasaiCompany);setV('u-kasai-start',u.kasaiStart);setV('u-kasai-end',u.kasaiEnd);
     setV('u-koshin-umu',u.koshinUmu);setV('u-koshin-ryo',u.koshinRyo);setV('u-koshin-tesuryo',u.koshinTesuryo);
-    setV('u-pay-timing',u.payTiming);setV('u-pay-method',u.payMethod);
+    ensurePM(u.payMethod);setV('u-pay-timing',u.payTiming);setV('u-pay-method',u.payMethod);
     setV('u-hosho-name',u.hoshoName);setV('u-hosho-tel',u.hoshoTel);setV('u-hosho-addr',u.hoshoAddr);
     setV('u-hosho-fee',u.hoshoFee);setV('u-hosho-cycle',u.hoshoCycle);
     setV('u-reform-start',u.reformStart);setV('u-reform-end',u.reformEnd);setV('u-reform-note',u.reformNote);
@@ -2157,7 +2158,7 @@ function unitHtml(u){
           '<div class="kn-row"><span class="kn-lbl">礼金</span><span class="kn-val">'+yen(u.reikin)+'</span></div>'+
           '<div class="kn-row"><span class="kn-lbl">保証委託料</span><span class="kn-val">'+yen(u.hoshoFirst)+'</span></div>'+
           '<div class="kn-row full"><span class="kn-lbl">賃料の支払時期</span><span class="kn-val">'+esc(u.payTiming||'—')+'</span></div>'+
-          '<div class="kn-row full"><span class="kn-lbl">賃料の支払方法</span><span class="kn-val">'+esc(u.payMethod||'—')+'</span></div>'+
+          '<div class="kn-row full"><span class="kn-lbl">賃料の支払方法</span><span class="kn-val">'+esc(pmLabel(u.payMethod))+'</span></div>'+
           '<div class="kn-row full"><span class="kn-lbl">更新料</span><span class="kn-val">'+esc(u.koshinUmu||'—')+(u.koshinRyo?'／'+esc(u.koshinRyo):'')+(u.koshinTesuryo?'／事務手数料 '+yen(u.koshinTesuryo):'')+'</span></div>'+
         '</div>'+
         ((u.rentHistory&&u.rentHistory.length)?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">改定履歴：'+u.rentHistory.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(r=>esc(r.date||'—')+' '+yen(r.rent)+(r.note?'('+esc(r.note)+')':'')).join('　→　')+'</div>':'')+
@@ -2797,6 +2798,11 @@ window.copyLU=function(id){
 };
 
 // ===== 賃貸：区分の一括追加・編集（全項目） =====
+const PM=[['','未設定'],['owner_direct','オーナー直接振込'],['mgmt_direct','管理会社直接振込'],['gz_owner','保証会社集金代行（オーナーに振込）'],['gz_mgmt','保証会社集金代行（管理会社に振込）']];
+const pmLabel=v=>{const p=PM.find(x=>x[0]===v);return p?p[1]:(v||'—');};
+const viaMgmt=u=>!['owner_direct','gz_owner'].includes(u.payMethod);          // 賃料が管理会社の口座に入る
+const viaGz=u=>!['owner_direct','mgmt_direct','gz_owner'].includes(u.payMethod); // 保証会社から管理会社へ振り込まれる
+const ensurePM=v=>{const el=document.getElementById('u-pay-method');if(!el)return;[...el.options].filter(o=>o.dataset.legacy).forEach(o=>o.remove());if(v&&!PM.some(p=>p[0]===v)){const o=document.createElement('option');o.value=v;o.dataset.legacy='1';o.textContent=v+'（旧入力）';el.appendChild(o);}};
 const RST=['契約中','解約予告中','募集中','退去済'],RTY=['普通借家','定期借家'];
 const KEYOPT=[['','未設定'],['normal','通常（預かり→引渡し）'],['inherited','入居中に管理受託']];
 const YN=[['','未設定'],['有','有'],['無','無']];
@@ -2805,7 +2811,7 @@ const RCOLS={
   basic:{label:'基本',cols:[['status','契約状況','sel',RST.map(x=>[x,x]),100],['size','面積','text',null,90],['use1','用途（大分類）','text',null,100],['use2','用途（詳細）','text',null,110],['memo','備考','text',null,220]]},
   ten:{label:'契約者',cols:[['tenantType','区分','sel',[['個人','個人'],['法人','法人']],70],['tenant','契約者名（会社名）','text',null,150],['tenantKana','フリガナ','text',null,150],['nationality','国籍（個人）','text',null,90],['tenantTel','電話番号','text',null,120],['tenantContact','担当者名（法人）','text',null,120],['tenantContactTel','担当者電話','text',null,120]]},
   term:{label:'契約期間',cols:[['contractType','契約種別','sel',RTY.map(x=>[x,x]),96],['start','初回 始期','date',null,128],['end','初回 終期','date',null,128],['renStart','更新後 始期（最新）','date',null,128],['renEnd','更新後 終期（最新）','date',null,128],['noticeLessor','解約予告 貸主→借主','text',null,130],['noticeLessee','解約予告 借主→貸主','text',null,130],['noticeMethod','予告方法','text',null,100]]},
-  money:{label:'賃料・一時金',cols:[['rent','賃料（円）','number',null,100],['kanri','管理費・共益費（円）','number',null,110],['payTiming','賃料の支払時期','text',null,190],['payMethod','賃料の支払方法','text',null,110],['shikikin','敷金（円）','number',null,100],['shikikinNote','敷金の備考','text',null,110],['shikikinHolder','敷金の保管者','sel',[['','未設定'],['オーナー','オーナー'],['自社（LDY）','自社（LDY）']],110],['reikin','礼金（円）','number',null,90],['hoshoFirst','初回保証委託料（円）','number',null,110],['koshinUmu','更新料の有無','sel',YN,80],['koshinTesuryo','更新事務手数料（円）','number',null,110],['koshinRyo','更新料','text',null,150]]},
+  money:{label:'賃料・一時金',cols:[['rent','賃料（円）','number',null,100],['kanri','管理費・共益費（円）','number',null,110],['payTiming','賃料の支払時期','text',null,190],['payMethod','賃料の支払方法','sel',PM,190],['shikikin','敷金（円）','number',null,100],['shikikinNote','敷金の備考','text',null,110],['shikikinHolder','敷金の保管者','sel',[['','未設定'],['オーナー','オーナー'],['自社（LDY）','自社（LDY）']],110],['reikin','礼金（円）','number',null,90],['hoshoFirst','初回保証委託料（円）','number',null,110],['koshinUmu','更新料の有無','sel',YN,80],['koshinTesuryo','更新事務手数料（円）','number',null,110],['koshinRyo','更新料','text',null,150]]},
   ins:{label:'保険・保証会社',cols:[['kasaiStatus','火災保険','sel',[['','未設定'],['未加入','未加入'],['加入済み','加入済み']],100],['kasaiCompany','保険会社','text',null,120],['kasaiStart','保険期間 開始','date',null,128],['kasaiEnd','保険期間 終了','date',null,128],['hoshoName','保証会社名','text',null,130],['hoshoTel','保証会社 電話','text',null,120],['hoshoAddr','保証会社 所在地','text',null,180],['hoshoFee','委託料（円）','number',null,90],['hoshoCycle','委託料の周期','text',null,100]]},
   etc:{label:'鍵・リフォーム',cols:[['keyStatus','鍵の引継ぎ','sel',KEYOPT,180],['keyReceived','預かり（本）','number',null,70],['keyHanded','引渡し（本）','number',null,70],['keyNote','鍵の備考','text',null,160],['reformStart','リフォーム開始','date',null,128],['reformEnd','リフォーム終了','date',null,128],['reformNote','リフォーム備考','text',null,180]]}
 };
@@ -3176,7 +3182,7 @@ function allocSuggest(d,m){
   const dir=depDir(d),info=depInfo(d);let rows=[],note='',exact=false;
   const mk=(x,amt,cat)=>({bid:x.b.id,uid:x.u.id,cat,inc:true,amt});
   if(info.kind==='hosho'&&dir==='in'){
-    rows=allocUnits(d.company).filter(x=>unitActive(x.u,m)&&gzMatchUnit(info.gz,x.u)&&unitExpected(x.u,m).total>0).map(x=>mk(x,unitExpected(x.u,m).total,'rentk'));
+    rows=allocUnits(d.company).filter(x=>unitActive(x.u,m)&&viaGz(x.u)&&gzMatchUnit(info.gz,x.u)&&unitExpected(x.u,m).total>0).map(x=>mk(x,unitExpected(x.u,m).total,'rentk'));
     const E=rows.reduce((a,r)=>a+r.amt,0);
     if(!rows.length)note='「'+info.gz.name+'」が登録されている契約中の区分が見つかりません。区分の「保証会社名」を確認するか、下から振分け先を選んでください。';
     else if(E===d.amount){exact=true;note='契約中の全'+rows.length+'室の想定額（賃料＋共益費）の合計が、入金額と一致しました。';}
@@ -3695,6 +3701,78 @@ window.doYj=function(){
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
 };
 
+// ===== Excelテンプレ（入力制限つき）のダウンロード／読み込み =====
+const xlLtr=n=>{let t='';while(n>0){const m=(n-1)%26;t=String.fromCharCode(65+m)+t;n=Math.floor((n-1)/26);}return t;};
+window.xlsxMake=async function(kind,withData){
+  if(typeof ExcelJS==='undefined'){alert('Excelの部品を読み込めませんでした。ネットワーク接続を確認して、ページを再読み込みしてください。');return;}
+  const cols=kind==='rent'?xlRentCols():xlLodgeCols(),src=(kind==='rent'?rbRows:bulkRows).filter(r=>!r.del);
+  const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('区分'),us=wb.addWorksheet('使い方'),ls=wb.addWorksheet('リスト',{state:'hidden'});
+  const MAXR=300,navy='FF1B2A6B';
+  let lc=0;
+  cols.forEach((c,j)=>{
+    const ci=j+1,h=ws.getCell(1,ci);
+    h.value=c.k==='name'?'区画名 *':c.label;
+    h.font={bold:true,color:{argb:'FFFFFFFF'}};h.fill={type:'pattern',pattern:'solid',fgColor:{argb:c.k==='name'?'FFC62828':navy}};
+    h.alignment={vertical:'middle',wrapText:true};
+    ws.getColumn(ci).width=Math.max(12,Math.min(34,String(c.label).length*2+4));
+    let dv=null,fmt='@';
+    if(c.t==='sel'){
+      const labels=(c.optPairs||[]).map(p=>p[1]);lc++;
+      labels.forEach((t,i)=>{ls.getCell(i+1,lc).value=t;});
+      const L=xlLtr(lc);
+      dv={type:'list',allowBlank:true,formulae:["'リスト'!$"+L+'$1:$'+L+'$'+Math.max(1,labels.length)],showErrorMessage:true,errorStyle:'stop',errorTitle:'入力できません',error:'一覧から選んでください'};
+    }else if(c.t==='number'){
+      fmt='#,##0';dv={type:'whole',operator:'greaterThanOrEqual',formulae:[0],allowBlank:true,showErrorMessage:true,errorStyle:'stop',errorTitle:'入力できません',error:'0以上の整数（円・本数・人数）で入力してください'};
+    }else if(c.t==='date'){
+      fmt='yyyy/mm/dd';dv={type:'date',operator:'greaterThan',formulae:[new Date(Date.UTC(1950,0,1))],allowBlank:true,showErrorMessage:true,errorStyle:'stop',errorTitle:'入力できません',error:'日付（例：2026/4/1）で入力してください'};
+    }
+    for(let r=2;r<=MAXR+1;r++){
+      const cell=ws.getCell(r,ci);cell.numFmt=fmt;if(dv)cell.dataValidation=dv;
+      const row=src[r-2];
+      if(withData&&row){
+        const v=row[c.k];
+        if(c.t==='sel')cell.value=xlCell(c,v)||null;
+        else if(c.t==='number')cell.value=(v===''||v==null)?null:Number(v);
+        else if(c.t==='date')cell.value=v?new Date(v+'T00:00:00Z'):null;
+        else cell.value=v===''||v==null?null:String(v);
+      }
+    }
+  });
+  ws.views=[{state:'frozen',xSplit:1,ySplit:1}];ws.getRow(1).height=34;
+  [
+    '【使い方】',
+    '1. 「区分」シートの2行目から入力します（1行目の項目名は変えないでください）。赤い「区画名 *」は必須です。',
+    '2. 選択式の項目（契約状況・契約種別・賃料の支払方法など）は、セルの▼から選びます。一覧にない値は入力できません。',
+    '3. 日付は 2026/4/1 の形式、金額・本数は数字だけ（0以上の整数）で入力します。',
+    '4. 区画名が同じ行は更新、新しい区画名は追加されます。空欄のセルは、既存の内容を消しません。',
+    '5. 保存したら、画面の「Excelファイルを読み込む」で選びます。表に反映されるので、確認して「まとめて保存する」を押してください。',
+    '※ 賃料の改定履歴・入金・やり取り・電気水道ガスは、画面の各区分の「編集」から入力します。'
+  ].forEach((t,i)=>{us.getCell(i+1,1).value=t;});
+  us.getColumn(1).width=110;us.getCell(1,1).font={bold:true,size:13};
+  const buf=await wb.xlsx.writeBuffer();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+  a.download=(kind==='rent'?'区分テンプレ_賃貸':'区分テンプレ_旅館業民泊')+(withData?'_現在の一覧':'')+'.xlsx';
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+};
+window.xlsxLoad=async function(e,kind){
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  if(typeof ExcelJS==='undefined'){alert('Excelの部品を読み込めませんでした。ネットワーク接続を確認して、ページを再読み込みしてください。');return;}
+  try{
+    const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());
+    const ws=wb.worksheets[0];
+    const cv=v=>{
+      if(v==null)return '';
+      if(v instanceof Date)return v.toISOString().slice(0,10);
+      if(typeof v==='object'){if(v.result!=null)return cv(v.result);if(v.richText)return v.richText.map(t=>t.text).join('');if(v.text!=null)return cv(v.text);return '';}
+      return String(v);
+    };
+    const out=[];
+    for(let r=1;r<=ws.rowCount;r++){const row=ws.getRow(r),cells=[];for(let c=1;c<=ws.columnCount;c++)cells.push(cv(row.getCell(c).value).replace(/[\t\r\n]+/g,' '));out.push(cells.join('\t'));}
+    if(kind==='rent'){setVal('rbk-xl',out.join('\n'));rbkXlImport();}
+    else{setVal('lbk-xl',out.join('\n'));lbkXlImport();}
+  }catch(err){alert('Excelファイルを読み込めませんでした: '+err.message);console.error(err);}
+};
+
 // ===== 出納・精算 =====
 const LGC=[['rent','家賃入金','in'],['kanri','管理費・共益費入金','in'],['shiki','敷金入金','in'],['reikin','礼金・更新料入金','in'],['fire_in','火災保険料の入金（入居者から）','in'],['owner_in','オーナーからの入金','in'],['other_in','その他の入金','in'],['fire_out','火災保険料の支払','out'],['shiki_out','敷金の返還','out'],['guar_out','保証会社への支払','out'],['xfer_fee','振込手数料','mix'],['clean','クリーニング費','out'],['repair','修繕費','out'],['key','鍵交換費','out'],['other_out','その他の出金','out'],['mgmt_fee','管理料（業務委託料）','fee'],['office_fee','事務手数料・その他の自社収益','fee'],['owner_pay','オーナー送金','out'],['carry','繰越（開始時の残高）','in']];
 const LGN=Object.fromEntries(LGC.map(c=>[c[0],c[1]]));
@@ -3830,9 +3908,10 @@ function renderLedger(){
 const CHK_ST={none:['未入金','background:#C62828;color:#fff;',0],short:['不足','background:#E65100;color:#fff;',1],over:['多い・二重の疑い','background:#6A1B9A;color:#fff;',2],ok:['入金OK','background:#E8F5E9;color:#2E7D32;',3]};
 function renderChk(){
   const mi=document.getElementById('chk-m');if(!mi.value)mi.value=todayJ().slice(0,7);
-  const m=mi.value,f=document.getElementById('chk-f').value,rows=[];
+  const m=mi.value,f=document.getElementById('chk-f').value,rows=[];let excl=0;
   allowedCo.filter(c=>coSel==='all'||coSel===c).forEach(co=>{
     allocUnits(co).forEach(x=>{
+      if(!viaMgmt(x.u)){if(unitActive(x.u,m)&&unitExpected(x.u,m).total>0)excl++;return;}
       const e=unitActive(x.u,m)?unitExpected(x.u,m).total:0;
       const es=rl.filter(en=>en.unitId===x.u.id&&(en.cat==='rent'||en.cat==='kanri')&&en.month===m&&(+en.inAmt||0)>0);
       const got=es.reduce((a,en)=>a+(+en.inAmt||0),0);
@@ -3840,6 +3919,7 @@ function renderChk(){
       rows.push({x,e,got,st:!got?'none':(got<e?'short':(got>e?'over':'ok')),dates:[...new Set(es.map(en=>en.date))].sort()});
     });
   });
+  document.getElementById('chk-ex').textContent=excl?'※ オーナー直接振込・保証会社→オーナー振込の '+excl+'室は、対象外です':'';
   const cnt=k=>rows.filter(r=>r.st===k).length,set=(id,v)=>{document.getElementById(id).textContent=v;};
   set('ck-n',rows.length);set('ck-ok',cnt('ok'));set('ck-short',cnt('short'));set('ck-none',cnt('none'));set('ck-over',cnt('over'));
   const list=rows.filter(r=>!f||r.st!=='ok').sort((a,b)=>CHK_ST[a.st][2]-CHK_ST[b.st][2]||(a.x.b.name||'').localeCompare(b.x.b.name||'','ja',{numeric:true})||(a.x.u.name||'').localeCompare(b.x.u.name||'','ja',{numeric:true}));
@@ -3854,6 +3934,7 @@ function allocWarn(r,x,d){
   const e=unitActive(x.u,ad.month)?unitExpected(x.u,ad.month).total:0;
   const got=rl.filter(en=>en.unitId===x.u.id&&(en.cat==='rent'||en.cat==='kanri')&&en.month===ad.month&&en.depositId!==d.id).reduce((a,en)=>a+(+en.inAmt||0),0);
   const after=got+(+r.amt||0),mo=esc(ad.month.replace('-','/'));
+  if(!viaMgmt(x.u))return '<div style="font-size:10px;font-weight:700;color:#C62828;">この区分は賃料が「'+esc(pmLabel(x.u.payMethod))+'」です（管理会社の口座に入る設定ではありません）</div>';
   const w=(c,t)=>'<div style="font-size:10px;font-weight:700;color:'+c+';">'+t+'</div>';
   if(got>0&&after>e)return w('#C62828',mo+'分は既に ¥'+yen0(got)+' 入金済み。今回で合計 ¥'+yen0(after)+'（想定 ¥'+yen0(e)+'）→ 二重入金の可能性');
   if(got>0)return w('#E65100',mo+'分は既に ¥'+yen0(got)+' 入金済み（今回で合計 ¥'+yen0(after)+'／想定 ¥'+yen0(e)+'）');
