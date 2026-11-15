@@ -248,6 +248,28 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .fold[open]>summary{margin-bottom:8px;}
 .unit{padding:8px 12px;}.unit-head{margin-bottom:4px;}
 #rbk-xl-msg,#lbk-xl-msg{white-space:pre-wrap;max-height:220px;overflow:auto;line-height:1.6;}
+
+/* 区分：一覧の見出しに▶を直接つける／詳細の隙間・入力画面の余白を詰める */
+.ufold>summary{list-style:none;cursor:pointer;}
+.ufold>summary::-webkit-details-marker{display:none}
+.ufold>summary::before{content:'▶';font-size:10px;color:var(--navy);width:12px;}
+.ufold[open]>summary::before{content:'▼';}
+.unit-head{margin-bottom:0}.ufold[open]>summary{margin-bottom:6px}
+.unit-body{display:block;column-count:2;column-gap:8px;}
+.unit-sub{break-inside:avoid;margin-bottom:6px;padding:6px 8px;}
+.unit-sub[style*="grid-column"]{column-span:all;}
+@media(max-width:760px){.unit-body{column-count:1}}
+.unit-acts{margin-top:6px;padding-top:6px}
+.bld-detail{padding:6px 14px}.bld-units{padding:8px 14px}
+.osec{padding:6px 10px;margin-bottom:6px}
+.modal-head{padding:10px 16px}.modal-body{padding:10px 14px}.modal-foot{padding:8px 14px}
+.fs{background:none;border:none;border-bottom:1px solid #E6E8F0;border-radius:0;padding:4px 0 8px;margin-bottom:8px}
+.fs-title{margin-bottom:6px;padding-bottom:2px;border-bottom-width:1px}
+.fr{margin-bottom:6px}.fr label{margin-bottom:2px}
+.fg{gap:6px 10px;margin-bottom:6px}.fg>.fr{margin-bottom:0}
+.fs>:last-child{margin-bottom:0}
+.fr input,.fr select,.fr textarea{padding:5px 8px;font-size:12.5px}
+.fr textarea{height:50px}
 </style>
 </head>
 <body>
@@ -3750,9 +3772,13 @@ function mkFold(title,key,nodes){
 function foldAll(root){
   root.querySelectorAll('.bld-detail').forEach(el=>{const id=(el.parentElement.id||'').replace('bld-','');el.appendChild(mkFold('建物・契約の詳細','b:'+id,[...el.childNodes]));});
   root.querySelectorAll('.unit[data-k]').forEach(el=>{
-    const body=el.querySelector('.unit-body'),acts=el.querySelector('.unit-acts');if(!body||!acts)return;
-    const nodes=[];let n=body;while(n&&n!==acts){const nx=n.nextElementSibling;nodes.push(n);n=nx;}
-    el.insertBefore(mkFold('詳細','u:'+el.dataset.k,nodes),acts);
+    const head=el.querySelector('.unit-head'),body=el.querySelector('.unit-body'),acts=el.querySelector('.unit-acts');if(!head||!body||!acts)return;
+    const key='u:'+el.dataset.k,d=document.createElement('details'),sm=document.createElement('summary');
+    d.className='ufold';if(openDet.has(key))d.open=true;
+    sm.className='unit-head';while(head.firstChild)sm.appendChild(head.firstChild);d.appendChild(sm);
+    let n=body;while(n&&n!==acts){const nx=n.nextElementSibling;d.appendChild(n);n=nx;}
+    head.remove();el.insertBefore(d,acts);
+    d.addEventListener('toggle',()=>{if(d.open)openDet.add(key);else openDet.delete(key);});
   });
 }
 // ===== 管理委託の終了・管理組合 / 入居者の交代・空室・応募 =====
