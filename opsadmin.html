@@ -270,6 +270,17 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .fs>:last-child{margin-bottom:0}
 .fr input,.fr select,.fr textarea{padding:5px 8px;font-size:12.5px}
 .fr textarea{height:50px}
+
+.modal{width:780px}.modal.wide{width:1100px}
+.modal-body{position:relative}
+#b-util,#u-util,#lb-util,#lu-util{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px}
+.util-box{padding:6px 8px;margin-bottom:0}
+.mnav{float:right;position:sticky;top:4px;width:92px;margin:0 0 0 8px;padding-left:10px;border-left:2px solid #E3E7F0;display:flex;flex-direction:column;gap:2px;font-size:11px;z-index:2;background:#fff}
+.mnav a{position:relative;cursor:pointer;color:#888;padding:3px 0 3px 4px;line-height:1.3}
+.mnav a::before{content:'';position:absolute;left:-16px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#CCD2E3;border:2px solid #fff}
+.mnav a.on{color:var(--navy);font-weight:700}.mnav a.on::before{background:var(--gold)}
+.has-nav>.fs{margin-right:112px}
+@media(max-width:760px){.mnav{display:none}.has-nav>.fs{margin-right:0}}
 </style>
 </head>
 <body>
@@ -280,7 +291,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="login-box">
       <div class="login-logo"><div class="login-lmark">LDY</div><div class="login-lsub">株式会社LDY</div></div>
       <div class="login-title">社員ログイン</div>
-      <div class="lf"><label>メールアドレス</label><input type="email" id="login-email" placeholder="メールアドレス"/></div>
+      <div class="lf"><label>メールアドレス</label><input type="email" id="login-email"/></div>
       <div class="lf"><label>パスワード</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
       <button class="login-btn" onclick="doLogin()">ログイン</button>
       <div class="login-err" id="login-err"></div>
@@ -446,13 +457,13 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fs-title">建物情報</div>
         <div class="fr"><label>管理形態</label><select id="b-mgmt" onchange="toggleMgmt('b')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
         <div class="fr"><label>管理会社 <a href="#" onclick="openCoInfo(document.getElementById('b-company').value);return false" style="font-size:10px;font-weight:700;color:var(--navy);margin-left:6px;">管理会社の設定 ›</a></label><select id="b-company"></select></div>
-        <div class="fr"><label>ビル名 *</label><input id="b-name" placeholder="ビル名"/></div>
-        <div class="fr"><label>所在地</label><input id="b-addr" placeholder="所在地"/></div>
-        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="b-staff" placeholder="自社の担当者名"/></div>
-        <div class="fg"><div class="fr"><label>管理組合 名称</label><input id="b-kumiai-name" placeholder="管理組合 名称"/></div><div class="fr"><label>管理組合 電話番号</label><input id="b-kumiai-tel"/></div></div>
+        <div class="fr"><label>ビル名 *</label><input id="b-name"/></div>
+        <div class="fr"><label>所在地</label><input id="b-addr"/></div>
+        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="b-staff"/></div>
+        <div class="fg"><div class="fr"><label>管理組合 名称</label><input id="b-kumiai-name"/></div><div class="fr"><label>管理組合 電話番号</label><input id="b-kumiai-tel"/></div></div>
         <div class="fg">
-          <div class="fr"><label>構造</label><input id="b-struct" placeholder="構造"/></div>
-          <div class="fr"><label>築年月</label><input id="b-built" placeholder="築年月"/></div>
+          <div class="fr"><label>構造</label><input id="b-struct"/></div>
+          <div class="fr"><label>築年月</label><input id="b-built"/></div>
         </div>
       </div>
 
@@ -462,8 +473,8 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <select id="b-owner-type" onchange="toggleOwnerType()"><option>個人</option><option>法人</option></select>
         </div>
         <div class="fg">
-          <div class="fr"><label id="b-owner-name-lbl">所有者名</label><input id="b-owner" placeholder="所有者名"/></div>
-          <div class="fr"><label id="b-owner-kana-lbl">フリガナ</label><input id="b-owner-kana" placeholder="フリガナ"/></div>
+          <div class="fr"><label id="b-owner-name-lbl">所有者名</label><input id="b-owner"/></div>
+          <div class="fr"><label id="b-owner-kana-lbl">フリガナ</label><input id="b-owner-kana"/></div>
         </div>
         <div class="fr"><label>住所</label><input id="b-owner-addr"/></div>
         <div class="fg">
@@ -473,7 +484,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div id="b-owner-contact-wrap" style="display:none;">
           <div style="font-size:9px;font-weight:700;color:var(--teal);letter-spacing:1px;margin:10px 0 6px;padding-top:8px;border-top:1px dashed var(--border);">ご担当者（法人の場合）</div>
           <div class="fg">
-            <div class="fr"><label>担当者名</label><input id="b-owner-contact" placeholder="担当者名"/></div>
+            <div class="fr"><label>担当者名</label><input id="b-owner-contact"/></div>
             <div class="fr"><label>担当者電話番号</label><input id="b-owner-contact-tel"/></div>
           </div>
         </div>
@@ -486,22 +497,22 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>初回契約 終期</label><input id="b-end" type="date"/></div>
         </div>
         <div class="days-auto" id="b-days-display"></div><div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴</label><div id="b-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('b')">＋ 更新を記録</button></div>
-        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="b-scope" placeholder="業務範囲"/></div>
+        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="b-scope"/></div>
         <div class="fg">
           <div class="fr"><label>自動更新</label>
             <select id="b-auto-renew"><option value="">未設定</option><option>有</option><option>無</option></select>
           </div>
-          <div class="fr"><label>解約予告</label><input id="b-notice" placeholder="解約予告"/></div>
+          <div class="fr"><label>解約予告</label><input id="b-notice"/></div>
         </div>
         <div class="fg"><div class="fr"><label>管理委託の状況</label><select id="b-consign-status"><option value="">管理中</option><option value="ended">管理委託終了</option></select></div><div class="fr"><label>終了日</label><input id="b-ended-date" type="date"/></div></div>
-        <div class="fr"><label>終了の理由・備考</label><input id="b-ended-note" placeholder="終了の理由・備考"/></div>
+        <div class="fr"><label>終了の理由・備考</label><input id="b-ended-note"/></div>
       </div>
 
       <div class="fs" id="b-sec-fee">
         <div class="fs-title">管理料・資金フロー</div>
-        <div class="fr"><label>振込先口座</label><input id="b-owner-bank" placeholder="振込先口座"/></div>
+        <div class="fr"><label>振込先口座</label><input id="b-owner-bank"/></div>
         <div class="fg">
-          <div class="fr"><label>管理料</label><input id="b-fee" placeholder="管理料"/></div>
+          <div class="fr"><label>管理料</label><input id="b-fee"/></div>
           <div class="fr"><label>管理料の課税</label>
             <select id="b-fee-tax"><option value="">未設定</option><option>税込</option><option>税別</option></select>
           </div>
@@ -514,12 +525,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           </select>
         </div>
         <div class="fg" id="cashflow-remit-row" style="display:none;">
-          <div class="fr"><label>送金日</label><input id="b-remit" placeholder="送金日"/></div>
+          <div class="fr"><label>送金日</label><input id="b-remit"/></div>
           <div class="fr"></div>
         </div>
         <div class="fg" id="cashflow-invoice-row" style="display:none;">
-          <div class="fr"><label>請求頻度</label><input id="b-invoice-freq" placeholder="請求頻度"/></div>
-          <div class="fr"><label>支払期限</label><input id="b-invoice-due" placeholder="支払期限"/></div>
+          <div class="fr"><label>請求頻度</label><input id="b-invoice-freq"/></div>
+          <div class="fr"><label>支払期限</label><input id="b-invoice-due"/></div>
         </div>
         <div class="fr"><label>備考</label><textarea id="b-memo" placeholder="1行1項目で入力"></textarea></div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
@@ -542,7 +553,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス（共用部）</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">共用部のメーター（複数可）</div>
         <div id="b-util"></div>
       </div>
 
@@ -567,12 +577,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">区画情報</div>
         <div class="fg">
-          <div class="fr"><label>区画名 *</label><input id="u-name" placeholder="区画名"/></div>
-          <div class="fr"><label>契約面積</label><input id="u-size" placeholder="契約面積"/></div>
+          <div class="fr"><label>区画名 *</label><input id="u-name"/></div>
+          <div class="fr"><label>契約面積</label><input id="u-size"/></div>
         </div>
         <div class="fg">
-          <div class="fr"><label>用途（大分類）</label><input id="u-use1" placeholder="用途"/></div>
-          <div class="fr"><label>用途（詳細）</label><input id="u-use2" placeholder="用途"/></div>
+          <div class="fr"><label>用途（大分類）</label><input id="u-use1"/></div>
+          <div class="fr"><label>用途（詳細）</label><input id="u-use2"/></div>
         </div>
       </div>
 
@@ -582,17 +592,17 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <select id="u-tenant-type" onchange="toggleTenantType()"><option>個人</option><option>法人</option></select>
         </div>
         <div class="fg">
-          <div class="fr"><label id="u-tenant-name-lbl">契約者名</label><input id="u-tenant" placeholder="契約者名"/></div>
-          <div class="fr"><label id="u-tenant-kana-lbl">フリガナ</label><input id="u-tenant-kana" placeholder="フリガナ"/></div>
+          <div class="fr"><label id="u-tenant-name-lbl">契約者名</label><input id="u-tenant"/></div>
+          <div class="fr"><label id="u-tenant-kana-lbl">フリガナ</label><input id="u-tenant-kana"/></div>
         </div>
         <div class="fg">
-          <div class="fr" id="u-nationality-row"><label>国籍</label><input id="u-nationality" placeholder="国籍"/></div>
-          <div class="fr"><label>電話番号</label><input id="u-tenant-tel" placeholder="電話番号"/></div>
+          <div class="fr" id="u-nationality-row"><label>国籍</label><input id="u-nationality"/></div>
+          <div class="fr"><label>電話番号</label><input id="u-tenant-tel"/></div>
         </div>
         <div id="u-tenant-contact-wrap" style="display:none;">
           <div style="font-size:9px;font-weight:700;color:var(--teal);letter-spacing:1px;margin:10px 0 6px;padding-top:8px;border-top:1px dashed var(--border);">ご担当者（法人の場合）</div>
           <div class="fg">
-            <div class="fr"><label>担当者名</label><input id="u-tenant-contact" placeholder="担当者名"/></div>
+            <div class="fr"><label>担当者名</label><input id="u-tenant-contact"/></div>
             <div class="fr"><label>担当者電話番号</label><input id="u-tenant-contact-tel"/></div>
           </div>
         </div>
@@ -614,20 +624,20 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="days-auto" id="u-days-display"></div><div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴</label><div id="u-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('u')">＋ 更新を記録</button></div>
         <div class="fg" style="margin-top:8px;">
-          <div class="fr"><label>解約予告（貸主→借主）</label><input id="u-notice-lessor" placeholder="解約予告"/></div>
-          <div class="fr"><label>解約予告（借主→貸主）</label><input id="u-notice-lessee" placeholder="解約予告"/></div>
+          <div class="fr"><label>解約予告（貸主→借主）</label><input id="u-notice-lessor"/></div>
+          <div class="fr"><label>解約予告（借主→貸主）</label><input id="u-notice-lessee"/></div>
         </div>
-        <div class="fr"><label>予告方法</label><input id="u-notice-method" placeholder="予告方法"/></div>
+        <div class="fr"><label>予告方法</label><input id="u-notice-method"/></div>
       </div>
 
       <div class="fs">
         <div class="fs-title">賃料・一時金</div>
         <div class="fg">
-          <div class="fr"><label>賃料（月額・円）</label><input id="u-rent-in" type="number" placeholder="賃料" oninput="onRentField(this.value)"/></div>
+          <div class="fr"><label>賃料（月額・円）</label><input id="u-rent-in" type="number" oninput="onRentField(this.value)"/></div>
           <div class="fr"><label>管理費・共益費（月額・円）</label><input id="u-kanri" type="number" placeholder="0"/></div>
         </div>
         <div class="fg">
-          <div class="fr"><label>賃料の支払時期</label><input id="u-pay-timing" placeholder="賃料の支払時期"/></div>
+          <div class="fr"><label>賃料の支払時期</label><input id="u-pay-timing"/></div>
           <div class="fr"><label>賃料の支払方法（オーナー受取は入金確認の対象外）</label><select id="u-pay-method"><option value="">未設定</option><option value="owner_direct">オーナー直接振込</option><option value="mgmt_direct">管理会社直接振込</option><option value="gz_owner">保証会社集金代行（オーナーに振込）</option><option value="gz_mgmt">保証会社集金代行（管理会社に振込）</option></select></div>
         </div>
         <div>
@@ -648,7 +658,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fg" style="margin-top:10px;">
           <div class="fr"><label>敷金（円）</label><input id="u-shikikin" type="number" placeholder="660000"/></div>
-          <div class="fr"><label>敷金・備考</label><input id="u-shikikin-note" placeholder="敷金・備考"/></div>
+          <div class="fr"><label>敷金・備考</label><input id="u-shikikin-note"/></div>
         </div>
         <div class="fr"><label>敷金の保管者</label>
           <select id="u-shikikin-holder"><option value="">未設定</option><option>オーナー</option><option>自社（LDY）</option></select>
@@ -665,7 +675,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
             </div>
             <div class="fr"><label>更新事務手数料（円）</label><input id="u-koshin-tesuryo" type="number" placeholder="11000"/></div>
           </div>
-          <div class="fr"><label>更新料</label><input id="u-koshin-ryo" placeholder="更新料"/></div>
+          <div class="fr"><label>更新料</label><input id="u-koshin-ryo"/></div>
         </div>
       </div>
 
@@ -675,7 +685,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>加入状況</label>
             <select id="u-kasai-status"><option value="">未設定</option><option>未加入</option><option>加入済み</option></select>
           </div>
-          <div class="fr"><label>保険会社</label><input id="u-kasai-company" placeholder="保険会社"/></div>
+          <div class="fr"><label>保険会社</label><input id="u-kasai-company"/></div>
         </div>
         <div class="fg">
           <div class="fr"><label>保険期間 開始</label><input id="u-kasai-start" type="date"/></div>
@@ -686,19 +696,18 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">家賃債務保証会社</div>
         <div class="fg">
-          <div class="fr"><label>名称</label><input id="u-hosho-name" placeholder="名称"/></div>
-          <div class="fr"><label>電話番号</label><input id="u-hosho-tel" placeholder="電話番号"/></div>
+          <div class="fr"><label>名称</label><input id="u-hosho-name"/></div>
+          <div class="fr"><label>電話番号</label><input id="u-hosho-tel"/></div>
         </div>
-        <div class="fr"><label>所在地</label><input id="u-hosho-addr" placeholder="所在地"/></div>
+        <div class="fr"><label>所在地</label><input id="u-hosho-addr"/></div>
         <div class="fg">
           <div class="fr"><label>委託料（円）</label><input id="u-hosho-fee" type="number" placeholder="24200"/></div>
-          <div class="fr"><label>保証会社備考</label><input id="u-hosho-cycle" placeholder="保証会社備考"/></div>
+          <div class="fr"><label>保証会社備考</label><input id="u-hosho-cycle"/></div>
         </div>
       </div>
 
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分のメーター（複数可）</div>
         <div id="u-util"></div>
       </div>
 
@@ -718,7 +727,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           </div>
           <div class="days-auto" id="u-key-display"></div>
         </div>
-        <div class="fr"><label>鍵に関する備考</label><input id="u-key-note" placeholder="鍵に関する備考"/></div>
+        <div class="fr"><label>鍵に関する備考</label><input id="u-key-note"/></div>
       </div>
 
       <div class="fs">
@@ -772,12 +781,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fs-title">施設情報</div>
         <div class="fr"><label>管理形態</label><select id="lb-mgmt" onchange="toggleMgmt('lb')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
         <div class="fr"><label>管理会社 <a href="#" onclick="openCoInfo(document.getElementById('lb-company').value);return false" style="font-size:10px;font-weight:700;color:var(--navy);margin-left:6px;">管理会社の設定 ›</a></label><select id="lb-company"></select></div>
-        <div class="fr"><label>施設名 *</label><input id="lb-name" placeholder="施設名"/></div>
-        <div class="fr"><label>所在地</label><input id="lb-addr" placeholder="所在地"/></div>
-        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="lb-staff" placeholder="自社の担当者名"/></div>
+        <div class="fr"><label>施設名 *</label><input id="lb-name"/></div>
+        <div class="fr"><label>所在地</label><input id="lb-addr"/></div>
+        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="lb-staff"/></div>
         <div class="fg">
-          <div class="fr"><label>構造</label><input id="lb-struct" placeholder="構造"/></div>
-          <div class="fr"><label>築年月</label><input id="lb-built" placeholder="築年月"/></div>
+          <div class="fr"><label>構造</label><input id="lb-struct"/></div>
+          <div class="fr"><label>築年月</label><input id="lb-built"/></div>
         </div>
       </div>
       <div class="fs" id="lb-sec-owner">
@@ -805,22 +814,22 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="days-auto" id="lb-days-display"></div>
         <div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴</label><div id="lb-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('lb')">＋ 更新を記録</button></div>
-        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="lb-scope" placeholder="業務範囲"/></div>
+        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="lb-scope"/></div>
         <div class="fg">
           <div class="fr"><label>自動更新</label><select id="lb-auto-renew"><option value="">未設定</option><option>有</option><option>無</option></select></div>
-          <div class="fr"><label>解約予告</label><input id="lb-notice" placeholder="解約予告"/></div>
+          <div class="fr"><label>解約予告</label><input id="lb-notice"/></div>
         </div>
         <div class="fg"><div class="fr"><label>管理委託の状況</label><select id="lb-consign-status"><option value="">管理中</option><option value="ended">管理委託終了</option></select></div><div class="fr"><label>終了日</label><input id="lb-ended-date" type="date"/></div></div>
-        <div class="fr"><label>終了の理由・備考</label><input id="lb-ended-note" placeholder="終了の理由・備考"/></div>
+        <div class="fr"><label>終了の理由・備考</label><input id="lb-ended-note"/></div>
       </div>
       <div class="fs" id="lb-sec-fee">
         <div class="fs-title">管理料・精算</div>
-        <div class="fr"><label>振込先口座</label><input id="lb-owner-bank" placeholder="振込先口座"/></div>
+        <div class="fr"><label>振込先口座</label><input id="lb-owner-bank"/></div>
         <div class="fg">
-          <div class="fr"><label>管理料</label><input id="lb-fee" placeholder="管理料"/></div>
+          <div class="fr"><label>管理料</label><input id="lb-fee"/></div>
           <div class="fr"><label>管理料の課税</label><select id="lb-fee-tax"><option value="">未設定</option><option>税込</option><option>税別</option></select></div>
         </div>
-        <div class="fr"><label>売上の精算方法</label><input id="lb-settle" placeholder="売上の精算方法"/></div>
+        <div class="fr"><label>売上の精算方法</label><input id="lb-settle"/></div>
         <div class="fr"><label>備考</label><textarea id="lb-memo" placeholder="1行1項目で入力"></textarea></div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
           <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳より）　<a href="#" onclick="goLedgerFromLb();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
@@ -853,14 +862,14 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div id="lb-lic-fields">
           <div class="fr"><label>種別</label><select id="lb-lic-type"></select></div>
           <div class="fg">
-            <div class="fr"><label>許可・届出・認定番号</label><input id="lb-lic-no" placeholder="許可・届出・認定番号"/></div>
-            <div class="fr"><label>届出先（保健所など）</label><input id="lb-lic-office" placeholder="届出先"/></div>
+            <div class="fr"><label>許可・届出・認定番号</label><input id="lb-lic-no"/></div>
+            <div class="fr"><label>届出先（保健所など）</label><input id="lb-lic-office"/></div>
           </div>
           <div class="fg">
             <div class="fr"><label>取得日・届出日</label><input id="lb-lic-date" type="date"/></div>
             <div class="fr"><label>有効期限・更新期限</label><input id="lb-lic-exp" type="date"/></div>
           </div>
-          <div class="fr"><label>免許に関する備考</label><input id="lb-lic-note" placeholder="免許に関する備考"/></div>
+          <div class="fr"><label>免許に関する備考</label><input id="lb-lic-note"/></div>
         </div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
           <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">保健所とのやり取り（施設全体）</div>
@@ -870,7 +879,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス（共用部）</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">共用部のメーター（複数可）</div>
         <div id="lb-util"></div>
       </div>
       <div class="fs">
@@ -894,28 +902,28 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">区画情報</div>
         <div class="fg">
-          <div class="fr"><label>区画名 *</label><input id="lu-name" placeholder="区画名"/></div>
+          <div class="fr"><label>区画名 *</label><input id="lu-name"/></div>
           <div class="fr"><label>営業状況</label><select id="lu-status"></select></div>
         </div>
         <div class="fg">
-          <div class="fr"><label>面積</label><input id="lu-size" placeholder="面積"/></div>
+          <div class="fr"><label>面積</label><input id="lu-size"/></div>
           <div class="fr"><label>定員（名）</label><input id="lu-cap" type="number" placeholder="4"/></div>
         </div>
-        <div class="fr"><label>間取り・タイプ</label><input id="lu-use" placeholder="間取り・タイプ"/></div>
+        <div class="fr"><label>間取り・タイプ</label><input id="lu-use"/></div>
       </div>
       <div class="fs" style="display:none;" id="lu-lic-bnote"><div style="font-size:11px;color:var(--sub);">1棟の免許です。免許・届出は施設の編集画面で入力します。</div></div>
       <div class="fs" id="lu-sec-lic">
         <div class="fs-title">免許・届出</div>
         <div class="fr"><label>種別</label><select id="lu-lic-type"></select></div>
         <div class="fg">
-          <div class="fr"><label>許可・届出・認定番号</label><input id="lu-lic-no" placeholder="許可・届出・認定番号"/></div>
-          <div class="fr"><label>届出先（保健所など）</label><input id="lu-lic-office" placeholder="届出先"/></div>
+          <div class="fr"><label>許可・届出・認定番号</label><input id="lu-lic-no"/></div>
+          <div class="fr"><label>届出先（保健所など）</label><input id="lu-lic-office"/></div>
         </div>
         <div class="fg">
           <div class="fr"><label>取得日・届出日</label><input id="lu-lic-date" type="date"/></div>
           <div class="fr"><label>有効期限・更新期限</label><input id="lu-lic-exp" type="date"/></div>
         </div>
-        <div class="fr"><label>免許に関する備考</label><input id="lu-lic-note" placeholder="免許に関する備考"/></div>
+        <div class="fr"><label>免許に関する備考</label><input id="lu-lic-note"/></div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
           <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">保健所とのやり取り（この区分）</div>
           <button type="button" class="btn btn-sm btn-navy" style="margin-bottom:8px;" onclick="addLogL('luh')">＋ やり取りを記録</button>
@@ -924,7 +932,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分のメーター（複数可）</div>
         <div id="lu-util"></div>
       </div>
       <div class="fs">
@@ -967,7 +974,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>出金（円）</label><input id="lgm-out" type="number" min="0"/></div>
           <div class="fr"><label>自社収益（円）</label><input id="lgm-fee" type="number" min="0"/></div>
         </div>
-        <div class="fr" style="margin-top:8px;"><label>摘要</label><input id="lgm-memo" placeholder="摘要"/></div>
+        <div class="fr" style="margin-top:8px;"><label>摘要</label><input id="lgm-memo"/></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -989,11 +996,11 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div style="font-size:11px;color:var(--sub);margin:8px 0 6px;">CSVを選ぶか、項目名の行から貼り付けます。取り込み済みは自動で除きます。</div>
         <div style="margin-bottom:6px;"><label style="font-size:12px;font-weight:700;">CSVファイルを選ぶ（Shift-JISも可）　<input type="file" accept=".csv,.txt,.tsv" onchange="dpiFile(event)"/></label></div><textarea id="dpi-text" rows="5" placeholder="ここに貼り付け（日付・入金・摘要 などの項目名の行から）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
         <div class="fr" style="margin-top:8px;"><label>銀行テンプレ</label><select id="dpi-tpl" onchange="dpiTplPick()"></select></div>
-        <div class="fg"><div class="fr"><label>銀行の勘定科目（弥生用）</label><input id="dpi-acct" placeholder="普通預金"/></div><div class="fr"><label>銀行の補助科目（弥生用）</label><input id="dpi-sub" placeholder="銀行の補助科目"/></div></div>
+        <div class="fg"><div class="fr"><label>銀行の勘定科目（弥生用）</label><input id="dpi-acct" placeholder="普通預金"/></div><div class="fr"><label>銀行の補助科目（弥生用）</label><input id="dpi-sub"/></div></div>
         <details id="dpi-cols" style="margin-top:8px;font-size:12px;"><summary style="cursor:pointer;">列を指定する</summary>
-          <div class="fg" style="margin-top:6px;grid-template-columns:1fr 1fr 1fr;"><div class="fr"><label>日付の列（番号）</label><input id="dpi-c-date" type="number" min="1" placeholder="日付の列"/></div><div class="fr"><label>入金額の列（番号）</label><input id="dpi-c-in" type="number" min="1" placeholder="入金額の列"/></div><div class="fr"><label>出金額の列（番号）</label><input id="dpi-c-out" type="number" min="1" placeholder="出金額の列"/></div></div>
+          <div class="fg" style="margin-top:6px;grid-template-columns:1fr 1fr 1fr;"><div class="fr"><label>日付の列（番号）</label><input id="dpi-c-date" type="number" min="1"/></div><div class="fr"><label>入金額の列（番号）</label><input id="dpi-c-in" type="number" min="1"/></div><div class="fr"><label>出金額の列（番号）</label><input id="dpi-c-out" type="number" min="1"/></div></div>
           <div class="fr"><label>名義・摘要の列（複数はカンマ区切り）</label><input id="dpi-c-memo" placeholder="振込人名義・摘要の列"/></div>
-          <div class="fg" style="align-items:end;"><div class="fr"><label>テンプレ名（同じ名前なら上書き）</label><input id="dpi-tpl-name" placeholder="テンプレ名"/></div><div class="fr" style="display:flex;gap:6px;"><button type="button" class="btn btn-sm btn-navy" onclick="dpiTplSave()">テンプレとして保存</button><button type="button" class="btn btn-sm btn-red" onclick="dpiTplDel()">削除</button></div></div>
+          <div class="fg" style="align-items:end;"><div class="fr"><label>テンプレ名（同じ名前なら上書き）</label><input id="dpi-tpl-name"/></div><div class="fr" style="display:flex;gap:6px;"><button type="button" class="btn btn-sm btn-navy" onclick="dpiTplSave()">テンプレとして保存</button><button type="button" class="btn btn-sm btn-red" onclick="dpiTplDel()">削除</button></div></div>
         </details>
         <div style="margin-top:8px;"><button class="btn btn-navy" onclick="dpiRead()">読み取る</button></div>
       </div>
@@ -1034,16 +1041,16 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="modal-body">
       <div class="fs">
         <div class="fr"><label>管理会社（選んで編集／新しい会社を追加）</label><select id="co-sel" onchange="coInfoLoad()"></select></div>
-        <div class="fr" id="co-code-wrap" style="display:none;"><label>略称 *（建物の管理会社に表示されます。12文字以内）</label><input id="co-code" placeholder="略称"/></div>
-        <div class="fr"><label>会社名 *</label><input id="co-name" placeholder="会社名"/></div>
+        <div class="fr" id="co-code-wrap" style="display:none;"><label>略称 *（建物の管理会社に表示されます。12文字以内）</label><input id="co-code"/></div>
+        <div class="fr"><label>会社名 *</label><input id="co-name"/></div>
         <div class="fg">
-          <div class="fr"><label>郵便番号</label><input id="co-zip" placeholder="郵便番号"/></div>
+          <div class="fr"><label>郵便番号</label><input id="co-zip"/></div>
           <div class="fr"></div>
         </div>
-        <div class="fr"><label>住所</label><input id="co-addr" placeholder="住所"/></div>
+        <div class="fr"><label>住所</label><input id="co-addr"/></div>
         <div class="fg">
-          <div class="fr"><label>電話番号</label><input id="co-tel" placeholder="電話番号"/></div>
-          <div class="fr"><label>FAX</label><input id="co-fax" placeholder="FAX"/></div>
+          <div class="fr"><label>電話番号</label><input id="co-tel"/></div>
+          <div class="fr"><label>FAX</label><input id="co-fax"/></div>
         </div>
         <div style="font-size:10px;color:var(--sub);margin-top:8px;">使われていない追加会社は削除できます（LDY・MKを除く）。</div>
         <div id="co-ro" style="display:none;font-size:11px;color:#C62828;margin-top:8px;">変更できるのは管理者だけです（表示のみ）。</div>
@@ -1067,19 +1074,19 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">精算の時期（オーナーごと）</div>
         <div class="fr"><label>精算の周期</label><select id="lgs-cycle"><option value="">未設定</option><option value="monthly">毎月</option><option value="quarterly">四半期ごと</option><option value="semi">半年ごと</option><option value="annual">年1回</option><option value="adhoc">随時（オーナーによる）</option></select></div>
-        <div class="fr"><label>精算・送金のルール（メモ）</label><input id="lgs-note" placeholder="精算・送金のルール"/></div>
+        <div class="fr"><label>精算・送金のルール（メモ）</label><input id="lgs-note"/></div>
       </div>
       <div class="fs">
         <div class="fs-title">振込手数料（オーナーへの送金時）</div>
-        <div class="fr"><label>振込手数料（円）</label><input id="lgs-xfer" type="number" min="0" placeholder="振込手数料"/></div>
+        <div class="fr"><label>振込手数料（円）</label><input id="lgs-xfer" type="number" min="0"/></div>
         <div style="font-size:10px;color:var(--sub);margin-top:6px;">送金額から差し引きます。空欄か0なら差し引きません。</div>
       </div>
       <div class="fs">
         <div class="fs-title">管理料の自動計算（精算時の目安）</div>
         <div class="fr"><label>計算方法</label><select id="lgs-feecalc"><option value="manual">自動計算しない（精算時に手入力）</option><option value="rate">入金額に対する割合（%）</option><option value="fixed">定額</option></select></div>
         <div class="fg">
-          <div class="fr"><label>割合（%）</label><input id="lgs-rate" type="number" step="0.1" placeholder="割合"/></div>
-          <div class="fr"><label>定額（円）</label><input id="lgs-fixed" type="number" placeholder="定額"/></div>
+          <div class="fr"><label>割合（%）</label><input id="lgs-rate" type="number" step="0.1"/></div>
+          <div class="fr"><label>定額（円）</label><input id="lgs-fixed" type="number"/></div>
         </div>
         <div class="fg">
           <div class="fr"><label>割合の計算の対象</label><select id="lgs-base"><option value="rent">家賃の入金だけ</option><option value="rent_kanri">家賃＋管理費・共益費の入金</option></select></div>
@@ -1119,7 +1126,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">計算結果</div>
         <table class="lg-sum" style="width:100%;border-collapse:collapse;" id="lst-sum"></table>
-        <div class="fr" style="margin-top:10px;"><label>備考（送金明細書に載ります）</label><input id="lst-memo" placeholder="備考"/></div>
+        <div class="fr" style="margin-top:10px;"><label>備考（送金明細書に載ります）</label><input id="lst-memo"/></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -1171,10 +1178,10 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">連番でまとめて追加</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;align-items:end;">
-          <div class="fr"><label>頭に付ける文字</label><input id="rbk-prefix" placeholder="頭に付ける文字"/></div>
+          <div class="fr"><label>頭に付ける文字</label><input id="rbk-prefix"/></div>
           <div class="fr"><label>開始番号</label><input id="rbk-start" type="number" value="101"/></div>
           <div class="fr"><label>個数</label><input id="rbk-count" type="number" value="5" min="1" max="100"/></div>
-          <div class="fr"><label>後ろに付ける文字</label><input id="rbk-suffix" placeholder="後ろに付ける文字"/></div>
+          <div class="fr"><label>後ろに付ける文字</label><input id="rbk-suffix"/></div>
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genRBulkRows()">表に追加</button>
         </div>
         <div class="fr"><label>既存の区分をコピーして追加する場合、コピー元を選択（任意）</label><select id="rbk-tpl"></select></div>
@@ -1218,10 +1225,10 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">連番でまとめて追加</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;align-items:end;">
-          <div class="fr"><label>頭に付ける文字</label><input id="lbk-prefix" placeholder="頭に付ける文字"/></div>
+          <div class="fr"><label>頭に付ける文字</label><input id="lbk-prefix"/></div>
           <div class="fr"><label>開始番号</label><input id="lbk-start" type="number" value="101"/></div>
           <div class="fr"><label>個数</label><input id="lbk-count" type="number" value="5" min="1" max="100"/></div>
-          <div class="fr"><label>後ろに付ける文字</label><input id="lbk-suffix" placeholder="後ろに付ける文字"/></div>
+          <div class="fr"><label>後ろに付ける文字</label><input id="lbk-suffix"/></div>
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genBulkRows()">表に追加</button>
         </div>
         <div class="days-auto" id="lbk-preview">連番で区画名を作ります。</div>
@@ -1230,9 +1237,9 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fs-title">全行にまとめて反映（入力した項目だけ）</div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr) auto;gap:10px;align-items:end;">
           <div class="fr"><label>営業状況</label><select id="lbk-all-status"></select></div>
-          <div class="fr"><label>面積</label><input id="lbk-all-size" placeholder="面積"/></div>
+          <div class="fr"><label>面積</label><input id="lbk-all-size"/></div>
           <div class="fr"><label>定員（名）</label><input id="lbk-all-cap" type="number"/></div>
-          <div class="fr"><label>間取り・タイプ</label><input id="lbk-all-use" placeholder="間取り・タイプ"/></div>
+          <div class="fr"><label>間取り・タイプ</label><input id="lbk-all-use"/></div>
           <div class="fr" id="lbk-all-lic-wrap"><label>免許種別</label><select id="lbk-all-lic"></select></div>
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="applyAllBulk()">全行に反映</button>
         </div>
@@ -1501,7 +1508,7 @@ function renderUtil(sc){
     const s=utilState[sc][t],id=sc+'-'+t;
     return '<div class="util-box ll-drop" id="'+id+'-box">'+
       '<div class="util-title">'+l+'</div>'+
-      (t!=='water'?'<div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(s.customerNo)+'" placeholder="お客様番号" oninput="setUtilCust(\''+sc+'\',\''+t+'\',this.value)"/></div>':'')+
+      (t!=='water'?'<div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(s.customerNo)+'" oninput="setUtilCust(\''+sc+'\',\''+t+'\',this.value)"/></div>':'')+
       '<div id="'+id+'-meters"></div>'+
       '<button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="addMeter(\''+sc+'\',\''+t+'\')">＋ メーターを追加</button>'+
       '<div style="margin-top:8px;">'+
@@ -1534,7 +1541,7 @@ function renderMeters(sc,t){
   const ph=(sc==='b'||sc==='lb')?'':'';
   el.innerHTML=utilState[sc][t].meters.map((m,i)=>{
     const a="'"+sc+"','"+t+"',"+i;
-    const custNo=t==='water'?'<div class="fg"><div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(m.customerNo||'')+'" placeholder="お客様番号" oninput="updateMeter('+a+',\'customerNo\',this.value)"/></div><div class="fr"></div></div>':'';
+    const custNo=t==='water'?'<div class="fg"><div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(m.customerNo||'')+'" oninput="updateMeter('+a+',\'customerNo\',this.value)"/></div><div class="fr"></div></div>':'';
     return '<div class="meter-block">'+
       '<div class="meter-head"><span class="meter-lbl">メーター '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeMeter('+a+')">削除</button></div>'+
       '<div class="fg">'+
@@ -1670,7 +1677,7 @@ function renderRentHistory(){
         '<div class="fr"><label>'+(i===0?'契約日':'改定日')+'</label><input type="date" value="'+esc(r.date||'')+'" oninput="updateRentHistory('+i+',\'date\',this.value)"/></div>'+
         '<div class="fr"><label>'+(i===0?'契約時の賃料（円）':'改定後の賃料（円）')+'</label><input type="number" value="'+esc(r.rent||'')+'" oninput="updateRentHistory('+i+',\'rent\',this.value)"/></div>'+
       '</div>'+
-      '<div class="fr"><label>備考</label><input value="'+esc(r.note||'')+'" placeholder="備考" oninput="updateRentHistory('+i+',\'note\',this.value)"/></div>'+
+      '<div class="fr"><label>備考</label><input value="'+esc(r.note||'')+'" oninput="updateRentHistory('+i+',\'note\',this.value)"/></div>'+
     '</div>'
   ).join('');
   updateCurrentRentDisplay();
@@ -1690,9 +1697,9 @@ function renderContactLog(){
       '<div class="fg">'+
         '<div class="fr"><label>日付</label><input type="date" value="'+esc(c.date||'')+'" oninput="updateContactLog('+i+',\'date\',this.value)"/></div>'+
         '<div class="fr"><label>時間</label><input type="time" value="'+esc(c.time||'')+'" oninput="updateContactLog('+i+',\'time\',this.value)"/></div>'+
-        '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="方法" oninput="updateContactLog('+i+',\'method\',this.value)"/></div>'+
+        '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" oninput="updateContactLog('+i+',\'method\',this.value)"/></div>'+
       '</div>'+
-      '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="内容" oninput="updateContactLog('+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
+      '<div class="fr"><label>内容</label><textarea style="height:50px;" oninput="updateContactLog('+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
     '</div>'
   ).join('');
 }
@@ -1799,14 +1806,14 @@ function renderEquipBlocks(){
         '<button type="button" class="btn btn-sm btn-red" onclick="removeEquip('+i+')">削除</button>'+
       '</div>'+
       '<div class="fg">'+
-        '<div class="fr"><label>設備名</label><input value="'+esc(e.name||'')+'" placeholder="設備名" oninput="updateEquip('+i+',\'name\',this.value)"/></div>'+
-        '<div class="fr"><label>点検周期</label><input value="'+esc(e.cycle||'')+'" placeholder="点検周期" oninput="updateEquip('+i+',\'cycle\',this.value)"/></div>'+
+        '<div class="fr"><label>設備名</label><input value="'+esc(e.name||'')+'" oninput="updateEquip('+i+',\'name\',this.value)"/></div>'+
+        '<div class="fr"><label>点検周期</label><input value="'+esc(e.cycle||'')+'" oninput="updateEquip('+i+',\'cycle\',this.value)"/></div>'+
       '</div>'+
       '<div class="fg">'+
         '<div class="fr"><label>前回点検日</label><input type="date" value="'+esc(e.lastDate||'')+'" oninput="updateEquip('+i+',\'lastDate\',this.value)"/></div>'+
         '<div class="fr"><label>次回点検予定日</label><input type="date" value="'+esc(e.nextDate||'')+'" oninput="updateEquip('+i+',\'nextDate\',this.value)"/></div>'+
       '</div>'+
-      '<div class="fr"><label>点検業者</label><input value="'+esc(e.vendor||'')+'" placeholder="点検業者" oninput="updateEquip('+i+',\'vendor\',this.value)"/></div>'+
+      '<div class="fr"><label>点検業者</label><input value="'+esc(e.vendor||'')+'" oninput="updateEquip('+i+',\'vendor\',this.value)"/></div>'+
       '<div class="fr"><label>備考</label><input value="'+esc(e.note||'')+'" oninput="updateEquip('+i+',\'note\',this.value)"/></div>'+
     '</div>'
   ).join('');
@@ -2165,6 +2172,14 @@ function unitHtml(u){
         '</div>'+
       '</div>'+
       '<div class="unit-sub">'+
+        '<div class="unit-sub-t">火災保険（賃借人加入）</div>'+
+        '<div class="kn-grid">'+
+          '<div class="kn-row"><span class="kn-lbl">加入状況</span><span class="kn-val">'+esc(u.kasaiStatus||'—')+'</span></div>'+
+          '<div class="kn-row"><span class="kn-lbl">保険会社</span><span class="kn-val">'+esc(u.kasaiCompany||'—')+'</span></div>'+
+          '<div class="kn-row full"><span class="kn-lbl">保険期間</span><span class="kn-val">'+(esc(u.kasaiStart||'—')+' 〜 '+esc(u.kasaiEnd||'—'))+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="unit-sub">'+
         '<div class="unit-sub-t">賃料・一時金</div>'+
         '<div class="kn-grid" style="grid-template-columns:1fr 1fr;">'+
           '<div class="kn-row"><span class="kn-lbl">賃料</span><span class="kn-val">'+yen(u.rent)+'</span></div>'+
@@ -2178,14 +2193,6 @@ function unitHtml(u){
         '</div>'+
         ((u.rentHistory&&u.rentHistory.length)?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">改定履歴：'+u.rentHistory.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(r=>esc(r.date||'—')+' '+yen(r.rent)+(r.note?'('+esc(r.note)+')':'')).join('　→　')+'</div>':'')+
         unitPayMini(u)+
-      '</div>'+
-      '<div class="unit-sub">'+
-        '<div class="unit-sub-t">火災保険（賃借人加入）</div>'+
-        '<div class="kn-grid">'+
-          '<div class="kn-row"><span class="kn-lbl">加入状況</span><span class="kn-val">'+esc(u.kasaiStatus||'—')+'</span></div>'+
-          '<div class="kn-row"><span class="kn-lbl">保険会社</span><span class="kn-val">'+esc(u.kasaiCompany||'—')+'</span></div>'+
-          '<div class="kn-row full"><span class="kn-lbl">保険期間</span><span class="kn-val">'+(esc(u.kasaiStart||'—')+' 〜 '+esc(u.kasaiEnd||'—'))+'</span></div>'+
-        '</div>'+
       '</div>'+
       (u.hoshoName?'<div class="unit-sub" style="grid-column:1/-1;">'+
         '<div class="unit-sub-t">家賃債務保証</div>'+
@@ -2257,7 +2264,7 @@ function renderRenewals(sc){
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">更新 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeRenewal(\''+sc+'\','+i+')">削除</button></div>'+
       '<div class="fg"><div class="fr"><label>更新後 始期</label><input type="date" value="'+esc(r.start||'')+'" oninput="updateRenewal(\''+sc+'\','+i+',\'start\',this.value)"/></div>'+
       '<div class="fr"><label>更新後 終期</label><input type="date" value="'+esc(r.end||'')+'" oninput="updateRenewal(\''+sc+'\','+i+',\'end\',this.value)"/></div></div>'+
-      '<div class="fr"><label>備考（更新料・条件変更など）</label><input value="'+esc(r.note||'')+'" placeholder="備考" oninput="updateRenewal(\''+sc+'\','+i+',\'note\',this.value)"/></div>'+
+      '<div class="fr"><label>備考（更新料・条件変更など）</label><input value="'+esc(r.note||'')+'" oninput="updateRenewal(\''+sc+'\','+i+',\'note\',this.value)"/></div>'+
     '</div>'
   ).join('');
 }
@@ -2321,7 +2328,7 @@ function renderLogsL(sc){
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">記録 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeLogL(\''+sc+'\','+i+')">削除</button></div>'+
       '<div class="fg"><div class="fr"><label>日付</label><input type="date" value="'+esc(c.date||'')+'" oninput="updateLogL(\''+sc+'\','+i+',\'date\',this.value)"/></div>'+
       '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="'+mph+'" oninput="updateLogL(\''+sc+'\','+i+',\'method\',this.value)"/></div></div>'+
-      (hc?'<div class="fr"><label>相手（担当課・担当者）</label><input value="'+esc(c.who||'')+'" placeholder="相手" oninput="updateLogL(\''+sc+'\','+i+',\'who\',this.value)"/></div>':'')+
+      (hc?'<div class="fr"><label>相手（担当課・担当者）</label><input value="'+esc(c.who||'')+'" oninput="updateLogL(\''+sc+'\','+i+',\'who\',this.value)"/></div>':'')+
       '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="'+cph+'" oninput="updateLogL(\''+sc+'\','+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
     '</div>'
   ).join('');
@@ -3594,7 +3601,7 @@ function renderGz(){
   const box='border:1px solid #E3E7EF;border-radius:6px;padding:10px;margin-bottom:8px;';
   const gzHtml=gzDraft.map((g,i)=>
     '<div style="'+box+'"><div class="fg"><div class="fr"><label>保証会社名（区分の「保証会社名」と同じ名前）</label><input list="gz-names" value="'+esc(g.name)+'" '+dis+'oninput="gzSet('+i+',\'name\',this.value)"/></div>'+
-    '<div class="fr"><label>銀行の名義に含まれる文字（複数ならカンマ区切り）</label><input value="'+esc(g.keys.join(','))+'" placeholder="銀行の名義に含まれる文字" '+dis+'oninput="gzSet('+i+',\'keys\',this.value)"/></div></div>'+
+    '<div class="fr"><label>銀行の名義に含まれる文字（複数ならカンマ区切り）</label><input value="'+esc(g.keys.join(','))+'" '+dis+'oninput="gzSet('+i+',\'keys\',this.value)"/></div></div>'+
     '<label style="font-size:12px;"><input type="checkbox" '+(g.auto?'checked ':'')+dis+'onchange="gzSet('+i+',\'auto\',this.checked)"/> 契約中の全室の合計と入金額が一致したら、取り込み時に自動で振り分けを確定する</label>'+
     (ro?'':' <button class="btn btn-sm btn-red" style="float:right;" onclick="gzDel('+i+')">削除</button>')+'</div>').join('');
   const pyHtml=pyDraft.map((p,i)=>{
@@ -3602,7 +3609,7 @@ function renderGz(){
       ?'<option value="">建物を選択…</option>'+bl.map(b=>'<option value="'+b.id+'"'+(b.id===p.target?' selected':'')+'>'+esc((b.name||'')+(b.owner?'（'+b.owner+'）':''))+'</option>').join('')
       :'<option value="">区分を選択…</option>'+us.map(x=>'<option value="'+x.u.id+'"'+(x.u.id===p.target?' selected':'')+'>'+esc((x.b.name||'')+' ／ '+(x.u.name||'')+(x.u.tenant?'（'+x.u.tenant+'）':''))+'</option>').join('');
     return '<div style="'+box+'"><div class="fg"><div class="fr"><label>種類</label><select '+dis+'onchange="pySet('+i+',\'kind\',this.value)"><option value="tenant"'+(p.kind==='tenant'?' selected':'')+'>入居者（区分に振り分け）</option><option value="owner"'+(p.kind==='owner'?' selected':'')+'>オーナー（建物に振り分け）</option></select></div>'+
-      '<div class="fr"><label>銀行の名義に含まれる文字（カンマ区切り）</label><input value="'+esc(p.keys.join(','))+'" placeholder="銀行の名義に含まれる文字" '+dis+'oninput="pySet('+i+',\'keys\',this.value)"/></div></div>'+
+      '<div class="fr"><label>銀行の名義に含まれる文字（カンマ区切り）</label><input value="'+esc(p.keys.join(','))+'" '+dis+'oninput="pySet('+i+',\'keys\',this.value)"/></div></div>'+
       '<div class="fr"><label>振分け先</label><select '+dis+'onchange="pySet('+i+',\'target\',this.value)">'+opts+'</select></div>'+(ro?'':'<button class="btn btn-sm btn-red" onclick="pyDel('+i+')">削除</button>')+'</div>';
   }).join('');
   const sbl=rb.filter(b=>b.mgmtType!=='own'&&coOf(b)===co).sort(byName);
@@ -3905,6 +3912,23 @@ function unitTimeline(u){
   return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居・募集の履歴（古い順）</div>'+items.map((x,i)=>tlItem(x.kind,x.title,x.sub,x.body,i===items.length-1)).join('')+'</div>'+restHtml;
 }
 const unitExtraHtml=unitTimeline;
+
+// ===== 編集画面の右側ガイド（目次・現在位置） =====
+function buildNav(mid){
+  const body=document.getElementById(mid).querySelector('.modal-body');
+  const old=body.querySelector(':scope>.mnav');if(old)old.remove();
+  const secs=[...body.querySelectorAll(':scope>.fs')].filter(f=>f.offsetParent&&f.querySelector('.fs-title'));
+  if(secs.length<4){body.classList.remove('has-nav');body.onscroll=null;return;}
+  const nav=document.createElement('div');nav.className='mnav';
+  secs.forEach(f=>{const a=document.createElement('a');a.textContent=f.querySelector('.fs-title').textContent.replace(/[（(].*$/,'').trim();a.onclick=()=>body.scrollTo({top:f.offsetTop-6,behavior:'smooth'});nav.appendChild(a);f._a=a;});
+  body.insertBefore(nav,body.firstChild);body.classList.add('has-nav');
+  const spy=()=>{let cur=secs[0];secs.forEach(f=>{if(f.offsetTop-14<=body.scrollTop)cur=f;});secs.forEach(f=>f._a.classList.toggle('on',f===cur));};
+  body.onscroll=spy;body.scrollTop=0;spy();
+}
+['unit-modal','bld-modal','lb-modal','lu-modal'].forEach(id=>{
+  const bg=document.getElementById(id);
+  new MutationObserver(()=>{if(bg.classList.contains('open'))setTimeout(()=>buildNav(id),0);}).observe(bg,{attributes:true,attributeFilter:['class']});
+});
 
 // ===== 出納・精算 =====
 const LGC=[['rent','家賃入金','in'],['kanri','管理費・共益費入金','in'],['shiki','敷金入金','in'],['reikin','礼金・更新料入金','in'],['fire_in','火災保険料の入金（入居者から）','in'],['owner_in','オーナーからの入金','in'],['other_in','その他の入金','in'],['fire_out','火災保険料の支払','out'],['shiki_out','敷金の返還','out'],['guar_out','保証会社への支払','out'],['xfer_fee','振込手数料','mix'],['clean','クリーニング費','out'],['repair','修繕費','out'],['key','鍵交換費','out'],['other_out','その他の出金','out'],['mgmt_fee','管理料（業務委託料）','fee'],['office_fee','事務手数料・その他の自社収益','fee'],['owner_pay','オーナー送金','out'],['carry','繰越（開始時の残高）','in']];
