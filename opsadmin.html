@@ -244,6 +244,9 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 .lg-sum tr.big td{font-size:15px;color:var(--navy);border-bottom:2px solid var(--gold);}
 .lgt{padding:8px 18px;border:1px solid #ccd2e3;border-bottom:none;border-radius:8px 8px 0 0;background:#fff;font-size:13px;font-weight:700;color:#777;cursor:pointer;font-family:inherit;}
 .lgt.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.fold>summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--navy);padding:3px 0;}
+.fold[open]>summary{margin-bottom:8px;}
+.unit{padding:8px 12px;}.unit-head{margin-bottom:4px;}
 #rbk-xl-msg,#lbk-xl-msg{white-space:pre-wrap;max-height:220px;overflow:auto;line-height:1.6;}
 </style>
 </head>
@@ -255,7 +258,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="login-box">
       <div class="login-logo"><div class="login-lmark">LDY</div><div class="login-lsub">株式会社LDY</div></div>
       <div class="login-title">社員ログイン</div>
-      <div class="lf"><label>メールアドレス</label><input type="email" id="login-email" placeholder="example@ldy-house.com"/></div>
+      <div class="lf"><label>メールアドレス</label><input type="email" id="login-email" placeholder="メールアドレス"/></div>
       <div class="lf"><label>パスワード</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
       <button class="login-btn" onclick="doLogin()">ログイン</button>
       <div class="login-err" id="login-err"></div>
@@ -281,8 +284,8 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
     <div class="hdr-right"><span class="hdr-user" id="user-email"></span><button class="btn-logout" onclick="doLogout()">ログアウト</button></div>
   </div>
   <div class="recent-bar">
-    <div class="rb-head" onclick="toggleRecent()"><span id="rb-arrow">▼</span>入居者の契約更新期日（近い順）<span id="rb-count" style="font-weight:400;color:var(--sub);"></span><select id="rb-range" onclick="event.stopPropagation()" onchange="renderRecent()" style="margin-left:auto;font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;"><option value="all">すべて</option><option value="over">期限を過ぎたもの</option><option value="30">30日以内</option><option value="90">90日以内</option><option value="183">6ヶ月以内</option></select></div>
-    <div class="rb-scroll" id="recent-list"></div>
+    <div class="rb-head" onclick="toggleRecent()"><span id="rb-arrow">▶</span>入居者の契約更新期日（近い順）<span id="rb-count" style="font-weight:400;color:var(--sub);"></span><select id="rb-range" onclick="event.stopPropagation()" onchange="renderRecent()" style="margin-left:auto;font-size:11px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;background:#fff;"><option value="all">すべて</option><option value="over">期限を過ぎたもの</option><option value="30">30日以内</option><option value="90">90日以内</option><option value="183">6ヶ月以内</option></select></div>
+    <div class="rb-scroll" id="recent-list" style="display:none;"></div>
   </div>
   <div class="viewtabs"><button class="vt on" id="vt-rent" onclick="switchView('rent')">賃貸管理</button><button class="vt" id="vt-lodge" onclick="switchView('lodge')">旅館業・民泊</button><button class="vt" id="vt-ledger" onclick="switchView('ledger')">出納・精算</button><div id="co-filter" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 0;flex-wrap:wrap;"></div></div>
   <div id="view-rent">
@@ -345,7 +348,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
       <div class="toolbar">
         <input type="text" id="lg-q" placeholder="ビル名・オーナー名で検索..." oninput="renderLedger()"/>
-        <span style="font-size:11px;color:var(--sub);">オーナーから受託している物件が対象です（自社管理の物件は出ません）</span>
+        <span style="font-size:11px;color:var(--sub);">受託物件のみ（自社管理は対象外）</span>
       </div>
       <div style="padding:14px 20px;"><div class="lg-wrap" id="lg-ov-list"></div></div>
     </div>
@@ -354,7 +357,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <span id="dp-filter" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
         <span style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-navy btn-sm" onclick="openDpImp()">銀行の入出金データを取り込む</button><button class="btn btn-sm" onclick="openGzSet()">振分けの設定</button><button class="btn btn-sm btn-navy" onclick="openYj()">弥生用TXT出力</button></span>
       </div>
-      <div style="padding:8px 20px 0;font-size:11px;color:var(--sub);">保証会社・入居者・オーナーとの入出金を、区分や建物ごとに振り分けます（敷金・火災保険料・オーナー送金なども選べます）。確定すると、それぞれのオーナーの台帳に明細が追加されます。確定後も編集・取り消しができます。</div>
+      <div style="padding:8px 20px 0;font-size:11px;color:var(--sub);">入出金を区分・建物ごとに振り分けます。確定すると台帳に反映されます（確定後も編集・取消できます）。</div>
       <div style="padding:10px 20px 14px;" id="dp-list"></div>
     </div>
     <div id="lg-chk" style="display:none;">
@@ -368,7 +371,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="toolbar">
         <label style="font-size:12px;font-weight:700;">対象月 <input type="month" id="chk-m" onchange="renderChk()"/></label>
         <select id="chk-f" onchange="renderChk()"><option value="">すべての部屋</option><option value="ng">問題のある部屋だけ</option></select>
-        <span style="font-size:11px;color:var(--sub);">契約中の区分の「賃料＋共益費」の想定額と、台帳の入金（家賃・共益費）を、対象月ごとに突き合わせます。行を押すと台帳が開きます</span><span id="chk-ex" style="font-size:11px;color:#6A1B9A;margin-left:8px;"></span>
+        <span style="font-size:11px;color:var(--sub);">賃料＋共益費の想定額と入金を月ごとに照合。行で台帳を開きます</span><span id="chk-ex" style="font-size:11px;color:#6A1B9A;margin-left:8px;"></span>
       </div>
       <div style="padding:14px 20px;"><div class="lg-wrap" id="chk-list"></div></div>
     </div>
@@ -410,24 +413,24 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">関連付け（任意）</div>
         <div class="fr">
-          <label>元は在庫物件（買取再販）だった場合、対象を選択</label>
+          <label>在庫物件との関連</label>
           <select id="b-linked-property" onchange="onLinkedPropertyChange()"><option value="">関連なし（管理委託のみ）</option></select>
         </div>
         <div class="hint" id="b-linked-property-hint"></div>
-        <div class="fr" style="margin-top:10px;"><label>旅館業・民泊の管理と同じ建物の場合、対象を選択</label><select id="b-linked-lodging"><option value="">関連なし</option></select></div>
+        <div class="fr" style="margin-top:10px;"><label>旅館業・民泊との関連</label><select id="b-linked-lodging"><option value="">関連なし</option></select></div>
       </div>
 
       <div class="fs">
         <div class="fs-title">建物情報</div>
         <div class="fr"><label>管理形態</label><select id="b-mgmt" onchange="toggleMgmt('b')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
         <div class="fr"><label>管理会社 <a href="#" onclick="openCoInfo(document.getElementById('b-company').value);return false" style="font-size:10px;font-weight:700;color:var(--navy);margin-left:6px;">管理会社の設定 ›</a></label><select id="b-company"></select></div>
-        <div class="fr"><label>ビル名 *</label><input id="b-name" placeholder="例：太平1丁目ビル"/></div>
-        <div class="fr"><label>所在地</label><input id="b-addr" placeholder="例：江東区扇橋3丁目1-4"/></div>
-        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="b-staff" placeholder="例：山田"/></div>
-        <div class="fg"><div class="fr"><label>管理組合 名称</label><input id="b-kumiai-name" placeholder="例：○○マンション管理組合"/></div><div class="fr"><label>管理組合 電話番号</label><input id="b-kumiai-tel"/></div></div>
+        <div class="fr"><label>ビル名 *</label><input id="b-name" placeholder="ビル名"/></div>
+        <div class="fr"><label>所在地</label><input id="b-addr" placeholder="所在地"/></div>
+        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="b-staff" placeholder="自社の担当者名"/></div>
+        <div class="fg"><div class="fr"><label>管理組合 名称</label><input id="b-kumiai-name" placeholder="管理組合 名称"/></div><div class="fr"><label>管理組合 電話番号</label><input id="b-kumiai-tel"/></div></div>
         <div class="fg">
-          <div class="fr"><label>構造</label><input id="b-struct" placeholder="例：RC造5階建"/></div>
-          <div class="fr"><label>築年月</label><input id="b-built" placeholder="例：1990年12月"/></div>
+          <div class="fr"><label>構造</label><input id="b-struct" placeholder="構造"/></div>
+          <div class="fr"><label>築年月</label><input id="b-built" placeholder="築年月"/></div>
         </div>
       </div>
 
@@ -437,8 +440,8 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <select id="b-owner-type" onchange="toggleOwnerType()"><option>個人</option><option>法人</option></select>
         </div>
         <div class="fg">
-          <div class="fr"><label id="b-owner-name-lbl">所有者名</label><input id="b-owner" placeholder="例：山田 太郎"/></div>
-          <div class="fr"><label id="b-owner-kana-lbl">フリガナ</label><input id="b-owner-kana" placeholder="例：ヤマダ タロウ"/></div>
+          <div class="fr"><label id="b-owner-name-lbl">所有者名</label><input id="b-owner" placeholder="所有者名"/></div>
+          <div class="fr"><label id="b-owner-kana-lbl">フリガナ</label><input id="b-owner-kana" placeholder="フリガナ"/></div>
         </div>
         <div class="fr"><label>住所</label><input id="b-owner-addr"/></div>
         <div class="fg">
@@ -448,7 +451,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div id="b-owner-contact-wrap" style="display:none;">
           <div style="font-size:9px;font-weight:700;color:var(--teal);letter-spacing:1px;margin:10px 0 6px;padding-top:8px;border-top:1px dashed var(--border);">ご担当者（法人の場合）</div>
           <div class="fg">
-            <div class="fr"><label>担当者名</label><input id="b-owner-contact" placeholder="例：営業部 佐藤"/></div>
+            <div class="fr"><label>担当者名</label><input id="b-owner-contact" placeholder="担当者名"/></div>
             <div class="fr"><label>担当者電話番号</label><input id="b-owner-contact-tel"/></div>
           </div>
         </div>
@@ -460,23 +463,23 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>初回契約 始期</label><input id="b-start" type="date"/></div>
           <div class="fr"><label>初回契約 終期</label><input id="b-end" type="date"/></div>
         </div>
-        <div class="days-auto" id="b-days-display"></div><div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴（更新のたびに、更新後の期間を追加）</label><div id="b-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('b')">＋ 更新を記録</button></div>
-        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="b-scope" placeholder="例：集金代行・入居者対応・清掃手配"/></div>
+        <div class="days-auto" id="b-days-display"></div><div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴</label><div id="b-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('b')">＋ 更新を記録</button></div>
+        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="b-scope" placeholder="業務範囲"/></div>
         <div class="fg">
           <div class="fr"><label>自動更新</label>
             <select id="b-auto-renew"><option value="">未設定</option><option>有</option><option>無</option></select>
           </div>
-          <div class="fr"><label>解約予告</label><input id="b-notice" placeholder="例：3ヶ月前"/></div>
+          <div class="fr"><label>解約予告</label><input id="b-notice" placeholder="解約予告"/></div>
         </div>
         <div class="fg"><div class="fr"><label>管理委託の状況</label><select id="b-consign-status"><option value="">管理中</option><option value="ended">管理委託終了</option></select></div><div class="fr"><label>終了日</label><input id="b-ended-date" type="date"/></div></div>
-        <div class="fr"><label>終了の理由・備考</label><input id="b-ended-note" placeholder="例：オーナーが売却／解約"/></div>
+        <div class="fr"><label>終了の理由・備考</label><input id="b-ended-note" placeholder="終了の理由・備考"/></div>
       </div>
 
       <div class="fs" id="b-sec-fee">
         <div class="fs-title">管理料・資金フロー</div>
-        <div class="fr"><label>振込先口座</label><input id="b-owner-bank" placeholder="例：○○銀行 ○○支店 普通 1234567"/></div>
+        <div class="fr"><label>振込先口座</label><input id="b-owner-bank" placeholder="振込先口座"/></div>
         <div class="fg">
-          <div class="fr"><label>管理料</label><input id="b-fee" placeholder="例：賃料の5%／月額22,000円"/></div>
+          <div class="fr"><label>管理料</label><input id="b-fee" placeholder="管理料"/></div>
           <div class="fr"><label>管理料の課税</label>
             <select id="b-fee-tax"><option value="">未設定</option><option>税込</option><option>税別</option></select>
           </div>
@@ -489,21 +492,21 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           </select>
         </div>
         <div class="fg" id="cashflow-remit-row" style="display:none;">
-          <div class="fr"><label>送金日</label><input id="b-remit" placeholder="例：毎月末日までにオーナーへ送金"/></div>
+          <div class="fr"><label>送金日</label><input id="b-remit" placeholder="送金日"/></div>
           <div class="fr"></div>
         </div>
         <div class="fg" id="cashflow-invoice-row" style="display:none;">
-          <div class="fr"><label>請求頻度</label><input id="b-invoice-freq" placeholder="例：毎月／四半期ごと"/></div>
-          <div class="fr"><label>支払期限</label><input id="b-invoice-due" placeholder="例：請求書発行から14日以内"/></div>
+          <div class="fr"><label>請求頻度</label><input id="b-invoice-freq" placeholder="請求頻度"/></div>
+          <div class="fr"><label>支払期限</label><input id="b-invoice-due" placeholder="支払期限"/></div>
         </div>
         <div class="fr"><label>備考</label><textarea id="b-memo" placeholder="1行1項目で入力"></textarea></div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
-          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳から自動で表示します）　<a href="#" onclick="goLedgerFromBld();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳より）　<a href="#" onclick="goLedgerFromBld();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
           <div class="pay-year-nav">
             <button type="button" onclick="feePayYearMove(-1)">◀</button>
             <span class="pay-year-label" id="fee-pay-year-label"></span>
             <button type="button" onclick="feePayYearMove(1)">▶</button>
-            <span style="font-size:10px;color:var(--sub);">出納帳に「管理料」の明細がある月が「済」になります</span>
+            <span style="font-size:10px;color:var(--sub);"></span>
           </div>
           <div class="pay-grid" id="fee-pay-grid"></div>
         </div>
@@ -517,7 +520,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス（共用部）</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">ビルの共用部分で契約しているメーターを登録します（複数可）。各区分の分は、区分の編集画面で登録します。</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">共用部のメーター（複数可）</div>
         <div id="b-util"></div>
       </div>
 
@@ -542,12 +545,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">区画情報</div>
         <div class="fg">
-          <div class="fr"><label>区画名 *</label><input id="u-name" placeholder="例：1階／101号室"/></div>
-          <div class="fr"><label>契約面積</label><input id="u-size" placeholder="例：約52.92㎡"/></div>
+          <div class="fr"><label>区画名 *</label><input id="u-name" placeholder="区画名"/></div>
+          <div class="fr"><label>契約面積</label><input id="u-size" placeholder="契約面積"/></div>
         </div>
         <div class="fg">
-          <div class="fr"><label>用途（大分類）</label><input id="u-use1" placeholder="例：店舗"/></div>
-          <div class="fr"><label>用途（詳細）</label><input id="u-use2" placeholder="例：飲食店"/></div>
+          <div class="fr"><label>用途（大分類）</label><input id="u-use1" placeholder="用途"/></div>
+          <div class="fr"><label>用途（詳細）</label><input id="u-use2" placeholder="用途"/></div>
         </div>
       </div>
 
@@ -557,17 +560,17 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <select id="u-tenant-type" onchange="toggleTenantType()"><option>個人</option><option>法人</option></select>
         </div>
         <div class="fg">
-          <div class="fr"><label id="u-tenant-name-lbl">契約者名</label><input id="u-tenant" placeholder="例：金 英子"/></div>
-          <div class="fr"><label id="u-tenant-kana-lbl">フリガナ</label><input id="u-tenant-kana" placeholder="例：キム"/></div>
+          <div class="fr"><label id="u-tenant-name-lbl">契約者名</label><input id="u-tenant" placeholder="契約者名"/></div>
+          <div class="fr"><label id="u-tenant-kana-lbl">フリガナ</label><input id="u-tenant-kana" placeholder="フリガナ"/></div>
         </div>
         <div class="fg">
-          <div class="fr" id="u-nationality-row"><label>国籍</label><input id="u-nationality" placeholder="例：韓国"/></div>
-          <div class="fr"><label>電話番号</label><input id="u-tenant-tel" placeholder="例：03-5665-3503"/></div>
+          <div class="fr" id="u-nationality-row"><label>国籍</label><input id="u-nationality" placeholder="国籍"/></div>
+          <div class="fr"><label>電話番号</label><input id="u-tenant-tel" placeholder="電話番号"/></div>
         </div>
         <div id="u-tenant-contact-wrap" style="display:none;">
           <div style="font-size:9px;font-weight:700;color:var(--teal);letter-spacing:1px;margin:10px 0 6px;padding-top:8px;border-top:1px dashed var(--border);">ご担当者（法人の場合）</div>
           <div class="fg">
-            <div class="fr"><label>担当者名</label><input id="u-tenant-contact" placeholder="例：総務部 田中"/></div>
+            <div class="fr"><label>担当者名</label><input id="u-tenant-contact" placeholder="担当者名"/></div>
             <div class="fr"><label>担当者電話番号</label><input id="u-tenant-contact-tel"/></div>
           </div>
         </div>
@@ -587,33 +590,33 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>初回契約 始期</label><input id="u-start" type="date"/></div>
           <div class="fr"><label>初回契約 終期</label><input id="u-end" type="date"/></div>
         </div>
-        <div class="days-auto" id="u-days-display"></div><div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴（更新のたびに、更新後の期間を追加）</label><div id="u-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('u')">＋ 更新を記録</button></div>
+        <div class="days-auto" id="u-days-display"></div><div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴</label><div id="u-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('u')">＋ 更新を記録</button></div>
         <div class="fg" style="margin-top:8px;">
-          <div class="fr"><label>解約予告（貸主→借主）</label><input id="u-notice-lessor" placeholder="例：6ヶ月前"/></div>
-          <div class="fr"><label>解約予告（借主→貸主）</label><input id="u-notice-lessee" placeholder="例：3ヶ月前"/></div>
+          <div class="fr"><label>解約予告（貸主→借主）</label><input id="u-notice-lessor" placeholder="解約予告"/></div>
+          <div class="fr"><label>解約予告（借主→貸主）</label><input id="u-notice-lessee" placeholder="解約予告"/></div>
         </div>
-        <div class="fr"><label>予告方法</label><input id="u-notice-method" placeholder="例：書面"/></div>
+        <div class="fr"><label>予告方法</label><input id="u-notice-method" placeholder="予告方法"/></div>
       </div>
 
       <div class="fs">
         <div class="fs-title">賃料・一時金</div>
         <div class="fg">
-          <div class="fr"><label>賃料（月額・円）</label><input id="u-rent-in" type="number" placeholder="例：350000" oninput="onRentField(this.value)"/></div>
+          <div class="fr"><label>賃料（月額・円）</label><input id="u-rent-in" type="number" placeholder="賃料" oninput="onRentField(this.value)"/></div>
           <div class="fr"><label>管理費・共益費（月額・円）</label><input id="u-kanri" type="number" placeholder="0"/></div>
         </div>
         <div class="fg">
-          <div class="fr"><label>賃料の支払時期</label><input id="u-pay-timing" placeholder="例：翌月分を毎月27日までに支払う"/></div>
-          <div class="fr"><label>賃料の支払方法（オーナーに直接入る方法は、家賃の入金確認・振分けの対象外）</label><select id="u-pay-method"><option value="">未設定</option><option value="owner_direct">オーナー直接振込</option><option value="mgmt_direct">管理会社直接振込</option><option value="gz_owner">保証会社集金代行（オーナーに振込）</option><option value="gz_mgmt">保証会社集金代行（管理会社に振込）</option></select></div>
+          <div class="fr"><label>賃料の支払時期</label><input id="u-pay-timing" placeholder="賃料の支払時期"/></div>
+          <div class="fr"><label>賃料の支払方法（オーナー受取は入金確認の対象外）</label><select id="u-pay-method"><option value="">未設定</option><option value="owner_direct">オーナー直接振込</option><option value="mgmt_direct">管理会社直接振込</option><option value="gz_owner">保証会社集金代行（オーナーに振込）</option><option value="gz_mgmt">保証会社集金代行（管理会社に振込）</option></select></div>
         </div>
         <div>
-          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料改定履歴（上の「賃料」は、最新の履歴に連動します。値上げ・値下げの都度、日付つきで追加）</label>
+          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料改定履歴（最新が「賃料」に反映）</label>
           <input type="hidden" id="u-rent"/>
           <div class="days-auto" id="u-current-rent-display" style="margin-bottom:8px;"></div>
           <div id="rent-history-blocks"></div>
           <button type="button" class="btn btn-sm btn-navy" onclick="addRentHistory()">＋ 改定履歴を追加</button>
         </div>
         <div style="margin-top:10px;">
-          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料の入金状況（出納帳から自動で表示します。入力は「出納・精算」で行います）　<a href="#" onclick="goLedgerFromUnit();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></label>
+          <label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">賃料の入金状況（出納帳より）　<a href="#" onclick="goLedgerFromUnit();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></label>
           <div class="pay-year-nav">
             <button type="button" onclick="rentPayYearMove(-1)">◀</button>
             <span class="pay-year-label" id="rent-pay-year-label"></span>
@@ -623,7 +626,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fg" style="margin-top:10px;">
           <div class="fr"><label>敷金（円）</label><input id="u-shikikin" type="number" placeholder="660000"/></div>
-          <div class="fr"><label>敷金・備考</label><input id="u-shikikin-note" placeholder="例：賃料の3ヶ月"/></div>
+          <div class="fr"><label>敷金・備考</label><input id="u-shikikin-note" placeholder="敷金・備考"/></div>
         </div>
         <div class="fr"><label>敷金の保管者</label>
           <select id="u-shikikin-holder"><option value="">未設定</option><option>オーナー</option><option>自社（LDY）</option></select>
@@ -640,7 +643,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
             </div>
             <div class="fr"><label>更新事務手数料（円）</label><input id="u-koshin-tesuryo" type="number" placeholder="11000"/></div>
           </div>
-          <div class="fr"><label>更新料</label><input id="u-koshin-ryo" placeholder="例：新賃料の1ヶ月分"/></div>
+          <div class="fr"><label>更新料</label><input id="u-koshin-ryo" placeholder="更新料"/></div>
         </div>
       </div>
 
@@ -650,7 +653,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>加入状況</label>
             <select id="u-kasai-status"><option value="">未設定</option><option>未加入</option><option>加入済み</option></select>
           </div>
-          <div class="fr"><label>保険会社</label><input id="u-kasai-company" placeholder="例：○○損害保険"/></div>
+          <div class="fr"><label>保険会社</label><input id="u-kasai-company" placeholder="保険会社"/></div>
         </div>
         <div class="fg">
           <div class="fr"><label>保険期間 開始</label><input id="u-kasai-start" type="date"/></div>
@@ -661,19 +664,19 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">家賃債務保証会社</div>
         <div class="fg">
-          <div class="fr"><label>名称</label><input id="u-hosho-name" placeholder="例：株式会社Casa"/></div>
-          <div class="fr"><label>電話番号</label><input id="u-hosho-tel" placeholder="例：03-5339-1049"/></div>
+          <div class="fr"><label>名称</label><input id="u-hosho-name" placeholder="名称"/></div>
+          <div class="fr"><label>電話番号</label><input id="u-hosho-tel" placeholder="電話番号"/></div>
         </div>
-        <div class="fr"><label>所在地</label><input id="u-hosho-addr" placeholder="例：新宿区西新宿2-6-1 新宿住友ビル30階"/></div>
+        <div class="fr"><label>所在地</label><input id="u-hosho-addr" placeholder="所在地"/></div>
         <div class="fg">
           <div class="fr"><label>委託料（円）</label><input id="u-hosho-fee" type="number" placeholder="24200"/></div>
-          <div class="fr"><label>保証会社備考</label><input id="u-hosho-cycle" placeholder="例：更新時は委託料1万円／年1回"/></div>
+          <div class="fr"><label>保証会社備考</label><input id="u-hosho-cycle" placeholder="保証会社備考"/></div>
         </div>
       </div>
 
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分で契約しているメーターを登録します。1区分に複数ある場合は「メーターを追加」で増やしてください。</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分のメーター（複数可）</div>
         <div id="u-util"></div>
       </div>
 
@@ -693,12 +696,12 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           </div>
           <div class="days-auto" id="u-key-display"></div>
         </div>
-        <div class="fr"><label>鍵に関する備考</label><input id="u-key-note" placeholder="例：予備1本は事務所保管／入居中受託のため本数不明"/></div>
+        <div class="fr"><label>鍵に関する備考</label><input id="u-key-note" placeholder="鍵に関する備考"/></div>
       </div>
 
       <div class="fs">
         <div class="fs-title">入居者の募集・応募</div>
-        <div class="fr"><label>空室開始日（退去日）。次の入居（契約中＋契約始期）を保存すると、空室期間として記録されます</label><input id="u-vacant-since" type="date"/></div>
+        <div class="fr"><label>空室開始日（退去日）</label><input id="u-vacant-since" type="date"/></div>
         <button type="button" class="btn btn-sm btn-navy" style="margin-bottom:8px;" onclick="addApplicant()">＋ 応募を記録</button>
         <div id="applicant-blocks"></div>
       </div>
@@ -710,8 +713,8 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 
       <div class="fs">
         <div class="fs-title">その他</div>
-        <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">リフォーム履歴（入居者が変わっても、区分に引き継がれます）</label><div id="reform-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addReform()">＋ リフォームを記録</button></div>
-        <div class="fr"><label>備考</label><textarea id="u-memo" placeholder="1行1項目で入力&#10;例：3月の賃料は日割り"></textarea></div>
+        <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">リフォーム履歴（区分に引き継がれます）</label><div id="reform-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addReform()">＋ リフォームを記録</button></div>
+        <div class="fr"><label>備考</label><textarea id="u-memo" placeholder="1行1項目で入力"></textarea></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -739,20 +742,20 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
       <div class="fs">
         <div class="fs-title">関連付け（任意）</div>
-        <div class="fr"><label>賃貸の管理（管理委託・自社管理）と同じ建物の場合、対象を選択</label><select id="lb-linked-rent" onchange="onLBLinkRent()"><option value="">関連なし</option></select></div>
-        <div class="fr"><label>在庫物件（買取再販）と関連する場合、対象を選択</label><select id="lb-linked-property" onchange="onLBLinkProp()"><option value="">関連なし</option></select></div>
+        <div class="fr"><label>賃貸管理との関連</label><select id="lb-linked-rent" onchange="onLBLinkRent()"><option value="">関連なし</option></select></div>
+        <div class="fr"><label>在庫物件との関連</label><select id="lb-linked-property" onchange="onLBLinkProp()"><option value="">関連なし</option></select></div>
         <div class="hint" id="lb-linked-hint"></div>
       </div>
       <div class="fs">
         <div class="fs-title">施設情報</div>
         <div class="fr"><label>管理形態</label><select id="lb-mgmt" onchange="toggleMgmt('lb')"><option value="consign">管理委託（オーナーから受託）</option><option value="own">自社管理（自社所有など）</option></select></div>
         <div class="fr"><label>管理会社 <a href="#" onclick="openCoInfo(document.getElementById('lb-company').value);return false" style="font-size:10px;font-weight:700;color:var(--navy);margin-left:6px;">管理会社の設定 ›</a></label><select id="lb-company"></select></div>
-        <div class="fr"><label>施設名 *</label><input id="lb-name" placeholder="例：浅草ゲストハウス"/></div>
-        <div class="fr"><label>所在地</label><input id="lb-addr" placeholder="例：台東区浅草1丁目1-1"/></div>
-        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="lb-staff" placeholder="例：山田"/></div>
+        <div class="fr"><label>施設名 *</label><input id="lb-name" placeholder="施設名"/></div>
+        <div class="fr"><label>所在地</label><input id="lb-addr" placeholder="所在地"/></div>
+        <div class="fr"><label>自社の担当者名（送金明細書に載ります）</label><input id="lb-staff" placeholder="自社の担当者名"/></div>
         <div class="fg">
-          <div class="fr"><label>構造</label><input id="lb-struct" placeholder="例：RC造5階建"/></div>
-          <div class="fr"><label>築年月</label><input id="lb-built" placeholder="例：1990年12月"/></div>
+          <div class="fr"><label>構造</label><input id="lb-struct" placeholder="構造"/></div>
+          <div class="fr"><label>築年月</label><input id="lb-built" placeholder="築年月"/></div>
         </div>
       </div>
       <div class="fs" id="lb-sec-owner">
@@ -779,31 +782,31 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>初回契約 終期</label><input id="lb-end" type="date"/></div>
         </div>
         <div class="days-auto" id="lb-days-display"></div>
-        <div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴（更新のたびに、更新後の期間を追加）</label><div id="lb-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('lb')">＋ 更新を記録</button></div>
-        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="lb-scope" placeholder="例：予約管理・宿泊者対応・清掃手配・届出対応"/></div>
+        <div style="margin-top:8px;"><label style="display:block;font-size:11px;color:var(--sub);margin-bottom:5px;font-weight:700;">更新履歴</label><div id="lb-renew-blocks"></div><button type="button" class="btn btn-sm btn-navy" onclick="addRenewal('lb')">＋ 更新を記録</button></div>
+        <div class="fr" style="margin-top:8px;"><label>業務範囲</label><input id="lb-scope" placeholder="業務範囲"/></div>
         <div class="fg">
           <div class="fr"><label>自動更新</label><select id="lb-auto-renew"><option value="">未設定</option><option>有</option><option>無</option></select></div>
-          <div class="fr"><label>解約予告</label><input id="lb-notice" placeholder="例：3ヶ月前"/></div>
+          <div class="fr"><label>解約予告</label><input id="lb-notice" placeholder="解約予告"/></div>
         </div>
         <div class="fg"><div class="fr"><label>管理委託の状況</label><select id="lb-consign-status"><option value="">管理中</option><option value="ended">管理委託終了</option></select></div><div class="fr"><label>終了日</label><input id="lb-ended-date" type="date"/></div></div>
-        <div class="fr"><label>終了の理由・備考</label><input id="lb-ended-note" placeholder="例：オーナーが売却／解約"/></div>
+        <div class="fr"><label>終了の理由・備考</label><input id="lb-ended-note" placeholder="終了の理由・備考"/></div>
       </div>
       <div class="fs" id="lb-sec-fee">
         <div class="fs-title">管理料・精算</div>
-        <div class="fr"><label>振込先口座</label><input id="lb-owner-bank" placeholder="例：○○銀行 ○○支店 普通 1234567"/></div>
+        <div class="fr"><label>振込先口座</label><input id="lb-owner-bank" placeholder="振込先口座"/></div>
         <div class="fg">
-          <div class="fr"><label>管理料</label><input id="lb-fee" placeholder="例：売上の15%／月額50,000円"/></div>
+          <div class="fr"><label>管理料</label><input id="lb-fee" placeholder="管理料"/></div>
           <div class="fr"><label>管理料の課税</label><select id="lb-fee-tax"><option value="">未設定</option><option>税込</option><option>税別</option></select></div>
         </div>
-        <div class="fr"><label>売上の精算方法</label><input id="lb-settle" placeholder="例：毎月末締め、翌月10日にオーナーへ送金"/></div>
+        <div class="fr"><label>売上の精算方法</label><input id="lb-settle" placeholder="売上の精算方法"/></div>
         <div class="fr"><label>備考</label><textarea id="lb-memo" placeholder="1行1項目で入力"></textarea></div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
-          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳から自動で表示します）　<a href="#" onclick="goLedgerFromLb();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
+          <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳より）　<a href="#" onclick="goLedgerFromLb();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
           <div class="pay-year-nav">
             <button type="button" onclick="lFeeYearMove(-1)">◀</button>
             <span class="pay-year-label" id="lfee-pay-year-label"></span>
             <button type="button" onclick="lFeeYearMove(1)">▶</button>
-            <span style="font-size:10px;color:var(--sub);">出納帳に「管理料」の明細がある月が「済」になります</span>
+            <span style="font-size:10px;color:var(--sub);"></span>
           </div>
           <div class="pay-grid" id="lfee-pay-grid"></div>
         </div>
@@ -824,18 +827,18 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">免許・届出・保健所</div>
         <div class="fr"><label>免許の単位</label><select id="lb-lic-scope" onchange="toggleLicScope()"><option value="unit">区分ごとに免許がある</option><option value="building">1棟まるごとで1つの免許</option></select></div>
-        <div id="lb-lic-unit-note" style="font-size:10px;color:var(--sub);margin-bottom:8px;">各区分の編集画面で、免許・届出を入力します。</div>
+        <div id="lb-lic-unit-note" style="font-size:10px;color:var(--sub);margin-bottom:8px;">免許・届出は各区分で入力します。</div>
         <div id="lb-lic-fields">
           <div class="fr"><label>種別</label><select id="lb-lic-type"></select></div>
           <div class="fg">
-            <div class="fr"><label>許可・届出・認定番号</label><input id="lb-lic-no" placeholder="例：第○○号"/></div>
-            <div class="fr"><label>届出先（保健所など）</label><input id="lb-lic-office" placeholder="例：台東区保健所"/></div>
+            <div class="fr"><label>許可・届出・認定番号</label><input id="lb-lic-no" placeholder="許可・届出・認定番号"/></div>
+            <div class="fr"><label>届出先（保健所など）</label><input id="lb-lic-office" placeholder="届出先"/></div>
           </div>
           <div class="fg">
             <div class="fr"><label>取得日・届出日</label><input id="lb-lic-date" type="date"/></div>
             <div class="fr"><label>有効期限・更新期限</label><input id="lb-lic-exp" type="date"/></div>
           </div>
-          <div class="fr"><label>免許に関する備考</label><input id="lb-lic-note" placeholder="例：定期報告は2か月ごと／認定は5年ごとに更新"/></div>
+          <div class="fr"><label>免許に関する備考</label><input id="lb-lic-note" placeholder="免許に関する備考"/></div>
         </div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
           <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">保健所とのやり取り（施設全体）</div>
@@ -845,7 +848,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス（共用部）</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">施設の共用部分で契約しているメーターを登録します（複数可）。各区分の分は、区分の編集画面で登録します。</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">共用部のメーター（複数可）</div>
         <div id="lb-util"></div>
       </div>
       <div class="fs">
@@ -869,28 +872,28 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">区画情報</div>
         <div class="fg">
-          <div class="fr"><label>区画名 *</label><input id="lu-name" placeholder="例：201号室／1階"/></div>
+          <div class="fr"><label>区画名 *</label><input id="lu-name" placeholder="区画名"/></div>
           <div class="fr"><label>営業状況</label><select id="lu-status"></select></div>
         </div>
         <div class="fg">
-          <div class="fr"><label>面積</label><input id="lu-size" placeholder="例：約25㎡"/></div>
+          <div class="fr"><label>面積</label><input id="lu-size" placeholder="面積"/></div>
           <div class="fr"><label>定員（名）</label><input id="lu-cap" type="number" placeholder="4"/></div>
         </div>
-        <div class="fr"><label>間取り・タイプ</label><input id="lu-use" placeholder="例：1K／ドミトリー"/></div>
+        <div class="fr"><label>間取り・タイプ</label><input id="lu-use" placeholder="間取り・タイプ"/></div>
       </div>
-      <div class="fs" style="display:none;" id="lu-lic-bnote"><div style="font-size:11px;color:var(--sub);">この施設は「1棟まるごと」の免許です。免許・届出と保健所とのやり取りは、施設の編集画面で入力します。</div></div>
+      <div class="fs" style="display:none;" id="lu-lic-bnote"><div style="font-size:11px;color:var(--sub);">1棟の免許です。免許・届出は施設の編集画面で入力します。</div></div>
       <div class="fs" id="lu-sec-lic">
         <div class="fs-title">免許・届出</div>
         <div class="fr"><label>種別</label><select id="lu-lic-type"></select></div>
         <div class="fg">
-          <div class="fr"><label>許可・届出・認定番号</label><input id="lu-lic-no" placeholder="例：第○○号"/></div>
-          <div class="fr"><label>届出先（保健所など）</label><input id="lu-lic-office" placeholder="例：台東区保健所"/></div>
+          <div class="fr"><label>許可・届出・認定番号</label><input id="lu-lic-no" placeholder="許可・届出・認定番号"/></div>
+          <div class="fr"><label>届出先（保健所など）</label><input id="lu-lic-office" placeholder="届出先"/></div>
         </div>
         <div class="fg">
           <div class="fr"><label>取得日・届出日</label><input id="lu-lic-date" type="date"/></div>
           <div class="fr"><label>有効期限・更新期限</label><input id="lu-lic-exp" type="date"/></div>
         </div>
-        <div class="fr"><label>免許に関する備考</label><input id="lu-lic-note" placeholder="例：定期報告は2か月ごと／認定は5年ごとに更新"/></div>
+        <div class="fr"><label>免許に関する備考</label><input id="lu-lic-note" placeholder="免許に関する備考"/></div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
           <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">保健所とのやり取り（この区分）</div>
           <button type="button" class="btn btn-sm btn-navy" style="margin-bottom:8px;" onclick="addLogL('luh')">＋ やり取りを記録</button>
@@ -899,7 +902,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       </div>
       <div class="fs" style="background:#F0FFF4;border-color:#A8D5B5;">
         <div class="fs-title" style="color:var(--green);border-bottom-color:#A8D5B5;">電気・水道・ガス</div>
-        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分で契約しているメーターを登録します。複数ある場合は「メーターを追加」で増やしてください。</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">この区分のメーター（複数可）</div>
         <div id="lu-util"></div>
       </div>
       <div class="fs">
@@ -942,7 +945,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>出金（円）</label><input id="lgm-out" type="number" min="0"/></div>
           <div class="fr"><label>自社収益（円）</label><input id="lgm-fee" type="number" min="0"/></div>
         </div>
-        <div class="fr" style="margin-top:8px;"><label>摘要</label><input id="lgm-memo" placeholder="例：301号室 火災保険振込"/></div>
+        <div class="fr" style="margin-top:8px;"><label>摘要</label><input id="lgm-memo" placeholder="摘要"/></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -957,18 +960,18 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 <!-- 銀行の入金データの取り込み -->
 <div class="modal-bg" id="dpi-modal">
   <div class="modal" style="max-width:980px;">
-    <div class="modal-head"><div><h3>銀行の入出金データを取り込む</h3><div class="modal-sub">入金・出金の両方を取り込みます。取り込み後に、区分・建物・オーナーごとへ振り分けます</div></div><button class="modal-close" onclick="closeDpImp()">✕</button></div>
+    <div class="modal-head"><div><h3>銀行の入出金データを取り込む</h3><div class="modal-sub">入金・出金を取り込み、あとで振り分けます</div></div><button class="modal-close" onclick="closeDpImp()">✕</button></div>
     <div class="modal-body">
       <div class="fs">
         <div class="fr"><label>管理会社（どの会社の口座の入金か）</label><select id="dpi-co" onchange="dpiCoChange()"></select></div>
-        <div style="font-size:11px;color:var(--sub);margin:8px 0 6px;">銀行からダウンロードしたCSV（またはExcel）の、項目名の行を含めた範囲をコピーして、下に貼り付けてください。日付・入金額・振込人名義（摘要）の列は、項目名から自動で読み取ります。すでに取り込んだ入金は、重複として自動で外します。</div>
+        <div style="font-size:11px;color:var(--sub);margin:8px 0 6px;">CSVを選ぶか、項目名の行から貼り付けます。取り込み済みは自動で除きます。</div>
         <div style="margin-bottom:6px;"><label style="font-size:12px;font-weight:700;">CSVファイルを選ぶ（Shift-JISも可）　<input type="file" accept=".csv,.txt,.tsv" onchange="dpiFile(event)"/></label></div><textarea id="dpi-text" rows="5" placeholder="ここに貼り付け（日付・入金・摘要 などの項目名の行から）" style="width:100%;border:1.5px solid #ddd;border-radius:4px;padding:8px 10px;font-size:12px;font-family:inherit;"></textarea>
-        <div class="fr" style="margin-top:8px;"><label>銀行テンプレ（口座ごとに、列の番号と勘定科目を保存できます。選ぶだけで取り込めます）</label><select id="dpi-tpl" onchange="dpiTplPick()"></select></div>
-        <div class="fg"><div class="fr"><label>銀行の勘定科目（弥生用）</label><input id="dpi-acct" placeholder="普通預金"/></div><div class="fr"><label>銀行の補助科目（弥生用）</label><input id="dpi-sub" placeholder="例：三井住友"/></div></div>
-        <details id="dpi-cols" style="margin-top:8px;font-size:12px;"><summary style="cursor:pointer;">列を指定する（テンプレなし／項目名の行がないとき。空欄なら項目名から自動で読み取ります）</summary>
-          <div class="fg" style="margin-top:6px;grid-template-columns:1fr 1fr 1fr;"><div class="fr"><label>日付の列（番号）</label><input id="dpi-c-date" type="number" min="1" placeholder="例：1"/></div><div class="fr"><label>入金額の列（番号）</label><input id="dpi-c-in" type="number" min="1" placeholder="例：3"/></div><div class="fr"><label>出金額の列（番号）</label><input id="dpi-c-out" type="number" min="1" placeholder="例：4"/></div></div>
-          <div class="fr"><label>振込人名義・摘要の列（番号。複数ならカンマ区切り 例：2,5）</label><input id="dpi-c-memo" placeholder="例：2"/></div>
-          <div class="fg" style="align-items:end;"><div class="fr"><label>テンプレ名（同じ名前なら上書き）</label><input id="dpi-tpl-name" placeholder="例：三井住友 普通"/></div><div class="fr" style="display:flex;gap:6px;"><button type="button" class="btn btn-sm btn-navy" onclick="dpiTplSave()">テンプレとして保存</button><button type="button" class="btn btn-sm btn-red" onclick="dpiTplDel()">削除</button></div></div>
+        <div class="fr" style="margin-top:8px;"><label>銀行テンプレ</label><select id="dpi-tpl" onchange="dpiTplPick()"></select></div>
+        <div class="fg"><div class="fr"><label>銀行の勘定科目（弥生用）</label><input id="dpi-acct" placeholder="普通預金"/></div><div class="fr"><label>銀行の補助科目（弥生用）</label><input id="dpi-sub" placeholder="銀行の補助科目"/></div></div>
+        <details id="dpi-cols" style="margin-top:8px;font-size:12px;"><summary style="cursor:pointer;">列を指定する</summary>
+          <div class="fg" style="margin-top:6px;grid-template-columns:1fr 1fr 1fr;"><div class="fr"><label>日付の列（番号）</label><input id="dpi-c-date" type="number" min="1" placeholder="日付の列"/></div><div class="fr"><label>入金額の列（番号）</label><input id="dpi-c-in" type="number" min="1" placeholder="入金額の列"/></div><div class="fr"><label>出金額の列（番号）</label><input id="dpi-c-out" type="number" min="1" placeholder="出金額の列"/></div></div>
+          <div class="fr"><label>名義・摘要の列（複数はカンマ区切り）</label><input id="dpi-c-memo" placeholder="振込人名義・摘要の列"/></div>
+          <div class="fg" style="align-items:end;"><div class="fr"><label>テンプレ名（同じ名前なら上書き）</label><input id="dpi-tpl-name" placeholder="テンプレ名"/></div><div class="fr" style="display:flex;gap:6px;"><button type="button" class="btn btn-sm btn-navy" onclick="dpiTplSave()">テンプレとして保存</button><button type="button" class="btn btn-sm btn-red" onclick="dpiTplDel()">削除</button></div></div>
         </details>
         <div style="margin-top:8px;"><button class="btn btn-navy" onclick="dpiRead()">読み取る</button></div>
       </div>
@@ -984,11 +987,11 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 <!-- 保証会社の設定 -->
 <div class="modal-bg" id="gz-modal">
   <div class="modal">
-    <div class="modal-head"><div><h3>振分けの設定</h3><div class="modal-sub">銀行の名義から、保証会社・入居者・オーナーを判定して自動で振り分けるための設定です</div></div><button class="modal-close" onclick="closeGzSet()">✕</button></div>
+    <div class="modal-head"><div><h3>振分けの設定</h3><div class="modal-sub">名義から、保証会社・入居者・オーナーを判定します</div></div><button class="modal-close" onclick="closeGzSet()">✕</button></div>
     <div class="modal-body">
       <div class="fs">
         <div class="fr"><label>管理会社</label><select id="gz-co" onchange="gzLoad()"></select></div>
-        <div style="font-size:11px;color:var(--sub);margin:8px 0;">保証会社名は、区分の「保証会社名」と同じ名前にしてください（その保証会社が登録されている契約中の区分に振り分けます）。振込人名義は、銀行のデータに出る文字の一部（例：「ジャパン」）で構いません。</div>
+        <div style="font-size:11px;color:var(--sub);margin:8px 0;">保証会社名は、区分の「保証会社名」と同じにします。名義は一部の文字で構いません。</div>
         <datalist id="gz-names"></datalist>
         <div id="gz-list"></div>
         <button class="btn btn-sm btn-navy" id="gz-add" onclick="gzAdd()">＋ 保証会社を追加</button>
@@ -1005,22 +1008,22 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 <!-- 管理会社の設定（マスタ） -->
 <div class="modal-bg" id="co-modal">
   <div class="modal">
-    <div class="modal-head"><div><h3>管理会社の設定</h3><div class="modal-sub">ここで登録した会社が、建物の「管理会社」で選べます。送金明細書の右上にも印字されます</div></div><button class="modal-close" onclick="closeCoInfo()">✕</button></div>
+    <div class="modal-head"><div><h3>管理会社の設定</h3><div class="modal-sub">送金明細書の右上に印字されます</div></div><button class="modal-close" onclick="closeCoInfo()">✕</button></div>
     <div class="modal-body">
       <div class="fs">
         <div class="fr"><label>管理会社（選んで編集／新しい会社を追加）</label><select id="co-sel" onchange="coInfoLoad()"></select></div>
-        <div class="fr" id="co-code-wrap" style="display:none;"><label>略称 *（建物の管理会社に表示されます。12文字以内）</label><input id="co-code" placeholder="例：ABC"/></div>
-        <div class="fr"><label>会社名 *</label><input id="co-name" placeholder="例：株式会社LDY"/></div>
+        <div class="fr" id="co-code-wrap" style="display:none;"><label>略称 *（建物の管理会社に表示されます。12文字以内）</label><input id="co-code" placeholder="略称"/></div>
+        <div class="fr"><label>会社名 *</label><input id="co-name" placeholder="会社名"/></div>
         <div class="fg">
-          <div class="fr"><label>郵便番号</label><input id="co-zip" placeholder="例：104-0061"/></div>
+          <div class="fr"><label>郵便番号</label><input id="co-zip" placeholder="郵便番号"/></div>
           <div class="fr"></div>
         </div>
-        <div class="fr"><label>住所</label><input id="co-addr" placeholder="例：東京都中央区銀座○-○-○"/></div>
+        <div class="fr"><label>住所</label><input id="co-addr" placeholder="住所"/></div>
         <div class="fg">
-          <div class="fr"><label>電話番号</label><input id="co-tel" placeholder="例：03-0000-0000"/></div>
-          <div class="fr"><label>FAX</label><input id="co-fax" placeholder="例：03-0000-0001"/></div>
+          <div class="fr"><label>電話番号</label><input id="co-tel" placeholder="電話番号"/></div>
+          <div class="fr"><label>FAX</label><input id="co-fax" placeholder="FAX"/></div>
         </div>
-        <div style="font-size:10px;color:var(--sub);margin-top:8px;">担当者名は、建物の編集画面の「自社の担当者名」で設定します。使われていない追加会社は削除できます（LDY・MKは削除できません）。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:8px;">使われていない追加会社は削除できます（LDY・MKを除く）。</div>
         <div id="co-ro" style="display:none;font-size:11px;color:#C62828;margin-top:8px;">変更できるのは管理者だけです（表示のみ）。</div>
         <div id="co-msg" style="font-size:11px;color:var(--green);margin-top:8px;"></div>
       </div>
@@ -1042,26 +1045,26 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">精算の時期（オーナーごと）</div>
         <div class="fr"><label>精算の周期</label><select id="lgs-cycle"><option value="">未設定</option><option value="monthly">毎月</option><option value="quarterly">四半期ごと</option><option value="semi">半年ごと</option><option value="annual">年1回</option><option value="adhoc">随時（オーナーによる）</option></select></div>
-        <div class="fr"><label>精算・送金のルール（メモ）</label><input id="lgs-note" placeholder="例：毎月15日にオーナーへ送金／3・6・9・12月末に精算"/></div>
+        <div class="fr"><label>精算・送金のルール（メモ）</label><input id="lgs-note" placeholder="精算・送金のルール"/></div>
       </div>
       <div class="fs">
         <div class="fs-title">振込手数料（オーナーへの送金時）</div>
-        <div class="fr"><label>振込手数料（円）</label><input id="lgs-xfer" type="number" min="0" placeholder="例：330"/></div>
-        <div style="font-size:10px;color:var(--sub);margin-top:6px;">精算のとき送金額から差し引き、送金明細書の「経費の内訳」に載ります。空欄か0なら差し引きません。精算画面で都度変更もできます。</div>
+        <div class="fr"><label>振込手数料（円）</label><input id="lgs-xfer" type="number" min="0" placeholder="振込手数料"/></div>
+        <div style="font-size:10px;color:var(--sub);margin-top:6px;">送金額から差し引きます。空欄か0なら差し引きません。</div>
       </div>
       <div class="fs">
         <div class="fs-title">管理料の自動計算（精算時の目安）</div>
         <div class="fr"><label>計算方法</label><select id="lgs-feecalc"><option value="manual">自動計算しない（精算時に手入力）</option><option value="rate">入金額に対する割合（%）</option><option value="fixed">定額</option></select></div>
         <div class="fg">
-          <div class="fr"><label>割合（%）</label><input id="lgs-rate" type="number" step="0.1" placeholder="例：5"/></div>
-          <div class="fr"><label>定額（円）</label><input id="lgs-fixed" type="number" placeholder="例：22000"/></div>
+          <div class="fr"><label>割合（%）</label><input id="lgs-rate" type="number" step="0.1" placeholder="割合"/></div>
+          <div class="fr"><label>定額（円）</label><input id="lgs-fixed" type="number" placeholder="定額"/></div>
         </div>
         <div class="fg">
           <div class="fr"><label>割合の計算の対象</label><select id="lgs-base"><option value="rent">家賃の入金だけ</option><option value="rent_kanri">家賃＋管理費・共益費の入金</option></select></div>
           <div class="fr"><label>管理料の消費税</label><select id="lgs-tax"><option value="incl">税込の金額で設定している</option><option value="excl">税別の金額で設定している（10%を足す）</option></select></div>
         </div>
-        <div style="font-size:10px;color:var(--sub);margin-top:6px;">精算のときに、ここで設定した方法で管理料を計算して表示します。金額は精算画面で直せます。</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:6px;">※ 精算の設定は、このオーナーの全建物に共通で保存されます。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:6px;">精算時の管理料の目安です（精算画面で修正できます）。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:6px;">※ オーナーの全建物に共通です。</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -1094,7 +1097,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">計算結果</div>
         <table class="lg-sum" style="width:100%;border-collapse:collapse;" id="lst-sum"></table>
-        <div class="fr" style="margin-top:10px;"><label>備考（送金明細書に載ります）</label><input id="lst-memo" placeholder="例：2025年7月分"/></div>
+        <div class="fr" style="margin-top:10px;"><label>備考（送金明細書に載ります）</label><input id="lst-memo" placeholder="備考"/></div>
       </div>
     </div>
     <div class="modal-foot">
@@ -1121,7 +1124,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>残高の列（確認用）</label><input id="lim-c-bal" type="number" value="6" min="0"/></div>
           <div class="fr"><label>摘要の列</label><input id="lim-c-memo" type="number" value="7" min="1"/></div>
         </div>
-        <div style="font-size:10px;color:var(--sub);margin-top:6px;">列の番号は、左端を1として数えます。日付が読み取れない行（見出しなど）は、自動で飛ばします。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:6px;">列番号は左端が1です。</div>
         <button type="button" class="btn btn-navy" style="margin-top:8px;" onclick="parseLgImp()">読み取る</button>
       </div>
       <div class="fs" id="lim-prev-wrap" style="display:none;">
@@ -1146,18 +1149,18 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">連番でまとめて追加</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;align-items:end;">
-          <div class="fr"><label>頭に付ける文字</label><input id="rbk-prefix" placeholder="例：A-"/></div>
+          <div class="fr"><label>頭に付ける文字</label><input id="rbk-prefix" placeholder="頭に付ける文字"/></div>
           <div class="fr"><label>開始番号</label><input id="rbk-start" type="number" value="101"/></div>
           <div class="fr"><label>個数</label><input id="rbk-count" type="number" value="5" min="1" max="100"/></div>
-          <div class="fr"><label>後ろに付ける文字</label><input id="rbk-suffix" placeholder="例：号室"/></div>
+          <div class="fr"><label>後ろに付ける文字</label><input id="rbk-suffix" placeholder="後ろに付ける文字"/></div>
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genRBulkRows()">表に追加</button>
         </div>
         <div class="fr"><label>既存の区分をコピーして追加する場合、コピー元を選択（任意）</label><select id="rbk-tpl"></select></div>
-        <div class="days-auto" id="rbk-preview">コピー元を選ぶと、面積・用途・契約種別・賃料・管理費・敷金・礼金・更新料・支払時期などを引き継ぎます。契約者・契約日・火災保険・保証会社・鍵・リフォーム・備考は引き継ぎません。</div>
+        <div class="days-auto" id="rbk-preview">賃料・敷金などの条件を引き継ぎます（契約者・日付・保険・保証会社・鍵は除く）。</div>
       </div>
       <div class="fs">
         <div class="fs-title">Excelで一括入力（テンプレをダウンロード → 編集 → アップロード）</div>
-        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;">① テンプレ（または現在の一覧）をダウンロード → ② Excelで編集（選択式・数字・日付は入力制限つき） → ③ 編集したファイルをアップロード。区画名が同じ行は更新、新しい区画名は追加です。空欄のセルは、既存の内容を消しません。アップロード後は、下の表で確認・修正してから保存します。</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;">ダウンロード → Excelで編集 → アップロード。同じ区画名は更新、新しい区画名は追加、空欄は既存を消しません。</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',false)">Excelテンプレをダウンロード</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('rent',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルをアップロード<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'rent')"/></label></div>
         <textarea id="rbk-xl" style="display:none;"></textarea>
         <div class="days-auto" id="rbk-xl-msg"></div>
@@ -1175,7 +1178,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div id="rbk-groups" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
         <div style="overflow-x:auto;" id="rbk-table"></div>
         <button type="button" class="btn btn-sm btn-navy" style="margin-top:8px;" onclick="addRBulkRow()">＋ 1行追加</button>
-        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ここでは区分のすべての入力項目を編集できます。賃料を変えると、最新の賃料改定履歴の金額が変わります。「更新後の始期・終期」は、最新の更新履歴を直します（なければ新しく追加します）。賃料改定の履歴の追加・入金チェック・やり取りの記録・電気水道ガスは、各区分の「編集」から入力してください。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:8px;">賃料改定履歴・やり取り・電気水道ガス・リフォームは各区分の「編集」で入力します。</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -1193,29 +1196,29 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
       <div class="fs">
         <div class="fs-title">連番でまとめて追加</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;align-items:end;">
-          <div class="fr"><label>頭に付ける文字</label><input id="lbk-prefix" placeholder="例：A-"/></div>
+          <div class="fr"><label>頭に付ける文字</label><input id="lbk-prefix" placeholder="頭に付ける文字"/></div>
           <div class="fr"><label>開始番号</label><input id="lbk-start" type="number" value="101"/></div>
           <div class="fr"><label>個数</label><input id="lbk-count" type="number" value="5" min="1" max="100"/></div>
-          <div class="fr"><label>後ろに付ける文字</label><input id="lbk-suffix" placeholder="例：号室"/></div>
+          <div class="fr"><label>後ろに付ける文字</label><input id="lbk-suffix" placeholder="後ろに付ける文字"/></div>
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="genBulkRows()">表に追加</button>
         </div>
-        <div class="days-auto" id="lbk-preview">例：頭=空欄・開始=101・個数=3・後ろ=号室 → 101号室、102号室、103号室</div>
+        <div class="days-auto" id="lbk-preview">連番で区画名を作ります。</div>
       </div>
       <div class="fs">
         <div class="fs-title">全行にまとめて反映（入力した項目だけ）</div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr) auto;gap:10px;align-items:end;">
           <div class="fr"><label>営業状況</label><select id="lbk-all-status"></select></div>
-          <div class="fr"><label>面積</label><input id="lbk-all-size" placeholder="例：約25㎡"/></div>
+          <div class="fr"><label>面積</label><input id="lbk-all-size" placeholder="面積"/></div>
           <div class="fr"><label>定員（名）</label><input id="lbk-all-cap" type="number"/></div>
-          <div class="fr"><label>間取り・タイプ</label><input id="lbk-all-use" placeholder="例：1K"/></div>
+          <div class="fr"><label>間取り・タイプ</label><input id="lbk-all-use" placeholder="間取り・タイプ"/></div>
           <div class="fr" id="lbk-all-lic-wrap"><label>免許種別</label><select id="lbk-all-lic"></select></div>
           <button type="button" class="btn btn-navy" style="margin-bottom:10px;" onclick="applyAllBulk()">全行に反映</button>
         </div>
-        <div id="lbk-bscope-note" style="display:none;font-size:10px;color:var(--sub);">この施設は「1棟まるごと」の免許のため、区分ごとの免許欄は表示しません。</div>
+        <div id="lbk-bscope-note" style="display:none;font-size:10px;color:var(--sub);">1棟の免許のため、区分の免許欄はありません。</div>
       </div>
       <div class="fs">
         <div class="fs-title">Excelで一括入力（テンプレをダウンロード → 編集 → アップロード）</div>
-        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;">① テンプレ（または現在の一覧）をダウンロード → ② Excelで編集（選択式・数字・日付は入力制限つき） → ③ 編集したファイルをアップロード。区画名が同じ行は更新、新しい区画名は追加です。空欄のセルは、既存の内容を消しません。アップロード後は、下の表で確認・修正してから保存します。</div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:8px;">ダウンロード → Excelで編集 → アップロード。同じ区画名は更新、新しい区画名は追加、空欄は既存を消しません。</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',false)">Excelテンプレをダウンロード</button><button type="button" class="btn btn-sm btn-navy" onclick="xlsxMake('lodge',true)">現在の一覧をExcelでダウンロード</button><label class="btn btn-sm btn-gold" style="cursor:pointer;">Excelファイルをアップロード<input type="file" accept=".xlsx" style="display:none" onchange="xlsxLoad(event,'lodge')"/></label></div>
         <textarea id="lbk-xl" style="display:none;"></textarea>
         <div class="days-auto" id="lbk-xl-msg"></div>
@@ -1224,7 +1227,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fs-title">区分一覧</div>
         <div style="overflow-x:auto;" id="lbk-table"></div>
         <button type="button" class="btn btn-sm btn-navy" style="margin-top:8px;" onclick="addBulkRow()">＋ 1行追加</button>
-        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ここでは区分の主な入力項目を編集できます。ライフライン・修繕・保健所とのやり取りは、各区分の「編集」から入力してください。</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:8px;">ライフライン・修繕・保健所とのやり取りは各区分の「編集」で入力します。</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -1234,13 +1237,13 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
   </div>
 </div>
 
-<div class="modal-bg" id="yj-modal"><div class="modal"><div class="modal-head"><div><h3>弥生会計用の仕訳TXTを出力</h3><div class="modal-sub">振分け済みの銀行入出金を、仕訳（預金／預かり金）にして出力します</div></div><button class="modal-close" onclick="closeYj()">✕</button></div>
+<div class="modal-bg" id="yj-modal"><div class="modal"><div class="modal-head"><div><h3>弥生会計用の仕訳TXTを出力</h3><div class="modal-sub">振分け済みの入出金を仕訳にして出力</div></div><button class="modal-close" onclick="closeYj()">✕</button></div>
 <div class="modal-body"><div class="fs">
 <div class="fr"><label>管理会社</label><select id="yj-co" onchange="yjSum()"></select></div>
 <div class="fg"><div class="fr"><label>期間 開始</label><input type="date" id="yj-from" onchange="yjSum()"/></div><div class="fr"><label>期間 終了</label><input type="date" id="yj-to" onchange="yjSum()"/></div></div>
 <div class="fr"><label>反対勘定科目（補助科目は、建物名で付きます）</label><input id="yj-cp" value="賃貸管理物件預かり金" oninput="yjSum()"/></div>
 <label style="font-size:12px;display:block;margin-bottom:6px;"><input type="checkbox" id="yj-q"/> すべての項目を「 " 」で囲む（取り込めないときに試す）</label>
-<div style="font-size:11px;color:var(--sub);">入金：借方＝預金（補助＝銀行）／貸方＝預かり金（補助＝建物名）、出金は逆。税区分は「対象外」、文字コードはShift-JISです。</div>
+<div style="font-size:11px;color:var(--sub);">借方＝預金／貸方＝預かり金（補助＝建物）。出金は逆。税区分は対象外、Shift-JIS。</div>
 <div id="yj-sum" style="margin-top:10px;font-size:13px;"></div></div></div>
 <div class="modal-foot"><button class="btn" onclick="closeYj()">閉じる</button><button class="btn btn-gold" id="yj-go" onclick="doYj()">TXTをダウンロード</button></div></div></div>
 <div class="lightbox" id="lightbox">
@@ -1476,7 +1479,7 @@ function renderUtil(sc){
     const s=utilState[sc][t],id=sc+'-'+t;
     return '<div class="util-box ll-drop" id="'+id+'-box">'+
       '<div class="util-title">'+l+'</div>'+
-      (t!=='water'?'<div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(s.customerNo)+'" placeholder="例：1234567890" oninput="setUtilCust(\''+sc+'\',\''+t+'\',this.value)"/></div>':'')+
+      (t!=='water'?'<div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(s.customerNo)+'" placeholder="お客様番号" oninput="setUtilCust(\''+sc+'\',\''+t+'\',this.value)"/></div>':'')+
       '<div id="'+id+'-meters"></div>'+
       '<button type="button" class="btn btn-sm" style="margin-top:4px;" onclick="addMeter(\''+sc+'\',\''+t+'\')">＋ メーターを追加</button>'+
       '<div style="margin-top:8px;">'+
@@ -1506,10 +1509,10 @@ window.removeMeter=function(sc,t,i){utilState[sc][t].meters.splice(i,1);renderMe
 window.updateMeter=function(sc,t,i,f,v){const m=utilState[sc][t].meters[i];if(m)m[f]=v;};
 function renderMeters(sc,t){
   const el=document.getElementById(sc+'-'+t+'-meters');if(!el)return;
-  const ph=(sc==='b'||sc==='lb')?'例：共用部／エレベーター':'例：1F左／店舗用';
+  const ph=(sc==='b'||sc==='lb')?'':'';
   el.innerHTML=utilState[sc][t].meters.map((m,i)=>{
     const a="'"+sc+"','"+t+"',"+i;
-    const custNo=t==='water'?'<div class="fg"><div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(m.customerNo||'')+'" placeholder="例：1234567890" oninput="updateMeter('+a+',\'customerNo\',this.value)"/></div><div class="fr"></div></div>':'';
+    const custNo=t==='water'?'<div class="fg"><div class="fr"><label>お客様番号</label><input class="fr-jimu" value="'+esc(m.customerNo||'')+'" placeholder="お客様番号" oninput="updateMeter('+a+',\'customerNo\',this.value)"/></div><div class="fr"></div></div>':'';
     return '<div class="meter-block">'+
       '<div class="meter-head"><span class="meter-lbl">メーター '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeMeter('+a+')">削除</button></div>'+
       '<div class="fg">'+
@@ -1605,9 +1608,9 @@ function renderPayGrid(gridElId,yearLabelElId,paymentsObj,year,toggleFnName){
   }).join('');
 }
 window.feePayYearMove=function(d){feePayYear+=d;renderFeeRO();};
-window.toggleFeePay=function(){};
+
 window.rentPayYearMove=function(d){rentPayYear+=d;renderRentRO();};
-window.toggleRentPay=function(){};
+
 
 window.addRentHistory=function(){rentHistory.push({date:'',rent:'',note:''});renderRentHistory();};
 window.removeRentHistory=function(i){rentHistory.splice(i,1);renderRentHistory();};
@@ -1645,7 +1648,7 @@ function renderRentHistory(){
         '<div class="fr"><label>'+(i===0?'契約日':'改定日')+'</label><input type="date" value="'+esc(r.date||'')+'" oninput="updateRentHistory('+i+',\'date\',this.value)"/></div>'+
         '<div class="fr"><label>'+(i===0?'契約時の賃料（円）':'改定後の賃料（円）')+'</label><input type="number" value="'+esc(r.rent||'')+'" oninput="updateRentHistory('+i+',\'rent\',this.value)"/></div>'+
       '</div>'+
-      '<div class="fr"><label>備考</label><input value="'+esc(r.note||'')+'" placeholder="例：更新に伴う値上げ" oninput="updateRentHistory('+i+',\'note\',this.value)"/></div>'+
+      '<div class="fr"><label>備考</label><input value="'+esc(r.note||'')+'" placeholder="備考" oninput="updateRentHistory('+i+',\'note\',this.value)"/></div>'+
     '</div>'
   ).join('');
   updateCurrentRentDisplay();
@@ -1665,9 +1668,9 @@ function renderContactLog(){
       '<div class="fg">'+
         '<div class="fr"><label>日付</label><input type="date" value="'+esc(c.date||'')+'" oninput="updateContactLog('+i+',\'date\',this.value)"/></div>'+
         '<div class="fr"><label>時間</label><input type="time" value="'+esc(c.time||'')+'" oninput="updateContactLog('+i+',\'time\',this.value)"/></div>'+
-        '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="例：電話／メール／訪問" oninput="updateContactLog('+i+',\'method\',this.value)"/></div>'+
+        '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="方法" oninput="updateContactLog('+i+',\'method\',this.value)"/></div>'+
       '</div>'+
-      '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="例：エアコン不調の連絡あり。業者手配済み" oninput="updateContactLog('+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
+      '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="内容" oninput="updateContactLog('+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
     '</div>'
   ).join('');
 }
@@ -1747,8 +1750,8 @@ function renderRepairBlocks(){
   el.innerHTML=repairBlocks.map((r,i)=>
     '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">修繕 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeRepair('+i+')">削除</button></div>'+
-      '<div class="fg"><div class="fr"><label>修繕日</label>'+inp(i,'date','date','',r.date)+'</div><div class="fr"><label>対象箇所</label>'+inp(i,'place','text','例：屋上防水／1階給湯器',r.place)+'</div></div>'+
-      '<div class="fr"><label>修繕内容</label>'+inp(i,'content','text','例：防水塗装の全面改修',r.content)+'</div>'+
+      '<div class="fg"><div class="fr"><label>修繕日</label>'+inp(i,'date','date','',r.date)+'</div><div class="fr"><label>対象箇所</label>'+inp(i,'place','text','',r.place)+'</div></div>'+
+      '<div class="fr"><label>修繕内容</label>'+inp(i,'content','text','',r.content)+'</div>'+
       '<div class="fg"><div class="fr"><label>施工業者</label>'+inp(i,'vendor','text','',r.vendor)+'</div><div class="fr"><label>金額（円）</label>'+inp(i,'cost','number','0',r.cost)+'</div></div>'+
       '<div class="fg"><div class="fr"><label>費用負担</label><select data-i="'+i+'" data-f="payer" onchange="updateRepair(+this.dataset.i,this.dataset.f,this.value)">'+['','オーナー','自社（LDY）','賃借人','その他'].map(o=>'<option value="'+o+'"'+((r.payer||'')===o?' selected':'')+'>'+(o||'未設定')+'</option>').join('')+'</select></div><div class="fr"><label>備考</label>'+inp(i,'note','text','',r.note)+'</div></div>'+
     '</div>'
@@ -1774,14 +1777,14 @@ function renderEquipBlocks(){
         '<button type="button" class="btn btn-sm btn-red" onclick="removeEquip('+i+')">削除</button>'+
       '</div>'+
       '<div class="fg">'+
-        '<div class="fr"><label>設備名</label><input value="'+esc(e.name||'')+'" placeholder="例：エレベーター" oninput="updateEquip('+i+',\'name\',this.value)"/></div>'+
-        '<div class="fr"><label>点検周期</label><input value="'+esc(e.cycle||'')+'" placeholder="例：年1回／半年ごと" oninput="updateEquip('+i+',\'cycle\',this.value)"/></div>'+
+        '<div class="fr"><label>設備名</label><input value="'+esc(e.name||'')+'" placeholder="設備名" oninput="updateEquip('+i+',\'name\',this.value)"/></div>'+
+        '<div class="fr"><label>点検周期</label><input value="'+esc(e.cycle||'')+'" placeholder="点検周期" oninput="updateEquip('+i+',\'cycle\',this.value)"/></div>'+
       '</div>'+
       '<div class="fg">'+
         '<div class="fr"><label>前回点検日</label><input type="date" value="'+esc(e.lastDate||'')+'" oninput="updateEquip('+i+',\'lastDate\',this.value)"/></div>'+
         '<div class="fr"><label>次回点検予定日</label><input type="date" value="'+esc(e.nextDate||'')+'" oninput="updateEquip('+i+',\'nextDate\',this.value)"/></div>'+
       '</div>'+
-      '<div class="fr"><label>点検業者</label><input value="'+esc(e.vendor||'')+'" placeholder="例：○○エレベーター保守株式会社" oninput="updateEquip('+i+',\'vendor\',this.value)"/></div>'+
+      '<div class="fr"><label>点検業者</label><input value="'+esc(e.vendor||'')+'" placeholder="点検業者" oninput="updateEquip('+i+',\'vendor\',this.value)"/></div>'+
       '<div class="fr"><label>備考</label><input value="'+esc(e.note||'')+'" oninput="updateEquip('+i+',\'note\',this.value)"/></div>'+
     '</div>'
   ).join('');
@@ -1798,24 +1801,9 @@ window.updateLinkedPropertyHint=function(){
   const hint=document.getElementById('b-linked-property-hint');
   if(!sel||!hint)return;
   const p=properties.find(x=>x.id===sel.value);
-  hint.textContent=p?('現在の状態：'+(p.saleStatus||'—')+'／価格：'+(p.price?p.price.toLocaleString()+'万円':'—')):'';
+  hint.textContent=p?('現在の状態：'+(p.saleStatus||'—')):'';
 };
-window.onLinkedPropertyChange=function(){
-  updateLinkedPropertyHint();
-  const sel=document.getElementById('b-linked-property');
-  const p=properties.find(x=>x.id===sel.value);
-  if(!p)return;
-  // 既に入力済みの欄は上書きせず、空欄のところだけ在庫物件の情報で埋める
-  const fillIfEmpty=(id,v)=>{const el=document.getElementById(id);if(el&&!el.value.trim()&&v)el.value=v;};
-  fillIfEmpty('b-name',p.name);
-  fillIfEmpty('b-addr',p.loc);
-  fillIfEmpty('b-struct',p.struct);
-  fillIfEmpty('b-built',p.built);
-  if(currentBldPhotos.length===0&&p.photos&&p.photos.length){
-    currentBldPhotos=JSON.parse(JSON.stringify(p.photos));
-    renderBldImgList();
-  }
-};
+window.onLinkedPropertyChange=function(){updateLinkedPropertyHint();};
 function updateBldDays(){
   const d=daysUntil(formLastEnd('b','b-end'));
   const el=document.getElementById('b-days-display');
@@ -1909,7 +1897,7 @@ window.openUnitModal=function(bldId,unitId=null){
     setV('u-reikin',u.reikin);setV('u-hosho-first',u.hoshoFirst);
     setV('u-kasai-status',u.kasaiStatus);setV('u-kasai-company',u.kasaiCompany);setV('u-kasai-start',u.kasaiStart);setV('u-kasai-end',u.kasaiEnd);
     setV('u-koshin-umu',u.koshinUmu);setV('u-koshin-ryo',u.koshinRyo);setV('u-koshin-tesuryo',u.koshinTesuryo);
-    ensurePM(u.payMethod);setV('u-pay-timing',u.payTiming);setV('u-pay-method',u.payMethod);
+    setV('u-pay-timing',u.payTiming);setV('u-pay-method',u.payMethod);
     setV('u-hosho-name',u.hoshoName);setV('u-hosho-tel',u.hoshoTel);setV('u-hosho-addr',u.hoshoAddr);
     setV('u-hosho-fee',u.hoshoFee);setV('u-hosho-cycle',u.hoshoCycle);
     setV('u-reform-start',u.reformStart);setV('u-reform-end',u.reformEnd);setV('u-reform-note',u.reformNote);
@@ -2066,7 +2054,7 @@ window.render=function(){
           '<div class="kn-grid">'+
             '<div class="kn-row"><span class="kn-lbl">物件名</span><span class="kn-val">'+esc(linkedProp.name||'—')+'</span></div>'+
             '<div class="kn-row"><span class="kn-lbl">現在の状態</span><span class="kn-val">'+esc(linkedProp.saleStatus||'—')+'</span></div>'+
-            '<div class="kn-row"><span class="kn-lbl">価格</span><span class="kn-val">'+(linkedProp.price?linkedProp.price.toLocaleString()+'万円':'—')+'</span></div>'+
+            
           '</div>'+
           '</div>':'')+
         (b.mgmtType==='own'?ownBldHtml(b):'<div class="osec">'+
@@ -2124,17 +2112,18 @@ window.render=function(){
       '</div>'+
     '</div>';
   }).join('');
+  foldAll(wrap);
 };
 
 function unitHtml(u){
   const useTxt=[u.use1,u.use2].filter(Boolean).map(esc).join('・')||'—';
   const memos=(u.memo||'').split('\n').filter(Boolean);
-  return '<div class="unit">'+
+  return '<div class="unit" data-k="'+u.id+'">'+
     '<div class="unit-head">'+
       '<span class="kn-status '+statusClass(u.status)+'">'+esc(u.status||'—')+'</span>'+
       '<span class="unit-name">'+esc(u.name||'')+'</span>'+
       '<span style="font-size:11px;color:var(--sub);">'+esc(u.size||'—')+'／'+useTxt+'</span>'+
-      '<span class="unit-rent">'+yen(u.rent)+'</span>'+
+      (u.tenant?'<span style="font-size:11px;">'+esc(u.tenant)+'</span>'+daysHtml(lastEnd(u)):'')+'<span class="unit-rent">'+yen(u.rent)+'</span>'+
     '</div>'+
     '<div class="unit-body">'+
       '<div class="unit-sub">'+
@@ -2213,7 +2202,7 @@ function unitHtml(u){
     (memos.length?'<div style="font-size:11px;color:#777;margin-top:8px;"><ul style="padding-left:14px;line-height:1.7;">'+memos.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'')+
     '<div class="unit-acts">'+
       '<button class="btn btn-navy btn-sm" onclick="openUnitModal(\''+u.bldId+'\',\''+u.id+'\')">編集</button>'+
-      '<button class="btn btn-sm" onclick="copyUnit(\''+u.id+'\')">コピーして追加</button>'+(u.tenant||u.status==='契約中'||u.status==='解約予告中'?'<button class="btn btn-sm" onclick="moveOutUnit(\''+u.id+'\')">退去・入居者交代</button>':'')+
+      '<button class="btn btn-sm" onclick="copyUnit(\''+u.id+'\')">コピーして追加</button>'+(u.tenant||u.status==='契約中'||u.status==='解約予告中'?'<button class="btn btn-sm" onclick="moveOutUnit(\''+u.id+'\')">退去・入居者交代</button>':'')+(!u.tenant&&u.status!=='契約中'&&u.status!=='解約予告中'&&(u.pastTenants||[]).length?'<button class="btn btn-sm" onclick="undoMoveOut(\''+u.id+'\')">退去を取り消す</button>':'')+
       '<button class="btn btn-red btn-sm" onclick="deleteUnit(\''+u.id+'\')">削除</button>'+
     '</div>'+
   '</div>';
@@ -2246,7 +2235,7 @@ function renderRenewals(sc){
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">更新 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeRenewal(\''+sc+'\','+i+')">削除</button></div>'+
       '<div class="fg"><div class="fr"><label>更新後 始期</label><input type="date" value="'+esc(r.start||'')+'" oninput="updateRenewal(\''+sc+'\','+i+',\'start\',this.value)"/></div>'+
       '<div class="fr"><label>更新後 終期</label><input type="date" value="'+esc(r.end||'')+'" oninput="updateRenewal(\''+sc+'\','+i+',\'end\',this.value)"/></div></div>'+
-      '<div class="fr"><label>備考（更新料・条件変更など）</label><input value="'+esc(r.note||'')+'" placeholder="例：賃料据え置きで更新" oninput="updateRenewal(\''+sc+'\','+i+',\'note\',this.value)"/></div>'+
+      '<div class="fr"><label>備考（更新料・条件変更など）</label><input value="'+esc(r.note||'')+'" placeholder="備考" oninput="updateRenewal(\''+sc+'\','+i+',\'note\',this.value)"/></div>'+
     '</div>'
   ).join('');
 }
@@ -2289,8 +2278,8 @@ function renderRepairsL(sc){
   el.innerHTML=repairsL[sc].map((r,i)=>
     '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">修繕 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeRepairL(\''+sc+'\','+i+')">削除</button></div>'+
-      '<div class="fg"><div class="fr"><label>修繕日</label>'+inp(i,'date','date','',r.date)+'</div><div class="fr"><label>対象箇所</label>'+inp(i,'place','text','例：浴室／エアコン',r.place)+'</div></div>'+
-      '<div class="fr"><label>修繕内容</label>'+inp(i,'content','text','例：給湯器の交換',r.content)+'</div>'+
+      '<div class="fg"><div class="fr"><label>修繕日</label>'+inp(i,'date','date','',r.date)+'</div><div class="fr"><label>対象箇所</label>'+inp(i,'place','text','',r.place)+'</div></div>'+
+      '<div class="fr"><label>修繕内容</label>'+inp(i,'content','text','',r.content)+'</div>'+
       '<div class="fg"><div class="fr"><label>施工業者</label>'+inp(i,'vendor','text','',r.vendor)+'</div><div class="fr"><label>金額（円）</label>'+inp(i,'cost','number','0',r.cost)+'</div></div>'+
       '<div class="fg"><div class="fr"><label>費用負担</label><select onchange="updateRepairL(\''+sc+'\','+i+',\'payer\',this.value)">'+['','オーナー','自社（LDY）','その他'].map(o=>'<option value="'+o+'"'+((r.payer||'')===o?' selected':'')+'>'+(o||'未設定')+'</option>').join('')+'</select></div><div class="fr"><label>備考</label>'+inp(i,'note','text','',r.note)+'</div></div>'+
     '</div>'
@@ -2303,14 +2292,14 @@ window.updateLogL=function(sc,i,f,v){if(logsL[sc][i])logsL[sc][i][f]=v;};
 function renderLogsL(sc){
   const el=document.getElementById(sc+'-log-blocks');if(!el)return;
   const hc=(sc==='lbh'||sc==='luh');
-  const mph=hc?'例：電話／窓口訪問／立入検査':'例：電話／LINE／メール';
-  const cph=hc?'例：消防設備の指摘について相談。是正報告は月末まで':'例：リネン交換の追加依頼。次回から週2回に変更';
+  const mph=hc?'':'';
+  const cph=hc?'':'';
   el.innerHTML=logsL[sc].map((c,i)=>
     '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">記録 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeLogL(\''+sc+'\','+i+')">削除</button></div>'+
       '<div class="fg"><div class="fr"><label>日付</label><input type="date" value="'+esc(c.date||'')+'" oninput="updateLogL(\''+sc+'\','+i+',\'date\',this.value)"/></div>'+
       '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" placeholder="'+mph+'" oninput="updateLogL(\''+sc+'\','+i+',\'method\',this.value)"/></div></div>'+
-      (hc?'<div class="fr"><label>相手（担当課・担当者）</label><input value="'+esc(c.who||'')+'" placeholder="例：生活衛生課 ○○さん" oninput="updateLogL(\''+sc+'\','+i+',\'who\',this.value)"/></div>':'')+
+      (hc?'<div class="fr"><label>相手（担当課・担当者）</label><input value="'+esc(c.who||'')+'" placeholder="相手" oninput="updateLogL(\''+sc+'\','+i+',\'who\',this.value)"/></div>':'')+
       '<div class="fr"><label>内容</label><textarea style="height:50px;" placeholder="'+cph+'" oninput="updateLogL(\''+sc+'\','+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
     '</div>'
   ).join('');
@@ -2342,7 +2331,7 @@ lbDrop.addEventListener('drop',async e=>{
 
 // 管理料チェック
 window.lFeeYearMove=function(d){lFeeYear+=d;renderLFeeRO();};
-window.toggleLFeePay=function(){};
+
 function updateLBDays(){
   const d=daysUntil(formLastEnd('lb','lb-end'));
   const el=document.getElementById('lb-days-display');if(!el)return;
@@ -2375,15 +2364,10 @@ function fillLBLinks(rentId,propId){
 }
 function updateLBLinkHint(){
   const p=properties.find(x=>x.id===document.getElementById('lb-linked-property').value);
-  document.getElementById('lb-linked-hint').textContent=p?('在庫物件の現在の状態：'+(p.saleStatus||'—')+'／価格：'+(p.price?p.price.toLocaleString()+'万円':'—')):'';
+  document.getElementById('lb-linked-hint').textContent=p?('現在の状態：'+(p.saleStatus||'—')):'';
 }
-function fillIfEmptyL(src){
-  const f=(id,v)=>{const el=document.getElementById(id);if(el&&!el.value.trim()&&v)el.value=v;};
-  f('lb-name',src.name);f('lb-addr',src.addr||src.loc);f('lb-struct',src.struct);f('lb-built',src.built);
-  if(!lPhotos.length&&src.photos&&src.photos.length){lPhotos=JSON.parse(JSON.stringify(src.photos));renderLBImgList();}
-}
-window.onLBLinkRent=function(){const r=blds.find(x=>x.id===document.getElementById('lb-linked-rent').value);if(r)fillIfEmptyL(r);};
-window.onLBLinkProp=function(){updateLBLinkHint();const p=properties.find(x=>x.id===document.getElementById('lb-linked-property').value);if(p)fillIfEmptyL(p);};
+window.onLBLinkRent=function(){};
+window.onLBLinkProp=function(){updateLBLinkHint();};
 const lodgeOfRent=b=>lblds.find(l=>l.linkedRentId===b.id)||lblds.find(l=>l.id===b.linkedLodgingId)||null;
 const rentOfLodge=l=>blds.find(r=>r.id===l.linkedRentId)||blds.find(r=>r.linkedLodgingId===l.id)||null;
 function mgmtChips(b,kind){
@@ -2517,7 +2501,7 @@ window.deleteLU=async function(id){
 
 // 一覧表示
 // ===== 入居者の契約更新期日（ページ最上部） =====
-let recentOpen=true;
+let recentOpen=false;
 window.toggleRecent=function(){
   recentOpen=!recentOpen;
   document.getElementById('recent-list').style.display=recentOpen?'':'none';
@@ -2588,7 +2572,7 @@ function renderLodge(){
         '<div class="bld-meta"><span class="bld-chip">区分 '+us.length+'件</span><span class="bld-chip gold">営業中 '+openN+'/'+us.length+'</span></div>'+
       '</div>'+
       '<div class="bld-detail">'+
-        (lp?'<div class="osec" style="border-color:var(--gold);background:#FFFBF0;"><div class="osec-t" style="color:#8A6D00;">🔗 在庫物件（買取再販）としての履歴</div><div class="kn-grid"><div class="kn-row"><span class="kn-lbl">物件名</span><span class="kn-val">'+esc(lp.name||'—')+'</span></div><div class="kn-row"><span class="kn-lbl">現在の状態</span><span class="kn-val">'+esc(lp.saleStatus||'—')+'</span></div><div class="kn-row"><span class="kn-lbl">価格</span><span class="kn-val">'+(lp.price?lp.price.toLocaleString()+'万円':'—')+'</span></div></div></div>':'')+
+        (lp?'<div class="osec" style="border-color:var(--gold);background:#FFFBF0;"><div class="osec-t" style="color:#8A6D00;">🔗 在庫物件（買取再販）としての履歴</div><div class="kn-grid"><div class="kn-row"><span class="kn-lbl">物件名</span><span class="kn-val">'+esc(lp.name||'—')+'</span></div><div class="kn-row"><span class="kn-lbl">現在の状態</span><span class="kn-val">'+esc(lp.saleStatus||'—')+'</span></div></div></div>':'')+
         (own?ownBldHtml(b):
         '<div class="osec"><div class="osec-t">施設・所有者</div><div class="kn-grid">'+
           '<div class="kn-row"><span class="kn-lbl">構造</span><span class="kn-val">'+esc(b.struct||'—')+'</span></div>'+
@@ -2629,6 +2613,7 @@ function renderLodge(){
       '</div>'+
     '</div>';
   }).join('');
+  foldAll(wrap);
 }
 function lodgeUnitHtml(u){
   const b=lblds.find(x=>x.id===u.bldId)||{};
@@ -2638,11 +2623,11 @@ function lodgeUnitHtml(u){
   const logs=(u.cleanLog||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
   const hcs=(u.hcLog||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
   const memos=(u.memo||'').split('\n').filter(Boolean);
-  return '<div class="unit">'+
+  return '<div class="unit" data-k="'+u.id+'">'+
     '<div class="unit-head"><span class="kn-status '+opClass(u.opStatus)+'">'+esc(u.opStatus||'—')+'</span><span class="unit-name">'+esc(u.name||'')+'</span>'+chip+
       '<span style="font-size:11px;color:var(--sub);">'+esc(u.size||'—')+(u.capacity?'／定員'+esc(u.capacity)+'名':'')+(u.use?'／'+esc(u.use):'')+'</span></div>'+
     '<div class="unit-body">'+
-      (bScope?'<div class="unit-sub"><div class="unit-sub-t">免許・届出</div><div style="font-size:11px;color:var(--sub);">この施設は1棟まるごとの免許です（施設の欄を参照）</div></div>':
+      (bScope?'<div class="unit-sub"><div class="unit-sub-t">免許・届出</div><div style="font-size:11px;color:var(--sub);">1棟の免許（施設欄を参照）</div></div>':
       '<div class="unit-sub"><div class="unit-sub-t">免許・届出</div><div class="kn-grid" style="grid-template-columns:1fr;">'+
         '<div class="kn-row"><span class="kn-lbl">種別</span><span class="kn-val">'+esc(u.licType||'—')+'</span></div>'+
         '<div class="kn-row"><span class="kn-lbl">番号</span><span class="kn-val">'+esc(u.licNo||'—')+'</span></div>'+
@@ -2693,7 +2678,7 @@ window.openLBulk=function(bldId){
   document.getElementById('lbk-all-lic').innerHTML=optsHtml(LIC,'変更しない');
   ['lbk-prefix','lbk-suffix','lbk-all-size','lbk-all-cap','lbk-all-use','lbk-xl'].forEach(i=>setVal(i,''));document.getElementById('lbk-xl-msg').textContent='';
   setVal('lbk-start','101');setVal('lbk-count','5');
-  document.getElementById('lbk-preview').textContent='例：頭=空欄・開始=101・個数=3・後ろ=号室 → 101号室、102号室、103号室';
+  document.getElementById('lbk-preview').textContent='';
   renderBulk();
   document.getElementById('lbk-modal').classList.add('open');
 };
@@ -2731,7 +2716,7 @@ function renderBulk(){
     const I=(k,t,w,ph)=>'<input type="'+t+'" value="'+esc(r[k])+'"'+(ph?' placeholder="'+ph+'"':'')+' style="width:'+w+'" oninput="bkSet('+i+',\''+k+'\',this.value)"/>';
     const S=(k,arr,empty)=>'<select style="width:100%" onchange="bkSet('+i+',\''+k+'\',this.value)">'+(empty?'<option value="">'+empty+'</option>':'')+arr.map(x=>'<option'+(r[k]===x?' selected':'')+'>'+x+'</option>').join('')+'</select>';
     return '<tr class="'+(r.del?'bk-del':'')+'"><td style="white-space:nowrap;">'+(i+1)+(r.id?'':' <span class="lic-chip">新規</span>')+'</td>'+
-      '<td>'+I('name','text','130px','例：101号室')+'</td>'+
+      '<td>'+I('name','text','130px','')+'</td>'+
       '<td style="width:100px;">'+S('opStatus',OPS)+'</td>'+
       '<td>'+I('size','text','90px')+'</td>'+
       '<td>'+I('capacity','number','60px')+'</td>'+
@@ -2801,7 +2786,7 @@ const PM=[['','未設定'],['owner_direct','オーナー直接振込'],['mgmt_di
 const pmLabel=v=>{const p=PM.find(x=>x[0]===v);return p?p[1]:'—';};
 const viaMgmt=u=>!['owner_direct','gz_owner'].includes(u.payMethod);          // 賃料が管理会社の口座に入る
 const viaGz=u=>!['owner_direct','mgmt_direct','gz_owner'].includes(u.payMethod); // 保証会社から管理会社へ振り込まれる
-const ensurePM=()=>{};
+
 const RST=['契約中','解約予告中','募集中','退去済'],RTY=['普通借家','定期借家'];
 const KEYOPT=[['','未設定'],['normal','通常（預かり→引渡し）'],['inherited','入居中に管理受託']];
 const YN=[['','未設定'],['有','有'],['無','無']];
@@ -2890,7 +2875,7 @@ function renderRBulk(){
       if(t==='sel')return '<select style="width:'+w+'" onchange="rbkSet('+i+',\''+k+'\',this.value)">'+c[3].map(o=>'<option value="'+esc(o[0])+'"'+(String(r[k])===String(o[0])?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select>';
       return '<input type="'+t+'" value="'+esc(r[k])+'" style="width:'+w+'" oninput="rbkSet('+i+',\''+k+'\',this.value)"/>';
     };
-    return '<tr class="'+(r.del?'bk-del':'')+'"><td class="stk" style="white-space:nowrap;"><span style="color:var(--sub);font-size:10px;">'+(i+1)+'</span>'+(r.id?'':' <span class="lic-chip">新規</span>')+' <input type="text" value="'+esc(r.name)+'" placeholder="例：101号室" style="width:118px;" oninput="rbkSet('+i+',\'name\',this.value)"/></td>'+
+    return '<tr class="'+(r.del?'bk-del':'')+'"><td class="stk" style="white-space:nowrap;"><span style="color:var(--sub);font-size:10px;">'+(i+1)+'</span>'+(r.id?'':' <span class="lic-chip">新規</span>')+' <input type="text" value="'+esc(r.name)+'"  style="width:118px;" oninput="rbkSet('+i+',\'name\',this.value)"/></td>'+
       cols.map(c=>'<td>'+cell(c)+'</td>').join('')+
       '<td style="white-space:nowrap;"><button type="button" class="btn btn-sm '+(r.del?'':'btn-red')+'" onclick="rbkDel('+i+')">'+(r.id?(r.del?'取消':'削除'):'行を消す')+'</button></td></tr>';
   }).join('');
@@ -3041,16 +3026,6 @@ function xlMsg(r){
     (r.unknown.length?'\n読み取れなかった項目：'+r.unknown.join('、'):'')+
     (r.bad.length?'\n形式が合わず反映しなかった値 '+r.bad.length+'件（既存の内容はそのままです。Excelを直して、もう一度アップロードしてください）：\n'+r.bad.map(b=>'・'+b).join('\n'):'')+
     '\n表の内容を確認して、「まとめて保存する」を押してください。';
-}
-async function xlCopy(text,msgId,what){
-  const msg=document.getElementById(msgId);msg.style.color='';
-  const ok='「'+what+'」をコピーしました。Excelに貼り付けて編集し、編集後の範囲をコピーして上の欄に貼り付けてください。';
-  try{await navigator.clipboard.writeText(text);msg.textContent=ok;}
-  catch(e){
-    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');msg.textContent=ok;}catch(e2){prompt('コピーして、Excelに貼り付けてください',text);}
-    document.body.removeChild(ta);
-  }
 }
 const xlCell=(c,v)=>{if(c.t!=='sel')return String(v==null?'':v).replace(/[\t\r\n]+/g,' ');const p=(c.optPairs||[]).find(o=>String(o[0])===String(v));return p?p[1]:String(v==null?'':v).replace(/[\t\r\n]+/g,' ');};
 
@@ -3343,16 +3318,16 @@ function allocEditorHtml(d,um){
     '<input type="date" value="'+esc(d.date||'')+'" onchange="dpField(\''+d.id+'\',\'date\',this.value)"/>'+
     '<input type="text" value="'+(+d.amount||0)+'" style="width:100px;text-align:right;" onchange="dpField(\''+d.id+'\',\'amount\',this.value)"/>'+
     '<input type="text" value="'+esc(d.payer||'')+'" style="flex:1;min-width:160px;" onchange="dpField(\''+d.id+'\',\'payer\',this.value)"/></div>':'';
-  const rem=(adm&&!ad.editing&&info.kind==='other'&&ad.rows.filter(r=>r.inc).length===1&&String(d.payer||'').trim())?'<label style="font-size:12px;display:block;margin-top:8px;"><input type="checkbox" '+(ad.remember?'checked ':'')+'onchange="allocRem(this.checked)"/> この名義を今後も同じ振分け先にする（「振分けの設定」に登録します）</label>':'';
+  const rem=(!ad.editing&&info.kind==='other'&&ad.rows.filter(r=>r.inc).length===1&&String(d.payer||'').trim())?'<label style="font-size:12px;display:block;margin-top:8px;"><input type="checkbox" '+(ad.remember?'checked ':'')+'onchange="allocRem(this.checked)"/> この名義を今後も同じ振分け先にする</label>':'';
   return '<div style="border-top:1px solid #E3E7EF;padding:12px 16px;background:#FAFBFE;">'+hdr+
-    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px;"><label style="font-size:12px;font-weight:700;">対象月</label><input type="month" id="ad-month" value="'+esc(ad.month)+'" onchange="allocMonth(this.value)"/><button class="btn btn-sm btn-navy" onclick="allocAuto()">自動で振り分け直す</button><span style="font-size:11px;color:var(--sub);">家賃・共益費の月です。20日以降の入金は翌月分が初期値</span></div>'+
+    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px;"><label style="font-size:12px;font-weight:700;">対象月</label><input type="month" id="ad-month" value="'+esc(ad.month)+'" onchange="allocMonth(this.value)"/><button class="btn btn-sm btn-navy" onclick="allocAuto()">自動で振り分け直す</button><span style="font-size:11px;color:var(--sub);">20日以降は翌月分が初期値</span></div>'+
     '<div style="font-size:12px;margin-bottom:8px;padding:6px 10px;border-radius:6px;background:'+(ad.exact?'#E8F5E9':'#FFF8E1')+';">'+esc(ad.note||'')+'</div>'+
     '<div style="overflow-x:auto;"><table class="lg-table" style="min-width:760px;"><tr><th></th><th>振分け先（建物／区分）</th><th>種別</th><th class="n">想定額</th><th class="n">振分額</th><th></th></tr>'+(rows||'<tr><td colspan="6" style="text-align:center;color:#999;padding:14px;">振分け先がありません。下から選んでください</td></tr>')+'</table></div>'+
     '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;"><select onchange="allocAdd(this.value)" style="max-width:300px;">'+uopts+'</select><select onchange="allocAddB(this.value)" style="max-width:300px;">'+bopts+'</select></div>'+rem+
     '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;"><span style="font-size:12px;">振分け合計 <b id="ad-sum">¥'+yen0(sum)+'</b>　'+(out?'出金':'入金')+' <b>¥'+yen0(d.amount)+'</b>　差額 <b id="ad-diff" style="color:'+(diff===0?'#2E7D32':'#C62828')+';">'+(diff===0?'¥0（一致）':'¥'+yen0(Math.abs(diff))+(diff>0?'（足りない）':'（多い）'))+'</b></span>'+
     '<span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">'+(ad.editing?'<button class="btn btn-sm" onclick="allocOpen(\''+d.id+'\')">編集をやめる</button>':'<button class="btn btn-sm" onclick="allocIgnore(\''+d.id+'\')">対象外にする</button>'+(adm?'<button class="btn btn-sm btn-red" onclick="allocDelete(\''+d.id+'\')">この入出金を削除</button>':''))+
     '<button class="btn btn-gold" id="ad-ok" '+(allocValid(d)?'':'disabled ')+'onclick="allocConfirm()">'+(ad.editing?'この内容に変更する':'この内容で振り分けを確定')+'</button></span></div>'+
-    '<div style="font-size:10px;color:var(--sub);margin-top:6px;">確定すると、振分け先ごとの明細が、それぞれのオーナーの台帳に追加されます。「敷金」「火災保険料」「オーナー送金」などは、種別で選べます。</div></div>';
+    '<div style="font-size:10px;color:var(--sub);margin-top:6px;"></div></div>';
 }
 function allocDoneHtml(d,um){
   const rows=(d.allocs||[]).map(a=>{const x=um[a.uid],b=findBld(a.bid||(x&&x.b.id));return '<tr><td>'+esc(b?b.name:(x?x.b.name:''))+'</td><td>'+esc(x?x.u.name:(a.uid?'（削除済みの区分）':'（建物全体）'))+'</td><td>'+esc(allocCatName(a.cat||'rentk'))+'</td><td class="n">'+yen0(a.amt)+'</td></tr>';}).join('');
@@ -3376,7 +3351,7 @@ window.allocConfirm=async function(){
   if(old.some(e=>e.stlId)){alert('精算済みの明細が含まれているため、変更できません。先に、その精算を取り消してください。');return;}
   const ents=allocEntries(d,rows,m);
   if(!ents.length){alert('振分け先が見つかりません');return;}
-  const remember=ad.remember&&rows.length===1&&currentRole==='admin';
+  const remember=ad.remember&&rows.length===1;
   showLoading(true);
   try{
     const refs=ents.map(()=>doc(collection(db,'managed_ledger')));
@@ -3500,14 +3475,12 @@ async function dpiTplWrite(list,keepName){
   dpiTplFill(keepName?list.findIndex(x=>x.name===keepName):null);
 }
 window.dpiTplSave=async function(){
-  if(currentRole!=='admin'){alert('テンプレの保存は管理者だけができます');return;}
-  const name=dv('dpi-tpl-name');if(!name){alert('テンプレ名（例：三井住友 普通）を入力してください');return;}
+    const name=dv('dpi-tpl-name');if(!name){alert('テンプレ名を入力してください');return;}
   const t={name,acct:dv('dpi-acct')||'普通預金',sub:dv('dpi-sub'),cDate:dv('dpi-c-date'),cIn:dv('dpi-c-in'),cOut:dv('dpi-c-out'),cMemo:dv('dpi-c-memo')};
   try{await dpiTplWrite(tplList(dv('dpi-co')).filter(x=>x.name!==name).concat(t),name);}catch(e){alert('保存に失敗しました: '+e.message);}
 };
 window.dpiTplDel=async function(){
-  if(currentRole!=='admin'){alert('テンプレの削除は管理者だけができます');return;}
-  const i=document.getElementById('dpi-tpl').value,t=tplList(dv('dpi-co'))[i];if(!t)return;
+    const i=document.getElementById('dpi-tpl').value,t=tplList(dv('dpi-co'))[i];if(!t)return;
   if(!confirm('テンプレ「'+t.name+'」を削除します。よろしいですか？'))return;
   try{await dpiTplWrite(tplList(dv('dpi-co')).filter((x,k)=>String(k)!==i),null);}catch(e){alert('削除に失敗しました: '+e.message);}
 };
@@ -3572,13 +3545,14 @@ window.doDpImp=async function(){
   showLoading(false);
 };
 // ---- 保証会社の設定 ----
-let gzDraft=[],pyDraft=[];
+let gzDraft=[],pyDraft=[],subDraft={};
+window.subSet=function(id,v){subDraft[id]=v;};
 window.openGzSet=function(){
   const sel=document.getElementById('gz-co');
   sel.innerHTML=allowedCo.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
   sel.value=(coSel!=='all'&&allowedCo.includes(coSel))?coSel:(allowedCo.includes(defaultCo())?defaultCo():allowedCo[0]);
   sel.disabled=allowedCo.length<2;
-  const ro=currentRole!=='admin';
+  const ro=false;
   document.getElementById('gz-ro').style.display=ro?'':'none';document.getElementById('gz-save').style.display=ro?'none':'';
   gzLoad();document.getElementById('gz-modal').classList.add('open');
 };
@@ -3586,19 +3560,19 @@ window.closeGzSet=function(){document.getElementById('gz-modal').classList.remov
 const gzKeys0=g=>(Array.isArray(g.keys)?g.keys:String(g.keys||'').split(/[,、，\n]/)).map(k=>String(k).trim()).filter(Boolean);
 window.gzLoad=function(){
   const co=document.getElementById('gz-co').value;
-  gzDraft=gzList(co).map(g=>({name:g.name,keys:gzKeys0(g),auto:!!g.auto}));
+  subDraft={};gzDraft=gzList(co).map(g=>({name:g.name,keys:gzKeys0(g),auto:!!g.auto}));
   pyDraft=((rco[co]&&rco[co].payers)||[]).map(p=>({kind:p.kind||'tenant',keys:gzKeys0(p),target:p.target||''}));
   renderGz();
 };
 function renderGz(){
-  const ro=currentRole!=='admin',dis=ro?'disabled ':'',co=document.getElementById('gz-co').value;
+  const ro=false,dis='',co=document.getElementById('gz-co').value;
   const names=[...new Set(ru.filter(u=>u.biz!=='lodging'&&u.hoshoName).map(u=>String(u.hoshoName).trim()))];
   document.getElementById('gz-names').innerHTML=names.map(n=>'<option value="'+esc(n)+'"></option>').join('');
   const us=allocUnits(co),bl=allocBlds(co);
   const box='border:1px solid #E3E7EF;border-radius:6px;padding:10px;margin-bottom:8px;';
   const gzHtml=gzDraft.map((g,i)=>
     '<div style="'+box+'"><div class="fg"><div class="fr"><label>保証会社名（区分の「保証会社名」と同じ名前）</label><input list="gz-names" value="'+esc(g.name)+'" '+dis+'oninput="gzSet('+i+',\'name\',this.value)"/></div>'+
-    '<div class="fr"><label>銀行の名義に含まれる文字（複数ならカンマ区切り）</label><input value="'+esc(g.keys.join(','))+'" placeholder="例：ジャパン,ｼﾞｬﾊﾟﾝ" '+dis+'oninput="gzSet('+i+',\'keys\',this.value)"/></div></div>'+
+    '<div class="fr"><label>銀行の名義に含まれる文字（複数ならカンマ区切り）</label><input value="'+esc(g.keys.join(','))+'" placeholder="銀行の名義に含まれる文字" '+dis+'oninput="gzSet('+i+',\'keys\',this.value)"/></div></div>'+
     '<label style="font-size:12px;"><input type="checkbox" '+(g.auto?'checked ':'')+dis+'onchange="gzSet('+i+',\'auto\',this.checked)"/> 契約中の全室の合計と入金額が一致したら、取り込み時に自動で振り分けを確定する</label>'+
     (ro?'':' <button class="btn btn-sm btn-red" style="float:right;" onclick="gzDel('+i+')">削除</button>')+'</div>').join('');
   const pyHtml=pyDraft.map((p,i)=>{
@@ -3606,15 +3580,17 @@ function renderGz(){
       ?'<option value="">建物を選択…</option>'+bl.map(b=>'<option value="'+b.id+'"'+(b.id===p.target?' selected':'')+'>'+esc((b.name||'')+(b.owner?'（'+b.owner+'）':''))+'</option>').join('')
       :'<option value="">区分を選択…</option>'+us.map(x=>'<option value="'+x.u.id+'"'+(x.u.id===p.target?' selected':'')+'>'+esc((x.b.name||'')+' ／ '+(x.u.name||'')+(x.u.tenant?'（'+x.u.tenant+'）':''))+'</option>').join('');
     return '<div style="'+box+'"><div class="fg"><div class="fr"><label>種類</label><select '+dis+'onchange="pySet('+i+',\'kind\',this.value)"><option value="tenant"'+(p.kind==='tenant'?' selected':'')+'>入居者（区分に振り分け）</option><option value="owner"'+(p.kind==='owner'?' selected':'')+'>オーナー（建物に振り分け）</option></select></div>'+
-      '<div class="fr"><label>銀行の名義に含まれる文字（カンマ区切り）</label><input value="'+esc(p.keys.join(','))+'" placeholder="例：ヤマダ,ﾔﾏﾀﾞ" '+dis+'oninput="pySet('+i+',\'keys\',this.value)"/></div></div>'+
+      '<div class="fr"><label>銀行の名義に含まれる文字（カンマ区切り）</label><input value="'+esc(p.keys.join(','))+'" placeholder="銀行の名義に含まれる文字" '+dis+'oninput="pySet('+i+',\'keys\',this.value)"/></div></div>'+
       '<div class="fr"><label>振分け先</label><select '+dis+'onchange="pySet('+i+',\'target\',this.value)">'+opts+'</select></div>'+(ro?'':'<button class="btn btn-sm btn-red" onclick="pyDel('+i+')">削除</button>')+'</div>';
   }).join('');
+  const sbl=rb.filter(b=>b.mgmtType!=='own'&&coOf(b)===co).sort(byName);
+  const subHtml='<div style="font-size:12px;font-weight:700;color:var(--navy);margin:14px 0 6px;">弥生の補助科目（建物ごと）</div>'+(sbl.map(b=>'<div class="fg" style="align-items:center;margin-bottom:4px;"><div style="font-size:12px;">'+esc(b.name||'')+'</div><input value="'+esc(subDraft[b.id]!==undefined?subDraft[b.id]:(b.yayoiSub||''))+'" placeholder="空欄なら建物名" oninput="subSet(\''+b.id+'\',this.value)"/></div>').join('')||'<div style="color:#999;font-size:12px;">対象の建物がありません</div>');
   document.getElementById('gz-list').innerHTML=
     '<div style="font-size:12px;font-weight:700;color:var(--navy);margin:4px 0 6px;">保証会社</div>'+(gzHtml||'<div style="color:#999;font-size:12px;padding:4px 0 8px;">まだ登録がありません。</div>')+
     '<div id="gz-add-slot"></div>'+
     '<div style="font-size:12px;font-weight:700;color:var(--navy);margin:14px 0 4px;">入居者・オーナーの名義</div>'+
-    '<div style="font-size:11px;color:var(--sub);margin-bottom:6px;">契約者名・フリガナ、オーナー名と一致する名義は自動で判定します。家族名義・会社名義・通称など、一致しないものだけ登録してください（振分け画面の「この名義を今後も同じ振分け先にする」からも登録できます）。</div>'+
-    (pyHtml||'<div style="color:#999;font-size:12px;padding:4px 0 8px;">まだ登録がありません。</div>')+(ro?'':'<button class="btn btn-sm btn-navy" onclick="pyAdd()">＋ 入居者・オーナーの名義を追加</button>');
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:6px;">契約者名・オーナー名と一致する名義は自動判定です。一致しないものだけ登録します。</div>'+
+    (pyHtml||'<div style="color:#999;font-size:12px;padding:4px 0 8px;">まだ登録がありません。</div>')+(ro?'':'<button class="btn btn-sm btn-navy" onclick="pyAdd()">＋ 入居者・オーナーの名義を追加</button>')+subHtml;
   document.getElementById('gz-add').style.display=ro?'none':'';
 }
 window.gzSet=function(i,k,v){if(!gzDraft[i])return;gzDraft[i][k]=(k==='keys')?String(v).split(/[,、，]/).map(x=>x.trim()).filter(Boolean):v;};
@@ -3628,8 +3604,7 @@ window.pySet=function(i,k,v){
 window.pyAdd=function(){pyDraft.push({kind:'tenant',keys:[],target:''});renderGz();};
 window.pyDel=function(i){pyDraft.splice(i,1);renderGz();};
 window.saveGzSet=async function(){
-  if(currentRole!=='admin'){alert('設定の変更は管理者だけができます');return;}
-  const co=document.getElementById('gz-co').value;
+    const co=document.getElementById('gz-co').value;
   const list=gzDraft.filter(g=>String(g.name||'').trim()).map(g=>({name:String(g.name).trim(),keys:g.keys,auto:!!g.auto}));
   if(list.some(g=>!g.keys.length)){alert('銀行の名義に含まれる文字を、保証会社ごとに1つ以上入力してください（これで保証会社の入出金かどうかを判定します）');return;}
   const py=pyDraft.filter(p=>p.keys.length||p.target);
@@ -3638,6 +3613,7 @@ window.saveGzSet=async function(){
   try{
     const batch=writeBatch(db);
     batch.set(doc(db,'managed_company',co),{company:co,guarantors:list,payers:py.map(p=>({kind:p.kind,keys:p.keys,target:p.target})),updatedAt:serverTimestamp(),updatedBy:(auth.currentUser||{}).email||''},{merge:true});
+    Object.entries(subDraft).forEach(([id,v])=>{const b=rb.find(x=>x.id===id),t=String(v).trim();if(b&&String(b.yayoiSub||'')!==t)batch.update(doc(db,'managed_buildings',id),{yayoiSub:t});});
     await batch.commit();closeGzSet();
   }catch(e){alert('保存に失敗しました: '+e.message+(/permission/i.test(e.message)?'\n\nFirestoreのセキュリティルールに managed_company の許可を追加してください。':''));console.error(e);}
   showLoading(false);
@@ -3661,7 +3637,7 @@ function yjRows(){
   rdp.filter(d=>d.company===co&&d.status==='done'&&(!f||d.date>=f)&&(!t||d.date<=t)).sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(d=>{
     const out=depDir(d)==='out',bank=[d.bankAcct||'普通預金',d.bankSub||''];if(!d.bankAcct)noBank++;
     (d.allocs||[]).forEach(a=>{
-      const x=um[a.uid],b=findBld(a.bid||(x&&x.b.id)),cpa=[cp,String((b&&b.name)||'').slice(0,20)];
+      const x=um[a.uid],b=findBld(a.bid||(x&&x.b.id)),cpa=[cp,String((b&&(b.yayoiSub||b.name))||'').slice(0,20)];
       const memo=[x?x.u.name:'',allocCatName(a.cat||'rentk').replace(/（.*）/,''),d.payer||''].filter(Boolean).join(' ').slice(0,60);
       const dr=out?cpa:bank,cr=out?bank:cpa;
       rows.push(['2000','','',ymd(d.date),dr[0],dr[1],'','対象外',a.amt,0,cr[0],cr[1],'','対象外',a.amt,0,memo,'','',0,'','',0,0,'no']);n++;
@@ -3680,7 +3656,7 @@ window.yjSum=function(){
   const r=yjRows(),tot=r.rows.reduce((a,x)=>a+(+x[8]||0),0);
   document.getElementById('yj-sum').innerHTML='仕訳 <b>'+r.n+'件</b>（金額合計 ¥'+yen0(tot)+'）'+(r.noBank?'<br><span style="color:#C62828;">銀行の勘定科目が未登録の入出金が '+r.noBank+'件あります（「普通預金」で出力します）。</span>':'');
   const subs=new Set();r.rows.forEach(x=>{[[x[4],x[5]],[x[10],x[11]]].forEach(([a,b])=>{if(b)subs.add(a+' ／ '+b);});});
-  document.getElementById('yj-sum').innerHTML+=subs.size?'<div style="margin-top:8px;font-size:11px;color:var(--sub);">弥生に登録しておく勘定科目／補助科目（未登録だと取り込めないことがあります）：<br>'+[...subs].map(esc).join('<br>')+'</div>':'';
+  document.getElementById('yj-sum').innerHTML+=subs.size?'<div style="margin-top:8px;font-size:11px;color:var(--sub);">弥生に登録が必要な科目：<br>'+[...subs].map(esc).join('<br>')+'</div>':'';
   document.getElementById('yj-go').disabled=!r.n;
 };
 window.doYj=function(){
@@ -3764,6 +3740,21 @@ window.xlsxLoad=async function(e,kind){
   }catch(err){alert('Excelファイルを読み込めませんでした: '+err.message);console.error(err);}
 };
 
+// ===== 詳細の折りたたみ（開閉の状態は再描画しても保持） =====
+const openDet=new Set();
+function mkFold(title,key,nodes){
+  const d=document.createElement('details');d.className='fold';if(openDet.has(key))d.open=true;
+  const sm=document.createElement('summary');sm.textContent=title;d.appendChild(sm);nodes.forEach(n=>d.appendChild(n));
+  d.addEventListener('toggle',()=>{if(d.open)openDet.add(key);else openDet.delete(key);});return d;
+}
+function foldAll(root){
+  root.querySelectorAll('.bld-detail').forEach(el=>{const id=(el.parentElement.id||'').replace('bld-','');el.appendChild(mkFold('建物・契約の詳細','b:'+id,[...el.childNodes]));});
+  root.querySelectorAll('.unit[data-k]').forEach(el=>{
+    const body=el.querySelector('.unit-body'),acts=el.querySelector('.unit-acts');if(!body||!acts)return;
+    const nodes=[];let n=body;while(n&&n!==acts){const nx=n.nextElementSibling;nodes.push(n);n=nx;}
+    el.insertBefore(mkFold('詳細','u:'+el.dataset.k,nodes),acts);
+  });
+}
 // ===== 管理委託の終了・管理組合 / 入居者の交代・空室・応募 =====
 const isEnded=b=>!!b&&b.consignStatus==='ended';
 const endedB=id=>isEnded(rb.find(x=>x.id===id));
@@ -3786,14 +3777,14 @@ function renderApplicants(){
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">応募 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeApplicant('+i+')">削除</button></div>'+
     '<div class="fg"><div class="fr"><label>応募日</label>'+I(i,'date','date','',a.date)+'</div><div class="fr"><label>状況</label><select onchange="updateApplicant('+i+',\'status\',this.value)">'+APS.map(o=>'<option'+((a.status||'申込')===o?' selected':'')+'>'+o+'</option>').join('')+'</select></div></div>'+
     '<div class="fg"><div class="fr"><label>応募者名</label>'+I(i,'name','text','',a.name)+'</div><div class="fr"><label>電話番号</label>'+I(i,'tel','text','',a.tel)+'</div></div>'+
-    '<div class="fg"><div class="fr"><label>希望入居日</label>'+I(i,'desired','date','',a.desired)+'</div><div class="fr"><label>備考</label>'+I(i,'note','text','例：審査中／保証会社の結果待ち',a.note)+'</div></div></div>'
+    '<div class="fg"><div class="fr"><label>希望入居日</label>'+I(i,'desired','date','',a.desired)+'</div><div class="fr"><label>備考</label>'+I(i,'note','text','',a.note)+'</div></div></div>'
   ).join('');
 }
 const TEN_KEYS=['tenantType','tenant','tenantKana','nationality','tenantTel','tenantContact','tenantContactTel','contractType','start','end','renewals','noticeLessor','noticeLessee','noticeMethod','rent','kanri','rentHistory','shikikin','shikikinNote','shikikinHolder','reikin','hoshoFirst','kasaiStatus','kasaiCompany','kasaiStart','kasaiEnd','koshinUmu','koshinRyo','koshinTesuryo','payTiming','payMethod','hoshoName','hoshoTel','hoshoAddr','hoshoFee','hoshoCycle','keyStatus','keyReceived','keyHanded','keyNote','contactLog'];
 window.moveOutUnit=async function(id){
   const u=units.find(x=>x.id===id);if(!u)return;
   const def=todayJ();
-  const d=prompt('退去日を入力してください（例：'+def+'）\n\n現在の入居者の内容は「前入居者の履歴」に残り、区分は「募集中」になります。\nリフォーム内容・賃料の改定履歴・区分の情報は、区分に引き継がれます。',def);
+  const d=prompt('退去日を入力してください（例：'+def+'）\n\n契約者の内容は履歴に残り、区分は「募集中」になります。',def);
   if(d===null)return;
   const day=d.trim();
   if(!/^\d{4}-\d{2}-\d{2}$/.test(day)){alert('退去日は 2026-11-30 の形式で入力してください');return;}
@@ -3802,6 +3793,18 @@ window.moveOutUnit=async function(id){
   const clr={tenantType:'個人',tenant:'',tenantKana:'',nationality:'',tenantTel:'',tenantContact:'',tenantContactTel:'',status:'募集中',start:'',end:'',renewals:[],noticeLessor:'',noticeLessee:'',noticeMethod:'',shikikin:null,shikikinNote:'',shikikinHolder:'',reikin:null,hoshoFirst:null,kasaiStatus:'',kasaiCompany:'',kasaiStart:'',kasaiEnd:'',koshinUmu:'',koshinRyo:'',koshinTesuryo:null,payTiming:'',payMethod:'',hoshoName:'',hoshoTel:'',hoshoAddr:'',hoshoFee:null,hoshoCycle:'',keyStatus:'',keyReceived:null,keyHanded:null,keyNote:'',contactLog:[],rentPayments:{},vacantSince:day,pastTenants:[...(u.pastTenants||[]),snap],updatedAt:serverTimestamp()};
   showLoading(true);
   try{await updateDoc(doc(db,'managed_units',id),clr);openBlds.add(u.bldId);}catch(e){alert('保存に失敗しました: '+e.message);console.error(e);}
+  showLoading(false);
+};
+window.undoMoveOut=async function(id){
+  const u=units.find(x=>x.id===id),ps=(u&&u.pastTenants)||[];if(!ps.length)return;
+  if(u.tenant){alert('現在の契約者が登録されているため、取り消せません');return;}
+  const last=ps.slice().sort((a,b)=>(a.archivedAt||a.moveOut||'').localeCompare(b.archivedAt||b.moveOut||'')).pop();
+  if(!confirm('「'+(last.tenant||'前の入居者')+'」の退去（'+(last.moveOut||'—')+'）を取り消し、契約中に戻します。'))return;
+  const f={status:'契約中',vacantSince:'',pastTenants:ps.filter(p=>p!==last),updatedAt:serverTimestamp()};
+  TEN_KEYS.forEach(k=>{if(['rent','kanri','rentHistory'].includes(k))return;if(last[k]!==undefined)f[k]=JSON.parse(JSON.stringify(last[k]));});
+  f.contactLog=[...(last.contactLog||[]),...(u.contactLog||[])];
+  showLoading(true);
+  try{await updateDoc(doc(db,'managed_units',id),f);}catch(e){alert('保存に失敗しました: '+e.message);console.error(e);}
   showLoading(false);
 };
 function reformListOf(u){
@@ -3821,9 +3824,9 @@ function renderReforms(){
     '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px;margin-bottom:8px;">'+
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">リフォーム '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeReform('+i+')">削除</button></div>'+
     '<div class="fg"><div class="fr"><label>工事 開始</label>'+I(i,'start','date','',r.start)+'</div><div class="fr"><label>工事 終了</label>'+I(i,'end','date','',r.end)+'</div></div>'+
-    '<div class="fr"><label>リフォーム内容</label>'+I(i,'content','text','例：クロス全面張替え・水回り交換',r.content)+'</div>'+
+    '<div class="fr"><label>リフォーム内容</label>'+I(i,'content','text','',r.content)+'</div>'+
     '<div class="fg"><div class="fr"><label>施工業者</label>'+I(i,'vendor','text','',r.vendor)+'</div><div class="fr"><label>金額（円）</label>'+I(i,'cost','number','0',r.cost)+'</div></div>'+
-    '<div class="fg"><div class="fr"><label>費用負担</label><select onchange="updateReform('+i+',\'payer\',this.value)">'+['','オーナー','自社（LDY）','賃借人','その他'].map(o=>'<option value="'+o+'"'+((r.payer||'')===o?' selected':'')+'>'+(o||'未設定')+'</option>').join('')+'</select></div><div class="fr"><label>備考</label>'+I(i,'note','text','例：この期間は賃料発生しない',r.note)+'</div></div></div>'
+    '<div class="fg"><div class="fr"><label>費用負担</label><select onchange="updateReform('+i+',\'payer\',this.value)">'+['','オーナー','自社（LDY）','賃借人','その他'].map(o=>'<option value="'+o+'"'+((r.payer||'')===o?' selected':'')+'>'+(o||'未設定')+'</option>').join('')+'</select></div><div class="fr"><label>備考</label>'+I(i,'note','text','',r.note)+'</div></div></div>'
   ).join('');
 }
 const reformLine=r=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(r.start||'—')+(r.end?' 〜 '+esc(r.end):'')+'</b>　'+esc(r.content||'')+((r.cost!=null&&r.cost!=='')?' <span class="kn-days">'+yen(r.cost)+'</span>':'')+(r.vendor?'　業者 '+esc(r.vendor):'')+(r.payer?'　負担 '+esc(r.payer):'')+(r.note?'　'+esc(r.note):'')+'</div>';
@@ -3831,7 +3834,7 @@ function reformHtml(u){
   const rs=reformListOf(u).sort((a,b)=>(b.start||b.end||'').localeCompare(a.start||a.end||''));
   if(!rs.length)return '';
   const total=rs.reduce((a,r)=>a+(Number(r.cost)||0),0);
-  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">リフォーム履歴（'+rs.length+'件'+(total?'／合計 '+yen(total):'')+'）　※入居者が変わっても引き継がれます</div>'+rs.map(reformLine).join('')+'</div>';
+  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">リフォーム履歴（'+rs.length+'件'+(total?'／合計 '+yen(total):'')+'）</div>'+rs.map(reformLine).join('')+'</div>';
 }
 const inRange=(d,from,to)=>!!d&&(!from||d>=from)&&(!to||d<=to);
 const reformIn=(u,from,to)=>reformListOf(u).filter(r=>inRange(r.start||r.end,from,to)).sort((a,b)=>(a.start||a.end||'').localeCompare(b.start||b.end||''));
@@ -3873,7 +3876,7 @@ function unitTimeline(u){
   const restHtml=rest.length?'<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居者の募集・応募（'+rest.length+'件）</div>'+rest.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8).map(a=>'<div style="font-size:10.5px;padding:3px 0;border-bottom:1px dashed #eee;"><b>'+esc(a.date||'—')+'</b> <span style="color:var(--teal);">['+esc(a.status||'')+']</span> '+esc(a.name||'')+(a.tel?'／'+esc(a.tel):'')+(a.desired?'　希望入居日 '+esc(a.desired):'')+(a.note?'　'+esc(a.note):'')+'</div>').join('')+'</div>':'';
   if(items.length===0||(items.length===1&&items[0].kind==='cur'))return restHtml;
   items.sort((a,b)=>String(a.key).localeCompare(String(b.key)));
-  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居・募集の履歴（上が古く、下が新しい。▶を押すと詳細が開きます）</div>'+items.map((x,i)=>tlItem(x.kind,x.title,x.sub,x.body,i===items.length-1)).join('')+'</div>'+restHtml;
+  return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居・募集の履歴（古い順）</div>'+items.map((x,i)=>tlItem(x.kind,x.title,x.sub,x.body,i===items.length-1)).join('')+'</div>'+restHtml;
 }
 const unitExtraHtml=unitTimeline;
 
