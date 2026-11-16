@@ -2008,8 +2008,6 @@ window.saveUnit=async function(){if(editUnitId&&verOf(units.find(x=>x.id===editU
     keyReceived:n('u-key-received'),keyHanded:n('u-key-handed'),keyNote:g('u-key-note'),keyStatus:document.getElementById('u-key-status').value,
     memo:g('u-memo'),updatedAt:serverTimestamp()};
   try{
-    {const ap=obj.applicants.find(a=>a.status==='契約済'&&!a.applied);
-    if(ap&&(!obj.tenant||obj.tenant===ap.name||confirm('応募者「'+ap.name+'」を契約者として反映します。現在の契約者「'+obj.tenant+'」は上書きされます。'))){obj.tenant=ap.name||obj.tenant;obj.tenantKana=ap.kana||obj.tenantKana;obj.tenantTel=ap.tel||obj.tenantTel;obj.start=ap.desired||obj.start;obj.status='契約中';ap.applied=true;}}
     {const old=editUnitId?units.find(x=>x.id===editUnitId):null,vl=((old&&old.vacancyLog)||[]).slice();if(obj.vacantSince&&obj.status==='契約中'&&obj.start){if(obj.vacantSince<=obj.start)vl.push({from:obj.vacantSince,to:obj.start});obj.vacantSince='';}if(old||vl.length)obj.vacancyLog=vl;}
     if(editUnitId){await updateDoc(doc(db,'managed_units',editUnitId),obj);}
     else{obj.createdAt=serverTimestamp();await addDoc(collection(db,'managed_units'),obj);}
@@ -3816,8 +3814,8 @@ function renderApplicants(){
   const I=(i,f,t,v)=>'<input type="'+t+'" value="'+esc(v||'')+'" oninput="updateApplicant('+i+',\''+f+'\',this.value)"/>';
   el.innerHTML=applicants.map((a,i)=>
     '<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px;margin-bottom:6px;">'+
-    '<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">応募 '+(i+1)+(a.applied?'（契約情報に反映済み）':'')+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeApplicant('+i+')">削除</button></div>'+
-    '<div class="fg"><div class="fr"><label>応募日</label>'+I(i,'date','date',a.date)+'</div><div class="fr"><label>状況（契約済にして保存すると契約情報に反映）</label><select onchange="updateApplicant('+i+',\'status\',this.value)">'+APS.map(o=>'<option'+((a.status||'申込')===o?' selected':'')+'>'+o+'</option>').join('')+'</select></div></div>'+
+    '<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:10px;font-weight:700;color:var(--navy);">応募 '+(i+1)+'</span><button type="button" class="btn btn-sm btn-red" onclick="removeApplicant('+i+')">削除</button></div>'+
+    '<div class="fg"><div class="fr"><label>応募日</label>'+I(i,'date','date',a.date)+'</div><div class="fr"><label>状況</label><select onchange="updateApplicant('+i+',\'status\',this.value)">'+APS.map(o=>'<option'+((a.status||'申込')===o?' selected':'')+'>'+o+'</option>').join('')+'</select></div></div>'+
     '<div class="fg"><div class="fr"><label>応募者名</label>'+I(i,'name','text',a.name)+'</div><div class="fr"><label>フリガナ</label>'+I(i,'kana','text',a.kana)+'</div></div>'+
     '<div class="fg"><div class="fr"><label>電話番号</label>'+I(i,'tel','text',a.tel)+'</div><div class="fr"><label>希望入居日</label>'+I(i,'desired','date',a.desired)+'</div></div>'+
     '<div class="fr"><label>備考</label>'+I(i,'note','text',a.note)+'</div></div>'
