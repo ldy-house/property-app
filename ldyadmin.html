@@ -221,6 +221,35 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
 .ll-photo-cap{width:100%;font-size:10px;padding:3px 5px;margin-top:3px;border:1px solid #C8E6C9;border-radius:3px;outline:none;font-family:inherit}
 .ll-photo-cap:focus{border-color:var(--green)}
 body.is-staff button[onclick*="_firebaseDelete"]{display:none!important}
+
+/* ===== opsadmin.html と同じ調整：隙間の圧縮・スクロールの二重化解消 ===== */
+/* 編集モーダル：外枠のスクロールをやめ、本文だけスクロール（二重スクロールバー解消） */
+.modal{width:780px;overflow:hidden}
+.modal-head{padding:10px 16px}.modal-body{padding:10px 14px}.modal-foot{padding:8px 14px}
+.pc-head{padding:10px 16px}.pc-body{padding:12px 16px}.pc-foot{padding:8px 14px}
+/* セクション：枠・背景を外して下線だけにする */
+.fs{margin-bottom:8px;padding:4px 0 8px;border-bottom:1px solid #E6E8F0}
+.fs-title,.fs-title-int,.fs-title-jimu{margin-bottom:6px;padding-bottom:2px;border-bottom-width:1px}
+.fs>:last-child{margin-bottom:0}
+/* 社内専用（赤）・事務（緑）は色分けを残し、余白だけ詰める（HTML側のstyle指定を上書き） */
+#internal-fields,.fs[style*="F0FFF4"]{padding:6px 10px 8px!important;border-radius:6px!important}
+#internal-fields>div[style*="margin-bottom:12px"]{margin-bottom:6px!important}
+#internal-fields>div[style*="margin-bottom:12px"]>div[style*="font-size:10px"]{margin-bottom:4px!important}
+.fs[style*="F0FFF4"]>div[style*="C8E6C9"]{padding:6px 8px!important;margin-bottom:6px!important}
+.fs[style*="F0FFF4"]>div[style*="C8E6C9"]:last-child{margin-bottom:0!important}
+/* 入力欄・行の間隔 */
+.fr{margin-bottom:6px}.fr label{margin-bottom:2px}
+.fg{gap:6px 10px;margin-bottom:6px}.fg>.fr{margin-bottom:0}
+.fg3{gap:6px;margin-bottom:6px}.fg3>.fr{margin-bottom:0}
+.fr input,.fr select,.fr textarea{padding:5px 8px;font-size:12.5px}
+.fr textarea{height:70px;line-height:1.6}
+.meter-block{padding:6px;margin-bottom:4px}.meter-head{margin-bottom:4px}
+/* 一覧カード：隙間を少し詰める */
+.card-grid{gap:10px;padding:10px 20px}
+.card-body{padding:8px 12px}
+.card-actions{padding:6px 12px}
+.internal-section,.jimu-section{padding:6px 8px;margin-top:4px}
+.count-info{padding:4px 20px 0}
 </style>
 </head>
 <body>
