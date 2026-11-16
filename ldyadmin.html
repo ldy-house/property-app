@@ -250,6 +250,14 @@ body.is-staff button[onclick*="_firebaseDelete"]{display:none!important}
 .card-actions{padding:6px 12px}
 .internal-section,.jimu-section{padding:6px 8px;margin-top:4px}
 .count-info{padding:4px 20px 0}
+/* ===== 編集画面の右側ガイド（目次・現在位置）opsadmin.html と同じ ===== */
+.modal-body{position:relative}
+.mnav{float:right;position:sticky;top:4px;width:92px;margin:0 0 0 8px;padding-left:10px;border-left:2px solid #E3E7F0;display:flex;flex-direction:column;gap:2px;font-size:11px;z-index:2;background:#fff}
+.mnav a{position:relative;cursor:pointer;color:#888;padding:3px 0 3px 4px;line-height:1.3}
+.mnav a::before{content:'';position:absolute;left:-16px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#CCD2E3;border:2px solid #fff}
+.mnav a.on{color:var(--navy);font-weight:700}.mnav a.on::before{background:var(--gold)}
+.has-nav>.fs{margin-right:112px}
+@media(max-width:760px){.mnav{display:none}.has-nav>.fs{margin-right:0}}
 </style>
 </head>
 <body>
@@ -1494,6 +1502,30 @@ window.generatePrint=function(){
 };
 
 function showLoading(v){document.getElementById('loading').className='loading-overlay'+(v?' show':'');}
+</script>
+<script>
+// 編集画面の右側ガイド（目次・現在位置）。表示中のセクションだけを目次にする（社内専用は管理者のみ）
+(function(){
+  function buildNav(mid){
+    var body=document.getElementById(mid).querySelector('.modal-body');
+    var old=body.querySelector(':scope>.mnav');if(old)old.remove();
+    var secs=[].slice.call(body.querySelectorAll(':scope>.fs')).filter(function(f){return f.offsetParent&&f.querySelector('.fs-title,.fs-title-int,.fs-title-jimu');});
+    if(secs.length<4){body.classList.remove('has-nav');body.onscroll=null;return;}
+    var nav=document.createElement('div');nav.className='mnav';
+    secs.forEach(function(f){
+      var a=document.createElement('a');
+      a.textContent=f.querySelector('.fs-title,.fs-title-int,.fs-title-jimu').textContent.replace(/[（(].*$/,'').trim();
+      a.onclick=function(){body.scrollTo({top:f.offsetTop-6,behavior:'smooth'});};
+      nav.appendChild(a);f._a=a;
+    });
+    body.insertBefore(nav,body.firstChild);body.classList.add('has-nav');
+    var spy=function(){var cur=secs[0];secs.forEach(function(f){if(f.offsetTop-14<=body.scrollTop)cur=f;});secs.forEach(function(f){f._a.classList.toggle('on',f===cur);});};
+    body.onscroll=spy;body.scrollTop=0;spy();
+  }
+  var bg=document.getElementById('modal');
+  if(!bg)return;
+  new MutationObserver(function(){if(bg.classList.contains('open'))setTimeout(function(){buildNav('modal');},0);}).observe(bg,{attributes:true,attributeFilter:['class']});
+})();
 </script>
 </body>
 </html>
