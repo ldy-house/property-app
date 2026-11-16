@@ -1690,7 +1690,7 @@ function renderRentHistory(){
   updateCurrentRentDisplay();
 }
 
-window.addContactLog=function(){contactLog.unshift({date:new Date().toISOString().slice(0,10),time:new Date().toTimeString().slice(0,5),method:'',content:''});renderContactLog();};
+window.addContactLog=function(){contactLog.unshift({date:new Date().toISOString().slice(0,10),time:'',method:'',content:''});renderContactLog();};
 window.removeContactLog=function(i){contactLog.splice(i,1);renderContactLog();};
 window.updateContactLog=function(i,f,v){if(contactLog[i])contactLog[i][f]=v;};
 function renderContactLog(){
@@ -1703,7 +1703,7 @@ function renderContactLog(){
       '</div>'+
       '<div class="fg">'+
         '<div class="fr"><label>日付</label><input type="date" value="'+esc(c.date||'')+'" oninput="updateContactLog('+i+',\'date\',this.value)"/></div>'+
-        '<div class="fr"><label>時間</label><input type="time" value="'+esc(c.time||'')+'" oninput="updateContactLog('+i+',\'time\',this.value)"/></div>'+
+        '<div class="fr"><label>時間（任意）</label><input type="time" value="'+esc(c.time||'')+'" oninput="updateContactLog('+i+',\'time\',this.value)"/></div>'+
         '<div class="fr"><label>方法</label><input value="'+esc(c.method||'')+'" oninput="updateContactLog('+i+',\'method\',this.value)"/></div>'+
       '</div>'+
       '<div class="fr"><label>内容</label><textarea style="height:50px;" oninput="updateContactLog('+i+',\'content\',this.value)">'+esc(c.content||'')+'</textarea></div>'+
