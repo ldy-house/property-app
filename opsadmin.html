@@ -451,7 +451,7 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         <div class="fg"><div class="fr"><label>ビル名 *</label><input id="b-name"/></div><div class="fr"><label>所在地</label><input id="b-addr"/></div></div>
         <div class="fg"><div class="fr"><label>構造</label><input id="b-struct"/></div><div class="fr"><label>築年月</label><input id="b-built"/></div></div>
         <div class="fg"><div class="fr"><label>管理形態</label><select id="b-mgmt" onchange="toggleMgmt('b')"><option value="consign">管理委託</option><option value="own">自社管理</option></select></div><div class="fr"><label>管理会社 <a href="#" onclick="openCoInfo(document.getElementById('b-company').value);return false" style="font-size:10px;font-weight:700;color:var(--navy);margin-left:6px;">設定 ›</a></label><select id="b-company"></select></div></div>
-        <div class="fg"><div class="fr"><label>自社担当者</label><input id="b-staff"/></div><div class="fr"><label>ふりがな</label><input id="b-staff-kana"/></div></div>
+        <div class="fg"><div class="fr"><label>自社担当者</label><input id="b-staff"/></div><div class="fr"></div></div>
         <div class="fg"><div class="fr"><label>納税管理人委託</label><select id="b-tax-agent"><option value="">未設定</option><option>有</option><option>無</option></select></div><div class="fr"></div></div>
       </div>
 
@@ -481,7 +481,11 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div style="font-size:9px;font-weight:700;color:var(--teal);letter-spacing:1px;margin:10px 0 6px;padding-top:8px;border-top:1px dashed var(--border);">ご担当者（法人の場合）</div>
           <div class="fg">
             <div class="fr"><label>担当者名</label><input id="b-owner-contact"/></div>
+            <div class="fr"><label>担当者 ふりがな</label><input id="b-owner-contact-kana"/></div>
+          </div>
+          <div class="fg">
             <div class="fr"><label>担当者電話番号</label><input id="b-owner-contact-tel"/></div>
+            <div class="fr"></div>
           </div>
         </div>
       </div>
@@ -511,7 +515,6 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
           <div class="fr"><label>請求頻度</label><input id="b-invoice-freq"/></div>
           <div class="fr"><label>支払期限</label><input id="b-invoice-due"/></div>
         </div>
-        <div class="fr"><label>建物の備考（業務用）</label><textarea id="b-memo" placeholder="1行1項目で入力"></textarea></div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
           <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:8px;">管理料の徴収状況（出納帳より）　<a href="#" onclick="goLedgerFromBld();return false" style="color:var(--navy);font-weight:700;">出納帳を開く ›</a></div>
           <div class="pay-year-nav">
@@ -811,7 +814,11 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
         </div>
         <div class="fg">
           <div class="fr"><label>担当者名（法人の場合）</label><input id="lb-owner-contact"/></div>
+          <div class="fr"><label>担当者 ふりがな</label><input id="lb-owner-contact-kana"/></div>
+        </div>
+        <div class="fg">
           <div class="fr"><label>担当者電話番号</label><input id="lb-owner-contact-tel"/></div>
+          <div class="fr"></div>
         </div>
       </div>
       <div class="fs" id="lb-sec-contract">
@@ -1793,8 +1800,8 @@ window.openBldModal=function(id=null){
   utilState.b=newUtil();renderUtil('b');renewals.b=[];renderRenewals('b');
   document.getElementById('bld-modal-title').textContent=id?'ビルを編集':'ビルを追加';
   const setV=(e,v)=>{const el=document.getElementById(e);if(el)el.value=(v===0?'0':(v||''));};
-  ['b-name','b-addr','b-struct','b-built','b-owner','b-owner-kana','b-owner-tel','b-owner-contact','b-owner-contact-tel','b-owner-mail','b-owner-addr','b-owner-bank',
-   'b-start','b-end','b-fee','b-scope','b-notice','b-remit','b-invoice-freq','b-invoice-due','b-memo','b-staff'].forEach(x=>setV(x,''));
+  ['b-name','b-addr','b-struct','b-built','b-owner','b-owner-kana','b-owner-tel','b-owner-contact','b-owner-contact-kana','b-owner-contact-tel','b-owner-mail','b-owner-addr','b-owner-bank',
+   'b-start','b-end','b-fee','b-scope','b-notice','b-remit','b-invoice-freq','b-invoice-due','b-staff'].forEach(x=>setV(x,''));
   setV('b-fee-tax','');setV('b-auto-renew','');setV('b-owner-type','個人');setV('b-cashflow','');setV('b-mgmt','consign');toggleMgmt('b');fillCo('b-company','');
   document.getElementById('b-days-display').innerHTML='';
   toggleOwnerType();toggleCashflow();renderEquipBlocks();renderBldImgList();
@@ -1804,12 +1811,12 @@ window.openBldModal=function(id=null){
     const b=blds.find(x=>x.id===id);if(!b)return;
     setV('b-name',b.name);setV('b-addr',b.addr);setV('b-staff',b.staff);setV('b-struct',b.struct);setV('b-built',b.built);
     setV('b-owner-type',b.ownerType||'個人');setV('b-owner',b.owner);setV('b-owner-kana',b.ownerKana);setV('b-owner-tel',b.ownerTel);
-    setV('b-owner-contact',b.ownerContact);setV('b-owner-contact-tel',b.ownerContactTel);
+    setV('b-owner-contact',b.ownerContact);setV('b-owner-contact-kana',b.ownerContactKana);setV('b-owner-contact-tel',b.ownerContactTel);
     setV('b-owner-mail',b.ownerMail);setV('b-owner-addr',b.ownerAddr);setV('b-owner-bank',b.ownerBank);
     setV('b-start',b.start);setV('b-end',b.end);setV('b-fee',b.fee);setV('b-fee-tax',b.feeTax);
     setV('b-scope',b.scope);setV('b-auto-renew',b.autoRenew);setV('b-notice',b.notice);
     setV('b-cashflow',b.cashflow);setV('b-remit',b.remit);setV('b-invoice-freq',b.invoiceFreq);setV('b-invoice-due',b.invoiceDue);
-    setV('b-memo',b.memo);setV('b-mgmt',b.mgmtType||'consign');toggleMgmt('b');fillCo('b-company',coOf(b));
+    setV('b-mgmt',b.mgmtType||'consign');toggleMgmt('b');fillCo('b-company',coOf(b));
     equipBlocks=b.equip?JSON.parse(JSON.stringify(b.equip)):[];
     feePayments=b.feePayments?JSON.parse(JSON.stringify(b.feePayments)):{};
     currentBldPhotos=b.photos?JSON.parse(JSON.stringify(b.photos)):[];
@@ -1832,7 +1839,7 @@ let editBldVer=null;
 const verOf=o=>{const t=o&&o.updatedAt;return t&&t.seconds!=null?t.seconds+'.'+t.nanoseconds:'';};
 const _openBldV=window.openBldModal;
 window.openBldModal=function(id=null){_openBldV(id);editBldVer=id?verOf(blds.find(x=>x.id===id)):null;const b=id?blds.find(x=>x.id===id):null,sv=(i,v)=>{document.getElementById(i).value=v||'';};sv('b-consign-status',b&&b.consignStatus);sv('b-ended-date',b&&b.endedDate);sv('b-ended-note',b&&b.endedNote);sv('b-kumiai-name',b&&b.kumiaiName);sv('b-kumiai-tel',b&&b.kumiaiTel);
-  sv('b-staff-kana',b&&b.staffKana);sv('b-kumiai-fee',b&&b.kumiaiFee);sv('b-kumiai-repair',b&&b.kumiaiRepair);sv('b-kumiai-pay',b&&b.kumiaiPay);sv('b-tax-agent',b&&b.taxAgent);kumiaiRecalc();
+  sv('b-kumiai-fee',b&&b.kumiaiFee);sv('b-kumiai-repair',b&&b.kumiaiRepair);sv('b-kumiai-pay',b&&b.kumiaiPay);sv('b-tax-agent',b&&b.taxAgent);kumiaiRecalc();
   const sibs=b?blds.filter(x=>x.id===b.id||(x.mgmtType!=='own'&&b.mgmtType!=='own'&&b.owner&&coOf(x)===coOf(b)&&ownerNorm(x.owner)===ownerNorm(b.owner))):[];
   psLoad('b',b?ownerSettings({blds:sibs.length?sibs:[b]}):{});toggleCashflow();};
 window.closeBldModal=function(){document.getElementById('bld-modal').classList.remove('open');};
@@ -2028,10 +2035,10 @@ window.saveBld=async function(){if(editBldId&&verOf(blds.find(x=>x.id===editBldI
   if(!name){alert('ビル名は必須です');return;}
   showLoading(true);
   const g=id=>document.getElementById(id).value.trim();
-  const obj={name,addr:g('b-addr'),staff:g('b-staff'),staffKana:g('b-staff-kana'),struct:g('b-struct'),built:g('b-built'),
+  const obj={name,addr:g('b-addr'),staff:g('b-staff'),struct:g('b-struct'),built:g('b-built'),
     ownerType:document.getElementById('b-owner-type').value,
     owner:g('b-owner'),ownerKana:g('b-owner-kana'),ownerTel:g('b-owner-tel'),
-    ownerContact:g('b-owner-contact'),ownerContactTel:g('b-owner-contact-tel'),
+    ownerContact:g('b-owner-contact'),ownerContactKana:g('b-owner-contact-kana'),ownerContactTel:g('b-owner-contact-tel'),
     ownerMail:g('b-owner-mail'),ownerAddr:g('b-owner-addr'),
     start:g('b-start'),end:g('b-end'),
     scope:g('b-scope'),autoRenew:document.getElementById('b-auto-renew').value,notice:g('b-notice'),
@@ -2042,7 +2049,7 @@ window.saveBld=async function(){if(editBldId&&verOf(blds.find(x=>x.id===editBldI
     consignStatus:document.getElementById('b-consign-status').value,endedDate:g('b-ended-date'),endedNote:g('b-ended-note'),kumiaiName:g('b-kumiai-name'),kumiaiTel:g('b-kumiai-tel'),utilities:getUtil('b'),renewals:cleanRenewals('b'),company:document.getElementById('b-company').value,mgmtType:document.getElementById('b-mgmt').value,linkedLodgingId:document.getElementById('b-linked-lodging').value||null,
     photos:currentBldPhotos,
     linkedPropertyId:document.getElementById('b-linked-property').value||null,
-    memo:g('b-memo'),updatedAt:serverTimestamp()};
+    updatedAt:serverTimestamp()};
   try{
     Object.assign(obj,psRead('b'),kumiaiRead());
     if(editBldId){await updateDoc(doc(db,'managed_buildings',editBldId),obj);await syncUnitCo(editBldId,obj.company);await psPropagate(editBldId,obj);}
@@ -2282,7 +2289,7 @@ window.render=function(){
           '<div class="kn-grid">'+
             '<div class="kn-row"><span class="kn-lbl">構造</span><span class="kn-val">'+esc(b.struct||'—')+'</span></div>'+
             '<div class="kn-row"><span class="kn-lbl">築年月</span><span class="kn-val">'+esc(b.built||'—')+'</span></div>'+
-            '<div class="kn-row"><span class="kn-lbl">自社担当者</span><span class="kn-val">'+esc(b.staff||'—')+(b.staffKana?'（'+esc(b.staffKana)+'）':'')+'</span></div>'+
+            '<div class="kn-row"><span class="kn-lbl">自社担当者</span><span class="kn-val">'+esc(b.staff||'—')+'</span></div>'+
             '<div class="kn-row"><span class="kn-lbl">納税管理人委託</span><span class="kn-val">'+esc(b.taxAgent||'—')+'</span></div>'+
           '</div>'+
         '</div>'+
@@ -2295,7 +2302,7 @@ window.render=function(){
             '<div class="kn-row full"><span class="kn-lbl">住所</span><span class="kn-val">'+esc(b.ownerAddr||'—')+'</span></div>'+
             '<div class="kn-row"><span class="kn-lbl">電話</span><span class="kn-val">'+esc(b.ownerTel||'—')+'</span></div>'+
             '<div class="kn-row"><span class="kn-lbl">メール</span><span class="kn-val">'+esc(b.ownerMail||'—')+'</span></div>'+
-            (b.ownerType==='法人'?'<div class="kn-row full" style="border-top:1px dashed #E3E7F0;padding-top:4px;margin-top:2px;"><span class="kn-lbl">担当者</span><span class="kn-val">'+esc(b.ownerContact||'—')+(b.ownerContactTel?'／'+esc(b.ownerContactTel):'')+'</span></div>':'')+
+            (b.ownerType==='法人'?'<div class="kn-row full" style="border-top:1px dashed #E3E7F0;padding-top:4px;margin-top:2px;"><span class="kn-lbl">担当者</span><span class="kn-val">'+esc(b.ownerContact||'—')+(b.ownerContactKana?'（'+esc(b.ownerContactKana)+'）':'')+(b.ownerContactTel?'／'+esc(b.ownerContactTel):'')+'</span></div>':'')+
             '<div class="kn-row full"><span class="kn-lbl">振込先</span><span class="kn-val">'+esc(b.ownerBank||'—')+bankHistHtml(b)+'</span></div>'+
           '</div>'+
         '</div>'+
@@ -2445,7 +2452,7 @@ const setVal=(e,v)=>{const el=document.getElementById(e);if(el)el.value=(v===0?'
 let openL=new Set(),editLBId=null,editLUId=null,luParent=null,editLBVer=null,editLUVer=null;
 let lPhotos=[],lFeePay={},lFeeYear=new Date().getFullYear();
 const repairsL={lb:[],lu:[]},logsL={lu:[],lbh:[],luh:[],lbc:[]};
-const LBF=[['lb-name','name'],['lb-addr','addr'],['lb-staff','staff'],['lb-struct','struct'],['lb-built','built'],['lb-mgmt','mgmtType'],['lb-owner-type','ownerType'],['lb-owner','owner'],['lb-owner-kana','ownerKana'],['lb-owner-addr','ownerAddr'],['lb-owner-tel','ownerTel'],['lb-owner-mail','ownerMail'],['lb-owner-contact','ownerContact'],['lb-owner-contact-tel','ownerContactTel'],['lb-owner-bank','ownerBank'],['lb-start','start'],['lb-end','end'],['lb-scope','scope'],['lb-auto-renew','autoRenew'],['lb-notice','notice'],['lb-consign-status','consignStatus'],['lb-ended-date','endedDate'],['lb-ended-note','endedNote'],['lb-fee','fee'],['lb-fee-tax','feeTax'],['lb-settle','settle'],['lb-lic-scope','licScope'],['lb-lic-type','licType'],['lb-lic-no','licNo'],['lb-lic-office','licOffice'],['lb-lic-date','licDate'],['lb-lic-exp','licExp'],['lb-lic-note','licNote'],['lb-clean-name','cleanName'],['lb-clean-tel','cleanTel'],['lb-clean-fee','cleanFee'],['lb-memo','memo']];
+const LBF=[['lb-name','name'],['lb-addr','addr'],['lb-staff','staff'],['lb-struct','struct'],['lb-built','built'],['lb-mgmt','mgmtType'],['lb-owner-type','ownerType'],['lb-owner','owner'],['lb-owner-kana','ownerKana'],['lb-owner-addr','ownerAddr'],['lb-owner-tel','ownerTel'],['lb-owner-mail','ownerMail'],['lb-owner-contact','ownerContact'],['lb-owner-contact-kana','ownerContactKana'],['lb-owner-contact-tel','ownerContactTel'],['lb-owner-bank','ownerBank'],['lb-start','start'],['lb-end','end'],['lb-scope','scope'],['lb-auto-renew','autoRenew'],['lb-notice','notice'],['lb-consign-status','consignStatus'],['lb-ended-date','endedDate'],['lb-ended-note','endedNote'],['lb-fee','fee'],['lb-fee-tax','feeTax'],['lb-settle','settle'],['lb-lic-scope','licScope'],['lb-lic-type','licType'],['lb-lic-no','licNo'],['lb-lic-office','licOffice'],['lb-lic-date','licDate'],['lb-lic-exp','licExp'],['lb-lic-note','licNote'],['lb-clean-name','cleanName'],['lb-clean-tel','cleanTel'],['lb-clean-fee','cleanFee'],['lb-memo','memo']];
 const LUF=[['lu-name','name'],['lu-status','opStatus'],['lu-size','size'],['lu-cap','capacity'],['lu-use','use'],['lu-lic-type','licType'],['lu-lic-no','licNo'],['lu-lic-office','licOffice'],['lu-lic-date','licDate'],['lu-lic-exp','licExp'],['lu-lic-note','licNote'],['lu-memo','memo']];
 
 window.switchView=function(v){
@@ -2772,7 +2779,7 @@ function renderLodge(){
           '<div class="kn-row"><span class="kn-lbl">電話</span><span class="kn-val">'+esc(b.ownerTel||'—')+'</span></div>'+
           '<div class="kn-row full"><span class="kn-lbl">住所</span><span class="kn-val">'+esc(b.ownerAddr||'—')+'</span></div>'+
           '<div class="kn-row"><span class="kn-lbl">メール</span><span class="kn-val">'+esc(b.ownerMail||'—')+'</span></div>'+
-          ((b.ownerContact||b.ownerContactTel)?'<div class="kn-row"><span class="kn-lbl">担当者</span><span class="kn-val">'+esc(b.ownerContact||'—')+(b.ownerContactTel?'／'+esc(b.ownerContactTel):'')+'</span></div>':'')+
+          ((b.ownerContact||b.ownerContactTel)?'<div class="kn-row"><span class="kn-lbl">担当者</span><span class="kn-val">'+esc(b.ownerContact||'—')+(b.ownerContactKana?'（'+esc(b.ownerContactKana)+'）':'')+(b.ownerContactTel?'／'+esc(b.ownerContactTel):'')+'</span></div>':'')+
           '<div class="kn-row full"><span class="kn-lbl">振込先</span><span class="kn-val">'+esc(b.ownerBank||'—')+'</span></div>'+
         '</div></div>'+
         '<div class="osec"><div class="osec-t">管理運営契約</div><div class="kn-grid">'+
@@ -3958,7 +3965,7 @@ function bldParts(b){
   const row=(l,v)=>'<div class="kn-row"><span class="kn-lbl">'+l+'</span><span class="kn-val">'+esc(v||'—')+'</span></div>';
   const e=isEnded(b)?'<div class="osec" style="border-color:#C62828;background:#FFF5F5;"><div class="osec-t" style="color:#C62828;">管理委託は終了しています</div><div class="kn-grid">'+row('終了日',b.endedDate)+row('理由・備考',b.endedNote)+'</div></div>':'';
   const k=(b.kumiaiName||b.kumiaiTel||b.kumiaiFee!=null||b.kumiaiRepair!=null||b.kumiaiPay)?'<div class="osec"><div class="osec-t">管理組合・管理費等</div><div class="kn-grid">'+row('管理組合名',b.kumiaiName)+row('電話',b.kumiaiTel)+row('月々管理費',b.kumiaiFee!=null?yen(b.kumiaiFee):'')+row('月々修繕費',b.kumiaiRepair!=null?yen(b.kumiaiRepair):'')+row('合計金額',b.kumiaiTotal!=null?yen(b.kumiaiTotal):'')+row('支払い方法',b.kumiaiPay)+'</div></div>':'';
-  const t=(b.staff||b.staffKana||b.taxAgent)?'<div class="osec"><div class="osec-t">担当者・納税管理人</div><div class="kn-grid">'+row('自社の担当者',(b.staff||'')+(b.staffKana?'（'+b.staffKana+'）':''))+row('納税管理人委託',b.taxAgent)+'</div></div>':'';
+  const t=(b.staff||b.taxAgent)?'<div class="osec"><div class="osec-t">担当者・納税管理人</div><div class="kn-grid">'+row('自社の担当者',b.staff||'')+row('納税管理人委託',b.taxAgent)+'</div></div>':'';
   return {e,k,t};
 }
 let applicants=[];
