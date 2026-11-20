@@ -1270,6 +1270,10 @@ body.is-staff button[onclick*="deleteBld"],body.is-staff button[onclick*="delete
 <div class="modal-bg" id="mo-modal"><div class="modal" style="width:360px;"><div class="modal-head"><div><h3>退去・入居者交代</h3><div class="modal-sub" id="mo-sub"></div></div><button class="modal-close" onclick="closeMo()">✕</button></div>
 <div class="modal-body"><div class="fr"><label>退去日</label><input type="date" id="mo-date"/></div></div>
 <div class="modal-foot"><button class="btn" onclick="closeMo()">キャンセル</button><button class="btn btn-gold" onclick="doMoveOut()">退去を確定</button></div></div></div>
+<div class="modal-bg" id="hx-modal"><div class="modal" style="width:760px;"><div class="modal-head"><div><h3>入居・募集履歴の編集</h3><div class="modal-sub" id="hx-sub"></div></div><button class="modal-close" onclick="closeHx()">✕</button></div>
+<div class="modal-body"><div class="fs"><div class="fs-title">過去の入居者</div><button type="button" class="btn btn-sm btn-navy" style="margin-bottom:8px;" onclick="hxAddPast()">＋ 過去の入居者を追加</button><div id="hx-past"></div></div>
+<div class="fs"><div class="fs-title">空室・募集期間</div><div style="font-size:10px;color:var(--sub);margin-bottom:8px;">入居者と入居者のあいだの期間は、退去日・契約開始日から自動で表示されます。ここに同じ開始日で登録すると、募集賃料・媒体・備考がその期間に追記されます。応募の記録は「編集」画面で行います。</div><button type="button" class="btn btn-sm btn-navy" style="margin-bottom:8px;" onclick="hxAddVac()">＋ 募集期間を追加</button><div id="hx-vac"></div></div></div>
+<div class="modal-foot"><button class="btn" onclick="closeHx()">キャンセル</button><button class="btn btn-gold" onclick="saveHx()">保存する</button></div></div></div>
 <div class="lightbox" id="lightbox">
   <button class="lb-close" onclick="closeLB()">✕</button>
   <span class="lb-counter" id="lb-counter"></span>
@@ -2399,7 +2403,7 @@ function unitHtml(u){
     '</div>'+
     '<div class="unit-acts">'+
       '<button class="btn btn-navy btn-sm" onclick="openUnitModal(\''+u.bldId+'\',\''+u.id+'\')">編集</button>'+
-      '<button class="btn btn-sm" onclick="copyUnit(\''+u.id+'\')">コピーして追加</button>'+(u.tenant||u.status==='契約中'||u.status==='解約予告中'?'<button class="btn btn-sm" onclick="moveOutUnit(\''+u.id+'\')">退去・入居者交代</button>':'')+(!u.tenant&&u.status!=='契約中'&&u.status!=='解約予告中'&&(u.pastTenants||[]).length?'<button class="btn btn-sm" onclick="undoMoveOut(\''+u.id+'\')">退去を取り消す</button>':'')+
+      '<button class="btn btn-sm" onclick="copyUnit(\''+u.id+'\')">コピーして追加</button><button class="btn btn-sm" onclick="openHx(\''+u.id+'\')">入居・募集履歴を編集</button>'+(u.tenant||u.status==='契約中'||u.status==='解約予告中'?'<button class="btn btn-sm" onclick="moveOutUnit(\''+u.id+'\')">退去・入居者交代</button>':'')+(!u.tenant&&u.status!=='契約中'&&u.status!=='解約予告中'&&(u.pastTenants||[]).length?'<button class="btn btn-sm" onclick="undoMoveOut(\''+u.id+'\')">退去を取り消す</button>':'')+
       '<button class="btn btn-red btn-sm" onclick="deleteUnit(\''+u.id+'\')">削除</button>'+
     '</div>'+
   '</div>';
@@ -4072,7 +4076,7 @@ function tenancyBody(p,u,from,to){
   const rf=reformIn(u,from,to).map(reformLine).join('');
   return '<div class="kn-grid">'+r('契約者',esc((p.tenant||'')+(p.tenantKana?'（'+p.tenantKana+'）':'')+(p.tenantType==='法人'?'　法人':'')))+r('電話',esc(p.tenantTel))+r('国籍',esc(p.nationality))+r('代表取締役',esc((p.tenantRep||'')+(p.tenantRepKana?'（'+p.tenantRepKana+'）':'')+(p.tenantRepTel?'／'+p.tenantRepTel:'')))+r('担当者',esc((p.tenantContact||'')+(p.tenantContactTel?'／'+p.tenantContactTel:'')))+r('関係者',persLines(p.persons))+
     r('初回契約',esc((p.start||'—')+' 〜 '+(p.end||'—')))+r('更新',ren)+r('契約種別',esc(p.contractType))+r('賃料・共益費',yen(p.rent)+' ／ '+yen(p.kanri))+r('敷金',(p.shikikin!=null?yen(p.shikikin):'')+(p.shikikinNote?'（'+esc(p.shikikinNote)+'）':''))+r('礼金',p.reikin!=null?yen(p.reikin):'')+
-    r('保証会社',esc((p.hoshoName||'')+(p.hoshoTel?'／'+p.hoshoTel:'')+(p.hoshoCycle?'　'+p.hoshoCycle:'')))+r('火災保険',esc((p.kasaiStatus||'')+(p.kasaiCompany?'／'+p.kasaiCompany:'')+((p.kasaiStart||p.kasaiEnd)?'　'+(p.kasaiStart||'—')+'〜'+(p.kasaiEnd||'—'):'')))+r('支払方法',p.payMethod?esc(pmLabel(p.payMethod)):'')+r('鍵',esc((p.keyReceived!=null||p.keyHanded!=null)?'預かり '+(p.keyReceived??'—')+'本／引渡し '+(p.keyHanded??'—')+'本':'')+(p.keyNote?' '+p.keyNote:''))+'</div>'+
+    r('保証会社',esc((p.hoshoName||'')+(p.hoshoTel?'／'+p.hoshoTel:'')+(p.hoshoCycle?'　'+p.hoshoCycle:'')))+r('火災保険',esc((p.kasaiStatus||'')+(p.kasaiCompany?'／'+p.kasaiCompany:'')+((p.kasaiStart||p.kasaiEnd)?'　'+(p.kasaiStart||'—')+'〜'+(p.kasaiEnd||'—'):'')))+r('支払方法',p.payMethod?esc(pmLabel(p.payMethod)):'')+r('備考',esc(p.memo))+r('鍵',esc((p.keyReceived!=null||p.keyHanded!=null)?'預かり '+(p.keyReceived??'—')+'本／引渡し '+(p.keyHanded??'—')+'本':'')+(p.keyNote?' '+p.keyNote:''))+'</div>'+
     (rh?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">賃料改定履歴：'+rh+'</div>':'')+
     (rf?secT('リフォーム・修繕')+rf:'')+(cl?secT('賃借人とのやり取り')+cl:'');
 }
@@ -4095,14 +4099,15 @@ function unitTimeline(u){
     if(nx)vl.push({from:p.moveOut,to:(nx.start&&nx.start>=p.moveOut)?nx.start:'',unknown:!nx.start});
     else vl.push({from:p.moveOut,to:'',now:true});
   });
-  (u.vacancyLog||[]).forEach(v=>{if(v.from&&!vl.some(x=>x.from===v.from))vl.push({from:v.from,to:v.to||''});});
+  (u.vacancyLog||[]).forEach(v=>{if(!v.from)return;const ex=vl.find(x=>x.from===v.from),ad={vrent:v.rent,vmedia:v.media,vnote:v.note};if(ex)Object.assign(ex,ad);else vl.push({from:v.from,to:v.to||'',...ad});});
   if(u.vacantSince&&!cur&&!vl.some(x=>x.from===u.vacantSince))vl.push({from:u.vacantSince,to:'',now:true});
   vl.forEach(v=>{
     const aps=ap.filter(a=>inRange(a.date,v.from,v.to));aps.forEach(a=>used.add(a));
     const rh=(u.rentHistory||[]).filter(x=>inRange(x.date,v.from,v.to)).map(x=>esc(x.date||'—')+' '+yen(x.rent)+(x.note?'（'+esc(x.note)+'）':'')).join('　→　');
     const rf=reformIn(u,v.from,v.to).map(reformLine).join('');
     const n=v.now?Math.max(0,-(daysUntil(v.from)||0)):(v.to?Math.round((new Date(v.to)-new Date(v.from))/86400000):null);
-    const body=(rf?secT('原状回復・修繕')+rf:'')+vacUtilIn(u,v.from,v.to)+(rh?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">募集賃料の変更：'+rh+'</div>':'')+(aps.length?secT('応募（'+aps.length+'件）')+aps.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(apLine).join(''):'');
+    const vi=[['募集賃料',v.vrent!=null&&v.vrent!==''?yen(v.vrent):''],['募集媒体',esc(v.vmedia||'')],['備考',esc(v.vnote||'')]].filter(x=>x[1]).map(x=>'<div class="kn-row"><span class="kn-lbl">'+x[0]+'</span><span class="kn-val">'+x[1]+'</span></div>').join('');
+    const body=vi+(rf?secT('原状回復・修繕')+rf:'')+vacUtilIn(u,v.from,v.to)+(rh?'<div style="font-size:10px;color:var(--sub);margin-top:6px;">募集賃料の変更：'+rh+'</div>':'')+(aps.length?secT('応募（'+aps.length+'件）')+aps.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(apLine).join(''):'');
     items.push({key:v.from||'',kind:'vac',title:'空室・募集期間'+(aps.length?'（応募 '+aps.length+'件）':''),sub:esc(v.from||'—')+' 〜 '+(v.now?'（現在 '+n+'日）':(v.to?esc(v.to)+'（'+n+'日）':(v.unknown?'入居日未入力':''))),body:body||'<div style="font-size:10.5px;color:var(--sub);">記録なし</div>'});
   });
   if(cur)items.push({key:u.start||'9999',kind:'cur',title:'現在の入居者：'+esc(u.tenant||'（契約者名なし）'),sub:esc(u.start||'—')+' 〜 '+esc(lastEnd(u)||'—'),body:tenancyBody(u,u,u.start,'')});
@@ -4111,6 +4116,43 @@ function unitTimeline(u){
   items.sort((a,b)=>String(a.key).localeCompare(String(b.key)));
   return '<div class="unit-sub" style="grid-column:1/-1;"><div class="unit-sub-t">入居・募集の履歴</div>'+items.map((x,i)=>tlItem(x.kind,x.title,x.sub,x.body,i===items.length-1)).join('')+'</div>';
 }
+
+// ===== 入居・募集履歴の追加・編集（過去の入居者／空室募集期間） =====
+let hxId=null,hxVer=null,hxPast=[],hxVac=[];
+const HX_F=[['tenantType','契約者区分','sel'],['tenant','契約者名','text'],['tenantKana','フリガナ','text'],['tenantTel','電話番号','text'],['nationality','国籍','text'],['tenantRep','代表取締役（法人）','text'],['tenantRepTel','代表取締役 電話','text'],['contractType','契約種別','text'],['start','契約開始日','date'],['end','初回契約終了日','date'],['moveOut','退去日','date'],['rent','賃料（円）','number'],['kanri','管理費・共益費（円）','number'],['shikikin','敷金（円）','number'],['reikin','礼金（円）','number'],['hoshoName','保証会社','text'],['hoshoTel','保証会社 電話','text'],['kasaiCompany','火災保険会社','text'],['kasaiStart','火災保険 開始','date'],['kasaiEnd','火災保険 終了','date'],['memo','備考','text']];
+const HX_NUM=['rent','kanri','shikikin','reikin'];
+window.openHx=function(id){const u=units.find(x=>x.id===id);if(!u)return;hxId=id;hxVer=verOf(u);hxPast=JSON.parse(JSON.stringify(u.pastTenants||[]));hxVac=JSON.parse(JSON.stringify(u.vacancyLog||[]));document.getElementById('hx-sub').textContent=(u.name||'')+(u.tenant?'／現在：'+u.tenant:'');renderHx();document.getElementById('hx-modal').classList.add('open');};
+window.closeHx=function(){document.getElementById('hx-modal').classList.remove('open');};
+window.hxAddPast=function(){hxPast.push({tenantType:'個人',tenant:'',start:'',moveOut:'',renewals:[],archivedAt:new Date().toISOString()});renderHx(true);};
+window.hxDelPast=function(i){if(!confirm('この過去の入居者の記録を削除します。よろしいですか？'))return;hxPast.splice(i,1);renderHx();};
+window.hxSetPast=function(i,f,v){if(hxPast[i])hxPast[i][f]=v;};
+window.hxAddRen=function(i){hxPast[i].renewals=hxPast[i].renewals||[];hxPast[i].renewals.push({start:'',end:'',note:''});renderHx(true);};
+window.hxDelRen=function(i,j){hxPast[i].renewals.splice(j,1);renderHx(true);};
+window.hxSetRen=function(i,j,f,v){hxPast[i].renewals[j][f]=v;};
+window.hxAddVac=function(){hxVac.push({from:'',to:'',rent:'',media:'',note:''});renderHx();};
+window.hxDelVac=function(i){hxVac.splice(i,1);renderHx();};
+window.hxSetVac=function(i,f,v){if(hxVac[i])hxVac[i][f]=v;};
+function renderHx(keepOpen){
+  const old=[...document.querySelectorAll('#hx-past details')].map(d=>d.open);
+  const inp=(fn,i,f,t,v,ex)=>'<input type="'+t+'" value="'+esc(v==null?'':v)+'" oninput="'+fn+'('+i+',\''+f+'\',this.value)"'+(ex||'')+'/>';
+  document.getElementById('hx-past').innerHTML=hxPast.map((p,i)=>{
+    const f=HX_F.map(([k,l,t])=>'<div class="fr"><label>'+l+'</label>'+(t==='sel'?'<select onchange="hxSetPast('+i+',\''+k+'\',this.value)">'+['個人','法人'].map(o=>'<option'+((p[k]||'個人')===o?' selected':'')+'>'+o+'</option>').join('')+'</select>':inp('hxSetPast',i,k,t,p[k]))+'</div>').join('');
+    const rn=(p.renewals||[]).map((r,j)=>'<div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:4px;"><div class="fr" style="flex:1;margin:0;"><label>更新 開始</label>'+inp('hxSetRen_'+i,j,'start','date',r.start)+'</div><div class="fr" style="flex:1;margin:0;"><label>更新 終了</label>'+inp('hxSetRen_'+i,j,'end','date',r.end)+'</div><button type="button" class="btn btn-sm btn-red" onclick="hxDelRen('+i+','+j+')">削除</button></div>').join('').replace(/hxSetRen_(\d+)\((\d+),/g,'hxSetRen($1,$2,');
+    const open=keepOpen?old[i]!==false:(i===hxPast.length-1&&!p.tenant)||old[i];
+    return '<details'+(open?' open':'')+' style="margin:5px 0;border:1px solid #E3E7F0;border-left:4px solid var(--navy);border-radius:5px;padding:5px 9px;background:#fff;"><summary style="cursor:pointer;font-size:11.5px;font-weight:700;color:var(--navy);">'+esc(p.tenant||'（契約者名なし）')+'<span style="font-weight:400;color:var(--sub);">　'+esc(p.start||'—')+' 〜 '+esc(p.moveOut||'—')+'</span></summary><div style="margin-top:8px;"><div class="fg">'+f+'</div><div style="font-size:10px;font-weight:700;color:var(--teal);margin:6px 0;">契約更新</div>'+rn+'<button type="button" class="btn btn-sm" onclick="hxAddRen('+i+')">＋ 更新を追加</button><div style="text-align:right;margin-top:8px;"><button type="button" class="btn btn-sm btn-red" onclick="hxDelPast('+i+')">この入居者を削除</button></div></div></details>';
+  }).join('')||'<div style="font-size:11px;color:var(--sub);">記録なし</div>';
+  document.getElementById('hx-vac').innerHTML=hxVac.map((v,i)=>'<div class="area-block" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px;margin-bottom:6px;"><div class="fg"><div class="fr"><label>空室開始日（退去日）</label>'+inp('hxSetVac',i,'from','date',v.from)+'</div><div class="fr"><label>入居日（空室終了日）※入居前は空欄</label>'+inp('hxSetVac',i,'to','date',v.to)+'</div></div><div class="fg"><div class="fr"><label>募集賃料（円）</label>'+inp('hxSetVac',i,'rent','number',v.rent)+'</div><div class="fr"><label>募集媒体</label>'+inp('hxSetVac',i,'media','text',v.media)+'</div></div><div style="display:flex;gap:8px;align-items:flex-end;"><div class="fr" style="flex:1;margin:0;"><label>備考</label>'+inp('hxSetVac',i,'note','text',v.note)+'</div><button type="button" class="btn btn-sm btn-red" onclick="hxDelVac('+i+')">削除</button></div></div>').join('')||'<div style="font-size:11px;color:var(--sub);">記録なし</div>';
+}
+window.saveHx=async function(){
+  const u=units.find(x=>x.id===hxId);if(!u)return;
+  if(verOf(u)!==hxVer&&!confirm('開いたあとに、他の人がこの区分を更新しています。\n\nOK＝上書きして保存 ／ キャンセル＝保存しない'))return;
+  const past=hxPast.filter(p=>p.tenant||p.start||p.moveOut).map(p=>{const o={...p};HX_NUM.forEach(k=>{if(o[k]===''||o[k]==null)delete o[k];else o[k]=Number(o[k]);});o.renewals=(o.renewals||[]).filter(r=>r.start||r.end);return o;}).sort((a,b)=>(a.start||a.moveOut||'').localeCompare(b.start||b.moveOut||''));
+  const vac=hxVac.filter(v=>v.from).map(v=>{const o={from:v.from,to:v.to||''};if(v.rent!==''&&v.rent!=null)o.rent=Number(v.rent);if(v.media)o.media=v.media;if(v.note)o.note=v.note;return o;});
+  showLoading(true);
+  try{await updateDoc(doc(db,'managed_units',hxId),{pastTenants:past,vacancyLog:vac,updatedAt:serverTimestamp()});openBlds.add(u.bldId);closeHx();}
+  catch(e){alert('保存に失敗しました: '+e.message);console.error(e);}
+  showLoading(false);
+};
 const unitExtraHtml=unitTimeline;
 
 // ===== 編集画面の右側ガイド（目次・現在位置） =====
