@@ -992,9 +992,8 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
         </div>
         <div class="fr" style="margin-top:8px;"><label>摘要</label><input id="lgm-memo"/></div>
         <div class="fs-title" style="margin-top:12px;">仕訳（弥生会計の出力に使います）</div>
-        <div class="fg"><div class="fr"><label>入出金口座（勘定科目）</label><input id="lgm-acct" list="dl-acct" placeholder="普通預金"/></div><div class="fr"><label>入出金口座の補助科目</label><input id="lgm-acctsub"/></div></div>
+        <div class="fr"><label>入出金口座（銀行テンプレから選択）</label><select id="lgm-acct"></select></div>
         <div class="fg"><div class="fr"><label>相手の勘定科目</label><input id="lgm-cp" list="dl-cp" oninput="lgCpTouch()"/></div><div class="fr"><label>相手の補助科目（空欄＝預かり金は建物名）</label><input id="lgm-cpsub"/></div></div>
-        <datalist id="dl-acct"><option value="普通預金"><option value="当座預金"><option value="現金"><option value="小口現金"></datalist>
         <datalist id="dl-cp"><option value="賃貸管理物件預かり金"><option value="売上高"><option value="支払手数料"><option value="修繕費"><option value="雑収入"><option value="仮払金"><option value="仮受金"></datalist>
       </div>
     </div>
@@ -1142,7 +1141,7 @@ body{font-family:'Hiragino Kaku Gothic Pro','Yu Gothic','Meiryo',sans-serif;back
       <div class="fs">
         <div class="fs-title">1. Excelの行をコピーして貼り付け</div>
         <div class="fr" id="lim-bld-wrap" style="margin-bottom:8px;"><label>取り込み先の建物</label><select id="lim-bld" onchange="limBldChange()"></select></div>
-        <div class="fg" style="margin-bottom:8px;"><div class="fr"><label>入出金口座（勘定科目）</label><input id="lim-acct" list="dl-acct" placeholder="普通預金"/></div><div class="fr"><label>相手の勘定科目（空欄＝種別ごとの標準）</label><input id="lim-cp" list="dl-cp"/></div></div>
+        <div class="fg" style="margin-bottom:8px;"><div class="fr"><label>入出金口座（銀行テンプレから選択）</label><select id="lim-acct"></select></div><div class="fr"><label>相手の勘定科目（空欄＝種別ごとの標準）</label><input id="lim-cp" list="dl-cp"/></div></div>
         <textarea id="lim-text" style="width:100%;height:130px;font-size:12px;padding:8px;border:1.5px solid #ddd;border-radius:4px;font-family:inherit;" placeholder="日付・入金・出金・自社収益・残高・摘要の列を含む行を、そのままコピーして貼り付けてください"></textarea>
         <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px;">
           <div class="fr"><label>日付の列</label><input id="lim-c-date" type="number" value="1" min="1"/></div>
@@ -4404,7 +4403,7 @@ function lgFillUnitSel(sel){
   document.getElementById('lgm-unit').innerHTML='<option value="">（区分なし・全体）</option>'+us.map(u=>'<option value="'+u.id+'">'+esc(u.name||'')+'</option>').join('');
   document.getElementById('lgm-unit').value=sel||'';
 }
-window.lgBldChange=function(){lgFillUnitSel('');};
+window.lgBldChange=function(){lgFillUnitSel('');lgAcctFill(lgLast);};
 window.lgCatChange=function(){
   const c=document.getElementById('lgm-cat').value;
   document.getElementById('lgm-hint').textContent=LGHINT[LGDIR[c]]||'';
@@ -4426,14 +4425,26 @@ window.openLgEntry=function(id){
   document.getElementById('lgm-warn').style.display=(e&&e.stlId)?'':'none';
   document.getElementById('lgm-del').style.display=e?'':'none';
   document.getElementById('lgm-again').style.display=e?'none':'';
-  setVal('lgm-acct',(e&&e.acct)||lgLastAcct);setVal('lgm-acctsub',e?(e.acctSub||''):'');setVal('lgm-cpsub',e?(e.cpSub||''):'');
+  lgAcctKeep=e&&e.acct?{acct:e.acct,sub:e.acctSub||''}:null;lgAcctFill(e&&e.acct?{acct:e.acct,sub:e.acctSub||''}:lgLast);setVal('lgm-cpsub',e?(e.cpSub||''):'');
   lgCpDirty=!!(e&&e.cpAcct);setVal('lgm-cp',(e&&e.cpAcct)||lgCpDef(e?e.cat:'rent'));
   lgCatChange();
   document.getElementById('lgm-modal').classList.add('open');
 };
 window.closeLgEntry=function(){document.getElementById('lgm-modal').classList.remove('open');lgEditId=null;};
 const CP_POOL='賃貸管理物件預かり金';
-let lgCpDirty=false,lgLastAcct='普通預金';
+let lgCpDirty=false,lgLast=null,lgAcctKeep=null;
+// 入出金口座は、銀行テンプレ（managed_company/{会社}.bankTemplates）に登録したものだけを表示
+function acctSelFill(selId,co,cur){
+  const sel=document.getElementById(selId),L=tplList(co);
+  let h=L.length?L.map((t,i)=>'<option value="'+i+'">'+esc(t.name)+'（'+esc(t.acct||'普通預金')+(t.sub?'・'+esc(t.sub):'')+'）</option>').join(''):'<option value="">銀行テンプレ未登録（普通預金で保存）</option>';
+  const k=cur?L.findIndex(t=>(t.acct||'普通預金')===(cur.acct||'')&&(t.sub||'')===(cur.sub||'')):-1;
+  const stray=cur&&cur.acct&&k<0&&sel.id==='lgm-acct'&&lgAcctKeep&&lgAcctKeep.acct===cur.acct&&lgAcctKeep.sub===(cur.sub||'');
+  if(stray)h='<option value="-">'+esc(cur.acct+(cur.sub?'・'+cur.sub:''))+'（テンプレ未登録・そのまま）</option>'+h;
+  sel.innerHTML=h;sel.value=stray?'-':(k>=0?String(k):(L.length?'0':''));
+}
+const acctPick=(selId,co,keep)=>{const v=document.getElementById(selId).value;if(v==='-'&&keep)return {acct:keep.acct,acctSub:keep.sub||''};const t=tplList(co)[v];return t?{acct:t.acct||'普通預金',acctSub:t.sub||''}:{acct:'普通預金',acctSub:''};};
+function lgAcctFill(cur){const b=findBld(dv('lgm-bld'));acctSelFill('lgm-acct',b?coOf(b):'',cur);}
+function limAcctFill(){const b=findBld(dv('lim-bld'));acctSelFill('lim-acct',b?coOf(b):'',null);}
 window.lgCpTouch=function(){lgCpDirty=true;};
 const lgCpDef=c=>LGDIR[c]==='fee'?'売上高':(c==='xfer_fee'?'支払手数料':CP_POOL);
 // 月別推移（管理費・賃料）：想定額と入金額
@@ -4459,8 +4470,8 @@ window.saveLgEntry=async function(again){
   const un=unitId?(unitsOfAny(b.id).find(u=>u.id===unitId)||{}).name||'':'';
   const month=(cat==='rent'||cat==='kanri'||cat==='mgmt_fee')?(document.getElementById('lgm-month').value||''):'';
   const me=(auth.currentUser||{}).email||'';
-  const obj={bldId:b.id,company:coOf(b),date,unitId,unitName:un,cat,month,inAmt,outAmt,feeAmt,memo:document.getElementById('lgm-memo').value.trim(),acct:dv('lgm-acct')||'普通預金',acctSub:dv('lgm-acctsub'),cpAcct:dv('lgm-cp')||lgCpDef(cat),cpSub:dv('lgm-cpsub'),updatedAt:serverTimestamp(),updatedBy:me};
-    lgLastAcct=obj.acct;
+  const obj={bldId:b.id,company:coOf(b),date,unitId,unitName:un,cat,month,inAmt,outAmt,feeAmt,memo:document.getElementById('lgm-memo').value.trim(),...acctPick('lgm-acct',coOf(b),lgAcctKeep),cpAcct:dv('lgm-cp')||lgCpDef(cat),cpSub:dv('lgm-cpsub'),updatedAt:serverTimestamp(),updatedBy:me};
+    lgLast={acct:obj.acct,sub:obj.acctSub||''};
   showLoading(true);
   try{
     if(lgEditId)await updateDoc(doc(db,'managed_ledger',lgEditId),obj);
@@ -4838,11 +4849,11 @@ window.openLgImp=function(){
   document.getElementById('lim-sub').textContent=g.name||'';
   document.getElementById('lim-bld').innerHTML=g.blds.map(x=>'<option value="'+x.id+'">'+esc(x.name||'')+'</option>').join('');
   document.getElementById('lim-bld-wrap').style.display=g.blds.length>1?'':'none';
-  setVal('lim-text','');setVal('lim-acct','普通預金');setVal('lim-cp','');limRows=[];limSheetFirst=null;
+  setVal('lim-text','');setVal('lim-cp','');limRows=[];limSheetFirst=null;limAcctFill();
   document.getElementById('lim-prev-wrap').style.display='none';document.getElementById('lim-go').disabled=true;document.getElementById('lim-msg').textContent='';
   document.getElementById('lim-modal').classList.add('open');
 };
-window.limBldChange=function(){if(limRows.length)parseLgImp();};
+window.limBldChange=function(){limAcctFill();if(limRows.length)parseLgImp();};
 window.closeLgImp=function(){document.getElementById('lim-modal').classList.remove('open');};
 window.parseLgImp=function(){
   const g=curGroup();const b=g?findBld(document.getElementById('lim-bld').value):null;if(!b)return;
@@ -4903,7 +4914,7 @@ window.doLgImp=async function(){
   const docs=[];
   let k=0;
   if(carryOn)docs.push({bldId:b.id,company:co,date:list[0].date,unitId:'',unitName:'',cat:'carry',month:'',inAmt:limSheetFirst>0?limSheetFirst:0,outAmt:limSheetFirst<0?-limSheetFirst:0,feeAmt:0,memo:'繰越残高（取込時）',stlId:null,ord:base+(k++),auto:false,updatedBy:me});
-  list.forEach(r=>docs.push({bldId:b.id,company:co,date:r.date,unitId:r.unitId||'',unitName:unitName(r.unitId),cat:r.cat,month:(r.cat==='rent'||r.cat==='kanri')?(r.month||''):'',inAmt:r.inA,outAmt:r.outA,feeAmt:r.feeA,memo:r.memo,acct:dv('lim-acct')||'普通預金',cpAcct:dv('lim-cp')||lgCpDef(r.cat),stlId:null,ord:base+(k++),updatedBy:me}));
+  list.forEach(r=>docs.push({bldId:b.id,company:co,date:r.date,unitId:r.unitId||'',unitName:unitName(r.unitId),cat:r.cat,month:(r.cat==='rent'||r.cat==='kanri')?(r.month||''):'',inAmt:r.inA,outAmt:r.outA,feeAmt:r.feeA,memo:r.memo,...acctPick('lim-acct',coOf(b),null),cpAcct:dv('lim-cp')||lgCpDef(r.cat),stlId:null,ord:base+(k++),updatedBy:me}));
   showLoading(true);
   try{
     for(let i=0;i<docs.length;i+=400){
